@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.adapter.RepairEntryAdapter
 import com.mobilerepair.shop.databinding.FragmentDashboardBinding
+import com.mobilerepair.shop.utils.UpdateChecker
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -35,6 +36,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         setupRecyclerView()
         setupClickListeners()
         observeData()
+
+        // Check for updates
+        UpdateChecker.checkForUpdates(requireContext())
     }
 
     private fun setupRecyclerView() {
