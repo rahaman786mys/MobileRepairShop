@@ -3252,6 +3252,7 @@ id action_container
 id action_context_bar
 id action_divider
 id action_image
+id action_loginFragment_to_dashboardFragment
 id action_menu_divider
 id action_menu_presenter
 id action_mode_bar
@@ -3306,16 +3307,19 @@ id btnSave
 id btnSaveEntry
 id btnSaveInspection
 id btnSaveQuotation
+id btnSendOtp
 id btnSpareParts
 id btnTakeInspectionPhoto
 id btnTakePartPhoto
 id btnTakePhoto
+id btnVerifyOtp
 id buttonPanel
 id cache_measures
 id callMeasure
 id cancel_button
 id cardCommonFaults
 id cardEntries
+id cardLogout
 id cardNewEntry
 id cardReports
 id cardServiceMen
@@ -3431,8 +3435,10 @@ id etFaultName
 id etFinalAmount
 id etGst
 id etMobile
+id etMobileNumber
 id etName
 id etOnlineAmount
+id etOtp
 id etPartName
 id etPurchasePrice
 id etSearch
@@ -3500,6 +3506,8 @@ id jumpToEnd
 id jumpToStart
 id labeled
 id layout
+id layoutMobileInput
+id layoutOtpInput
 id layoutSplitPayment
 id left
 id leftToRight
@@ -3511,6 +3519,7 @@ id linear
 id listMode
 id list_item
 id locale
+id loginFragment
 id ltr
 id m3_side_sheet
 id marquee
@@ -3634,6 +3643,7 @@ id pooling_container_listener_holder_tag
 id position
 id postLayout
 id pressed
+id progressBar
 id progress_circular
 id progress_horizontal
 id quotationFragment
@@ -3800,9 +3810,11 @@ id tvDetailStatus
 id tvFault
 id tvFaultDetected
 id tvFaultsCount
+id tvOtpSentTo
 id tvPendingCount
 id tvReportCompleted
 id tvReportRevenue
+id tvResendOtp
 id tvServiceMenCount
 id tvStatus
 id tvSummaryCharge
@@ -3974,6 +3986,7 @@ layout fragment_entry
 layout fragment_entry_detail
 layout fragment_handover
 layout fragment_inspection
+layout fragment_login
 layout fragment_more
 layout fragment_quotation
 layout fragment_reports

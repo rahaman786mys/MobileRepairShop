@@ -37,6 +37,9 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         binding.cardCommonFaults.setOnClickListener {
             findNavController().navigate(R.id.commonFaultsFragment)
         }
+        binding.cardLogout.setOnClickListener {
+            logout()
+        }
 
         // Load counts
         viewLifecycleOwner.lifecycleScope.launch {
@@ -54,6 +57,13 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
                 binding.tvFaultsCount.text = "${list.size} fault types"
             }
         }
+    }
+
+    private fun logout() {
+        val prefs = requireContext().getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("is_logged_in", false).apply()
+        
+        findNavController().navigate(R.id.loginFragment)
     }
 
     override fun onDestroyView() {

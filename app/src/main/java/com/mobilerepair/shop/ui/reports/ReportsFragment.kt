@@ -12,6 +12,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.adapter.RepairEntryAdapter
+import com.mobilerepair.shop.data.db.dao.RepairEntryDao
+import com.mobilerepair.shop.data.db.dao.DailyReportRow
 import com.mobilerepair.shop.databinding.FragmentReportsBinding
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
@@ -70,7 +72,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dailyReport.collectLatest { report ->
+                viewModel.dailyReport.collectLatest { report: List<DailyReportRow> ->
                     updateChart(report)
                 }
             }
@@ -92,10 +94,10 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         }
     }
 
-    private fun updateChart(report: List<com.mobilerepair.shop.data.db.dao.RepairEntryDao.DailyReportRow>) {
+    private fun updateChart(report: List<DailyReportRow>) {
         if (report.isEmpty()) return
 
-        val entries = report.mapIndexed { index, row ->
+        val entries = report.mapIndexed { index: Int, row: DailyReportRow ->
             BarEntry(index.toFloat(), row.totalRevenue?.toFloat() ?: 0f)
         }
 

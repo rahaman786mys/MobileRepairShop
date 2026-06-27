@@ -1,6 +1,7 @@
 package com.mobilerepair.shop.data.repository
 
 import com.mobilerepair.shop.data.db.dao.RepairEntryDao
+import com.mobilerepair.shop.data.db.dao.DailyReportRow
 import com.mobilerepair.shop.data.model.RepairEntry
 import kotlinx.coroutines.flow.Flow
 
@@ -30,7 +31,7 @@ class RepairRepository(private val repairEntryDao: RepairEntryDao) {
     fun getRevenueInRange(startDate: Long, endDate: Long): Flow<Double?> =
         repairEntryDao.getRevenueInRange(startDate, endDate)
 
-    fun getDailyReport(startDate: Long, endDate: Long): Flow<List<RepairEntryDao.DailyReportRow>> =
+    fun getDailyReport(startDate: Long, endDate: Long): Flow<List<DailyReportRow>> =
         repairEntryDao.getDailyReport(startDate, endDate)
 
     fun searchEntries(query: String): Flow<List<RepairEntry>> =

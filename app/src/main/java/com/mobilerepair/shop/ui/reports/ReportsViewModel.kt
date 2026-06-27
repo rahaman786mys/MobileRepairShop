@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mobilerepair.shop.MobileRepairApp
 import com.mobilerepair.shop.data.model.SparePartPurchase
 import com.mobilerepair.shop.data.db.dao.RepairEntryDao
+import com.mobilerepair.shop.data.db.dao.DailyReportRow
 import com.mobilerepair.shop.utils.AIAnalyzer
 import com.mobilerepair.shop.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,8 +23,8 @@ class ReportsViewModel : ViewModel() {
     private val _completedCount = MutableStateFlow(0)
     val completedCount: StateFlow<Int> = _completedCount
 
-    private val _dailyReport = MutableStateFlow<List<RepairEntryDao.DailyReportRow>>(emptyList())
-    val dailyReport: StateFlow<List<RepairEntryDao.DailyReportRow>> = _dailyReport
+    private val _dailyReport = MutableStateFlow<List<DailyReportRow>>(emptyList())
+    val dailyReport: StateFlow<List<DailyReportRow>> = _dailyReport
 
     private val _supplierPurchases = MutableStateFlow<List<SparePartPurchase>>(emptyList())
     val supplierPurchases: StateFlow<List<SparePartPurchase>> = _supplierPurchases
