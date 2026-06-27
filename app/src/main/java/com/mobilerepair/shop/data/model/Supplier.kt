@@ -8,11 +8,10 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "suppliers")
 data class Supplier(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val mobile: String, // Unique 10-digit number as ID
     val name: String = "",
     val companyName: String = "",
-    val mobile: String = "",
     val email: String = "",
     val address: String = "",
     val city: String = "",

@@ -32,7 +32,7 @@ class SparePartsViewModel : ViewModel() {
         }
     }
 
-    fun addPart(repairEntryId: Long, partName: String, photoPath: String, price: Double, supplierId: Long, supplierName: String) {
+    fun addPart(repairEntryId: Long, partName: String, photoPath: String, price: Double, supplierId: String, supplierName: String) {
         viewModelScope.launch {
             val part = SparePartPurchase(
                 repairEntryId = repairEntryId,

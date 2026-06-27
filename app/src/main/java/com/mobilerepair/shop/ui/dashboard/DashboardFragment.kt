@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -35,6 +36,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
         setupRecyclerView()
         setupClickListeners()
+        setupSearchView()
         observeData()
 
         // Check for updates
@@ -51,15 +53,37 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
 
     private fun setupClickListeners() {
-        binding.cardNewEntry.setOnClickListener {
+        binding.cardService.setOnClickListener {
             findNavController().navigate(R.id.entryFragment)
         }
-        binding.cardEntries.setOnClickListener {
+        binding.cardSales.setOnClickListener {
+            findNavController().navigate(R.id.saleFragment)
+        }
+        binding.cardWork.setOnClickListener {
             findNavController().navigate(R.id.entriesFragment)
         }
-        binding.cardReports.setOnClickListener {
+        binding.cardSuppliersGrid.setOnClickListener {
+            findNavController().navigate(R.id.supplierListFragment)
+        }
+        binding.cardReportsGrid.setOnClickListener {
             findNavController().navigate(R.id.reportsFragment)
         }
+        binding.cardMoreGrid.setOnClickListener {
+            findNavController().navigate(R.id.moreFragment)
+        }
+    }
+
+    private fun setupSearchView() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                // Future: navigate to search results
+                return true
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Filter recent list locally
+                return true
+            }
+        })
     }
 
     private fun observeData() {
@@ -74,13 +98,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.completedToday.collectLatest { count ->
                     binding.tvCompletedCount.text = count.toString()
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.todayRevenue.collectLatest { revenue ->
-                    binding.tvTodayRevenue.text = "₹ ${String.format("%.0f", revenue)}"
                 }
             }
         }

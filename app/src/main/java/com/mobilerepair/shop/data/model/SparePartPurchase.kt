@@ -14,7 +14,7 @@ data class SparePartPurchase(
     val partName: String = "",
     val partPhotoPath: String = "",
     val purchasePrice: Double = 0.0,
-    val supplierId: Long = 0,
+    val supplierId: String = "",          // Links to Supplier Mobile
     val supplierName: String = "",        // Denormalized for quick display
     val quantity: Int = 1,
     val purchaseDate: Long = System.currentTimeMillis(),

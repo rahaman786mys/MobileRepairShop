@@ -8,6 +8,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
@@ -22,16 +23,28 @@ public final class FragmentDashboardBinding implements ViewBinding {
   private final ScrollView rootView;
 
   @NonNull
-  public final MaterialCardView cardEntries;
+  public final MaterialCardView cardMoreGrid;
 
   @NonNull
-  public final MaterialCardView cardNewEntry;
+  public final MaterialCardView cardReportsGrid;
 
   @NonNull
-  public final MaterialCardView cardReports;
+  public final MaterialCardView cardSales;
+
+  @NonNull
+  public final MaterialCardView cardService;
+
+  @NonNull
+  public final MaterialCardView cardSuppliersGrid;
+
+  @NonNull
+  public final MaterialCardView cardWork;
 
   @NonNull
   public final RecyclerView rvRecentEntries;
+
+  @NonNull
+  public final SearchView searchView;
 
   @NonNull
   public final TextView tvCompletedCount;
@@ -39,22 +52,23 @@ public final class FragmentDashboardBinding implements ViewBinding {
   @NonNull
   public final TextView tvPendingCount;
 
-  @NonNull
-  public final TextView tvTodayRevenue;
-
   private FragmentDashboardBinding(@NonNull ScrollView rootView,
-      @NonNull MaterialCardView cardEntries, @NonNull MaterialCardView cardNewEntry,
-      @NonNull MaterialCardView cardReports, @NonNull RecyclerView rvRecentEntries,
-      @NonNull TextView tvCompletedCount, @NonNull TextView tvPendingCount,
-      @NonNull TextView tvTodayRevenue) {
+      @NonNull MaterialCardView cardMoreGrid, @NonNull MaterialCardView cardReportsGrid,
+      @NonNull MaterialCardView cardSales, @NonNull MaterialCardView cardService,
+      @NonNull MaterialCardView cardSuppliersGrid, @NonNull MaterialCardView cardWork,
+      @NonNull RecyclerView rvRecentEntries, @NonNull SearchView searchView,
+      @NonNull TextView tvCompletedCount, @NonNull TextView tvPendingCount) {
     this.rootView = rootView;
-    this.cardEntries = cardEntries;
-    this.cardNewEntry = cardNewEntry;
-    this.cardReports = cardReports;
+    this.cardMoreGrid = cardMoreGrid;
+    this.cardReportsGrid = cardReportsGrid;
+    this.cardSales = cardSales;
+    this.cardService = cardService;
+    this.cardSuppliersGrid = cardSuppliersGrid;
+    this.cardWork = cardWork;
     this.rvRecentEntries = rvRecentEntries;
+    this.searchView = searchView;
     this.tvCompletedCount = tvCompletedCount;
     this.tvPendingCount = tvPendingCount;
-    this.tvTodayRevenue = tvTodayRevenue;
   }
 
   @Override
@@ -84,27 +98,51 @@ public final class FragmentDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.cardEntries;
-      MaterialCardView cardEntries = ViewBindings.findChildViewById(rootView, id);
-      if (cardEntries == null) {
+      id = R.id.cardMoreGrid;
+      MaterialCardView cardMoreGrid = ViewBindings.findChildViewById(rootView, id);
+      if (cardMoreGrid == null) {
         break missingId;
       }
 
-      id = R.id.cardNewEntry;
-      MaterialCardView cardNewEntry = ViewBindings.findChildViewById(rootView, id);
-      if (cardNewEntry == null) {
+      id = R.id.cardReportsGrid;
+      MaterialCardView cardReportsGrid = ViewBindings.findChildViewById(rootView, id);
+      if (cardReportsGrid == null) {
         break missingId;
       }
 
-      id = R.id.cardReports;
-      MaterialCardView cardReports = ViewBindings.findChildViewById(rootView, id);
-      if (cardReports == null) {
+      id = R.id.cardSales;
+      MaterialCardView cardSales = ViewBindings.findChildViewById(rootView, id);
+      if (cardSales == null) {
+        break missingId;
+      }
+
+      id = R.id.cardService;
+      MaterialCardView cardService = ViewBindings.findChildViewById(rootView, id);
+      if (cardService == null) {
+        break missingId;
+      }
+
+      id = R.id.cardSuppliersGrid;
+      MaterialCardView cardSuppliersGrid = ViewBindings.findChildViewById(rootView, id);
+      if (cardSuppliersGrid == null) {
+        break missingId;
+      }
+
+      id = R.id.cardWork;
+      MaterialCardView cardWork = ViewBindings.findChildViewById(rootView, id);
+      if (cardWork == null) {
         break missingId;
       }
 
       id = R.id.rvRecentEntries;
       RecyclerView rvRecentEntries = ViewBindings.findChildViewById(rootView, id);
       if (rvRecentEntries == null) {
+        break missingId;
+      }
+
+      id = R.id.searchView;
+      SearchView searchView = ViewBindings.findChildViewById(rootView, id);
+      if (searchView == null) {
         break missingId;
       }
 
@@ -120,14 +158,9 @@ public final class FragmentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tvTodayRevenue;
-      TextView tvTodayRevenue = ViewBindings.findChildViewById(rootView, id);
-      if (tvTodayRevenue == null) {
-        break missingId;
-      }
-
-      return new FragmentDashboardBinding((ScrollView) rootView, cardEntries, cardNewEntry,
-          cardReports, rvRecentEntries, tvCompletedCount, tvPendingCount, tvTodayRevenue);
+      return new FragmentDashboardBinding((ScrollView) rootView, cardMoreGrid, cardReportsGrid,
+          cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries, searchView,
+          tvCompletedCount, tvPendingCount);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -58,7 +58,7 @@ public final class SparePartPurchaseDao_Impl implements SparePartPurchaseDao {
         statement.bindString(3, entity.getPartName());
         statement.bindString(4, entity.getPartPhotoPath());
         statement.bindDouble(5, entity.getPurchasePrice());
-        statement.bindLong(6, entity.getSupplierId());
+        statement.bindString(6, entity.getSupplierId());
         statement.bindString(7, entity.getSupplierName());
         statement.bindLong(8, entity.getQuantity());
         statement.bindLong(9, entity.getPurchaseDate());
@@ -93,7 +93,7 @@ public final class SparePartPurchaseDao_Impl implements SparePartPurchaseDao {
         statement.bindString(3, entity.getPartName());
         statement.bindString(4, entity.getPartPhotoPath());
         statement.bindDouble(5, entity.getPurchasePrice());
-        statement.bindLong(6, entity.getSupplierId());
+        statement.bindString(6, entity.getSupplierId());
         statement.bindString(7, entity.getSupplierName());
         statement.bindLong(8, entity.getQuantity());
         statement.bindLong(9, entity.getPurchaseDate());
@@ -195,8 +195,8 @@ public final class SparePartPurchaseDao_Impl implements SparePartPurchaseDao {
             _tmpPartPhotoPath = _cursor.getString(_cursorIndexOfPartPhotoPath);
             final double _tmpPurchasePrice;
             _tmpPurchasePrice = _cursor.getDouble(_cursorIndexOfPurchasePrice);
-            final long _tmpSupplierId;
-            _tmpSupplierId = _cursor.getLong(_cursorIndexOfSupplierId);
+            final String _tmpSupplierId;
+            _tmpSupplierId = _cursor.getString(_cursorIndexOfSupplierId);
             final String _tmpSupplierName;
             _tmpSupplierName = _cursor.getString(_cursorIndexOfSupplierName);
             final int _tmpQuantity;
@@ -254,8 +254,8 @@ public final class SparePartPurchaseDao_Impl implements SparePartPurchaseDao {
             _tmpPartPhotoPath = _cursor.getString(_cursorIndexOfPartPhotoPath);
             final double _tmpPurchasePrice;
             _tmpPurchasePrice = _cursor.getDouble(_cursorIndexOfPurchasePrice);
-            final long _tmpSupplierId;
-            _tmpSupplierId = _cursor.getLong(_cursorIndexOfSupplierId);
+            final String _tmpSupplierId;
+            _tmpSupplierId = _cursor.getString(_cursorIndexOfSupplierId);
             final String _tmpSupplierName;
             _tmpSupplierName = _cursor.getString(_cursorIndexOfSupplierName);
             final int _tmpQuantity;
@@ -315,8 +315,8 @@ public final class SparePartPurchaseDao_Impl implements SparePartPurchaseDao {
             _tmpPartPhotoPath = _cursor.getString(_cursorIndexOfPartPhotoPath);
             final double _tmpPurchasePrice;
             _tmpPurchasePrice = _cursor.getDouble(_cursorIndexOfPurchasePrice);
-            final long _tmpSupplierId;
-            _tmpSupplierId = _cursor.getLong(_cursorIndexOfSupplierId);
+            final String _tmpSupplierId;
+            _tmpSupplierId = _cursor.getString(_cursorIndexOfSupplierId);
             final String _tmpSupplierName;
             _tmpSupplierName = _cursor.getString(_cursorIndexOfSupplierName);
             final int _tmpQuantity;
@@ -379,8 +379,8 @@ public final class SparePartPurchaseDao_Impl implements SparePartPurchaseDao {
             _tmpPartPhotoPath = _cursor.getString(_cursorIndexOfPartPhotoPath);
             final double _tmpPurchasePrice;
             _tmpPurchasePrice = _cursor.getDouble(_cursorIndexOfPurchasePrice);
-            final long _tmpSupplierId;
-            _tmpSupplierId = _cursor.getLong(_cursorIndexOfSupplierId);
+            final String _tmpSupplierId;
+            _tmpSupplierId = _cursor.getString(_cursorIndexOfSupplierId);
             final String _tmpSupplierName;
             _tmpSupplierName = _cursor.getString(_cursorIndexOfSupplierName);
             final int _tmpQuantity;

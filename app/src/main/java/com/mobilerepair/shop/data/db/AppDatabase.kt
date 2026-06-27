@@ -13,9 +13,12 @@ import com.mobilerepair.shop.data.model.*
         ServiceMan::class,
         Supplier::class,
         CommonFault::class,
-        SparePartPurchase::class
+        SparePartPurchase::class,
+        Customer::class,
+        Dealer::class,
+        Sale::class
     ],
-    version = 1,
+    version = 2, // Incremented version for new entities and schema changes
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -25,6 +28,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun supplierDao(): SupplierDao
     abstract fun commonFaultDao(): CommonFaultDao
     abstract fun sparePartPurchaseDao(): SparePartPurchaseDao
+    abstract fun customerDao(): CustomerDao
+    abstract fun dealerDao(): DealerDao
+    abstract fun saleDao(): SaleDao
 
     companion object {
         @Volatile

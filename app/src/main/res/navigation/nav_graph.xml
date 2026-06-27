@@ -32,6 +32,13 @@
         android:label="New Repair Entry"
         tools:layout="@layout/fragment_entry" />
 
+    <!-- Direct Sales -->
+    <fragment
+        android:id="@+id/saleFragment"
+        android:name="com.mobilerepair.shop.ui.sales.SaleFragment"
+        android:label="Quick Sale"
+        tools:layout="@layout/fragment_sale" />
+
     <fragment
         android:id="@+id/inspectionFragment"
         android:name="com.mobilerepair.shop.ui.inspection.InspectionFragment"

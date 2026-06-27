@@ -15,7 +15,6 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 import com.mobilerepair.shop.data.model.Supplier;
 import java.lang.Class;
 import java.lang.Exception;
-import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
@@ -46,77 +45,75 @@ public final class SupplierDao_Impl implements SupplierDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `suppliers` (`id`,`name`,`companyName`,`mobile`,`email`,`address`,`city`,`gstNo`,`suppliesTypes`,`isActive`,`createdAt`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `suppliers` (`mobile`,`name`,`companyName`,`email`,`address`,`city`,`gstNo`,`suppliesTypes`,`isActive`,`createdAt`) VALUES (?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final Supplier entity) {
-        statement.bindLong(1, entity.getId());
+        statement.bindString(1, entity.getMobile());
         statement.bindString(2, entity.getName());
         statement.bindString(3, entity.getCompanyName());
-        statement.bindString(4, entity.getMobile());
-        statement.bindString(5, entity.getEmail());
-        statement.bindString(6, entity.getAddress());
-        statement.bindString(7, entity.getCity());
-        statement.bindString(8, entity.getGstNo());
-        statement.bindString(9, entity.getSuppliesTypes());
+        statement.bindString(4, entity.getEmail());
+        statement.bindString(5, entity.getAddress());
+        statement.bindString(6, entity.getCity());
+        statement.bindString(7, entity.getGstNo());
+        statement.bindString(8, entity.getSuppliesTypes());
         final int _tmp = entity.isActive() ? 1 : 0;
-        statement.bindLong(10, _tmp);
-        statement.bindLong(11, entity.getCreatedAt());
+        statement.bindLong(9, _tmp);
+        statement.bindLong(10, entity.getCreatedAt());
       }
     };
     this.__deletionAdapterOfSupplier = new EntityDeletionOrUpdateAdapter<Supplier>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "DELETE FROM `suppliers` WHERE `id` = ?";
+        return "DELETE FROM `suppliers` WHERE `mobile` = ?";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final Supplier entity) {
-        statement.bindLong(1, entity.getId());
+        statement.bindString(1, entity.getMobile());
       }
     };
     this.__updateAdapterOfSupplier = new EntityDeletionOrUpdateAdapter<Supplier>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `suppliers` SET `id` = ?,`name` = ?,`companyName` = ?,`mobile` = ?,`email` = ?,`address` = ?,`city` = ?,`gstNo` = ?,`suppliesTypes` = ?,`isActive` = ?,`createdAt` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `suppliers` SET `mobile` = ?,`name` = ?,`companyName` = ?,`email` = ?,`address` = ?,`city` = ?,`gstNo` = ?,`suppliesTypes` = ?,`isActive` = ?,`createdAt` = ? WHERE `mobile` = ?";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final Supplier entity) {
-        statement.bindLong(1, entity.getId());
+        statement.bindString(1, entity.getMobile());
         statement.bindString(2, entity.getName());
         statement.bindString(3, entity.getCompanyName());
-        statement.bindString(4, entity.getMobile());
-        statement.bindString(5, entity.getEmail());
-        statement.bindString(6, entity.getAddress());
-        statement.bindString(7, entity.getCity());
-        statement.bindString(8, entity.getGstNo());
-        statement.bindString(9, entity.getSuppliesTypes());
+        statement.bindString(4, entity.getEmail());
+        statement.bindString(5, entity.getAddress());
+        statement.bindString(6, entity.getCity());
+        statement.bindString(7, entity.getGstNo());
+        statement.bindString(8, entity.getSuppliesTypes());
         final int _tmp = entity.isActive() ? 1 : 0;
-        statement.bindLong(10, _tmp);
-        statement.bindLong(11, entity.getCreatedAt());
-        statement.bindLong(12, entity.getId());
+        statement.bindLong(9, _tmp);
+        statement.bindLong(10, entity.getCreatedAt());
+        statement.bindString(11, entity.getMobile());
       }
     };
   }
 
   @Override
-  public Object insert(final Supplier supplier, final Continuation<? super Long> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Long>() {
+  public Object insert(final Supplier supplier, final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
-      public Long call() throws Exception {
+      public Unit call() throws Exception {
         __db.beginTransaction();
         try {
-          final Long _result = __insertionAdapterOfSupplier.insertAndReturnId(supplier);
+          __insertionAdapterOfSupplier.insert(supplier);
           __db.setTransactionSuccessful();
-          return _result;
+          return Unit.INSTANCE;
         } finally {
           __db.endTransaction();
         }
@@ -170,10 +167,9 @@ public final class SupplierDao_Impl implements SupplierDao {
       public List<Supplier> call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfCompanyName = CursorUtil.getColumnIndexOrThrow(_cursor, "companyName");
-          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "email");
           final int _cursorIndexOfAddress = CursorUtil.getColumnIndexOrThrow(_cursor, "address");
           final int _cursorIndexOfCity = CursorUtil.getColumnIndexOrThrow(_cursor, "city");
@@ -184,14 +180,12 @@ public final class SupplierDao_Impl implements SupplierDao {
           final List<Supplier> _result = new ArrayList<Supplier>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Supplier _item;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpMobile;
+            _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
             final String _tmpCompanyName;
             _tmpCompanyName = _cursor.getString(_cursorIndexOfCompanyName);
-            final String _tmpMobile;
-            _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
             final String _tmpEmail;
             _tmpEmail = _cursor.getString(_cursorIndexOfEmail);
             final String _tmpAddress;
@@ -208,7 +202,7 @@ public final class SupplierDao_Impl implements SupplierDao {
             _tmpIsActive = _tmp != 0;
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new Supplier(_tmpId,_tmpName,_tmpCompanyName,_tmpMobile,_tmpEmail,_tmpAddress,_tmpCity,_tmpGstNo,_tmpSuppliesTypes,_tmpIsActive,_tmpCreatedAt);
+            _item = new Supplier(_tmpMobile,_tmpName,_tmpCompanyName,_tmpEmail,_tmpAddress,_tmpCity,_tmpGstNo,_tmpSuppliesTypes,_tmpIsActive,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;
@@ -234,10 +228,9 @@ public final class SupplierDao_Impl implements SupplierDao {
       public List<Supplier> call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfCompanyName = CursorUtil.getColumnIndexOrThrow(_cursor, "companyName");
-          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "email");
           final int _cursorIndexOfAddress = CursorUtil.getColumnIndexOrThrow(_cursor, "address");
           final int _cursorIndexOfCity = CursorUtil.getColumnIndexOrThrow(_cursor, "city");
@@ -248,14 +241,12 @@ public final class SupplierDao_Impl implements SupplierDao {
           final List<Supplier> _result = new ArrayList<Supplier>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final Supplier _item;
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpMobile;
+            _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
             final String _tmpCompanyName;
             _tmpCompanyName = _cursor.getString(_cursorIndexOfCompanyName);
-            final String _tmpMobile;
-            _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
             final String _tmpEmail;
             _tmpEmail = _cursor.getString(_cursorIndexOfEmail);
             final String _tmpAddress;
@@ -272,7 +263,7 @@ public final class SupplierDao_Impl implements SupplierDao {
             _tmpIsActive = _tmp != 0;
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new Supplier(_tmpId,_tmpName,_tmpCompanyName,_tmpMobile,_tmpEmail,_tmpAddress,_tmpCity,_tmpGstNo,_tmpSuppliesTypes,_tmpIsActive,_tmpCreatedAt);
+            _item = new Supplier(_tmpMobile,_tmpName,_tmpCompanyName,_tmpEmail,_tmpAddress,_tmpCity,_tmpGstNo,_tmpSuppliesTypes,_tmpIsActive,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;
@@ -289,11 +280,12 @@ public final class SupplierDao_Impl implements SupplierDao {
   }
 
   @Override
-  public Object getSupplierById(final long id, final Continuation<? super Supplier> $completion) {
-    final String _sql = "SELECT * FROM suppliers WHERE id = ?";
+  public Object getSupplierByMobile(final String mobile,
+      final Continuation<? super Supplier> $completion) {
+    final String _sql = "SELECT * FROM suppliers WHERE mobile = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
-    _statement.bindLong(_argIndex, id);
+    _statement.bindString(_argIndex, mobile);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
     return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<Supplier>() {
       @Override
@@ -301,10 +293,9 @@ public final class SupplierDao_Impl implements SupplierDao {
       public Supplier call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfCompanyName = CursorUtil.getColumnIndexOrThrow(_cursor, "companyName");
-          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "email");
           final int _cursorIndexOfAddress = CursorUtil.getColumnIndexOrThrow(_cursor, "address");
           final int _cursorIndexOfCity = CursorUtil.getColumnIndexOrThrow(_cursor, "city");
@@ -314,14 +305,12 @@ public final class SupplierDao_Impl implements SupplierDao {
           final int _cursorIndexOfCreatedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAt");
           final Supplier _result;
           if (_cursor.moveToFirst()) {
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpMobile;
+            _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
             final String _tmpCompanyName;
             _tmpCompanyName = _cursor.getString(_cursorIndexOfCompanyName);
-            final String _tmpMobile;
-            _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
             final String _tmpEmail;
             _tmpEmail = _cursor.getString(_cursorIndexOfEmail);
             final String _tmpAddress;
@@ -338,7 +327,7 @@ public final class SupplierDao_Impl implements SupplierDao {
             _tmpIsActive = _tmp != 0;
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _result = new Supplier(_tmpId,_tmpName,_tmpCompanyName,_tmpMobile,_tmpEmail,_tmpAddress,_tmpCity,_tmpGstNo,_tmpSuppliesTypes,_tmpIsActive,_tmpCreatedAt);
+            _result = new Supplier(_tmpMobile,_tmpName,_tmpCompanyName,_tmpEmail,_tmpAddress,_tmpCity,_tmpGstNo,_tmpSuppliesTypes,_tmpIsActive,_tmpCreatedAt);
           } else {
             _result = null;
           }
@@ -352,21 +341,20 @@ public final class SupplierDao_Impl implements SupplierDao {
   }
 
   @Override
-  public Flow<Supplier> getSupplierByIdFlow(final long id) {
-    final String _sql = "SELECT * FROM suppliers WHERE id = ?";
+  public Flow<Supplier> getSupplierByMobileFlow(final String mobile) {
+    final String _sql = "SELECT * FROM suppliers WHERE mobile = ?";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
-    _statement.bindLong(_argIndex, id);
+    _statement.bindString(_argIndex, mobile);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"suppliers"}, new Callable<Supplier>() {
       @Override
       @Nullable
       public Supplier call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfCompanyName = CursorUtil.getColumnIndexOrThrow(_cursor, "companyName");
-          final int _cursorIndexOfMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "mobile");
           final int _cursorIndexOfEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "email");
           final int _cursorIndexOfAddress = CursorUtil.getColumnIndexOrThrow(_cursor, "address");
           final int _cursorIndexOfCity = CursorUtil.getColumnIndexOrThrow(_cursor, "city");
@@ -376,14 +364,12 @@ public final class SupplierDao_Impl implements SupplierDao {
           final int _cursorIndexOfCreatedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAt");
           final Supplier _result;
           if (_cursor.moveToFirst()) {
-            final long _tmpId;
-            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpMobile;
+            _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
             final String _tmpCompanyName;
             _tmpCompanyName = _cursor.getString(_cursorIndexOfCompanyName);
-            final String _tmpMobile;
-            _tmpMobile = _cursor.getString(_cursorIndexOfMobile);
             final String _tmpEmail;
             _tmpEmail = _cursor.getString(_cursorIndexOfEmail);
             final String _tmpAddress;
@@ -400,7 +386,7 @@ public final class SupplierDao_Impl implements SupplierDao {
             _tmpIsActive = _tmp != 0;
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _result = new Supplier(_tmpId,_tmpName,_tmpCompanyName,_tmpMobile,_tmpEmail,_tmpAddress,_tmpCity,_tmpGstNo,_tmpSuppliesTypes,_tmpIsActive,_tmpCreatedAt);
+            _result = new Supplier(_tmpMobile,_tmpName,_tmpCompanyName,_tmpEmail,_tmpAddress,_tmpCity,_tmpGstNo,_tmpSuppliesTypes,_tmpIsActive,_tmpCreatedAt);
           } else {
             _result = null;
           }

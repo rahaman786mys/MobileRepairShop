@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +13,7 @@ import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -55,6 +58,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         super.onViewCreated(view, savedInstanceState)
 
         setupClickListeners()
+        setupMobileWatcher()
         observeViewModel()
     }
 
@@ -71,6 +75,48 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
         binding.btnSaveEntry.setOnClickListener {
             saveEntry()
+        }
+
+        binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                // Clear fields on switch
+                binding.etMobileNumber.setText("")
+                binding.etName.setText("")
+                binding.etCity.setText("")
+                binding.layoutRepairFields.isVisible = false
+            }
+        }
+    }
+
+    private fun setupMobileWatcher() {
+        binding.etMobileNumber.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (s?.length == 10) {
+                    searchMobile(s.toString())
+                } else {
+                    binding.layoutRepairFields.isVisible = false
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private fun searchMobile(mobile: String) {
+        val isDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (isDealer) {
+                viewModel.getDealerByMobile(mobile)?.let { dealer ->
+                    binding.etName.setText(dealer.name)
+                    binding.etCity.setText(dealer.city)
+                }
+            } else {
+                viewModel.getCustomerByMobile(mobile)?.let { customer ->
+                    binding.etName.setText(customer.name)
+                    binding.etCity.setText(customer.city)
+                }
+            }
+            binding.layoutRepairFields.isVisible = true
         }
     }
 
@@ -92,12 +138,13 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun saveEntry() {
-        val customerName = binding.etCustomerName.text.toString().trim()
-        val customerMobile = binding.etCustomerMobile.text.toString().trim()
-        val customerCity = binding.etCustomerCity.text.toString().trim()
+        val name = binding.etName.text.toString().trim()
+        val mobile = binding.etMobileNumber.text.toString().trim()
+        val city = binding.etCity.text.toString().trim()
+        val isDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
 
-        if (customerName.isEmpty() || customerMobile.isEmpty()) {
-            Snackbar.make(binding.root, "Customer name and mobile required", Snackbar.LENGTH_LONG).show()
+        if (mobile.length != 10) {
+            binding.etMobileNumber.error = "10-digit mobile number required"
             return
         }
 
@@ -108,11 +155,10 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
         viewModel.saveEntry(
             photoPath = photoFile?.absolutePath ?: "",
-            customerName = customerName,
-            customerMobile = customerMobile,
-            customerCity = customerCity,
-            dealerName = binding.etDealerName.text.toString().trim(),
-            dealerMobile = binding.etDealerMobile.text.toString().trim(),
+            name = name,
+            mobile = mobile,
+            city = city,
+            isDealer = isDealer,
             serviceManId = serviceManId
         )
     }

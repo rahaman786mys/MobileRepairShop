@@ -13,8 +13,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import com.mobilerepair.shop.data.db.dao.CommonFaultDao;
 import com.mobilerepair.shop.data.db.dao.CommonFaultDao_Impl;
+import com.mobilerepair.shop.data.db.dao.CustomerDao;
+import com.mobilerepair.shop.data.db.dao.CustomerDao_Impl;
+import com.mobilerepair.shop.data.db.dao.DealerDao;
+import com.mobilerepair.shop.data.db.dao.DealerDao_Impl;
 import com.mobilerepair.shop.data.db.dao.RepairEntryDao;
 import com.mobilerepair.shop.data.db.dao.RepairEntryDao_Impl;
+import com.mobilerepair.shop.data.db.dao.SaleDao;
+import com.mobilerepair.shop.data.db.dao.SaleDao_Impl;
 import com.mobilerepair.shop.data.db.dao.ServiceManDao;
 import com.mobilerepair.shop.data.db.dao.ServiceManDao_Impl;
 import com.mobilerepair.shop.data.db.dao.SparePartPurchaseDao;
@@ -46,19 +52,28 @@ public final class AppDatabase_Impl extends AppDatabase {
 
   private volatile SparePartPurchaseDao _sparePartPurchaseDao;
 
+  private volatile CustomerDao _customerDao;
+
+  private volatile DealerDao _dealerDao;
+
+  private volatile SaleDao _saleDao;
+
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `repair_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `entryPhotoPath` TEXT NOT NULL, `customerName` TEXT NOT NULL, `customerMobile` TEXT NOT NULL, `customerCity` TEXT NOT NULL, `dealerName` TEXT NOT NULL, `dealerMobile` TEXT NOT NULL, `serviceManId` INTEGER NOT NULL, `entryDate` INTEGER NOT NULL, `faultDetected` TEXT NOT NULL, `faultDescription` TEXT NOT NULL, `additionalFaults` TEXT NOT NULL, `inspectionPhotoPath` TEXT NOT NULL, `inspectionDate` INTEGER NOT NULL, `inspectionDone` INTEGER NOT NULL, `chargeAmount` REAL NOT NULL, `advanceAmount` REAL NOT NULL, `quotationDate` INTEGER NOT NULL, `quotationDone` INTEGER NOT NULL, `sparePartPhotoPath` TEXT NOT NULL, `sparePartName` TEXT NOT NULL, `sparePartPurchasePrice` REAL NOT NULL, `supplierId` INTEGER NOT NULL, `sparePartDate` INTEGER NOT NULL, `sparePartDone` INTEGER NOT NULL, `workStatus` TEXT NOT NULL, `completionDate` INTEGER NOT NULL, `workDone` INTEGER NOT NULL, `finalAmount` REAL NOT NULL, `paymentMode` TEXT NOT NULL, `onlineAmount` REAL NOT NULL, `cashAmount` REAL NOT NULL, `handoverDate` INTEGER NOT NULL, `handoverDone` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `service_men` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `mobile` TEXT NOT NULL, `email` TEXT NOT NULL, `employeeId` TEXT NOT NULL, `designation` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `suppliers` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `companyName` TEXT NOT NULL, `mobile` TEXT NOT NULL, `email` TEXT NOT NULL, `address` TEXT NOT NULL, `city` TEXT NOT NULL, `gstNo` TEXT NOT NULL, `suppliesTypes` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `suppliers` (`mobile` TEXT NOT NULL, `name` TEXT NOT NULL, `companyName` TEXT NOT NULL, `email` TEXT NOT NULL, `address` TEXT NOT NULL, `city` TEXT NOT NULL, `gstNo` TEXT NOT NULL, `suppliesTypes` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobile`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `common_faults` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `faultName` TEXT NOT NULL, `category` TEXT NOT NULL, `defaultCharge` REAL NOT NULL, `description` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `spare_part_purchases` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `repairEntryId` INTEGER NOT NULL, `partName` TEXT NOT NULL, `partPhotoPath` TEXT NOT NULL, `purchasePrice` REAL NOT NULL, `supplierId` INTEGER NOT NULL, `supplierName` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `purchaseDate` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `spare_part_purchases` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `repairEntryId` INTEGER NOT NULL, `partName` TEXT NOT NULL, `partPhotoPath` TEXT NOT NULL, `purchasePrice` REAL NOT NULL, `supplierId` TEXT NOT NULL, `supplierName` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `purchaseDate` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `customers` (`mobileNumber` TEXT NOT NULL, `name` TEXT, `city` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobileNumber`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `dealers` (`mobileNumber` TEXT NOT NULL, `name` TEXT, `city` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobileNumber`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `sales` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `itemName` TEXT NOT NULL, `supplierId` TEXT NOT NULL, `purchasePrice` REAL NOT NULL, `salePrice` REAL NOT NULL, `saleDate` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cf48d6ec0f04d15d0cedefbcefe8bd64')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eda94516c1f3c2dfa01931cc71080c1a')");
       }
 
       @Override
@@ -68,6 +83,9 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("DROP TABLE IF EXISTS `suppliers`");
         db.execSQL("DROP TABLE IF EXISTS `common_faults`");
         db.execSQL("DROP TABLE IF EXISTS `spare_part_purchases`");
+        db.execSQL("DROP TABLE IF EXISTS `customers`");
+        db.execSQL("DROP TABLE IF EXISTS `dealers`");
+        db.execSQL("DROP TABLE IF EXISTS `sales`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -175,11 +193,10 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoServiceMen + "\n"
                   + " Found:\n" + _existingServiceMen);
         }
-        final HashMap<String, TableInfo.Column> _columnsSuppliers = new HashMap<String, TableInfo.Column>(11);
-        _columnsSuppliers.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashMap<String, TableInfo.Column> _columnsSuppliers = new HashMap<String, TableInfo.Column>(10);
+        _columnsSuppliers.put("mobile", new TableInfo.Column("mobile", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSuppliers.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSuppliers.put("companyName", new TableInfo.Column("companyName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsSuppliers.put("mobile", new TableInfo.Column("mobile", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSuppliers.put("email", new TableInfo.Column("email", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSuppliers.put("address", new TableInfo.Column("address", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSuppliers.put("city", new TableInfo.Column("city", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -220,7 +237,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsSparePartPurchases.put("partName", new TableInfo.Column("partName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSparePartPurchases.put("partPhotoPath", new TableInfo.Column("partPhotoPath", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSparePartPurchases.put("purchasePrice", new TableInfo.Column("purchasePrice", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsSparePartPurchases.put("supplierId", new TableInfo.Column("supplierId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSparePartPurchases.put("supplierId", new TableInfo.Column("supplierId", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSparePartPurchases.put("supplierName", new TableInfo.Column("supplierName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSparePartPurchases.put("quantity", new TableInfo.Column("quantity", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsSparePartPurchases.put("purchaseDate", new TableInfo.Column("purchaseDate", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -234,9 +251,53 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoSparePartPurchases + "\n"
                   + " Found:\n" + _existingSparePartPurchases);
         }
+        final HashMap<String, TableInfo.Column> _columnsCustomers = new HashMap<String, TableInfo.Column>(4);
+        _columnsCustomers.put("mobileNumber", new TableInfo.Column("mobileNumber", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCustomers.put("name", new TableInfo.Column("name", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCustomers.put("city", new TableInfo.Column("city", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCustomers.put("createdAt", new TableInfo.Column("createdAt", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysCustomers = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesCustomers = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoCustomers = new TableInfo("customers", _columnsCustomers, _foreignKeysCustomers, _indicesCustomers);
+        final TableInfo _existingCustomers = TableInfo.read(db, "customers");
+        if (!_infoCustomers.equals(_existingCustomers)) {
+          return new RoomOpenHelper.ValidationResult(false, "customers(com.mobilerepair.shop.data.model.Customer).\n"
+                  + " Expected:\n" + _infoCustomers + "\n"
+                  + " Found:\n" + _existingCustomers);
+        }
+        final HashMap<String, TableInfo.Column> _columnsDealers = new HashMap<String, TableInfo.Column>(4);
+        _columnsDealers.put("mobileNumber", new TableInfo.Column("mobileNumber", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDealers.put("name", new TableInfo.Column("name", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDealers.put("city", new TableInfo.Column("city", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDealers.put("createdAt", new TableInfo.Column("createdAt", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysDealers = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesDealers = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoDealers = new TableInfo("dealers", _columnsDealers, _foreignKeysDealers, _indicesDealers);
+        final TableInfo _existingDealers = TableInfo.read(db, "dealers");
+        if (!_infoDealers.equals(_existingDealers)) {
+          return new RoomOpenHelper.ValidationResult(false, "dealers(com.mobilerepair.shop.data.model.Dealer).\n"
+                  + " Expected:\n" + _infoDealers + "\n"
+                  + " Found:\n" + _existingDealers);
+        }
+        final HashMap<String, TableInfo.Column> _columnsSales = new HashMap<String, TableInfo.Column>(6);
+        _columnsSales.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSales.put("itemName", new TableInfo.Column("itemName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSales.put("supplierId", new TableInfo.Column("supplierId", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSales.put("purchasePrice", new TableInfo.Column("purchasePrice", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSales.put("salePrice", new TableInfo.Column("salePrice", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsSales.put("saleDate", new TableInfo.Column("saleDate", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysSales = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesSales = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoSales = new TableInfo("sales", _columnsSales, _foreignKeysSales, _indicesSales);
+        final TableInfo _existingSales = TableInfo.read(db, "sales");
+        if (!_infoSales.equals(_existingSales)) {
+          return new RoomOpenHelper.ValidationResult(false, "sales(com.mobilerepair.shop.data.model.Sale).\n"
+                  + " Expected:\n" + _infoSales + "\n"
+                  + " Found:\n" + _existingSales);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "cf48d6ec0f04d15d0cedefbcefe8bd64", "a62f8e228225b7ed5d2d93b130fac41d");
+    }, "eda94516c1f3c2dfa01931cc71080c1a", "3276ff27608b6290e1e1607db323352d");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -247,7 +308,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "repair_entries","service_men","suppliers","common_faults","spare_part_purchases");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "repair_entries","service_men","suppliers","common_faults","spare_part_purchases","customers","dealers","sales");
   }
 
   @Override
@@ -261,6 +322,9 @@ public final class AppDatabase_Impl extends AppDatabase {
       _db.execSQL("DELETE FROM `suppliers`");
       _db.execSQL("DELETE FROM `common_faults`");
       _db.execSQL("DELETE FROM `spare_part_purchases`");
+      _db.execSQL("DELETE FROM `customers`");
+      _db.execSQL("DELETE FROM `dealers`");
+      _db.execSQL("DELETE FROM `sales`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
@@ -280,6 +344,9 @@ public final class AppDatabase_Impl extends AppDatabase {
     _typeConvertersMap.put(SupplierDao.class, SupplierDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(CommonFaultDao.class, CommonFaultDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(SparePartPurchaseDao.class, SparePartPurchaseDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(CustomerDao.class, CustomerDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(DealerDao.class, DealerDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(SaleDao.class, SaleDao_Impl.getRequiredConverters());
     return _typeConvertersMap;
   }
 
@@ -364,6 +431,48 @@ public final class AppDatabase_Impl extends AppDatabase {
           _sparePartPurchaseDao = new SparePartPurchaseDao_Impl(this);
         }
         return _sparePartPurchaseDao;
+      }
+    }
+  }
+
+  @Override
+  public CustomerDao customerDao() {
+    if (_customerDao != null) {
+      return _customerDao;
+    } else {
+      synchronized(this) {
+        if(_customerDao == null) {
+          _customerDao = new CustomerDao_Impl(this);
+        }
+        return _customerDao;
+      }
+    }
+  }
+
+  @Override
+  public DealerDao dealerDao() {
+    if (_dealerDao != null) {
+      return _dealerDao;
+    } else {
+      synchronized(this) {
+        if(_dealerDao == null) {
+          _dealerDao = new DealerDao_Impl(this);
+        }
+        return _dealerDao;
+      }
+    }
+  }
+
+  @Override
+  public SaleDao saleDao() {
+    if (_saleDao != null) {
+      return _saleDao;
+    } else {
+      synchronized(this) {
+        if(_saleDao == null) {
+          _saleDao = new SaleDao_Impl(this);
+        }
+        return _saleDao;
       }
     }
   }

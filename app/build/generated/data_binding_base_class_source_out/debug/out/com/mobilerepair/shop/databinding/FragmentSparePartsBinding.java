@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -30,7 +31,7 @@ public final class FragmentSparePartsBinding implements ViewBinding {
   public final MaterialButton btnCompleteParts;
 
   @NonNull
-  public final MaterialButton btnTakePartPhoto;
+  public final MaterialButton btnUploadPhoto;
 
   @NonNull
   public final TextInputEditText etPartName;
@@ -47,20 +48,25 @@ public final class FragmentSparePartsBinding implements ViewBinding {
   @NonNull
   public final Spinner spinnerSupplier;
 
+  @NonNull
+  public final TextView tvAddedPartsLabel;
+
   private FragmentSparePartsBinding(@NonNull ScrollView rootView,
       @NonNull MaterialButton btnAddPart, @NonNull MaterialButton btnCompleteParts,
-      @NonNull MaterialButton btnTakePartPhoto, @NonNull TextInputEditText etPartName,
+      @NonNull MaterialButton btnUploadPhoto, @NonNull TextInputEditText etPartName,
       @NonNull TextInputEditText etPurchasePrice, @NonNull AppCompatImageView ivPartPhoto,
-      @NonNull RecyclerView rvAddedParts, @NonNull Spinner spinnerSupplier) {
+      @NonNull RecyclerView rvAddedParts, @NonNull Spinner spinnerSupplier,
+      @NonNull TextView tvAddedPartsLabel) {
     this.rootView = rootView;
     this.btnAddPart = btnAddPart;
     this.btnCompleteParts = btnCompleteParts;
-    this.btnTakePartPhoto = btnTakePartPhoto;
+    this.btnUploadPhoto = btnUploadPhoto;
     this.etPartName = etPartName;
     this.etPurchasePrice = etPurchasePrice;
     this.ivPartPhoto = ivPartPhoto;
     this.rvAddedParts = rvAddedParts;
     this.spinnerSupplier = spinnerSupplier;
+    this.tvAddedPartsLabel = tvAddedPartsLabel;
   }
 
   @Override
@@ -102,9 +108,9 @@ public final class FragmentSparePartsBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.btnTakePartPhoto;
-      MaterialButton btnTakePartPhoto = ViewBindings.findChildViewById(rootView, id);
-      if (btnTakePartPhoto == null) {
+      id = R.id.btnUploadPhoto;
+      MaterialButton btnUploadPhoto = ViewBindings.findChildViewById(rootView, id);
+      if (btnUploadPhoto == null) {
         break missingId;
       }
 
@@ -138,9 +144,15 @@ public final class FragmentSparePartsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvAddedPartsLabel;
+      TextView tvAddedPartsLabel = ViewBindings.findChildViewById(rootView, id);
+      if (tvAddedPartsLabel == null) {
+        break missingId;
+      }
+
       return new FragmentSparePartsBinding((ScrollView) rootView, btnAddPart, btnCompleteParts,
-          btnTakePartPhoto, etPartName, etPurchasePrice, ivPartPhoto, rvAddedParts,
-          spinnerSupplier);
+          btnUploadPhoto, etPartName, etPurchasePrice, ivPartPhoto, rvAddedParts, spinnerSupplier,
+          tvAddedPartsLabel);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
