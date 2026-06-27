@@ -1,0 +1,106 @@
+[
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/drawable_ic_add.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/drawable/ic_add.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/navigation_nav_graph.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/navigation/nav_graph.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_service_man_list.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_service_man_list.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/drawable_ic_more.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/drawable/ic_more.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_handover.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_handover.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_inspection.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_inspection.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_more.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_more.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_item_repair_entry.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/item_repair_entry.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/drawable_ic_dashboard.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/drawable/ic_dashboard.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/drawable_ic_list.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/drawable/ic_list.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_service_man_add.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_service_man_add.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_spare_parts.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_spare_parts.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_entry.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_entry.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_dashboard.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_dashboard.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_supplier_add.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_supplier_add.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/xml_file_paths.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_common_faults.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_common_faults.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_supplier_list.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_supplier_list.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/menu_bottom_nav_menu.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/menu/bottom_nav_menu.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_entry_detail.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_entry_detail.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/drawable_ic_report.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/drawable/ic_report.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_entries_list.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_entries_list.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_reports.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_reports.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/drawable_bg_spinner.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/drawable/bg_spinner.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_quotation.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_quotation.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_activity_main.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/activity_main.xml"
+    }
+]

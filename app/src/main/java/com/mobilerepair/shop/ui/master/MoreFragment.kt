@@ -1,0 +1,63 @@
+package com.mobilerepair.shop.ui.master
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import com.mobilerepair.shop.MobileRepairApp
+import com.mobilerepair.shop.R
+import com.mobilerepair.shop.databinding.FragmentMoreBinding
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
+class MoreFragment : Fragment(R.layout.fragment_more) {
+
+    private var _binding: FragmentMoreBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentMoreBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.cardServiceMen.setOnClickListener {
+            findNavController().navigate(R.id.serviceManListFragment)
+        }
+        binding.cardSuppliers.setOnClickListener {
+            findNavController().navigate(R.id.supplierListFragment)
+        }
+        binding.cardCommonFaults.setOnClickListener {
+            findNavController().navigate(R.id.commonFaultsFragment)
+        }
+
+        // Load counts
+        viewLifecycleOwner.lifecycleScope.launch {
+            MobileRepairApp.instance.database.serviceManDao().getAllServiceMen().collectLatest { list ->
+                binding.tvServiceMenCount.text = "${list.size} technicians"
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            MobileRepairApp.instance.database.supplierDao().getAllSuppliers().collectLatest { list ->
+                binding.tvSuppliersCount.text = "${list.size} suppliers"
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            MobileRepairApp.instance.database.commonFaultDao().getAllFaults().collectLatest { list ->
+                binding.tvFaultsCount.text = "${list.size} fault types"
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
