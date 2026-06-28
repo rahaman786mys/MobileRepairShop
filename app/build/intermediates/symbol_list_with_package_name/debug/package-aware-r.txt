@@ -3187,6 +3187,7 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable splash_theme
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
@@ -3505,6 +3506,7 @@ id item_touch_helper_previous_elevation
 id ivEntryPhoto
 id ivInspectionPhoto
 id ivPartPhoto
+id ivSplash
 id jumpToEnd
 id jumpToStart
 id labeled
@@ -3972,6 +3974,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
+layout activity_splash
 layout custom_dialog
 layout design_bottom_navigation_item
 layout design_bottom_sheet_dialog

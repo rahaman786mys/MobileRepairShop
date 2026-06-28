@@ -68,6 +68,10 @@
         "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_common_faults.xml"
     },
     {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_activity_splash.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/activity_splash.xml"
+    },
+    {
         "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_supplier_list.xml.flat",
         "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_supplier_list.xml"
     },
@@ -110,5 +114,9 @@
     {
         "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_activity_main.xml.flat",
         "source": "com.mobilerepair.shop.app-main-66:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/drawable_splash_theme.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/drawable/splash_theme.xml"
     }
 ]

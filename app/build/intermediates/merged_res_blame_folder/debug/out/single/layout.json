@@ -32,6 +32,10 @@
         "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_supplier_add.xml"
     },
     {
+        "merged": "com.mobilerepair.shop.app-mergeDebugResources-63:/layout/activity_splash.xml",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/activity_splash.xml"
+    },
+    {
         "merged": "com.mobilerepair.shop.app-mergeDebugResources-63:/layout/fragment_service_man_list.xml",
         "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_service_man_list.xml"
     },

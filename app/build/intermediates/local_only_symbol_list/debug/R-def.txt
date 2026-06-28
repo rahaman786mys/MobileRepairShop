@@ -30,6 +30,7 @@ drawable ic_dashboard
 drawable ic_list
 drawable ic_more
 drawable ic_report
+drawable splash_theme
 id action_loginFragment_to_dashboardFragment
 id barChart
 id bottom_navigation
@@ -105,6 +106,7 @@ id inspectionFragment
 id ivEntryPhoto
 id ivInspectionPhoto
 id ivPartPhoto
+id ivSplash
 id layoutMobileInput
 id layoutOtpInput
 id layoutRepairFields
@@ -174,6 +176,7 @@ id tvSummaryFault
 id tvSummaryParts
 id tvSuppliersCount
 layout activity_main
+layout activity_splash
 layout fragment_common_faults
 layout fragment_dashboard
 layout fragment_entries_list
