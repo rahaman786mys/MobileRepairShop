@@ -34,9 +34,12 @@
     <string name="entry_customer_name">Customer Name</string>
     <string name="entry_dealer_mobile">Dealer Mobile</string>
     <string name="entry_dealer_name">Dealer Name (optional)</string>
+    <string name="entry_device_info">Device Information</string>
+    <string name="entry_model_name">Model Name (e.g. Galaxy S21)</string>
     <string name="entry_next">Next → Inspection</string>
     <string name="entry_photo">Take Photo of Phone</string>
     <string name="entry_save">Save Entry</string>
+    <string name="entry_select_brand">Select Brand</string>
     <string name="entry_service_man">Assign Service Man</string>
     <string name="entry_title">New Repair Entry</string>
     <string name="gallery">Gallery</string>
@@ -83,6 +86,7 @@
     <string name="save">Save</string>
     <string name="search">Search</string>
     <string name="select">Select</string>
+    <string name="shop_name">MuZZu Tech</string>
     <string name="spare_add">Add Part</string>
     <string name="spare_name">Part Name</string>
     <string name="spare_photo">Part Photo</string>
@@ -94,6 +98,7 @@
     <string name="status_in_progress">In Progress</string>
     <string name="status_pending">Pending</string>
     <string name="take_photo">Take Photo</string>
+    <string name="welcome_master">Welcome back, Master</string>
     <style name="Theme.MobileRepairShop" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>

@@ -3184,6 +3184,7 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable splash_banner
 drawable splash_theme
 drawable test_level_drawable
 drawable tooltip_frame_dark
@@ -3298,6 +3299,7 @@ id btnAddServiceMan
 id btnAddSupplier
 id btnCompleteHandover
 id btnCompleteParts
+id btnDeletePart
 id btnExportDaily
 id btnHandover
 id btnInspect
@@ -3439,6 +3441,7 @@ id etGst
 id etItemName
 id etMobile
 id etMobileNumber
+id etModelName
 id etName
 id etOnlineAmount
 id etOtp
@@ -3505,6 +3508,8 @@ id italic
 id item_touch_helper_previous_elevation
 id ivEntryPhoto
 id ivInspectionPhoto
+id ivLogo
+id ivPartImage
 id ivPartPhoto
 id ivSplash
 id jumpToEnd
@@ -3726,6 +3731,7 @@ id south
 id spacer
 id sparePartsFragment
 id special_effects_controller_view_tag
+id spinnerBrand
 id spinnerServiceMan
 id spinnerSupplier
 id spline
@@ -3809,11 +3815,13 @@ id tvAISuggestions
 id tvAddedPartsLabel
 id tvAmount
 id tvAppVersion
+id tvCategory
 id tvCompletedCount
 id tvCustomerMobile
 id tvCustomerName
 id tvCustomersCount
 id tvDate
+id tvDefaultCharge
 id tvDetailCharge
 id tvDetailCity
 id tvDetailCustomer
@@ -3825,17 +3833,22 @@ id tvDetailServiceMan
 id tvDetailStatus
 id tvFault
 id tvFaultDetected
+id tvFaultName
 id tvFaultsCount
 id tvOtpSentTo
+id tvPartName
 id tvPendingCount
+id tvPrice
 id tvReportCompleted
 id tvReportRevenue
 id tvResendOtp
 id tvServiceMenCount
+id tvShopName
 id tvStatus
 id tvSummaryCharge
 id tvSummaryFault
 id tvSummaryParts
+id tvSupplier
 id tvSuppliersCount
 id tvTodayProfit
 id unchecked
@@ -4016,6 +4029,8 @@ layout fragment_supplier_add
 layout fragment_supplier_list
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
+layout item_added_part
+layout item_common_fault
 layout item_repair_entry
 layout m3_alert_dialog
 layout m3_alert_dialog_actions
@@ -4159,9 +4174,12 @@ string entry_customer_mobile
 string entry_customer_name
 string entry_dealer_mobile
 string entry_dealer_name
+string entry_device_info
+string entry_model_name
 string entry_next
 string entry_photo
 string entry_save
+string entry_select_brand
 string entry_service_man
 string entry_title
 string error_a11y_label
@@ -4327,6 +4345,7 @@ string searchbar_scrolling_view_behavior
 string searchview_clear_text_content_description
 string searchview_navigation_content_description
 string select
+string shop_name
 string side_sheet_accessibility_pane_title
 string side_sheet_behavior
 string spare_add
@@ -4341,6 +4360,7 @@ string status_done
 string status_in_progress
 string status_pending
 string take_photo
+string welcome_master
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
 style Animation_AppCompat_Dialog

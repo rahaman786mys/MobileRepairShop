@@ -48,53 +48,55 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `repair_entries` (`id`,`entryPhotoPath`,`customerName`,`customerMobile`,`customerCity`,`dealerName`,`dealerMobile`,`serviceManId`,`entryDate`,`faultDetected`,`faultDescription`,`additionalFaults`,`inspectionPhotoPath`,`inspectionDate`,`inspectionDone`,`chargeAmount`,`advanceAmount`,`quotationDate`,`quotationDone`,`sparePartPhotoPath`,`sparePartName`,`sparePartPurchasePrice`,`supplierId`,`sparePartDate`,`sparePartDone`,`workStatus`,`completionDate`,`workDone`,`finalAmount`,`paymentMode`,`onlineAmount`,`cashAmount`,`handoverDate`,`handoverDone`,`createdAt`,`updatedAt`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `repair_entries` (`id`,`deviceBrand`,`deviceModel`,`entryPhotoPath`,`customerName`,`customerMobile`,`customerCity`,`dealerName`,`dealerMobile`,`serviceManId`,`entryDate`,`faultDetected`,`faultDescription`,`additionalFaults`,`inspectionPhotoPath`,`inspectionDate`,`inspectionDone`,`chargeAmount`,`advanceAmount`,`quotationDate`,`quotationDone`,`sparePartPhotoPath`,`sparePartName`,`sparePartPurchasePrice`,`supplierId`,`sparePartDate`,`sparePartDone`,`workStatus`,`completionDate`,`workDone`,`finalAmount`,`paymentMode`,`onlineAmount`,`cashAmount`,`handoverDate`,`handoverDone`,`createdAt`,`updatedAt`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final RepairEntry entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getEntryPhotoPath());
-        statement.bindString(3, entity.getCustomerName());
-        statement.bindString(4, entity.getCustomerMobile());
-        statement.bindString(5, entity.getCustomerCity());
-        statement.bindString(6, entity.getDealerName());
-        statement.bindString(7, entity.getDealerMobile());
-        statement.bindLong(8, entity.getServiceManId());
-        statement.bindLong(9, entity.getEntryDate());
-        statement.bindString(10, entity.getFaultDetected());
-        statement.bindString(11, entity.getFaultDescription());
-        statement.bindString(12, entity.getAdditionalFaults());
-        statement.bindString(13, entity.getInspectionPhotoPath());
-        statement.bindLong(14, entity.getInspectionDate());
+        statement.bindString(2, entity.getDeviceBrand());
+        statement.bindString(3, entity.getDeviceModel());
+        statement.bindString(4, entity.getEntryPhotoPath());
+        statement.bindString(5, entity.getCustomerName());
+        statement.bindString(6, entity.getCustomerMobile());
+        statement.bindString(7, entity.getCustomerCity());
+        statement.bindString(8, entity.getDealerName());
+        statement.bindString(9, entity.getDealerMobile());
+        statement.bindLong(10, entity.getServiceManId());
+        statement.bindLong(11, entity.getEntryDate());
+        statement.bindString(12, entity.getFaultDetected());
+        statement.bindString(13, entity.getFaultDescription());
+        statement.bindString(14, entity.getAdditionalFaults());
+        statement.bindString(15, entity.getInspectionPhotoPath());
+        statement.bindLong(16, entity.getInspectionDate());
         final int _tmp = entity.getInspectionDone() ? 1 : 0;
-        statement.bindLong(15, _tmp);
-        statement.bindDouble(16, entity.getChargeAmount());
-        statement.bindDouble(17, entity.getAdvanceAmount());
-        statement.bindLong(18, entity.getQuotationDate());
+        statement.bindLong(17, _tmp);
+        statement.bindDouble(18, entity.getChargeAmount());
+        statement.bindDouble(19, entity.getAdvanceAmount());
+        statement.bindLong(20, entity.getQuotationDate());
         final int _tmp_1 = entity.getQuotationDone() ? 1 : 0;
-        statement.bindLong(19, _tmp_1);
-        statement.bindString(20, entity.getSparePartPhotoPath());
-        statement.bindString(21, entity.getSparePartName());
-        statement.bindDouble(22, entity.getSparePartPurchasePrice());
-        statement.bindLong(23, entity.getSupplierId());
-        statement.bindLong(24, entity.getSparePartDate());
+        statement.bindLong(21, _tmp_1);
+        statement.bindString(22, entity.getSparePartPhotoPath());
+        statement.bindString(23, entity.getSparePartName());
+        statement.bindDouble(24, entity.getSparePartPurchasePrice());
+        statement.bindLong(25, entity.getSupplierId());
+        statement.bindLong(26, entity.getSparePartDate());
         final int _tmp_2 = entity.getSparePartDone() ? 1 : 0;
-        statement.bindLong(25, _tmp_2);
-        statement.bindString(26, entity.getWorkStatus());
-        statement.bindLong(27, entity.getCompletionDate());
+        statement.bindLong(27, _tmp_2);
+        statement.bindString(28, entity.getWorkStatus());
+        statement.bindLong(29, entity.getCompletionDate());
         final int _tmp_3 = entity.getWorkDone() ? 1 : 0;
-        statement.bindLong(28, _tmp_3);
-        statement.bindDouble(29, entity.getFinalAmount());
-        statement.bindString(30, entity.getPaymentMode());
-        statement.bindDouble(31, entity.getOnlineAmount());
-        statement.bindDouble(32, entity.getCashAmount());
-        statement.bindLong(33, entity.getHandoverDate());
+        statement.bindLong(30, _tmp_3);
+        statement.bindDouble(31, entity.getFinalAmount());
+        statement.bindString(32, entity.getPaymentMode());
+        statement.bindDouble(33, entity.getOnlineAmount());
+        statement.bindDouble(34, entity.getCashAmount());
+        statement.bindLong(35, entity.getHandoverDate());
         final int _tmp_4 = entity.getHandoverDone() ? 1 : 0;
-        statement.bindLong(34, _tmp_4);
-        statement.bindLong(35, entity.getCreatedAt());
-        statement.bindLong(36, entity.getUpdatedAt());
+        statement.bindLong(36, _tmp_4);
+        statement.bindLong(37, entity.getCreatedAt());
+        statement.bindLong(38, entity.getUpdatedAt());
       }
     };
     this.__deletionAdapterOfRepairEntry = new EntityDeletionOrUpdateAdapter<RepairEntry>(__db) {
@@ -114,54 +116,56 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `repair_entries` SET `id` = ?,`entryPhotoPath` = ?,`customerName` = ?,`customerMobile` = ?,`customerCity` = ?,`dealerName` = ?,`dealerMobile` = ?,`serviceManId` = ?,`entryDate` = ?,`faultDetected` = ?,`faultDescription` = ?,`additionalFaults` = ?,`inspectionPhotoPath` = ?,`inspectionDate` = ?,`inspectionDone` = ?,`chargeAmount` = ?,`advanceAmount` = ?,`quotationDate` = ?,`quotationDone` = ?,`sparePartPhotoPath` = ?,`sparePartName` = ?,`sparePartPurchasePrice` = ?,`supplierId` = ?,`sparePartDate` = ?,`sparePartDone` = ?,`workStatus` = ?,`completionDate` = ?,`workDone` = ?,`finalAmount` = ?,`paymentMode` = ?,`onlineAmount` = ?,`cashAmount` = ?,`handoverDate` = ?,`handoverDone` = ?,`createdAt` = ?,`updatedAt` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `repair_entries` SET `id` = ?,`deviceBrand` = ?,`deviceModel` = ?,`entryPhotoPath` = ?,`customerName` = ?,`customerMobile` = ?,`customerCity` = ?,`dealerName` = ?,`dealerMobile` = ?,`serviceManId` = ?,`entryDate` = ?,`faultDetected` = ?,`faultDescription` = ?,`additionalFaults` = ?,`inspectionPhotoPath` = ?,`inspectionDate` = ?,`inspectionDone` = ?,`chargeAmount` = ?,`advanceAmount` = ?,`quotationDate` = ?,`quotationDone` = ?,`sparePartPhotoPath` = ?,`sparePartName` = ?,`sparePartPurchasePrice` = ?,`supplierId` = ?,`sparePartDate` = ?,`sparePartDone` = ?,`workStatus` = ?,`completionDate` = ?,`workDone` = ?,`finalAmount` = ?,`paymentMode` = ?,`onlineAmount` = ?,`cashAmount` = ?,`handoverDate` = ?,`handoverDone` = ?,`createdAt` = ?,`updatedAt` = ? WHERE `id` = ?";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final RepairEntry entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getEntryPhotoPath());
-        statement.bindString(3, entity.getCustomerName());
-        statement.bindString(4, entity.getCustomerMobile());
-        statement.bindString(5, entity.getCustomerCity());
-        statement.bindString(6, entity.getDealerName());
-        statement.bindString(7, entity.getDealerMobile());
-        statement.bindLong(8, entity.getServiceManId());
-        statement.bindLong(9, entity.getEntryDate());
-        statement.bindString(10, entity.getFaultDetected());
-        statement.bindString(11, entity.getFaultDescription());
-        statement.bindString(12, entity.getAdditionalFaults());
-        statement.bindString(13, entity.getInspectionPhotoPath());
-        statement.bindLong(14, entity.getInspectionDate());
+        statement.bindString(2, entity.getDeviceBrand());
+        statement.bindString(3, entity.getDeviceModel());
+        statement.bindString(4, entity.getEntryPhotoPath());
+        statement.bindString(5, entity.getCustomerName());
+        statement.bindString(6, entity.getCustomerMobile());
+        statement.bindString(7, entity.getCustomerCity());
+        statement.bindString(8, entity.getDealerName());
+        statement.bindString(9, entity.getDealerMobile());
+        statement.bindLong(10, entity.getServiceManId());
+        statement.bindLong(11, entity.getEntryDate());
+        statement.bindString(12, entity.getFaultDetected());
+        statement.bindString(13, entity.getFaultDescription());
+        statement.bindString(14, entity.getAdditionalFaults());
+        statement.bindString(15, entity.getInspectionPhotoPath());
+        statement.bindLong(16, entity.getInspectionDate());
         final int _tmp = entity.getInspectionDone() ? 1 : 0;
-        statement.bindLong(15, _tmp);
-        statement.bindDouble(16, entity.getChargeAmount());
-        statement.bindDouble(17, entity.getAdvanceAmount());
-        statement.bindLong(18, entity.getQuotationDate());
+        statement.bindLong(17, _tmp);
+        statement.bindDouble(18, entity.getChargeAmount());
+        statement.bindDouble(19, entity.getAdvanceAmount());
+        statement.bindLong(20, entity.getQuotationDate());
         final int _tmp_1 = entity.getQuotationDone() ? 1 : 0;
-        statement.bindLong(19, _tmp_1);
-        statement.bindString(20, entity.getSparePartPhotoPath());
-        statement.bindString(21, entity.getSparePartName());
-        statement.bindDouble(22, entity.getSparePartPurchasePrice());
-        statement.bindLong(23, entity.getSupplierId());
-        statement.bindLong(24, entity.getSparePartDate());
+        statement.bindLong(21, _tmp_1);
+        statement.bindString(22, entity.getSparePartPhotoPath());
+        statement.bindString(23, entity.getSparePartName());
+        statement.bindDouble(24, entity.getSparePartPurchasePrice());
+        statement.bindLong(25, entity.getSupplierId());
+        statement.bindLong(26, entity.getSparePartDate());
         final int _tmp_2 = entity.getSparePartDone() ? 1 : 0;
-        statement.bindLong(25, _tmp_2);
-        statement.bindString(26, entity.getWorkStatus());
-        statement.bindLong(27, entity.getCompletionDate());
+        statement.bindLong(27, _tmp_2);
+        statement.bindString(28, entity.getWorkStatus());
+        statement.bindLong(29, entity.getCompletionDate());
         final int _tmp_3 = entity.getWorkDone() ? 1 : 0;
-        statement.bindLong(28, _tmp_3);
-        statement.bindDouble(29, entity.getFinalAmount());
-        statement.bindString(30, entity.getPaymentMode());
-        statement.bindDouble(31, entity.getOnlineAmount());
-        statement.bindDouble(32, entity.getCashAmount());
-        statement.bindLong(33, entity.getHandoverDate());
+        statement.bindLong(30, _tmp_3);
+        statement.bindDouble(31, entity.getFinalAmount());
+        statement.bindString(32, entity.getPaymentMode());
+        statement.bindDouble(33, entity.getOnlineAmount());
+        statement.bindDouble(34, entity.getCashAmount());
+        statement.bindLong(35, entity.getHandoverDate());
         final int _tmp_4 = entity.getHandoverDone() ? 1 : 0;
-        statement.bindLong(34, _tmp_4);
-        statement.bindLong(35, entity.getCreatedAt());
-        statement.bindLong(36, entity.getUpdatedAt());
-        statement.bindLong(37, entity.getId());
+        statement.bindLong(36, _tmp_4);
+        statement.bindLong(37, entity.getCreatedAt());
+        statement.bindLong(38, entity.getUpdatedAt());
+        statement.bindLong(39, entity.getId());
       }
     };
   }
@@ -231,6 +235,8 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfDeviceBrand = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceBrand");
+          final int _cursorIndexOfDeviceModel = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceModel");
           final int _cursorIndexOfEntryPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "entryPhotoPath");
           final int _cursorIndexOfCustomerName = CursorUtil.getColumnIndexOrThrow(_cursor, "customerName");
           final int _cursorIndexOfCustomerMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "customerMobile");
@@ -271,6 +277,10 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             final RepairEntry _item;
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpDeviceBrand;
+            _tmpDeviceBrand = _cursor.getString(_cursorIndexOfDeviceBrand);
+            final String _tmpDeviceModel;
+            _tmpDeviceModel = _cursor.getString(_cursorIndexOfDeviceModel);
             final String _tmpEntryPhotoPath;
             _tmpEntryPhotoPath = _cursor.getString(_cursorIndexOfEntryPhotoPath);
             final String _tmpCustomerName;
@@ -351,7 +361,7 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new RepairEntry(_tmpId,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new RepairEntry(_tmpId,_tmpDeviceBrand,_tmpDeviceModel,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -381,6 +391,8 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfDeviceBrand = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceBrand");
+          final int _cursorIndexOfDeviceModel = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceModel");
           final int _cursorIndexOfEntryPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "entryPhotoPath");
           final int _cursorIndexOfCustomerName = CursorUtil.getColumnIndexOrThrow(_cursor, "customerName");
           final int _cursorIndexOfCustomerMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "customerMobile");
@@ -420,6 +432,10 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
           if (_cursor.moveToFirst()) {
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpDeviceBrand;
+            _tmpDeviceBrand = _cursor.getString(_cursorIndexOfDeviceBrand);
+            final String _tmpDeviceModel;
+            _tmpDeviceModel = _cursor.getString(_cursorIndexOfDeviceModel);
             final String _tmpEntryPhotoPath;
             _tmpEntryPhotoPath = _cursor.getString(_cursorIndexOfEntryPhotoPath);
             final String _tmpCustomerName;
@@ -500,7 +516,7 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _result = new RepairEntry(_tmpId,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
+            _result = new RepairEntry(_tmpId,_tmpDeviceBrand,_tmpDeviceModel,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
           } else {
             _result = null;
           }
@@ -526,6 +542,8 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfDeviceBrand = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceBrand");
+          final int _cursorIndexOfDeviceModel = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceModel");
           final int _cursorIndexOfEntryPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "entryPhotoPath");
           final int _cursorIndexOfCustomerName = CursorUtil.getColumnIndexOrThrow(_cursor, "customerName");
           final int _cursorIndexOfCustomerMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "customerMobile");
@@ -565,6 +583,10 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
           if (_cursor.moveToFirst()) {
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpDeviceBrand;
+            _tmpDeviceBrand = _cursor.getString(_cursorIndexOfDeviceBrand);
+            final String _tmpDeviceModel;
+            _tmpDeviceModel = _cursor.getString(_cursorIndexOfDeviceModel);
             final String _tmpEntryPhotoPath;
             _tmpEntryPhotoPath = _cursor.getString(_cursorIndexOfEntryPhotoPath);
             final String _tmpCustomerName;
@@ -645,7 +667,7 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _result = new RepairEntry(_tmpId,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
+            _result = new RepairEntry(_tmpId,_tmpDeviceBrand,_tmpDeviceModel,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
           } else {
             _result = null;
           }
@@ -673,6 +695,8 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfDeviceBrand = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceBrand");
+          final int _cursorIndexOfDeviceModel = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceModel");
           final int _cursorIndexOfEntryPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "entryPhotoPath");
           final int _cursorIndexOfCustomerName = CursorUtil.getColumnIndexOrThrow(_cursor, "customerName");
           final int _cursorIndexOfCustomerMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "customerMobile");
@@ -713,6 +737,10 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             final RepairEntry _item;
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpDeviceBrand;
+            _tmpDeviceBrand = _cursor.getString(_cursorIndexOfDeviceBrand);
+            final String _tmpDeviceModel;
+            _tmpDeviceModel = _cursor.getString(_cursorIndexOfDeviceModel);
             final String _tmpEntryPhotoPath;
             _tmpEntryPhotoPath = _cursor.getString(_cursorIndexOfEntryPhotoPath);
             final String _tmpCustomerName;
@@ -793,7 +821,7 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new RepairEntry(_tmpId,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new RepairEntry(_tmpId,_tmpDeviceBrand,_tmpDeviceModel,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -820,6 +848,8 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfDeviceBrand = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceBrand");
+          final int _cursorIndexOfDeviceModel = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceModel");
           final int _cursorIndexOfEntryPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "entryPhotoPath");
           final int _cursorIndexOfCustomerName = CursorUtil.getColumnIndexOrThrow(_cursor, "customerName");
           final int _cursorIndexOfCustomerMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "customerMobile");
@@ -860,6 +890,10 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             final RepairEntry _item;
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpDeviceBrand;
+            _tmpDeviceBrand = _cursor.getString(_cursorIndexOfDeviceBrand);
+            final String _tmpDeviceModel;
+            _tmpDeviceModel = _cursor.getString(_cursorIndexOfDeviceModel);
             final String _tmpEntryPhotoPath;
             _tmpEntryPhotoPath = _cursor.getString(_cursorIndexOfEntryPhotoPath);
             final String _tmpCustomerName;
@@ -940,7 +974,7 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new RepairEntry(_tmpId,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new RepairEntry(_tmpId,_tmpDeviceBrand,_tmpDeviceModel,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -969,6 +1003,8 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfDeviceBrand = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceBrand");
+          final int _cursorIndexOfDeviceModel = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceModel");
           final int _cursorIndexOfEntryPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "entryPhotoPath");
           final int _cursorIndexOfCustomerName = CursorUtil.getColumnIndexOrThrow(_cursor, "customerName");
           final int _cursorIndexOfCustomerMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "customerMobile");
@@ -1009,6 +1045,10 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             final RepairEntry _item;
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpDeviceBrand;
+            _tmpDeviceBrand = _cursor.getString(_cursorIndexOfDeviceBrand);
+            final String _tmpDeviceModel;
+            _tmpDeviceModel = _cursor.getString(_cursorIndexOfDeviceModel);
             final String _tmpEntryPhotoPath;
             _tmpEntryPhotoPath = _cursor.getString(_cursorIndexOfEntryPhotoPath);
             final String _tmpCustomerName;
@@ -1089,7 +1129,7 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new RepairEntry(_tmpId,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new RepairEntry(_tmpId,_tmpDeviceBrand,_tmpDeviceModel,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -1120,6 +1160,8 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfDeviceBrand = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceBrand");
+          final int _cursorIndexOfDeviceModel = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceModel");
           final int _cursorIndexOfEntryPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "entryPhotoPath");
           final int _cursorIndexOfCustomerName = CursorUtil.getColumnIndexOrThrow(_cursor, "customerName");
           final int _cursorIndexOfCustomerMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "customerMobile");
@@ -1160,6 +1202,10 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             final RepairEntry _item;
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpDeviceBrand;
+            _tmpDeviceBrand = _cursor.getString(_cursorIndexOfDeviceBrand);
+            final String _tmpDeviceModel;
+            _tmpDeviceModel = _cursor.getString(_cursorIndexOfDeviceModel);
             final String _tmpEntryPhotoPath;
             _tmpEntryPhotoPath = _cursor.getString(_cursorIndexOfEntryPhotoPath);
             final String _tmpCustomerName;
@@ -1240,7 +1286,7 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new RepairEntry(_tmpId,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new RepairEntry(_tmpId,_tmpDeviceBrand,_tmpDeviceModel,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;
@@ -1433,6 +1479,8 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfDeviceBrand = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceBrand");
+          final int _cursorIndexOfDeviceModel = CursorUtil.getColumnIndexOrThrow(_cursor, "deviceModel");
           final int _cursorIndexOfEntryPhotoPath = CursorUtil.getColumnIndexOrThrow(_cursor, "entryPhotoPath");
           final int _cursorIndexOfCustomerName = CursorUtil.getColumnIndexOrThrow(_cursor, "customerName");
           final int _cursorIndexOfCustomerMobile = CursorUtil.getColumnIndexOrThrow(_cursor, "customerMobile");
@@ -1473,6 +1521,10 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             final RepairEntry _item;
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final String _tmpDeviceBrand;
+            _tmpDeviceBrand = _cursor.getString(_cursorIndexOfDeviceBrand);
+            final String _tmpDeviceModel;
+            _tmpDeviceModel = _cursor.getString(_cursorIndexOfDeviceModel);
             final String _tmpEntryPhotoPath;
             _tmpEntryPhotoPath = _cursor.getString(_cursorIndexOfEntryPhotoPath);
             final String _tmpCustomerName;
@@ -1553,7 +1605,7 @@ public final class RepairEntryDao_Impl implements RepairEntryDao {
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
             final long _tmpUpdatedAt;
             _tmpUpdatedAt = _cursor.getLong(_cursorIndexOfUpdatedAt);
-            _item = new RepairEntry(_tmpId,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
+            _item = new RepairEntry(_tmpId,_tmpDeviceBrand,_tmpDeviceModel,_tmpEntryPhotoPath,_tmpCustomerName,_tmpCustomerMobile,_tmpCustomerCity,_tmpDealerName,_tmpDealerMobile,_tmpServiceManId,_tmpEntryDate,_tmpFaultDetected,_tmpFaultDescription,_tmpAdditionalFaults,_tmpInspectionPhotoPath,_tmpInspectionDate,_tmpInspectionDone,_tmpChargeAmount,_tmpAdvanceAmount,_tmpQuotationDate,_tmpQuotationDone,_tmpSparePartPhotoPath,_tmpSparePartName,_tmpSparePartPurchasePrice,_tmpSupplierId,_tmpSparePartDate,_tmpSparePartDone,_tmpWorkStatus,_tmpCompletionDate,_tmpWorkDone,_tmpFinalAmount,_tmpPaymentMode,_tmpOnlineAmount,_tmpCashAmount,_tmpHandoverDate,_tmpHandoverDone,_tmpCreatedAt,_tmpUpdatedAt);
             _result.add(_item);
           }
           return _result;

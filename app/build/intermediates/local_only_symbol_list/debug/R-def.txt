@@ -27,6 +27,7 @@ drawable ic_dashboard
 drawable ic_list
 drawable ic_more
 drawable ic_report
+drawable splash_banner
 drawable splash_theme
 id action_loginFragment_to_dashboardFragment
 id barChart
@@ -37,6 +38,7 @@ id btnAddServiceMan
 id btnAddSupplier
 id btnCompleteHandover
 id btnCompleteParts
+id btnDeletePart
 id btnExportDaily
 id btnHandover
 id btnInspect
@@ -94,6 +96,7 @@ id etGst
 id etItemName
 id etMobile
 id etMobileNumber
+id etModelName
 id etName
 id etOnlineAmount
 id etOtp
@@ -105,6 +108,8 @@ id handoverFragment
 id inspectionFragment
 id ivEntryPhoto
 id ivInspectionPhoto
+id ivLogo
+id ivPartImage
 id ivPartPhoto
 id ivSplash
 id layoutMobileInput
@@ -136,6 +141,7 @@ id searchView
 id serviceManAddFragment
 id serviceManListFragment
 id sparePartsFragment
+id spinnerBrand
 id spinnerServiceMan
 id spinnerSupplier
 id supplierAddFragment
@@ -151,11 +157,13 @@ id tvAISuggestions
 id tvAddedPartsLabel
 id tvAmount
 id tvAppVersion
+id tvCategory
 id tvCompletedCount
 id tvCustomerMobile
 id tvCustomerName
 id tvCustomersCount
 id tvDate
+id tvDefaultCharge
 id tvDetailCharge
 id tvDetailCity
 id tvDetailCustomer
@@ -167,17 +175,22 @@ id tvDetailServiceMan
 id tvDetailStatus
 id tvFault
 id tvFaultDetected
+id tvFaultName
 id tvFaultsCount
 id tvOtpSentTo
+id tvPartName
 id tvPendingCount
+id tvPrice
 id tvReportCompleted
 id tvReportRevenue
 id tvResendOtp
 id tvServiceMenCount
+id tvShopName
 id tvStatus
 id tvSummaryCharge
 id tvSummaryFault
 id tvSummaryParts
+id tvSupplier
 id tvSuppliersCount
 id tvTodayProfit
 layout activity_main
@@ -200,6 +213,8 @@ layout fragment_service_man_list
 layout fragment_spare_parts
 layout fragment_supplier_add
 layout fragment_supplier_list
+layout item_added_part
+layout item_common_fault
 layout item_repair_entry
 menu bottom_nav_menu
 navigation nav_graph
@@ -216,9 +231,12 @@ string entry_customer_mobile
 string entry_customer_name
 string entry_dealer_mobile
 string entry_dealer_name
+string entry_device_info
+string entry_model_name
 string entry_next
 string entry_photo
 string entry_save
+string entry_select_brand
 string entry_service_man
 string entry_title
 string gallery
@@ -265,6 +283,7 @@ string report_weekly
 string save
 string search
 string select
+string shop_name
 string spare_add
 string spare_name
 string spare_photo
@@ -276,5 +295,6 @@ string status_done
 string status_in_progress
 string status_pending
 string take_photo
+string welcome_master
 style Theme.MobileRepairShop
 xml file_paths

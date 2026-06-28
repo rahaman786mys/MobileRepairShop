@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.google.gson.Gson
-import com.mobilerepair.shop.BuildConfig
 import okhttp3.*
 import java.io.IOException
 
@@ -30,7 +29,12 @@ object UpdateManager {
                 if (body != null) {
                     try {
                         val versionInfo = Gson().fromJson(body, VersionInfo::class.java)
-                        val currentVersion = BuildConfig.VERSION_CODE
+                        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                        val currentVersion = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                            packageInfo.longVersionCode
+                        } else {
+                            packageInfo.versionCode.toLong()
+                        }
                         
                         if (versionInfo.versionCode > currentVersion) {
                             (context as? android.app.Activity)?.runOnUiThread {

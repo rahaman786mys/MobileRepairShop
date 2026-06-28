@@ -44,6 +44,9 @@ public final class FragmentEntryBinding implements ViewBinding {
   public final TextInputEditText etMobileNumber;
 
   @NonNull
+  public final TextInputEditText etModelName;
+
+  @NonNull
   public final TextInputEditText etName;
 
   @NonNull
@@ -51,6 +54,9 @@ public final class FragmentEntryBinding implements ViewBinding {
 
   @NonNull
   public final LinearLayout layoutRepairFields;
+
+  @NonNull
+  public final Spinner spinnerBrand;
 
   @NonNull
   public final Spinner spinnerServiceMan;
@@ -67,8 +73,9 @@ public final class FragmentEntryBinding implements ViewBinding {
   private FragmentEntryBinding(@NonNull ScrollView rootView, @NonNull MaterialButton btnSaveEntry,
       @NonNull MaterialButton btnTakePhoto, @NonNull MaterialButton btnTypeCustomer,
       @NonNull MaterialButton btnTypeDealer, @NonNull TextInputEditText etCity,
-      @NonNull TextInputEditText etMobileNumber, @NonNull TextInputEditText etName,
-      @NonNull AppCompatImageView ivEntryPhoto, @NonNull LinearLayout layoutRepairFields,
+      @NonNull TextInputEditText etMobileNumber, @NonNull TextInputEditText etModelName,
+      @NonNull TextInputEditText etName, @NonNull AppCompatImageView ivEntryPhoto,
+      @NonNull LinearLayout layoutRepairFields, @NonNull Spinner spinnerBrand,
       @NonNull Spinner spinnerServiceMan, @NonNull TextInputLayout tilMobile,
       @NonNull TextInputLayout tilName, @NonNull MaterialButtonToggleGroup toggleGroupEntryType) {
     this.rootView = rootView;
@@ -78,9 +85,11 @@ public final class FragmentEntryBinding implements ViewBinding {
     this.btnTypeDealer = btnTypeDealer;
     this.etCity = etCity;
     this.etMobileNumber = etMobileNumber;
+    this.etModelName = etModelName;
     this.etName = etName;
     this.ivEntryPhoto = ivEntryPhoto;
     this.layoutRepairFields = layoutRepairFields;
+    this.spinnerBrand = spinnerBrand;
     this.spinnerServiceMan = spinnerServiceMan;
     this.tilMobile = tilMobile;
     this.tilName = tilName;
@@ -150,6 +159,12 @@ public final class FragmentEntryBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.etModelName;
+      TextInputEditText etModelName = ViewBindings.findChildViewById(rootView, id);
+      if (etModelName == null) {
+        break missingId;
+      }
+
       id = R.id.etName;
       TextInputEditText etName = ViewBindings.findChildViewById(rootView, id);
       if (etName == null) {
@@ -165,6 +180,12 @@ public final class FragmentEntryBinding implements ViewBinding {
       id = R.id.layoutRepairFields;
       LinearLayout layoutRepairFields = ViewBindings.findChildViewById(rootView, id);
       if (layoutRepairFields == null) {
+        break missingId;
+      }
+
+      id = R.id.spinnerBrand;
+      Spinner spinnerBrand = ViewBindings.findChildViewById(rootView, id);
+      if (spinnerBrand == null) {
         break missingId;
       }
 
@@ -193,8 +214,9 @@ public final class FragmentEntryBinding implements ViewBinding {
       }
 
       return new FragmentEntryBinding((ScrollView) rootView, btnSaveEntry, btnTakePhoto,
-          btnTypeCustomer, btnTypeDealer, etCity, etMobileNumber, etName, ivEntryPhoto,
-          layoutRepairFields, spinnerServiceMan, tilMobile, tilName, toggleGroupEntryType);
+          btnTypeCustomer, btnTypeDealer, etCity, etMobileNumber, etModelName, etName, ivEntryPhoto,
+          layoutRepairFields, spinnerBrand, spinnerServiceMan, tilMobile, tilName,
+          toggleGroupEntryType);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

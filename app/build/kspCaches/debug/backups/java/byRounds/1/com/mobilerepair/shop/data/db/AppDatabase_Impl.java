@@ -64,7 +64,7 @@ public final class AppDatabase_Impl extends AppDatabase {
     final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `repair_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `entryPhotoPath` TEXT NOT NULL, `customerName` TEXT NOT NULL, `customerMobile` TEXT NOT NULL, `customerCity` TEXT NOT NULL, `dealerName` TEXT NOT NULL, `dealerMobile` TEXT NOT NULL, `serviceManId` INTEGER NOT NULL, `entryDate` INTEGER NOT NULL, `faultDetected` TEXT NOT NULL, `faultDescription` TEXT NOT NULL, `additionalFaults` TEXT NOT NULL, `inspectionPhotoPath` TEXT NOT NULL, `inspectionDate` INTEGER NOT NULL, `inspectionDone` INTEGER NOT NULL, `chargeAmount` REAL NOT NULL, `advanceAmount` REAL NOT NULL, `quotationDate` INTEGER NOT NULL, `quotationDone` INTEGER NOT NULL, `sparePartPhotoPath` TEXT NOT NULL, `sparePartName` TEXT NOT NULL, `sparePartPurchasePrice` REAL NOT NULL, `supplierId` INTEGER NOT NULL, `sparePartDate` INTEGER NOT NULL, `sparePartDone` INTEGER NOT NULL, `workStatus` TEXT NOT NULL, `completionDate` INTEGER NOT NULL, `workDone` INTEGER NOT NULL, `finalAmount` REAL NOT NULL, `paymentMode` TEXT NOT NULL, `onlineAmount` REAL NOT NULL, `cashAmount` REAL NOT NULL, `handoverDate` INTEGER NOT NULL, `handoverDone` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `repair_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deviceBrand` TEXT NOT NULL, `deviceModel` TEXT NOT NULL, `entryPhotoPath` TEXT NOT NULL, `customerName` TEXT NOT NULL, `customerMobile` TEXT NOT NULL, `customerCity` TEXT NOT NULL, `dealerName` TEXT NOT NULL, `dealerMobile` TEXT NOT NULL, `serviceManId` INTEGER NOT NULL, `entryDate` INTEGER NOT NULL, `faultDetected` TEXT NOT NULL, `faultDescription` TEXT NOT NULL, `additionalFaults` TEXT NOT NULL, `inspectionPhotoPath` TEXT NOT NULL, `inspectionDate` INTEGER NOT NULL, `inspectionDone` INTEGER NOT NULL, `chargeAmount` REAL NOT NULL, `advanceAmount` REAL NOT NULL, `quotationDate` INTEGER NOT NULL, `quotationDone` INTEGER NOT NULL, `sparePartPhotoPath` TEXT NOT NULL, `sparePartName` TEXT NOT NULL, `sparePartPurchasePrice` REAL NOT NULL, `supplierId` INTEGER NOT NULL, `sparePartDate` INTEGER NOT NULL, `sparePartDone` INTEGER NOT NULL, `workStatus` TEXT NOT NULL, `completionDate` INTEGER NOT NULL, `workDone` INTEGER NOT NULL, `finalAmount` REAL NOT NULL, `paymentMode` TEXT NOT NULL, `onlineAmount` REAL NOT NULL, `cashAmount` REAL NOT NULL, `handoverDate` INTEGER NOT NULL, `handoverDone` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `service_men` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `mobile` TEXT NOT NULL, `email` TEXT NOT NULL, `employeeId` TEXT NOT NULL, `designation` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `suppliers` (`mobile` TEXT NOT NULL, `name` TEXT NOT NULL, `companyName` TEXT NOT NULL, `email` TEXT NOT NULL, `address` TEXT NOT NULL, `city` TEXT NOT NULL, `gstNo` TEXT NOT NULL, `suppliesTypes` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobile`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `common_faults` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `faultName` TEXT NOT NULL, `category` TEXT NOT NULL, `defaultCharge` REAL NOT NULL, `description` TEXT NOT NULL, `isActive` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
@@ -73,7 +73,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `dealers` (`mobileNumber` TEXT NOT NULL, `name` TEXT, `city` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobileNumber`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `sales` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `itemName` TEXT NOT NULL, `supplierId` TEXT NOT NULL, `purchasePrice` REAL NOT NULL, `salePrice` REAL NOT NULL, `saleDate` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eda94516c1f3c2dfa01931cc71080c1a')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ce175ebb3d4886bdb34edecae976ce96')");
       }
 
       @Override
@@ -129,8 +129,10 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsRepairEntries = new HashMap<String, TableInfo.Column>(36);
+        final HashMap<String, TableInfo.Column> _columnsRepairEntries = new HashMap<String, TableInfo.Column>(38);
         _columnsRepairEntries.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsRepairEntries.put("deviceBrand", new TableInfo.Column("deviceBrand", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsRepairEntries.put("deviceModel", new TableInfo.Column("deviceModel", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRepairEntries.put("entryPhotoPath", new TableInfo.Column("entryPhotoPath", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRepairEntries.put("customerName", new TableInfo.Column("customerName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRepairEntries.put("customerMobile", new TableInfo.Column("customerMobile", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -297,7 +299,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "eda94516c1f3c2dfa01931cc71080c1a", "3276ff27608b6290e1e1607db323352d");
+    }, "ce175ebb3d4886bdb34edecae976ce96", "52fd3574d5215278816c16c85e598049");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
