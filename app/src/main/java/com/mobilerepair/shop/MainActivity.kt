@@ -8,6 +8,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.mobilerepair.shop.databinding.ActivityMainBinding
+import com.mobilerepair.shop.utils.UpdateManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,6 +18,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Check for updates from GitHub
+        UpdateManager.checkForUpdates(this)
 
         // Set up navigation
         val navHostFragment = supportFragmentManager

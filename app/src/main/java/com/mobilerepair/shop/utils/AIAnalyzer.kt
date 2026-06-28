@@ -1,8 +1,15 @@
 package com.mobilerepair.shop.utils
 
 import android.graphics.Bitmap
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.label.ImageLabel
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import com.google.mlkit.vision.objects.ObjectDetection
+import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
 import com.mobilerepair.shop.data.model.CommonFault
 import com.mobilerepair.shop.data.model.RepairEntry
+import kotlinx.coroutines.tasks.await
 
 /**
  * AI-powered analysis utilities for the repair shop
@@ -11,12 +18,63 @@ import com.mobilerepair.shop.data.model.RepairEntry
 object AIAnalyzer {
 
     /**
-     * Analyze phone photo to suggest possible faults
+     * Analyze phone photo to suggest possible faults using ML Kit
      */
-    fun suggestFaultsFromPhoto(bitmap: Bitmap?, knownFaults: List<CommonFault>): List<String> {
+    suspend fun suggestFaultsFromPhoto(bitmap: Bitmap?, knownFaults: List<CommonFault>): List<String> {
         val suggestions = mutableListOf<String>()
         if (bitmap == null) return suggestions
 
+        try {
+            val image = InputImage.fromBitmap(bitmap, 0)
+
+            // 1. Use Object Detection to find the device and check for structural issues
+            val objOptions = ObjectDetectorOptions.Builder()
+                .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
+                .enableMultipleObjects()
+                .enableClassification()
+                .build()
+            val objectDetector = ObjectDetection.getClient(objOptions)
+            val detectedObjects = objectDetector.process(image).await()
+
+            if (detectedObjects.isEmpty()) {
+                suggestions.add("No device clearly detected. Please ensure the phone is well-lit and centered.")
+            } else {
+                suggestions.add("Device detected: Analysis in progress...")
+            }
+
+            // 2. Use Image Labeling for general context
+            val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
+            val labels: List<ImageLabel> = labeler.process(image).await()
+
+            for (label in labels) {
+                val text = label.text
+                val confidence = label.confidence
+                when {
+                    text.contains("Screen", ignoreCase = true) || text.contains("Display", ignoreCase = true) -> {
+                        if (confidence > 0.7) suggestions.add("High probability of Display/Screen related context.")
+                    }
+                    text.contains("Crack", ignoreCase = true) || text.contains("Broken", ignoreCase = true) -> {
+                        suggestions.add("Visible structural damage (crack/break) detected!")
+                    }
+                    text.contains("Liquid", ignoreCase = true) || text.contains("Water", ignoreCase = true) -> {
+                        suggestions.add("Possible liquid damage signs detected.")
+                    }
+                }
+            }
+
+            // 3. Keep some of the old pixel-based heuristics as fallbacks or complementary checks
+            val pixelSuggestions = runPixelAnalysis(bitmap)
+            suggestions.addAll(pixelSuggestions)
+
+        } catch (e: Exception) {
+            suggestions.add("AI Analysis failed: ${e.message}")
+        }
+
+        return suggestions.distinct()
+    }
+
+    private fun runPixelAnalysis(bitmap: Bitmap): List<String> {
+        val suggestions = mutableListOf<String>()
         val width = bitmap.width
         val height = bitmap.height
         val samples = mutableListOf<Int>()
@@ -27,9 +85,6 @@ object AIAnalyzer {
             }
         }
 
-        if (samples.isEmpty()) return suggestions
-
-        // Calculate average brightness
         val avgBrightness = samples.map { pixel ->
             val r = (pixel shr 16) and 0xFF
             val g = (pixel shr 8) and 0xFF
@@ -37,33 +92,8 @@ object AIAnalyzer {
             (0.299 * r + 0.587 * g + 0.114 * b).toInt()
         }.average()
 
-        // Calculate contrast/variance
-        val variance = samples.map { pixel ->
-            val r = (pixel shr 16) and 0xFF
-            val g = (pixel shr 8) and 0xFF
-            val b = pixel and 0xFF
-            val gray = (0.299 * r + 0.587 * g + 0.114 * b).toInt()
-            (gray - avgBrightness) * (gray - avgBrightness)
-        }.average()
-
-        // Smart fault suggestions
-        if (avgBrightness > 200) {
-            suggestions.add("Screen might be bright/unusual - Check display")
-        }
-        if (variance > 5000) {
-            suggestions.add("High contrast detected - Possible screen damage/crack")
-        }
-
-        val darkPixelCount = samples.count { pixel ->
-            val r = (pixel shr 16) and 0xFF
-            val g = (pixel shr 8) and 0xFF
-            val b = pixel and 0xFF
-            (r + g + b) < 100
-        }
-        val darkRatio = if (samples.isNotEmpty()) darkPixelCount.toDouble() / samples.size else 0.0
-        if (darkRatio > 0.3) {
-            suggestions.add("Dark spots detected - Possible screen/display issue")
-        }
+        if (avgBrightness > 200) suggestions.add("Excessive brightness detected - could indicate backlight issues.")
+        if (avgBrightness < 50) suggestions.add("Low brightness detected - check if device powers on.")
 
         return suggestions
     }
@@ -182,4 +212,3 @@ data class ReorderPrediction(
     val shouldReorder: Boolean = false,
     val suggestedOrderQuantity: Int = 0
 )
-

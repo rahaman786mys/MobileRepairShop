@@ -46,7 +46,9 @@ class EntryViewModel : ViewModel() {
         mobile: String,
         city: String,
         isDealer: Boolean,
-        serviceManId: Long
+        serviceManId: Long,
+        brand: String,
+        model: String
     ) {
         viewModelScope.launch {
             _isSaving.value = true
@@ -66,6 +68,8 @@ class EntryViewModel : ViewModel() {
                 dealerName = if (isDealer) name else "",
                 dealerMobile = if (isDealer) mobile else "",
                 serviceManId = serviceManId,
+                deviceBrand = brand,
+                deviceModel = model,
                 entryDate = System.currentTimeMillis()
             )
             val id = repository.insert(entry)

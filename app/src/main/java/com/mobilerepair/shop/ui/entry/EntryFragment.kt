@@ -40,6 +40,12 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     private var photoUri: Uri? = null
     private var serviceMenList = listOf<ServiceMan>()
 
+    private val brands = listOf(
+        "Select Brand", "Samsung", "Apple (iPhone)", "Xiaomi (Mi/Redmi/Poco)", 
+        "Vivo", "Oppo", "Realme", "OnePlus", "Motorola", "Google Pixel", 
+        "Nokia", "Micromax", "Lava", "IQOO", "Infinix", "Techno", "Nothing", "Others"
+    )
+
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success && photoUri != null) {
             binding.ivEntryPhoto.setImageURI(photoUri)
@@ -60,7 +66,14 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
         setupClickListeners()
         setupMobileWatcher()
+        setupBrandSpinner()
         observeViewModel()
+    }
+
+    private fun setupBrandSpinner() {
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, brands)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerBrand.adapter = adapter
     }
 
     private fun setupClickListeners() {
@@ -142,11 +155,24 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         val name = binding.etName.text.toString().trim()
         val mobile = binding.etMobileNumber.text.toString().trim()
         val city = binding.etCity.text.toString().trim()
+        val model = binding.etModelName.text.toString().trim()
         val isDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
 
         if (!ValidationUtils.validatePhoneNumber(binding.tilMobile)) {
             return
         }
+
+        if (binding.spinnerBrand.selectedItemPosition == 0) {
+            Snackbar.make(binding.root, "Please select a brand", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        if (model.isEmpty()) {
+            Snackbar.make(binding.root, "Please enter model name", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        val brand = brands[binding.spinnerBrand.selectedItemPosition]
 
         val selectedPos = binding.spinnerServiceMan.selectedItemPosition
         val serviceManId = if (selectedPos > 0 && selectedPos <= serviceMenList.size) {
@@ -159,7 +185,9 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             mobile = mobile,
             city = city,
             isDealer = isDealer,
-            serviceManId = serviceManId
+            serviceManId = serviceManId,
+            brand = brand,
+            model = model
         )
     }
 

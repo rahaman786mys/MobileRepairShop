@@ -18,7 +18,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobilerepair.shop.R
+import com.mobilerepair.shop.adapter.AddedPartAdapter
 import com.mobilerepair.shop.data.model.Supplier
 import com.mobilerepair.shop.databinding.FragmentSparePartsBinding
 import com.mobilerepair.shop.utils.PhotoUtils
@@ -31,6 +33,7 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
     private var _binding: FragmentSparePartsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SparePartsViewModel by viewModels()
+    private lateinit var partAdapter: AddedPartAdapter
 
     private var entryId: Long = 0
     private var photoFile: File? = null
@@ -57,8 +60,19 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
         entryId = arguments?.getLong("entryId", 0) ?: 0
         viewModel.loadPartsForEntry(entryId)
 
+        setupRecyclerView()
         setupClickListeners()
         observeViewModel()
+    }
+
+    private fun setupRecyclerView() {
+        partAdapter = AddedPartAdapter { part ->
+            viewModel.deletePart(part)
+        }
+        binding.rvAddedParts.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = partAdapter
+        }
     }
 
     private fun setupClickListeners() {
@@ -143,8 +157,8 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.addedParts.collectLatest { list ->
-                    // For now just show count, maybe update a list in future
                     binding.tvAddedPartsLabel.text = "Added Parts (${list.size})"
+                    partAdapter.submitList(list)
                 }
             }
         }

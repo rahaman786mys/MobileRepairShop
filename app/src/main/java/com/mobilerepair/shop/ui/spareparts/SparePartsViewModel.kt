@@ -7,6 +7,7 @@ import com.mobilerepair.shop.data.model.SparePartPurchase
 import com.mobilerepair.shop.data.model.Supplier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class SparePartsViewModel : ViewModel() {
@@ -43,16 +44,18 @@ class SparePartsViewModel : ViewModel() {
                 supplierName = supplierName
             )
             purchaseDao.insert(part)
-            // Reload parts for this entry
-            purchaseDao.getPurchasesByRepairId(repairEntryId).collect {
-                _addedParts.value = it
-            }
+        }
+    }
+
+    fun deletePart(part: SparePartPurchase) {
+        viewModelScope.launch {
+            purchaseDao.delete(part)
         }
     }
 
     fun loadPartsForEntry(repairEntryId: Long) {
         viewModelScope.launch {
-            purchaseDao.getPurchasesByRepairId(repairEntryId).collect { list ->
+            purchaseDao.getPurchasesByRepairId(repairEntryId).collectLatest { list ->
                 _addedParts.value = list
             }
         }

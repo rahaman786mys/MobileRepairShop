@@ -12,6 +12,8 @@ data class RepairEntry(
     val id: Long = 0,
 
     // === ENTRY STAGE ===
+    val deviceBrand: String = "",              // e.g., Samsung, iPhone
+    val deviceModel: String = "",              // e.g., Galaxy S21
     val entryPhotoPath: String = "",           // Photo of phone at entry
     val customerName: String = "",
     val customerMobile: String = "",

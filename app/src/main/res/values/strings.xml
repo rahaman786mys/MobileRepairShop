@@ -21,6 +21,11 @@
     <string name="entry_service_man">Assign Service Man</string>
     <string name="entry_save">Save Entry</string>
     <string name="entry_next">Next → Inspection</string>
+    <string name="entry_device_info">Device Information</string>
+    <string name="entry_select_brand">Select Brand</string>
+    <string name="entry_model_name">Model Name (e.g. Galaxy S21)</string>
+    <string name="shop_name">MuZZu Tech</string>
+    <string name="welcome_master">Welcome back, Master</string>
 
     <!-- Inspection Screen -->
     <string name="inspection_title">Inspection</string>

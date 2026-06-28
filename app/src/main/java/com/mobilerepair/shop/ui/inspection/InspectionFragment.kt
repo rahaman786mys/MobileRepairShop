@@ -18,8 +18,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobilerepair.shop.MobileRepairApp
 import com.mobilerepair.shop.R
+import com.mobilerepair.shop.adapter.CommonFaultAdapter
 import com.mobilerepair.shop.databinding.FragmentInspectionBinding
 import com.mobilerepair.shop.utils.PhotoUtils
 import kotlinx.coroutines.flow.collectLatest
@@ -31,6 +33,7 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
     private var _binding: FragmentInspectionBinding? = null
     private val binding get() = _binding!!
     private val viewModel: InspectionViewModel by viewModels()
+    private lateinit var faultAdapter: CommonFaultAdapter
 
     private var entryId: Long = 0
     private var photoFile: File? = null
@@ -59,8 +62,19 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
         super.onViewCreated(view, savedInstanceState)
         entryId = arguments?.getLong("entryId", 0) ?: 0
 
+        setupRecyclerView()
         setupClickListeners()
         observeViewModel()
+    }
+
+    private fun setupRecyclerView() {
+        faultAdapter = CommonFaultAdapter { fault ->
+            binding.etCustomFault.setText(fault.faultName)
+        }
+        binding.rvCommonFaults.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = faultAdapter
+        }
     }
 
     private fun setupClickListeners() {
@@ -121,11 +135,7 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.commonFaults.collectLatest { faults ->
-                    // Show common faults (simplified - show in a text block)
-                    if (faults.isNotEmpty()) {
-                        val faultText = faults.joinToString("\n") { "${it.faultName} (₹${it.defaultCharge})" }
-                        binding.tvAISuggestions.text = "Common Faults:\n$faultText"
-                    }
+                    faultAdapter.submitList(faults)
                 }
             }
         }
