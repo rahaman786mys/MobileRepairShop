@@ -41,14 +41,21 @@ class MainActivity : AppCompatActivity() {
 
         // Update toolbar title and visibility of bottom nav based on current destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            binding.toolbar.title = destination.label ?: "Mobile Repair Shop"
+            binding.toolbar.title = destination.label ?: "Repair Shop"
             
-            if (destination.id == R.id.loginFragment) {
-                binding.bottomNavigation.visibility = View.GONE
-                binding.toolbar.visibility = View.GONE
-            } else {
-                binding.bottomNavigation.visibility = View.VISIBLE
-                binding.toolbar.visibility = View.VISIBLE
+            when (destination.id) {
+                R.id.loginFragment -> {
+                    binding.bottomNavigation.visibility = View.GONE
+                    binding.toolbar.visibility = View.GONE
+                }
+                R.id.dashboardFragment -> {
+                    binding.bottomNavigation.visibility = View.VISIBLE
+                    binding.toolbar.visibility = View.GONE // Hide toolbar for dashboard
+                }
+                else -> {
+                    binding.bottomNavigation.visibility = View.VISIBLE
+                    binding.toolbar.visibility = View.VISIBLE
+                }
             }
         }
     }

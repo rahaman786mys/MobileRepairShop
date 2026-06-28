@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MuZZu Tech</string>
+    <string name="app_name">Repair Shop</string>
     <!-- Trigger new build -->
 
     <!-- Navigation -->
@@ -24,7 +24,6 @@
     <string name="entry_device_info">Device Information</string>
     <string name="entry_select_brand">Select Brand</string>
     <string name="entry_model_name">Model Name (e.g. Galaxy S21)</string>
-    <string name="shop_name">MuZZu Tech</string>
     <string name="welcome_master">Welcome back, Master</string>
 
     <!-- Inspection Screen -->

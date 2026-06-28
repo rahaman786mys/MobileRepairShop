@@ -5,16 +5,16 @@
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
 
-    <!-- Greyscale -->
+    <!-- Greyscale - High Contrast for Readability -->
     <color name="grey_100">#F1F5F9</color>
     <color name="grey_200">#E2E8F0</color>
     <color name="grey_300">#CBD5E1</color>
-    <color name="grey_400">#94A3B8</color>
-    <color name="grey_500">#64748B</color>
-    <color name="grey_600">#475569</color>
-    <color name="grey_700">#334155</color>
-    <color name="grey_800">#1E293B</color>
-    <color name="grey_900">#0F172A</color>
+    <color name="grey_400">#64748B</color>
+    <color name="grey_500">#334155</color>
+    <color name="grey_600">#1E293B</color>
+    <color name="grey_700">#0F172A</color>
+    <color name="grey_800">#020617</color>
+    <color name="grey_900">#000000</color>
 
     <!-- Branding -->
     <color name="primary">#2563EB</color>
@@ -23,8 +23,10 @@
     <color name="accent">#F59E0B</color>
     <color name="background">#F8FAFC</color>
     <color name="surface">#FFFFFF</color>
-    <color name="text_primary">#1E293B</color>
-    <color name="text_secondary">#64748B</color>
+
+    <!-- Ultra Black Text for Readability -->
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#1E293B</color>
 
     <!-- Status & Semantic -->
     <color name="status_pending">#EF4444</color>

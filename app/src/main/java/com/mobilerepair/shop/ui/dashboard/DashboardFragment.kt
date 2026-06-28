@@ -112,9 +112,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                     health?.let {
                         binding.tvTodayProfit.text = "₹ ${String.format("%.0f", it.dailyProfit)}"
                         binding.tvTodayExpense.text = "₹ ${String.format("%.0f", it.dailyExpense)}"
-                        binding.tvHealthScore.text = "${it.healthScore}%"
-                        binding.tvSmartMoveTitle.text = it.smartMove
-                        binding.tvSmartMoveDesc.text = it.recommendation
                     }
                 }
             }
