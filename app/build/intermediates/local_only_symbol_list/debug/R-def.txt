@@ -7,6 +7,15 @@ color card_bg_blue
 color card_bg_green
 color card_bg_orange
 color error
+color grey_100
+color grey_200
+color grey_300
+color grey_400
+color grey_500
+color grey_600
+color grey_700
+color grey_800
+color grey_900
 color info
 color primary
 color primary_dark
@@ -14,10 +23,12 @@ color primary_variant
 color status_done
 color status_in_progress
 color status_pending
+color status_progress
 color success
 color surface
 color text_primary
 color text_secondary
+color transparent
 color warning
 color white
 drawable bg_spinner
@@ -135,6 +146,7 @@ id rvServiceMen
 id rvSupplierPurchases
 id rvSuppliers
 id saleFragment
+id searchView
 id serviceManAddFragment
 id serviceManListFragment
 id sparePartsFragment

@@ -115,6 +115,23 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Search Section -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="2dp"
+            android:layout_marginBottom="16dp">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:iconifiedByDefault="false"
+                app:queryHint="Search by Phone Number..."
+                app:queryBackground="@android:color/transparent"/>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Profit/Loss Dynamic Grid -->
         <GridLayout
             android:layout_width="match_parent"

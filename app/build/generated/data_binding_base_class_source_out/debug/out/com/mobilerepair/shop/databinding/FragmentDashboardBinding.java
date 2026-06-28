@@ -8,6 +8,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
@@ -43,6 +44,9 @@ public final class FragmentDashboardBinding implements ViewBinding {
   public final RecyclerView rvRecentEntries;
 
   @NonNull
+  public final SearchView searchView;
+
+  @NonNull
   public final TextView tvCompletedCount;
 
   @NonNull
@@ -67,10 +71,11 @@ public final class FragmentDashboardBinding implements ViewBinding {
       @NonNull MaterialCardView cardMoreGrid, @NonNull MaterialCardView cardReportsGrid,
       @NonNull MaterialCardView cardSales, @NonNull MaterialCardView cardService,
       @NonNull MaterialCardView cardSuppliersGrid, @NonNull MaterialCardView cardWork,
-      @NonNull RecyclerView rvRecentEntries, @NonNull TextView tvCompletedCount,
-      @NonNull TextView tvHealthScore, @NonNull TextView tvPendingCount,
-      @NonNull TextView tvSmartMoveDesc, @NonNull TextView tvSmartMoveTitle,
-      @NonNull TextView tvTodayExpense, @NonNull TextView tvTodayProfit) {
+      @NonNull RecyclerView rvRecentEntries, @NonNull SearchView searchView,
+      @NonNull TextView tvCompletedCount, @NonNull TextView tvHealthScore,
+      @NonNull TextView tvPendingCount, @NonNull TextView tvSmartMoveDesc,
+      @NonNull TextView tvSmartMoveTitle, @NonNull TextView tvTodayExpense,
+      @NonNull TextView tvTodayProfit) {
     this.rootView = rootView;
     this.cardMoreGrid = cardMoreGrid;
     this.cardReportsGrid = cardReportsGrid;
@@ -79,6 +84,7 @@ public final class FragmentDashboardBinding implements ViewBinding {
     this.cardSuppliersGrid = cardSuppliersGrid;
     this.cardWork = cardWork;
     this.rvRecentEntries = rvRecentEntries;
+    this.searchView = searchView;
     this.tvCompletedCount = tvCompletedCount;
     this.tvHealthScore = tvHealthScore;
     this.tvPendingCount = tvPendingCount;
@@ -157,6 +163,12 @@ public final class FragmentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.searchView;
+      SearchView searchView = ViewBindings.findChildViewById(rootView, id);
+      if (searchView == null) {
+        break missingId;
+      }
+
       id = R.id.tvCompletedCount;
       TextView tvCompletedCount = ViewBindings.findChildViewById(rootView, id);
       if (tvCompletedCount == null) {
@@ -200,9 +212,9 @@ public final class FragmentDashboardBinding implements ViewBinding {
       }
 
       return new FragmentDashboardBinding((ScrollView) rootView, cardMoreGrid, cardReportsGrid,
-          cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries, tvCompletedCount,
-          tvHealthScore, tvPendingCount, tvSmartMoveDesc, tvSmartMoveTitle, tvTodayExpense,
-          tvTodayProfit);
+          cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries, searchView,
+          tvCompletedCount, tvHealthScore, tvPendingCount, tvSmartMoveDesc, tvSmartMoveTitle,
+          tvTodayExpense, tvTodayProfit);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

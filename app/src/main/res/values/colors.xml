@@ -29,6 +29,7 @@
     <!-- Status & Semantic -->
     <color name="status_pending">#EF4444</color>
     <color name="status_in_progress">#3B82F6</color>
+    <color name="status_progress">#3B82F6</color>
     <color name="status_done">#10B981</color>
 
     <color name="success">#10B981</color>
