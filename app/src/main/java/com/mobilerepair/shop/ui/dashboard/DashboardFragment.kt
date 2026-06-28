@@ -65,12 +65,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         binding.cardSuppliersGrid.setOnClickListener {
             findNavController().navigate(R.id.supplierListFragment)
         }
-        binding.cardReportsGrid.setOnClickListener {
-            findNavController().navigate(R.id.reportsFragment)
-        }
-        binding.cardMoreGrid.setOnClickListener {
-            findNavController().navigate(R.id.moreFragment)
-        }
     }
 
     private fun setupSearchView() {

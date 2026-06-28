@@ -18,7 +18,7 @@ import com.mobilerepair.shop.data.model.*
         Dealer::class,
         Sale::class
     ],
-    version = 2, // Incremented version for new entities and schema changes
+    version = 3, // Incremented version for new entities and schema changes
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

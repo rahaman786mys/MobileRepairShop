@@ -57,15 +57,12 @@ public final class FragmentLoginBinding implements ViewBinding {
   @NonNull
   public final TextView tvResendOtp;
 
-  @NonNull
-  public final TextView tvShopName;
-
   private FragmentLoginBinding(@NonNull LinearLayout rootView, @NonNull MaterialButton btnSendOtp,
       @NonNull MaterialButton btnVerifyOtp, @NonNull TextInputEditText etMobileNumber,
       @NonNull TextInputEditText etOtp, @NonNull ImageView ivLogo,
       @NonNull LinearLayout layoutMobileInput, @NonNull LinearLayout layoutOtpInput,
       @NonNull ProgressBar progressBar, @NonNull TextInputLayout tilMobileNumber,
-      @NonNull TextView tvOtpSentTo, @NonNull TextView tvResendOtp, @NonNull TextView tvShopName) {
+      @NonNull TextView tvOtpSentTo, @NonNull TextView tvResendOtp) {
     this.rootView = rootView;
     this.btnSendOtp = btnSendOtp;
     this.btnVerifyOtp = btnVerifyOtp;
@@ -78,7 +75,6 @@ public final class FragmentLoginBinding implements ViewBinding {
     this.tilMobileNumber = tilMobileNumber;
     this.tvOtpSentTo = tvOtpSentTo;
     this.tvResendOtp = tvResendOtp;
-    this.tvShopName = tvShopName;
   }
 
   @Override
@@ -174,15 +170,9 @@ public final class FragmentLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tvShopName;
-      TextView tvShopName = ViewBindings.findChildViewById(rootView, id);
-      if (tvShopName == null) {
-        break missingId;
-      }
-
       return new FragmentLoginBinding((LinearLayout) rootView, btnSendOtp, btnVerifyOtp,
           etMobileNumber, etOtp, ivLogo, layoutMobileInput, layoutOtpInput, progressBar,
-          tilMobileNumber, tvOtpSentTo, tvResendOtp, tvShopName);
+          tilMobileNumber, tvOtpSentTo, tvResendOtp);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

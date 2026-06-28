@@ -10,12 +10,12 @@
     <color name="grey_100">#F1F5F9</color>
     <color name="grey_200">#E2E8F0</color>
     <color name="grey_300">#CBD5E1</color>
-    <color name="grey_400">#94A3B8</color>
-    <color name="grey_500">#64748B</color>
-    <color name="grey_600">#475569</color>
-    <color name="grey_700">#334155</color>
-    <color name="grey_800">#1E293B</color>
-    <color name="grey_900">#0F172A</color>
+    <color name="grey_400">#64748B</color>
+    <color name="grey_500">#334155</color>
+    <color name="grey_600">#1E293B</color>
+    <color name="grey_700">#0F172A</color>
+    <color name="grey_800">#020617</color>
+    <color name="grey_900">#000000</color>
     <color name="info">#3B82F6</color>
     <color name="primary">#2563EB</color>
     <color name="primary_dark">#1E40AF</color>
@@ -26,8 +26,8 @@
     <color name="status_progress">#3B82F6</color>
     <color name="success">#10B981</color>
     <color name="surface">#FFFFFF</color>
-    <color name="text_primary">#1E293B</color>
-    <color name="text_secondary">#64748B</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#1E293B</color>
     <color name="transparent">#00000000</color>
     <color name="warning">#F59E0B</color>
     <color name="white">#FFFFFF</color>
@@ -35,7 +35,7 @@
     <string name="ai_estimate">AI Cost Estimate</string>
     <string name="ai_suggestions">AI Suggestions</string>
     <string name="ai_trends">AI Trends Analysis</string>
-    <string name="app_name">MuZZu Tech</string>
+    <string name="app_name">Repair Shop</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
@@ -96,7 +96,6 @@
     <string name="save">Save</string>
     <string name="search">Search</string>
     <string name="select">Select</string>
-    <string name="shop_name">MuZZu Tech</string>
     <string name="spare_add">Add Part</string>
     <string name="spare_name">Part Name</string>
     <string name="spare_photo">Part Photo</string>
@@ -109,6 +108,14 @@
     <string name="status_pending">Pending</string>
     <string name="take_photo">Take Photo</string>
     <string name="welcome_master">Welcome back, Master</string>
+    <style name="BottomNavText.Active" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="BottomNavText.Inactive" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
     <style name="Theme.MobileRepairShop" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>

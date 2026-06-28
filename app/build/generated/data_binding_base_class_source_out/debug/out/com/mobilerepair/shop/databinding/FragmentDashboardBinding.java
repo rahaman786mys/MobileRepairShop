@@ -23,12 +23,6 @@ public final class FragmentDashboardBinding implements ViewBinding {
   private final ScrollView rootView;
 
   @NonNull
-  public final MaterialCardView cardMoreGrid;
-
-  @NonNull
-  public final MaterialCardView cardReportsGrid;
-
-  @NonNull
   public final MaterialCardView cardSales;
 
   @NonNull
@@ -50,16 +44,7 @@ public final class FragmentDashboardBinding implements ViewBinding {
   public final TextView tvCompletedCount;
 
   @NonNull
-  public final TextView tvHealthScore;
-
-  @NonNull
   public final TextView tvPendingCount;
-
-  @NonNull
-  public final TextView tvSmartMoveDesc;
-
-  @NonNull
-  public final TextView tvSmartMoveTitle;
 
   @NonNull
   public final TextView tvTodayExpense;
@@ -68,17 +53,12 @@ public final class FragmentDashboardBinding implements ViewBinding {
   public final TextView tvTodayProfit;
 
   private FragmentDashboardBinding(@NonNull ScrollView rootView,
-      @NonNull MaterialCardView cardMoreGrid, @NonNull MaterialCardView cardReportsGrid,
       @NonNull MaterialCardView cardSales, @NonNull MaterialCardView cardService,
       @NonNull MaterialCardView cardSuppliersGrid, @NonNull MaterialCardView cardWork,
       @NonNull RecyclerView rvRecentEntries, @NonNull SearchView searchView,
-      @NonNull TextView tvCompletedCount, @NonNull TextView tvHealthScore,
-      @NonNull TextView tvPendingCount, @NonNull TextView tvSmartMoveDesc,
-      @NonNull TextView tvSmartMoveTitle, @NonNull TextView tvTodayExpense,
-      @NonNull TextView tvTodayProfit) {
+      @NonNull TextView tvCompletedCount, @NonNull TextView tvPendingCount,
+      @NonNull TextView tvTodayExpense, @NonNull TextView tvTodayProfit) {
     this.rootView = rootView;
-    this.cardMoreGrid = cardMoreGrid;
-    this.cardReportsGrid = cardReportsGrid;
     this.cardSales = cardSales;
     this.cardService = cardService;
     this.cardSuppliersGrid = cardSuppliersGrid;
@@ -86,10 +66,7 @@ public final class FragmentDashboardBinding implements ViewBinding {
     this.rvRecentEntries = rvRecentEntries;
     this.searchView = searchView;
     this.tvCompletedCount = tvCompletedCount;
-    this.tvHealthScore = tvHealthScore;
     this.tvPendingCount = tvPendingCount;
-    this.tvSmartMoveDesc = tvSmartMoveDesc;
-    this.tvSmartMoveTitle = tvSmartMoveTitle;
     this.tvTodayExpense = tvTodayExpense;
     this.tvTodayProfit = tvTodayProfit;
   }
@@ -121,18 +98,6 @@ public final class FragmentDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.cardMoreGrid;
-      MaterialCardView cardMoreGrid = ViewBindings.findChildViewById(rootView, id);
-      if (cardMoreGrid == null) {
-        break missingId;
-      }
-
-      id = R.id.cardReportsGrid;
-      MaterialCardView cardReportsGrid = ViewBindings.findChildViewById(rootView, id);
-      if (cardReportsGrid == null) {
-        break missingId;
-      }
-
       id = R.id.cardSales;
       MaterialCardView cardSales = ViewBindings.findChildViewById(rootView, id);
       if (cardSales == null) {
@@ -175,27 +140,9 @@ public final class FragmentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tvHealthScore;
-      TextView tvHealthScore = ViewBindings.findChildViewById(rootView, id);
-      if (tvHealthScore == null) {
-        break missingId;
-      }
-
       id = R.id.tvPendingCount;
       TextView tvPendingCount = ViewBindings.findChildViewById(rootView, id);
       if (tvPendingCount == null) {
-        break missingId;
-      }
-
-      id = R.id.tvSmartMoveDesc;
-      TextView tvSmartMoveDesc = ViewBindings.findChildViewById(rootView, id);
-      if (tvSmartMoveDesc == null) {
-        break missingId;
-      }
-
-      id = R.id.tvSmartMoveTitle;
-      TextView tvSmartMoveTitle = ViewBindings.findChildViewById(rootView, id);
-      if (tvSmartMoveTitle == null) {
         break missingId;
       }
 
@@ -211,10 +158,9 @@ public final class FragmentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentDashboardBinding((ScrollView) rootView, cardMoreGrid, cardReportsGrid,
-          cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries, searchView,
-          tvCompletedCount, tvHealthScore, tvPendingCount, tvSmartMoveDesc, tvSmartMoveTitle,
-          tvTodayExpense, tvTodayProfit);
+      return new FragmentDashboardBinding((ScrollView) rootView, cardSales, cardService,
+          cardSuppliersGrid, cardWork, rvRecentEntries, searchView, tvCompletedCount,
+          tvPendingCount, tvTodayExpense, tvTodayProfit);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
