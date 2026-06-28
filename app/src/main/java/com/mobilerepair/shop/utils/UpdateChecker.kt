@@ -24,26 +24,25 @@ object UpdateChecker {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                // Fail silently
+                // To debug: (context as? android.app.Activity)?.runOnUiThread { Toast.makeText(context, "Update check failed", Toast.LENGTH_SHORT).show() }
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
-                    return
-                }
-                
-                val json = response.body?.string()
-                
-                if (json != null) {
-                    try {
-                        val updateInfo = Gson().fromJson(json, UpdateInfo::class.java)
-                        val currentVersionCode = getCurrentVersionCode(context)
-                        
-                        if (updateInfo.versionCode > currentVersionCode) {
-                            showUpdateDialog(context, updateInfo)
+                response.use { 
+                    if (!response.isSuccessful) return
+                    
+                    val json = response.body?.string()
+                    if (json != null) {
+                        try {
+                            val updateInfo = Gson().fromJson(json, UpdateInfo::class.java)
+                            val currentVersionCode = getCurrentVersionCode(context)
+                            
+                            if (updateInfo.versionCode > currentVersionCode) {
+                                showUpdateDialog(context, updateInfo)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
                     }
                 }
             }

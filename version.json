@@ -1,6 +1,6 @@
 {
-  "versionCode": 2,
-  "versionName": "1.0.1",
+  "versionCode": 3,
+  "versionName": "1.0.2",
   "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/actions",
-  "releaseNotes": "• Refactored New Entry for Customer/Dealer\n• Added Direct Sales module\n• Enhanced Search by mobile number\n• UI improvements for Dashboard"
+  "releaseNotes": "• New Branding: MuZZu Tech\n• Splash Screen added\n• Bug fixes and UI improvements"
 }
