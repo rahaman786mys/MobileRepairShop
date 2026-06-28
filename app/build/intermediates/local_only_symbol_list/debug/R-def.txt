@@ -1,25 +1,23 @@
 R_DEF: Internal format may change without notice
 local
 color accent
-color accent_light
 color background
 color black
-color card_background
+color card_bg_blue
+color card_bg_green
+color card_bg_orange
 color error
-color grey_200
-color grey_500
-color grey_700
-color grey_900
+color info
 color primary
-color primary_dark
-color primary_light
+color primary_variant
 color status_done
+color status_in_progress
 color status_pending
-color status_progress
 color success
 color surface
 color text_primary
 color text_secondary
+color warning
 color white
 drawable bg_spinner
 drawable ic_add
@@ -39,7 +37,6 @@ id btnAddSupplier
 id btnCompleteHandover
 id btnCompleteParts
 id btnDeletePart
-id btnExportDaily
 id btnHandover
 id btnInspect
 id btnQuotation
@@ -137,7 +134,6 @@ id rvServiceMen
 id rvSupplierPurchases
 id rvSuppliers
 id saleFragment
-id searchView
 id serviceManAddFragment
 id serviceManListFragment
 id sparePartsFragment
@@ -177,6 +173,7 @@ id tvFault
 id tvFaultDetected
 id tvFaultName
 id tvFaultsCount
+id tvHealthScore
 id tvOtpSentTo
 id tvPartName
 id tvPendingCount
@@ -186,12 +183,15 @@ id tvReportRevenue
 id tvResendOtp
 id tvServiceMenCount
 id tvShopName
+id tvSmartMoveDesc
+id tvSmartMoveTitle
 id tvStatus
 id tvSummaryCharge
 id tvSummaryFault
 id tvSummaryParts
 id tvSupplier
 id tvSuppliersCount
+id tvTodayExpense
 id tvTodayProfit
 layout activity_main
 layout activity_splash

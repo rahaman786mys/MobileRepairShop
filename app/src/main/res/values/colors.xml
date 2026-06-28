@@ -7,6 +7,7 @@
     <!-- Branding -->
     <color name="primary">#2563EB</color>
     <color name="primary_variant">#1D4ED8</color>
+    <color name="primary_dark">#1E40AF</color>
     <color name="accent">#F59E0B</color>
     <color name="background">#F8FAFC</color>
     <color name="surface">#FFFFFF</color>

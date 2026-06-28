@@ -1,9 +1,5 @@
 [
     {
-        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_item_added_part.xml.flat",
-        "source": "com.mobilerepair.shop.app-main-66:/layout/item_added_part.xml"
-    },
-    {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.5\\com.mobilerepair.shop.app-merged_res-64:\\xml_file_paths.xml.flat",
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.5\\com.mobilerepair.shop.app-main-66:\\xml\\file_paths.xml"
     },
@@ -78,6 +74,10 @@
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.5\\com.mobilerepair.shop.app-merged_res-64:\\layout_fragment_entry.xml.flat",
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.5\\com.mobilerepair.shop.app-main-66:\\layout\\fragment_entry.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_dashboard.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_dashboard.xml"
     },
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.5\\com.mobilerepair.shop.app-merged_res-64:\\drawable_ic_list.xml.flat",

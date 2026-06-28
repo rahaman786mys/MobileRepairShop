@@ -8,11 +8,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.mobilerepair.shop.R;
 import java.lang.NullPointerException;
@@ -22,9 +20,6 @@ import java.lang.String;
 public final class FragmentDashboardBinding implements ViewBinding {
   @NonNull
   private final ScrollView rootView;
-
-  @NonNull
-  public final MaterialButton btnExportDaily;
 
   @NonNull
   public final MaterialCardView cardMoreGrid;
@@ -48,26 +43,35 @@ public final class FragmentDashboardBinding implements ViewBinding {
   public final RecyclerView rvRecentEntries;
 
   @NonNull
-  public final SearchView searchView;
+  public final TextView tvCompletedCount;
 
   @NonNull
-  public final TextView tvCompletedCount;
+  public final TextView tvHealthScore;
 
   @NonNull
   public final TextView tvPendingCount;
 
   @NonNull
+  public final TextView tvSmartMoveDesc;
+
+  @NonNull
+  public final TextView tvSmartMoveTitle;
+
+  @NonNull
+  public final TextView tvTodayExpense;
+
+  @NonNull
   public final TextView tvTodayProfit;
 
   private FragmentDashboardBinding(@NonNull ScrollView rootView,
-      @NonNull MaterialButton btnExportDaily, @NonNull MaterialCardView cardMoreGrid,
-      @NonNull MaterialCardView cardReportsGrid, @NonNull MaterialCardView cardSales,
-      @NonNull MaterialCardView cardService, @NonNull MaterialCardView cardSuppliersGrid,
-      @NonNull MaterialCardView cardWork, @NonNull RecyclerView rvRecentEntries,
-      @NonNull SearchView searchView, @NonNull TextView tvCompletedCount,
-      @NonNull TextView tvPendingCount, @NonNull TextView tvTodayProfit) {
+      @NonNull MaterialCardView cardMoreGrid, @NonNull MaterialCardView cardReportsGrid,
+      @NonNull MaterialCardView cardSales, @NonNull MaterialCardView cardService,
+      @NonNull MaterialCardView cardSuppliersGrid, @NonNull MaterialCardView cardWork,
+      @NonNull RecyclerView rvRecentEntries, @NonNull TextView tvCompletedCount,
+      @NonNull TextView tvHealthScore, @NonNull TextView tvPendingCount,
+      @NonNull TextView tvSmartMoveDesc, @NonNull TextView tvSmartMoveTitle,
+      @NonNull TextView tvTodayExpense, @NonNull TextView tvTodayProfit) {
     this.rootView = rootView;
-    this.btnExportDaily = btnExportDaily;
     this.cardMoreGrid = cardMoreGrid;
     this.cardReportsGrid = cardReportsGrid;
     this.cardSales = cardSales;
@@ -75,9 +79,12 @@ public final class FragmentDashboardBinding implements ViewBinding {
     this.cardSuppliersGrid = cardSuppliersGrid;
     this.cardWork = cardWork;
     this.rvRecentEntries = rvRecentEntries;
-    this.searchView = searchView;
     this.tvCompletedCount = tvCompletedCount;
+    this.tvHealthScore = tvHealthScore;
     this.tvPendingCount = tvPendingCount;
+    this.tvSmartMoveDesc = tvSmartMoveDesc;
+    this.tvSmartMoveTitle = tvSmartMoveTitle;
+    this.tvTodayExpense = tvTodayExpense;
     this.tvTodayProfit = tvTodayProfit;
   }
 
@@ -108,12 +115,6 @@ public final class FragmentDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
-      id = R.id.btnExportDaily;
-      MaterialButton btnExportDaily = ViewBindings.findChildViewById(rootView, id);
-      if (btnExportDaily == null) {
-        break missingId;
-      }
-
       id = R.id.cardMoreGrid;
       MaterialCardView cardMoreGrid = ViewBindings.findChildViewById(rootView, id);
       if (cardMoreGrid == null) {
@@ -156,15 +157,15 @@ public final class FragmentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.searchView;
-      SearchView searchView = ViewBindings.findChildViewById(rootView, id);
-      if (searchView == null) {
-        break missingId;
-      }
-
       id = R.id.tvCompletedCount;
       TextView tvCompletedCount = ViewBindings.findChildViewById(rootView, id);
       if (tvCompletedCount == null) {
+        break missingId;
+      }
+
+      id = R.id.tvHealthScore;
+      TextView tvHealthScore = ViewBindings.findChildViewById(rootView, id);
+      if (tvHealthScore == null) {
         break missingId;
       }
 
@@ -174,15 +175,34 @@ public final class FragmentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvSmartMoveDesc;
+      TextView tvSmartMoveDesc = ViewBindings.findChildViewById(rootView, id);
+      if (tvSmartMoveDesc == null) {
+        break missingId;
+      }
+
+      id = R.id.tvSmartMoveTitle;
+      TextView tvSmartMoveTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvSmartMoveTitle == null) {
+        break missingId;
+      }
+
+      id = R.id.tvTodayExpense;
+      TextView tvTodayExpense = ViewBindings.findChildViewById(rootView, id);
+      if (tvTodayExpense == null) {
+        break missingId;
+      }
+
       id = R.id.tvTodayProfit;
       TextView tvTodayProfit = ViewBindings.findChildViewById(rootView, id);
       if (tvTodayProfit == null) {
         break missingId;
       }
 
-      return new FragmentDashboardBinding((ScrollView) rootView, btnExportDaily, cardMoreGrid,
-          cardReportsGrid, cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries,
-          searchView, tvCompletedCount, tvPendingCount, tvTodayProfit);
+      return new FragmentDashboardBinding((ScrollView) rootView, cardMoreGrid, cardReportsGrid,
+          cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries, tvCompletedCount,
+          tvHealthScore, tvPendingCount, tvSmartMoveDesc, tvSmartMoveTitle, tvTodayExpense,
+          tvTodayProfit);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
