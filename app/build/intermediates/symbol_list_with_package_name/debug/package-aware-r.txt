@@ -1484,15 +1484,12 @@ color error_color_material_dark
 color error_color_material_light
 color foreground_material_dark
 color foreground_material_light
-color grey_100
 color grey_200
-color grey_50
 color grey_500
 color grey_700
 color grey_900
 color highlighted_text_material_dark
 color highlighted_text_material_light
-color info
 color m3_appbar_overlay_color
 color m3_assist_chip_icon_tint_color
 color m3_assist_chip_stroke_color
@@ -2167,6 +2164,7 @@ color status_done
 color status_pending
 color status_progress
 color success
+color surface
 color switch_thumb_disabled_material_dark
 color switch_thumb_disabled_material_light
 color switch_thumb_material_dark
@@ -2177,7 +2175,6 @@ color text_primary
 color text_secondary
 color tooltip_background_dark
 color tooltip_background_light
-color warning
 color white
 dimen abc_action_bar_content_inset_material
 dimen abc_action_bar_content_inset_with_nav
@@ -3301,6 +3298,7 @@ id btnAddServiceMan
 id btnAddSupplier
 id btnCompleteHandover
 id btnCompleteParts
+id btnExportDaily
 id btnHandover
 id btnInspect
 id btnQuotation
@@ -3322,6 +3320,7 @@ id cache_measures
 id callMeasure
 id cancel_button
 id cardCommonFaults
+id cardCustomers
 id cardLogout
 id cardMoreGrid
 id cardReportsGrid
@@ -3372,6 +3371,7 @@ id cradle
 id currentState
 id custom
 id customPanel
+id customerListFragment
 id cut
 id dark
 id dashboardFragment
@@ -3672,6 +3672,7 @@ id row_index_key
 id rtl
 id rvAddedParts
 id rvCommonFaults
+id rvCustomers
 id rvEntries
 id rvFaults
 id rvRecentEntries
@@ -3782,6 +3783,7 @@ id textinput_placeholder
 id textinput_prefix_text
 id textinput_suffix_text
 id tilMobile
+id tilMobileNumber
 id tilName
 id time
 id title
@@ -3806,9 +3808,11 @@ id tvAIInsights
 id tvAISuggestions
 id tvAddedPartsLabel
 id tvAmount
+id tvAppVersion
 id tvCompletedCount
 id tvCustomerMobile
 id tvCustomerName
+id tvCustomersCount
 id tvDate
 id tvDetailCharge
 id tvDetailCity
@@ -3833,6 +3837,7 @@ id tvSummaryCharge
 id tvSummaryFault
 id tvSummaryParts
 id tvSuppliersCount
+id tvTodayProfit
 id unchecked
 id uniform
 id unlabeled
@@ -3992,6 +3997,7 @@ layout design_navigation_menu_item
 layout design_text_input_end_icon
 layout design_text_input_start_icon
 layout fragment_common_faults
+layout fragment_customer_list
 layout fragment_dashboard
 layout fragment_entries_list
 layout fragment_entry

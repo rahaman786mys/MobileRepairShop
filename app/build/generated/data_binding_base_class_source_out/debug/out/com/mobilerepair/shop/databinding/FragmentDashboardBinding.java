@@ -12,6 +12,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.mobilerepair.shop.R;
 import java.lang.NullPointerException;
@@ -21,6 +22,9 @@ import java.lang.String;
 public final class FragmentDashboardBinding implements ViewBinding {
   @NonNull
   private final ScrollView rootView;
+
+  @NonNull
+  public final MaterialButton btnExportDaily;
 
   @NonNull
   public final MaterialCardView cardMoreGrid;
@@ -52,13 +56,18 @@ public final class FragmentDashboardBinding implements ViewBinding {
   @NonNull
   public final TextView tvPendingCount;
 
+  @NonNull
+  public final TextView tvTodayProfit;
+
   private FragmentDashboardBinding(@NonNull ScrollView rootView,
-      @NonNull MaterialCardView cardMoreGrid, @NonNull MaterialCardView cardReportsGrid,
-      @NonNull MaterialCardView cardSales, @NonNull MaterialCardView cardService,
-      @NonNull MaterialCardView cardSuppliersGrid, @NonNull MaterialCardView cardWork,
-      @NonNull RecyclerView rvRecentEntries, @NonNull SearchView searchView,
-      @NonNull TextView tvCompletedCount, @NonNull TextView tvPendingCount) {
+      @NonNull MaterialButton btnExportDaily, @NonNull MaterialCardView cardMoreGrid,
+      @NonNull MaterialCardView cardReportsGrid, @NonNull MaterialCardView cardSales,
+      @NonNull MaterialCardView cardService, @NonNull MaterialCardView cardSuppliersGrid,
+      @NonNull MaterialCardView cardWork, @NonNull RecyclerView rvRecentEntries,
+      @NonNull SearchView searchView, @NonNull TextView tvCompletedCount,
+      @NonNull TextView tvPendingCount, @NonNull TextView tvTodayProfit) {
     this.rootView = rootView;
+    this.btnExportDaily = btnExportDaily;
     this.cardMoreGrid = cardMoreGrid;
     this.cardReportsGrid = cardReportsGrid;
     this.cardSales = cardSales;
@@ -69,6 +78,7 @@ public final class FragmentDashboardBinding implements ViewBinding {
     this.searchView = searchView;
     this.tvCompletedCount = tvCompletedCount;
     this.tvPendingCount = tvPendingCount;
+    this.tvTodayProfit = tvTodayProfit;
   }
 
   @Override
@@ -98,6 +108,12 @@ public final class FragmentDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnExportDaily;
+      MaterialButton btnExportDaily = ViewBindings.findChildViewById(rootView, id);
+      if (btnExportDaily == null) {
+        break missingId;
+      }
+
       id = R.id.cardMoreGrid;
       MaterialCardView cardMoreGrid = ViewBindings.findChildViewById(rootView, id);
       if (cardMoreGrid == null) {
@@ -158,9 +174,15 @@ public final class FragmentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentDashboardBinding((ScrollView) rootView, cardMoreGrid, cardReportsGrid,
-          cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries, searchView,
-          tvCompletedCount, tvPendingCount);
+      id = R.id.tvTodayProfit;
+      TextView tvTodayProfit = ViewBindings.findChildViewById(rootView, id);
+      if (tvTodayProfit == null) {
+        break missingId;
+      }
+
+      return new FragmentDashboardBinding((ScrollView) rootView, btnExportDaily, cardMoreGrid,
+          cardReportsGrid, cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries,
+          searchView, tvCompletedCount, tvPendingCount, tvTodayProfit);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

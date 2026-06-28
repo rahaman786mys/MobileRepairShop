@@ -114,6 +114,12 @@
         android:label="Common Faults"
         tools:layout="@layout/fragment_common_faults" />
 
+    <fragment
+        android:id="@+id/customerListFragment"
+        android:name="com.mobilerepair.shop.ui.master.customers.CustomerListFragment"
+        android:label="Customers"
+        tools:layout="@layout/fragment_customer_list" />
+
     <!-- Entry Detail / Workflow -->
     <fragment
         android:id="@+id/entryDetailFragment"

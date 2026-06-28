@@ -25,6 +25,7 @@ import com.mobilerepair.shop.R
 import com.mobilerepair.shop.data.model.ServiceMan
 import com.mobilerepair.shop.databinding.FragmentEntryBinding
 import com.mobilerepair.shop.utils.PhotoUtils
+import com.mobilerepair.shop.utils.ValidationUtils
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
@@ -143,8 +144,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         val city = binding.etCity.text.toString().trim()
         val isDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
 
-        if (mobile.length != 10) {
-            binding.etMobileNumber.error = "10-digit mobile number required"
+        if (!ValidationUtils.validatePhoneNumber(binding.tilMobile)) {
             return
         }
 

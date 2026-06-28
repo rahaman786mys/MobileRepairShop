@@ -6,13 +6,10 @@ color background
 color black
 color card_background
 color error
-color grey_100
 color grey_200
-color grey_50
 color grey_500
 color grey_700
 color grey_900
-color info
 color primary
 color primary_dark
 color primary_light
@@ -20,9 +17,9 @@ color status_done
 color status_pending
 color status_progress
 color success
+color surface
 color text_primary
 color text_secondary
-color warning
 color white
 drawable bg_spinner
 drawable ic_add
@@ -40,6 +37,7 @@ id btnAddServiceMan
 id btnAddSupplier
 id btnCompleteHandover
 id btnCompleteParts
+id btnExportDaily
 id btnHandover
 id btnInspect
 id btnQuotation
@@ -57,6 +55,7 @@ id btnTypeDealer
 id btnUploadPhoto
 id btnVerifyOtp
 id cardCommonFaults
+id cardCustomers
 id cardLogout
 id cardMoreGrid
 id cardReportsGrid
@@ -72,6 +71,7 @@ id chipGroupPeriod
 id chipMonthly
 id chipWeekly
 id commonFaultsFragment
+id customerListFragment
 id dashboardFragment
 id entriesFragment
 id entryDetailFragment
@@ -124,6 +124,7 @@ id radioOnline
 id reportsFragment
 id rvAddedParts
 id rvCommonFaults
+id rvCustomers
 id rvEntries
 id rvFaults
 id rvRecentEntries
@@ -140,6 +141,7 @@ id spinnerSupplier
 id supplierAddFragment
 id supplierListFragment
 id tilMobile
+id tilMobileNumber
 id tilName
 id toggleGroupEntryType
 id toolbar
@@ -148,9 +150,11 @@ id tvAIInsights
 id tvAISuggestions
 id tvAddedPartsLabel
 id tvAmount
+id tvAppVersion
 id tvCompletedCount
 id tvCustomerMobile
 id tvCustomerName
+id tvCustomersCount
 id tvDate
 id tvDetailCharge
 id tvDetailCity
@@ -175,9 +179,11 @@ id tvSummaryCharge
 id tvSummaryFault
 id tvSummaryParts
 id tvSuppliersCount
+id tvTodayProfit
 layout activity_main
 layout activity_splash
 layout fragment_common_faults
+layout fragment_customer_list
 layout fragment_dashboard
 layout fragment_entries_list
 layout fragment_entry

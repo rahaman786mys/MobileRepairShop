@@ -84,6 +84,10 @@
         "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_entry_detail.xml"
     },
     {
+        "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_customer_list.xml.flat",
+        "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_customer_list.xml"
+    },
+    {
         "merged": "com.mobilerepair.shop.app-merged_res-64:/layout_fragment_login.xml.flat",
         "source": "com.mobilerepair.shop.app-main-66:/layout/fragment_login.xml"
     },

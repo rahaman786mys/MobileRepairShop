@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.databinding.FragmentLoginBinding
+import com.mobilerepair.shop.utils.ValidationUtils
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
@@ -25,11 +26,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnSendOtp.setOnClickListener {
-            val mobile = binding.etMobileNumber.text.toString()
-            if (mobile.length == 10) {
-                sendOtpSimulation(mobile)
-            } else {
-                binding.etMobileNumber.error = "Enter valid 10-digit mobile number"
+            if (ValidationUtils.validatePhoneNumber(binding.tilMobileNumber)) {
+                sendOtpSimulation(binding.etMobileNumber.text.toString())
             }
         }
 

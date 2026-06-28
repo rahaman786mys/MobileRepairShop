@@ -31,6 +31,9 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         binding.cardServiceMen.setOnClickListener {
             findNavController().navigate(R.id.serviceManListFragment)
         }
+        binding.cardCustomers.setOnClickListener {
+            findNavController().navigate(R.id.customerListFragment)
+        }
         binding.cardSuppliers.setOnClickListener {
             findNavController().navigate(R.id.supplierListFragment)
         }
@@ -48,6 +51,11 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
+            MobileRepairApp.instance.database.customerDao().getAllCustomers().collectLatest { list ->
+                binding.tvCustomersCount.text = "${list.size} customers"
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
             MobileRepairApp.instance.database.supplierDao().getAllSuppliers().collectLatest { list ->
                 binding.tvSuppliersCount.text = "${list.size} suppliers"
             }
@@ -56,6 +64,14 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             MobileRepairApp.instance.database.commonFaultDao().getAllFaults().collectLatest { list ->
                 binding.tvFaultsCount.text = "${list.size} fault types"
             }
+        }
+        
+        // Version
+        try {
+            val pInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+            binding.tvAppVersion.text = "Version ${pInfo.versionName}"
+        } catch (e: Exception) {
+            binding.tvAppVersion.text = "Version 1.0.1"
         }
     }
 

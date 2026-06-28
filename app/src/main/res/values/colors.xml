@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#1565C0</color>
-    <color name="primary_dark">#0D47A1</color>
-    <color name="primary_light">#42A5F5</color>
-    <color name="accent">#FF6F00</color>
-    <color name="accent_light">#FFB300</color>
+    <!-- MuZZu Tech Theme Colors -->
+    <color name="primary">#00BCD4</color> <!-- Cyan -->
+    <color name="primary_dark">#0097A7</color>
+    <color name="primary_light">#B2EBF2</color>
+    <color name="accent">#FF9800</color> <!-- Orange -->
+    <color name="accent_light">#FFE0B2</color>
+
+    <!-- UI Elements -->
+    <color name="background">#0A0E14</color> <!-- Dark Navy/Black from logo -->
+    <color name="surface">#161B22</color> <!-- Card surface -->
+    <color name="card_background">#161B22</color>
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="grey_50">#FAFAFA</color>
-    <color name="grey_100">#F5F5F5</color>
-    <color name="grey_200">#EEEEEE</color>
+    <color name="grey_200">#E0E0E0</color>
     <color name="grey_500">#9E9E9E</color>
     <color name="grey_700">#616161</color>
     <color name="grey_900">#212121</color>
 
-    <color name="status_pending">#FF9800</color>
+    <color name="status_pending">#FF5252</color> <!-- Red for urgency -->
     <color name="status_progress">#2196F3</color>
     <color name="status_done">#4CAF50</color>
 
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="background">#F5F5F5</color>
-    <color name="card_background">#FFFFFF</color>
+    <color name="text_primary">#E6EDF3</color> <!-- Off-white text -->
+    <color name="text_secondary">#8B949E</color>
 
-    <color name="error">#D32F2F</color>
-    <color name="success">#388E3C</color>
-    <color name="warning">#F57C00</color>
-    <color name="info">#1976D2</color>
+    <color name="error">#F85149</color>
+    <color name="success">#3FB950</color>
 </resources>

@@ -24,6 +24,9 @@ public final class FragmentMoreBinding implements ViewBinding {
   public final MaterialCardView cardCommonFaults;
 
   @NonNull
+  public final MaterialCardView cardCustomers;
+
+  @NonNull
   public final MaterialCardView cardLogout;
 
   @NonNull
@@ -31,6 +34,12 @@ public final class FragmentMoreBinding implements ViewBinding {
 
   @NonNull
   public final MaterialCardView cardSuppliers;
+
+  @NonNull
+  public final TextView tvAppVersion;
+
+  @NonNull
+  public final TextView tvCustomersCount;
 
   @NonNull
   public final TextView tvFaultsCount;
@@ -42,15 +51,19 @@ public final class FragmentMoreBinding implements ViewBinding {
   public final TextView tvSuppliersCount;
 
   private FragmentMoreBinding(@NonNull ScrollView rootView,
-      @NonNull MaterialCardView cardCommonFaults, @NonNull MaterialCardView cardLogout,
-      @NonNull MaterialCardView cardServiceMen, @NonNull MaterialCardView cardSuppliers,
-      @NonNull TextView tvFaultsCount, @NonNull TextView tvServiceMenCount,
-      @NonNull TextView tvSuppliersCount) {
+      @NonNull MaterialCardView cardCommonFaults, @NonNull MaterialCardView cardCustomers,
+      @NonNull MaterialCardView cardLogout, @NonNull MaterialCardView cardServiceMen,
+      @NonNull MaterialCardView cardSuppliers, @NonNull TextView tvAppVersion,
+      @NonNull TextView tvCustomersCount, @NonNull TextView tvFaultsCount,
+      @NonNull TextView tvServiceMenCount, @NonNull TextView tvSuppliersCount) {
     this.rootView = rootView;
     this.cardCommonFaults = cardCommonFaults;
+    this.cardCustomers = cardCustomers;
     this.cardLogout = cardLogout;
     this.cardServiceMen = cardServiceMen;
     this.cardSuppliers = cardSuppliers;
+    this.tvAppVersion = tvAppVersion;
+    this.tvCustomersCount = tvCustomersCount;
     this.tvFaultsCount = tvFaultsCount;
     this.tvServiceMenCount = tvServiceMenCount;
     this.tvSuppliersCount = tvSuppliersCount;
@@ -89,6 +102,12 @@ public final class FragmentMoreBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.cardCustomers;
+      MaterialCardView cardCustomers = ViewBindings.findChildViewById(rootView, id);
+      if (cardCustomers == null) {
+        break missingId;
+      }
+
       id = R.id.cardLogout;
       MaterialCardView cardLogout = ViewBindings.findChildViewById(rootView, id);
       if (cardLogout == null) {
@@ -104,6 +123,18 @@ public final class FragmentMoreBinding implements ViewBinding {
       id = R.id.cardSuppliers;
       MaterialCardView cardSuppliers = ViewBindings.findChildViewById(rootView, id);
       if (cardSuppliers == null) {
+        break missingId;
+      }
+
+      id = R.id.tvAppVersion;
+      TextView tvAppVersion = ViewBindings.findChildViewById(rootView, id);
+      if (tvAppVersion == null) {
+        break missingId;
+      }
+
+      id = R.id.tvCustomersCount;
+      TextView tvCustomersCount = ViewBindings.findChildViewById(rootView, id);
+      if (tvCustomersCount == null) {
         break missingId;
       }
 
@@ -125,8 +156,9 @@ public final class FragmentMoreBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentMoreBinding((ScrollView) rootView, cardCommonFaults, cardLogout,
-          cardServiceMen, cardSuppliers, tvFaultsCount, tvServiceMenCount, tvSuppliersCount);
+      return new FragmentMoreBinding((ScrollView) rootView, cardCommonFaults, cardCustomers,
+          cardLogout, cardServiceMen, cardSuppliers, tvAppVersion, tvCustomersCount, tvFaultsCount,
+          tvServiceMenCount, tvSuppliersCount);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

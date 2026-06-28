@@ -13,6 +13,7 @@ import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mobilerepair.shop.R;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -44,6 +45,9 @@ public final class FragmentLoginBinding implements ViewBinding {
   public final ProgressBar progressBar;
 
   @NonNull
+  public final TextInputLayout tilMobileNumber;
+
+  @NonNull
   public final TextView tvOtpSentTo;
 
   @NonNull
@@ -53,7 +57,8 @@ public final class FragmentLoginBinding implements ViewBinding {
       @NonNull MaterialButton btnVerifyOtp, @NonNull TextInputEditText etMobileNumber,
       @NonNull TextInputEditText etOtp, @NonNull LinearLayout layoutMobileInput,
       @NonNull LinearLayout layoutOtpInput, @NonNull ProgressBar progressBar,
-      @NonNull TextView tvOtpSentTo, @NonNull TextView tvResendOtp) {
+      @NonNull TextInputLayout tilMobileNumber, @NonNull TextView tvOtpSentTo,
+      @NonNull TextView tvResendOtp) {
     this.rootView = rootView;
     this.btnSendOtp = btnSendOtp;
     this.btnVerifyOtp = btnVerifyOtp;
@@ -62,6 +67,7 @@ public final class FragmentLoginBinding implements ViewBinding {
     this.layoutMobileInput = layoutMobileInput;
     this.layoutOtpInput = layoutOtpInput;
     this.progressBar = progressBar;
+    this.tilMobileNumber = tilMobileNumber;
     this.tvOtpSentTo = tvOtpSentTo;
     this.tvResendOtp = tvResendOtp;
   }
@@ -135,6 +141,12 @@ public final class FragmentLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tilMobileNumber;
+      TextInputLayout tilMobileNumber = ViewBindings.findChildViewById(rootView, id);
+      if (tilMobileNumber == null) {
+        break missingId;
+      }
+
       id = R.id.tvOtpSentTo;
       TextView tvOtpSentTo = ViewBindings.findChildViewById(rootView, id);
       if (tvOtpSentTo == null) {
@@ -148,8 +160,8 @@ public final class FragmentLoginBinding implements ViewBinding {
       }
 
       return new FragmentLoginBinding((LinearLayout) rootView, btnSendOtp, btnVerifyOtp,
-          etMobileNumber, etOtp, layoutMobileInput, layoutOtpInput, progressBar, tvOtpSentTo,
-          tvResendOtp);
+          etMobileNumber, etOtp, layoutMobileInput, layoutOtpInput, progressBar, tilMobileNumber,
+          tvOtpSentTo, tvResendOtp);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
