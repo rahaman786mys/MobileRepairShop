@@ -3,6 +3,18 @@
     <!-- Basic Colors -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+
+    <!-- Greyscale -->
+    <color name="grey_100">#F1F5F9</color>
+    <color name="grey_200">#E2E8F0</color>
+    <color name="grey_300">#CBD5E1</color>
+    <color name="grey_400">#94A3B8</color>
+    <color name="grey_500">#64748B</color>
+    <color name="grey_600">#475569</color>
+    <color name="grey_700">#334155</color>
+    <color name="grey_800">#1E293B</color>
+    <color name="grey_900">#0F172A</color>
 
     <!-- Branding -->
     <color name="primary">#2563EB</color>

@@ -9,6 +9,7 @@ color card_bg_orange
 color error
 color info
 color primary
+color primary_dark
 color primary_variant
 color status_done
 color status_in_progress
