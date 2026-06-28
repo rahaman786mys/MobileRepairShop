@@ -1,31 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- MuZZu Tech Theme Colors -->
-    <color name="primary">#00BCD4</color> <!-- Cyan -->
-    <color name="primary_dark">#0097A7</color>
-    <color name="primary_light">#B2EBF2</color>
-    <color name="accent">#FF9800</color> <!-- Orange -->
-    <color name="accent_light">#FFE0B2</color>
+    <color name="primary">#2563EB</color>
+    <color name="primary_variant">#1D4ED8</color>
+    <color name="accent">#F59E0B</color>
+    <color name="background">#F8FAFC</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="text_primary">#1E293B</color>
+    <color name="text_secondary">#64748B</color>
 
-    <!-- UI Elements -->
-    <color name="background">#0A0E14</color> <!-- Dark Navy/Black from logo -->
-    <color name="surface">#161B22</color> <!-- Card surface -->
-    <color name="card_background">#161B22</color>
+    <color name="status_pending">#EF4444</color>
+    <color name="status_in_progress">#3B82F6</color>
+    <color name="status_done">#10B981</color>
 
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-    <color name="grey_200">#E0E0E0</color>
-    <color name="grey_500">#9E9E9E</color>
-    <color name="grey_700">#616161</color>
-    <color name="grey_900">#212121</color>
+    <color name="success">#10B981</color>
+    <color name="error">#EF4444</color>
+    <color name="warning">#F59E0B</color>
+    <color name="info">#3B82F6</color>
 
-    <color name="status_pending">#FF5252</color> <!-- Red for urgency -->
-    <color name="status_progress">#2196F3</color>
-    <color name="status_done">#4CAF50</color>
-
-    <color name="text_primary">#E6EDF3</color> <!-- Off-white text -->
-    <color name="text_secondary">#8B949E</color>
-
-    <color name="error">#F85149</color>
-    <color name="success">#3FB950</color>
+    <!-- Glassmorphism / Modern Card colors -->
+    <color name="card_bg_blue">#E0F2FE</color>
+    <color name="card_bg_green">#DCFCE7</color>
+    <color name="card_bg_orange">#FFEDD5</color>
 </resources>

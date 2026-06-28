@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.adapter.RepairEntryAdapter
 import com.mobilerepair.shop.databinding.FragmentDashboardBinding
-import com.mobilerepair.shop.utils.UpdateChecker
+import com.mobilerepair.shop.utils.UpdateManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -40,7 +40,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         observeData()
 
         // Check for updates
-        UpdateChecker.checkForUpdates(requireContext())
+        UpdateManager.checkForUpdates(requireContext())
     }
 
     private fun setupRecyclerView() {
@@ -76,11 +76,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private fun setupSearchView() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // Future: navigate to search results
                 return true
             }
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Filter recent list locally
                 return true
             }
         })
@@ -105,6 +103,19 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.recentEntries.collectLatest { entries ->
                     adapter.submitList(entries)
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.businessHealth.collectLatest { health ->
+                    health?.let {
+                        binding.tvTodayProfit.text = "₹ ${String.format("%.0f", it.dailyProfit)}"
+                        binding.tvTodayExpense.text = "₹ ${String.format("%.0f", it.dailyExpense)}"
+                        binding.tvHealthScore.text = "${it.healthScore}%"
+                        binding.tvSmartMoveTitle.text = it.smartMove
+                        binding.tvSmartMoveDesc.text = it.recommendation
+                    }
                 }
             }
         }
