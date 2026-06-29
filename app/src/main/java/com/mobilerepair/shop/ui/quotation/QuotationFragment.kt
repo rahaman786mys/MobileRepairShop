@@ -14,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.databinding.FragmentQuotationBinding
 import com.mobilerepair.shop.utils.AIAnalyzer
+import com.mobilerepair.shop.utils.NotificationUtils
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -63,6 +64,14 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
         val advance = advanceText.toDoubleOrNull() ?: 0.0
 
         viewModel.saveQuotation(entryId, charge, advance)
+        
+        // Notify Customer via WhatsApp
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.entry.value?.let { entry ->
+                NotificationUtils.sendRepairStartedWhatsApp(requireContext(), entry.copy(chargeAmount = charge))
+            }
+        }
+
         Snackbar.make(binding.root, "Quotation saved!", Snackbar.LENGTH_SHORT).show()
 
         val bundle = Bundle().apply { putLong("entryId", entryId) }

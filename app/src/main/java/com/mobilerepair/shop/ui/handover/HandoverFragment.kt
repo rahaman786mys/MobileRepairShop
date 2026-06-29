@@ -14,8 +14,13 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.databinding.FragmentHandoverBinding
+import com.mobilerepair.shop.utils.InvoiceGenerator
+import com.mobilerepair.shop.utils.NotificationUtils
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import androidx.core.content.FileProvider
+import android.content.Intent
+import java.io.File
 
 class HandoverFragment : Fragment(R.layout.fragment_handover) {
 
@@ -46,6 +51,28 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
         }
 
         binding.btnCompleteHandover.setOnClickListener { completeHandover() }
+        
+        binding.btnGenerateInvoice.setOnClickListener {
+            generateAndShareInvoice()
+        }
+    }
+
+    private fun generateAndShareInvoice() {
+        val entry = viewModel.entry.value ?: return
+        val parts = viewModel.parts.value
+        
+        val pdfFile = InvoiceGenerator.generateInvoice(requireContext(), entry, parts)
+        if (pdfFile != null) {
+            val uri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", pdfFile)
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, "Share Invoice"))
+        } else {
+            Snackbar.make(binding.root, "Failed to generate PDF", Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     private fun observeData() {
@@ -97,10 +124,24 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
         } else if (paymentMode == "Online") finalAmount else 0.0
 
         viewModel.completeHandover(entryId, finalAmount, paymentMode, cashAmount, onlineAmount)
-        Snackbar.make(binding.root, "✅ Handover Complete!", Snackbar.LENGTH_LONG).show()
+        
+        // Notify Customer via WhatsApp & Show Print button
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.entry.value?.let { entry ->
+                val updatedEntry = entry.copy(
+                    finalAmount = finalAmount,
+                    paymentMode = paymentMode,
+                    handoverDone = true
+                )
+                val partsText = viewModel.parts.value.joinToString(", ") { it.partName }
+                NotificationUtils.sendHandoverSummaryWhatsApp(requireContext(), updatedEntry, partsText)
+            }
+        }
 
-        // Navigate back to dashboard
-        findNavController().popBackStack(R.id.dashboardFragment, false)
+        binding.btnGenerateInvoice.visibility = View.VISIBLE
+        binding.btnCompleteHandover.isEnabled = false
+        
+        Snackbar.make(binding.root, "✅ Handover Complete! Notification Sent.", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
