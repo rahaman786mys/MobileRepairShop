@@ -51,6 +51,7 @@ id btnCompleteHandover
 id btnCompleteParts
 id btnDeletePart
 id btnDoSync
+id btnFixMissingInfo
 id btnGenerateInvoice
 id btnGoogleSync
 id btnHandover
@@ -64,7 +65,6 @@ id btnSaveInspection
 id btnSaveProfile
 id btnSaveQuotation
 id btnSaveSale
-id btnSendOtp
 id btnSpareParts
 id btnSyncNow
 id btnTakeInspectionPhoto
@@ -72,12 +72,12 @@ id btnTakePhoto
 id btnTypeCustomer
 id btnTypeDealer
 id btnUploadPhoto
-id btnVerifyOtp
 id cardAccountProfile
 id cardCloudSync
 id cardCommonFaults
 id cardCustomers
 id cardLogout
+id cardMissingInfo
 id cardSales
 id cardService
 id cardServiceMen
@@ -116,7 +116,6 @@ id etMobileNumber
 id etModelName
 id etName
 id etOnlineAmount
-id etOtp
 id etPartName
 id etProfileEmail
 id etProfileName
@@ -170,7 +169,6 @@ id spinnerSupplier
 id supplierAddFragment
 id supplierListFragment
 id tilMobile
-id tilMobileNumber
 id tilName
 id toggleGroupEntryType
 id toolbar
@@ -201,7 +199,6 @@ id tvFaultDetected
 id tvFaultName
 id tvFaultsCount
 id tvLastSync
-id tvOtpSentTo
 id tvPartName
 id tvPendingCount
 id tvPrice
@@ -209,7 +206,6 @@ id tvProfileEmail
 id tvProfileName
 id tvReportCompleted
 id tvReportRevenue
-id tvResendOtp
 id tvServiceMenCount
 id tvStatus
 id tvSummaryCharge

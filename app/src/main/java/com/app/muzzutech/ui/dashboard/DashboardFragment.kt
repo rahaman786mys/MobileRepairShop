@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -12,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.adapter.RepairEntryAdapter
 import com.app.muzzutech.databinding.FragmentDashboardBinding
@@ -65,6 +67,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         binding.cardSuppliersGrid.setOnClickListener {
             findNavController().navigate(R.id.supplierListFragment)
         }
+        binding.btnFixMissingInfo.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
     }
 
     private fun setupSearchView() {
@@ -107,6 +112,15 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                         binding.tvTodayProfit.text = "₹ ${String.format("%.0f", it.dailyProfit)}"
                         binding.tvTodayExpense.text = "₹ ${String.format("%.0f", it.dailyExpense)}"
                     }
+                }
+            }
+        }
+        
+        // Check for missing phone number in profile
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
+                    binding.cardMissingInfo.isVisible = profile == null || profile.phone.isEmpty()
                 }
             }
         }

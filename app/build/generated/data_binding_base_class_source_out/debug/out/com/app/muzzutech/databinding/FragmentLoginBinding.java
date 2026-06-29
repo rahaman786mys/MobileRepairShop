@@ -7,16 +7,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.app.muzzutech.R;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -27,18 +23,6 @@ public final class FragmentLoginBinding implements ViewBinding {
 
   @NonNull
   public final SignInButton btnGoogleSync;
-
-  @NonNull
-  public final MaterialButton btnSendOtp;
-
-  @NonNull
-  public final MaterialButton btnVerifyOtp;
-
-  @NonNull
-  public final TextInputEditText etMobileNumber;
-
-  @NonNull
-  public final TextInputEditText etOtp;
 
   @NonNull
   public final ImageView ivLogo;
@@ -52,35 +36,15 @@ public final class FragmentLoginBinding implements ViewBinding {
   @NonNull
   public final ProgressBar progressBar;
 
-  @NonNull
-  public final TextInputLayout tilMobileNumber;
-
-  @NonNull
-  public final TextView tvOtpSentTo;
-
-  @NonNull
-  public final TextView tvResendOtp;
-
   private FragmentLoginBinding(@NonNull LinearLayout rootView, @NonNull SignInButton btnGoogleSync,
-      @NonNull MaterialButton btnSendOtp, @NonNull MaterialButton btnVerifyOtp,
-      @NonNull TextInputEditText etMobileNumber, @NonNull TextInputEditText etOtp,
       @NonNull ImageView ivLogo, @NonNull LinearLayout layoutMobileInput,
-      @NonNull LinearLayout layoutOtpInput, @NonNull ProgressBar progressBar,
-      @NonNull TextInputLayout tilMobileNumber, @NonNull TextView tvOtpSentTo,
-      @NonNull TextView tvResendOtp) {
+      @NonNull LinearLayout layoutOtpInput, @NonNull ProgressBar progressBar) {
     this.rootView = rootView;
     this.btnGoogleSync = btnGoogleSync;
-    this.btnSendOtp = btnSendOtp;
-    this.btnVerifyOtp = btnVerifyOtp;
-    this.etMobileNumber = etMobileNumber;
-    this.etOtp = etOtp;
     this.ivLogo = ivLogo;
     this.layoutMobileInput = layoutMobileInput;
     this.layoutOtpInput = layoutOtpInput;
     this.progressBar = progressBar;
-    this.tilMobileNumber = tilMobileNumber;
-    this.tvOtpSentTo = tvOtpSentTo;
-    this.tvResendOtp = tvResendOtp;
   }
 
   @Override
@@ -116,30 +80,6 @@ public final class FragmentLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.btnSendOtp;
-      MaterialButton btnSendOtp = ViewBindings.findChildViewById(rootView, id);
-      if (btnSendOtp == null) {
-        break missingId;
-      }
-
-      id = R.id.btnVerifyOtp;
-      MaterialButton btnVerifyOtp = ViewBindings.findChildViewById(rootView, id);
-      if (btnVerifyOtp == null) {
-        break missingId;
-      }
-
-      id = R.id.etMobileNumber;
-      TextInputEditText etMobileNumber = ViewBindings.findChildViewById(rootView, id);
-      if (etMobileNumber == null) {
-        break missingId;
-      }
-
-      id = R.id.etOtp;
-      TextInputEditText etOtp = ViewBindings.findChildViewById(rootView, id);
-      if (etOtp == null) {
-        break missingId;
-      }
-
       id = R.id.ivLogo;
       ImageView ivLogo = ViewBindings.findChildViewById(rootView, id);
       if (ivLogo == null) {
@@ -164,27 +104,8 @@ public final class FragmentLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      id = R.id.tilMobileNumber;
-      TextInputLayout tilMobileNumber = ViewBindings.findChildViewById(rootView, id);
-      if (tilMobileNumber == null) {
-        break missingId;
-      }
-
-      id = R.id.tvOtpSentTo;
-      TextView tvOtpSentTo = ViewBindings.findChildViewById(rootView, id);
-      if (tvOtpSentTo == null) {
-        break missingId;
-      }
-
-      id = R.id.tvResendOtp;
-      TextView tvResendOtp = ViewBindings.findChildViewById(rootView, id);
-      if (tvResendOtp == null) {
-        break missingId;
-      }
-
-      return new FragmentLoginBinding((LinearLayout) rootView, btnGoogleSync, btnSendOtp,
-          btnVerifyOtp, etMobileNumber, etOtp, ivLogo, layoutMobileInput, layoutOtpInput,
-          progressBar, tilMobileNumber, tvOtpSentTo, tvResendOtp);
+      return new FragmentLoginBinding((LinearLayout) rootView, btnGoogleSync, ivLogo,
+          layoutMobileInput, layoutOtpInput, progressBar);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -20,8 +20,6 @@ import com.app.muzzutech.R
 import com.app.muzzutech.data.model.UserProfile
 import com.app.muzzutech.databinding.FragmentLoginBinding
 import com.app.muzzutech.utils.BackupManager
-import com.app.muzzutech.utils.OtpManager
-import com.app.muzzutech.utils.ValidationUtils
 import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
@@ -36,8 +34,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val email = account?.email ?: ""
             
             if (email.isNotEmpty()) {
-                Toast.makeText(requireContext(), "Welcome, $email", Toast.LENGTH_SHORT).show()
-                
+                binding.progressBar.isVisible = true
                 viewLifecycleOwner.lifecycleScope.launch {
                     val dao = MobileRepairApp.instance.database.userProfileDao()
                     val existing = dao.getUserProfile()
@@ -50,6 +47,9 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     } else {
                         dao.insertOrUpdate(existing.copy(email = email))
                     }
+                    
+                    Toast.makeText(requireContext(), "Welcome, $email", Toast.LENGTH_SHORT).show()
+                    BackupManager.syncWithGoogleDrive(requireContext(), email)
                     loginSuccess()
                 }
             } else {
@@ -64,6 +64,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             }
             Log.e("LoginFragment", "Google sign in failed: ${e.statusCode}", e)
             Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show()
+            binding.progressBar.isVisible = false
         }
     }
 
@@ -75,67 +76,13 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnSendOtp.setOnClickListener {
-            if (ValidationUtils.validatePhoneNumber(binding.tilMobileNumber)) {
-                sendRealOtp(binding.etMobileNumber.text.toString())
-            }
-        }
-
-        binding.btnVerifyOtp.setOnClickListener {
-            val code = binding.etOtp.text.toString().trim()
-            if (code.length == 4) {
-                verifyRealOtp(code)
-            } else {
-                Toast.makeText(requireContext(), "Please enter 4-digit code", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        binding.tvResendOtp.setOnClickListener {
-            sendRealOtp(binding.etMobileNumber.text.toString())
-        }
-
         binding.btnGoogleSync.setOnClickListener {
             signInWithGoogle()
         }
     }
 
-    private fun sendRealOtp(phone: String) {
-        binding.progressBar.isVisible = true
-        binding.btnSendOtp.isEnabled = false
-        
-        OtpManager.sendOtp(phone) { success, error ->
-            activity?.runOnUiThread {
-                binding.progressBar.isVisible = false
-                binding.btnSendOtp.isEnabled = true
-                if (success) {
-                    binding.layoutMobileInput.isVisible = false
-                    binding.layoutOtpInput.isVisible = true
-                    binding.tvOtpSentTo.text = "OTP sent to +91 $phone"
-                } else {
-                    Toast.makeText(requireContext(), error ?: "Failed to send OTP", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    private fun verifyRealOtp(code: String) {
-        binding.progressBar.isVisible = true
-        binding.btnVerifyOtp.isEnabled = false
-        
-        OtpManager.verifyOtp(code) { success, error ->
-            activity?.runOnUiThread {
-                binding.progressBar.isVisible = false
-                binding.btnVerifyOtp.isEnabled = true
-                if (success) {
-                    loginSuccess()
-                } else {
-                    Toast.makeText(requireContext(), error ?: "Verification Failed", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
     private fun signInWithGoogle() {
+        binding.progressBar.isVisible = true
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .build()

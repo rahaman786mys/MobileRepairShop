@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.app.muzzutech.R;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import java.lang.NullPointerException;
 import java.lang.Override;
@@ -21,6 +22,12 @@ import java.lang.String;
 public final class FragmentDashboardBinding implements ViewBinding {
   @NonNull
   private final ScrollView rootView;
+
+  @NonNull
+  public final MaterialButton btnFixMissingInfo;
+
+  @NonNull
+  public final MaterialCardView cardMissingInfo;
 
   @NonNull
   public final MaterialCardView cardSales;
@@ -53,12 +60,15 @@ public final class FragmentDashboardBinding implements ViewBinding {
   public final TextView tvTodayProfit;
 
   private FragmentDashboardBinding(@NonNull ScrollView rootView,
+      @NonNull MaterialButton btnFixMissingInfo, @NonNull MaterialCardView cardMissingInfo,
       @NonNull MaterialCardView cardSales, @NonNull MaterialCardView cardService,
       @NonNull MaterialCardView cardSuppliersGrid, @NonNull MaterialCardView cardWork,
       @NonNull RecyclerView rvRecentEntries, @NonNull SearchView searchView,
       @NonNull TextView tvCompletedCount, @NonNull TextView tvPendingCount,
       @NonNull TextView tvTodayExpense, @NonNull TextView tvTodayProfit) {
     this.rootView = rootView;
+    this.btnFixMissingInfo = btnFixMissingInfo;
+    this.cardMissingInfo = cardMissingInfo;
     this.cardSales = cardSales;
     this.cardService = cardService;
     this.cardSuppliersGrid = cardSuppliersGrid;
@@ -98,6 +108,18 @@ public final class FragmentDashboardBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnFixMissingInfo;
+      MaterialButton btnFixMissingInfo = ViewBindings.findChildViewById(rootView, id);
+      if (btnFixMissingInfo == null) {
+        break missingId;
+      }
+
+      id = R.id.cardMissingInfo;
+      MaterialCardView cardMissingInfo = ViewBindings.findChildViewById(rootView, id);
+      if (cardMissingInfo == null) {
+        break missingId;
+      }
+
       id = R.id.cardSales;
       MaterialCardView cardSales = ViewBindings.findChildViewById(rootView, id);
       if (cardSales == null) {
@@ -158,9 +180,9 @@ public final class FragmentDashboardBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentDashboardBinding((ScrollView) rootView, cardSales, cardService,
-          cardSuppliersGrid, cardWork, rvRecentEntries, searchView, tvCompletedCount,
-          tvPendingCount, tvTodayExpense, tvTodayProfit);
+      return new FragmentDashboardBinding((ScrollView) rootView, btnFixMissingInfo, cardMissingInfo,
+          cardSales, cardService, cardSuppliersGrid, cardWork, rvRecentEntries, searchView,
+          tvCompletedCount, tvPendingCount, tvTodayExpense, tvTodayProfit);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

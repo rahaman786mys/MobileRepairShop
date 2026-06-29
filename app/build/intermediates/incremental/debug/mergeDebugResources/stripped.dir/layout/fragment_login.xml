@@ -22,102 +22,30 @@
         android:text="Welcome Back"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="@color/text_primary"/>
+        android:textColor="@color/black"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login to manage your repair shop"
+        android:text="Sign in to manage your repair shop"
         android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:layout_marginBottom="40dp"/>
+        android:textColor="@color/grey_600"
+        android:layout_marginBottom="48dp"/>
 
-    <!-- Mobile Input State -->
-    <LinearLayout
-        android:id="@+id/layoutMobileInput"
+    <!-- Only Google Sign In -->
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/btnGoogleSync"
         android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginHorizontal="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="visible">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilMobileNumber"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Mobile Number"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            app:prefixText="+91 ">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etMobileNumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone"
-                android:maxLength="10"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSendOtp"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="24dp"
-            android:text="Send OTP"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <!-- OTP Input State -->
-    <LinearLayout
-        android:id="@+id/layoutOtpInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tvOtpSentTo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OTP sent to +91 9999999999"
-            android:layout_marginBottom="16dp"
-            android:textColor="@color/text_secondary"/>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter 6-digit OTP"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOtp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLength="6"
-                android:letterSpacing="0.5"
-                android:gravity="center"
-                android:textSize="20sp"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnVerifyOtp"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="24dp"
-            android:text="Verify &amp; Login"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tvResendOtp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Resend OTP"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:textColor="@color/primary"
-            android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true"/>
-    </LinearLayout>
+        android:layout_marginTop="16dp"
+        android:text="Secure Login with Google"
+        android:textColor="@color/grey_600"
+        android:textSize="13sp" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -126,26 +54,16 @@
         android:layout_marginTop="24dp"
         android:visibility="gone"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="— OR —"
-        android:textColor="@color/grey_400"
-        android:textSize="12sp" />
-
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/btnGoogleSync"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Sync data with Google Drive"
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp" />
+    <!-- Hidden OTP layouts for code cleanup compatibility -->
+    <LinearLayout
+        android:id="@+id/layoutMobileInput"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/layoutOtpInput"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
 
 </LinearLayout>
