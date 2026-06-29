@@ -76,9 +76,9 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `customers` (`mobileNumber` TEXT NOT NULL, `name` TEXT, `city` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobileNumber`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `dealers` (`mobileNumber` TEXT NOT NULL, `name` TEXT, `city` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobileNumber`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `sales` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `itemName` TEXT NOT NULL, `supplierId` TEXT NOT NULL, `purchasePrice` REAL NOT NULL, `salePrice` REAL NOT NULL, `saleDate` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `user_profile` (`email` TEXT NOT NULL, `name` TEXT NOT NULL, `phone` TEXT NOT NULL, `shopName` TEXT NOT NULL, `shopAddress` TEXT NOT NULL, `lastSyncTimestamp` INTEGER NOT NULL, PRIMARY KEY(`email`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER NOT NULL, `email` TEXT NOT NULL, `name` TEXT NOT NULL, `phone` TEXT NOT NULL, `shopName` TEXT NOT NULL, `shopAddress` TEXT NOT NULL, `lastSyncTimestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c12e514f362d08456df7e15199f61cfc')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a1a74dec12b88268d0ce7fe25f025b29')");
       }
 
       @Override
@@ -303,8 +303,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoSales + "\n"
                   + " Found:\n" + _existingSales);
         }
-        final HashMap<String, TableInfo.Column> _columnsUserProfile = new HashMap<String, TableInfo.Column>(6);
-        _columnsUserProfile.put("email", new TableInfo.Column("email", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashMap<String, TableInfo.Column> _columnsUserProfile = new HashMap<String, TableInfo.Column>(7);
+        _columnsUserProfile.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUserProfile.put("email", new TableInfo.Column("email", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUserProfile.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUserProfile.put("phone", new TableInfo.Column("phone", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUserProfile.put("shopName", new TableInfo.Column("shopName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -321,7 +322,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "c12e514f362d08456df7e15199f61cfc", "b044a2ed6fecb8be794f8384f1b1be64");
+    }, "a1a74dec12b88268d0ce7fe25f025b29", "8944633120808b2ad0f11504595ed5fc");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

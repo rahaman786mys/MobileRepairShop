@@ -20,12 +20,12 @@
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\drawable\\bg_spinner.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-merged_res-66:\\layout_fragment_dashboard.xml.flat",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_dashboard.xml"
-    },
-    {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-merged_res-66:\\layout_fragment_more.xml.flat",
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_more.xml"
+    },
+    {
+        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-merged_res-66:\\layout_fragment_dashboard.xml.flat",
+        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_dashboard.xml"
     },
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-merged_res-66:\\layout_fragment_spare_parts.xml.flat",
@@ -62,10 +62,6 @@
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-merged_res-66:\\layout_fragment_entry.xml.flat",
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_entry.xml"
-    },
-    {
-        "merged": "com.mobilerepair.shop.app-merged_res-66:/layout_fragment_more.xml.flat",
-        "source": "com.mobilerepair.shop.app-main-68:/layout/fragment_more.xml"
     },
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-merged_res-66:\\layout_fragment_inspection.xml.flat",
@@ -120,8 +116,8 @@
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\menu\\bottom_nav_menu.xml"
     },
     {
-        "merged": "com.mobilerepair.shop.app-merged_res-66:/navigation_nav_graph.xml.flat",
-        "source": "com.mobilerepair.shop.app-main-68:/navigation/nav_graph.xml"
+        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-merged_res-66:\\layout_fragment_profile.xml.flat",
+        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_profile.xml"
     },
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-merged_res-66:\\layout_fragment_login.xml.flat",

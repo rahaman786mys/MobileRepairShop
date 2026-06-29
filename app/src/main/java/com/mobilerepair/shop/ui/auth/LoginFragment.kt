@@ -1,8 +1,8 @@
 package com.mobilerepair.shop.ui.auth
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
-import com.mobilerepair.shop.R
 import com.mobilerepair.shop.MobileRepairApp
+import com.mobilerepair.shop.R
 import com.mobilerepair.shop.data.model.UserProfile
 import com.mobilerepair.shop.databinding.FragmentLoginBinding
 import com.mobilerepair.shop.utils.BackupManager
@@ -32,29 +33,41 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         if (result.resultCode == Activity.RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
-                val account = task.getResult(Exception::class.java)
-                val email = account?.email ?: "user"
-                Toast.makeText(requireContext(), "Signed in as $email", Toast.LENGTH_SHORT).show()
+                val account = task.getResult(ApiException::class.java)
+                val email = account?.email ?: ""
                 
-                // Save Initial Profile
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val dao = MobileRepairApp.instance.database.userProfileDao()
-                    if (dao.getUserProfile() == null) {
-                        dao.insertOrUpdate(UserProfile(
-                            email = email,
-                            name = account?.displayName ?: ""
-                        ))
+                if (email.isNotEmpty()) {
+                    Toast.makeText(requireContext(), "Signed in as $email", Toast.LENGTH_SHORT).show()
+                    
+                    // Save Initial Profile
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val dao = MobileRepairApp.instance.database.userProfileDao()
+                        val existing = dao.getUserProfile()
+                        if (existing == null) {
+                            dao.insertOrUpdate(UserProfile(
+                                id = 1,
+                                email = email,
+                                name = account?.displayName ?: ""
+                            ))
+                        } else {
+                            dao.insertOrUpdate(existing.copy(email = email, name = account?.displayName ?: existing.name))
+                        }
+                        
+                        // Trigger Sync Hook
+                        BackupManager.syncWithGoogleDrive(requireContext(), email)
+                        
+                        // Move to Dashboard
+                        loginSuccess()
                     }
+                } else {
+                    Toast.makeText(requireContext(), "No email found in Google Account", Toast.LENGTH_LONG).show()
                 }
-
-                // Trigger Sync
-                BackupManager.syncWithGoogleDrive(requireContext(), email)
-                
-                // Proceed to login if not already done, or just show success
-                loginSuccess()
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            } catch (e: ApiException) {
+                Log.e("LoginFragment", "Google sign in failed", e)
+                Toast.makeText(requireContext(), "Sign in failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
             }
+        } else {
+            Log.e("LoginFragment", "Result not OK: ${result.resultCode}")
         }
     }
 
@@ -93,7 +106,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun signInWithGoogle() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-            .requestScopes(Scope("https://www.googleapis.com/auth/drive.appdata"))
             .build()
 
         val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
@@ -104,7 +116,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.progressBar.isVisible = true
         binding.btnSendOtp.isEnabled = false
         
-        // Simulate network delay
         view?.postDelayed({
             binding.progressBar.isVisible = false
             binding.layoutMobileInput.isVisible = false

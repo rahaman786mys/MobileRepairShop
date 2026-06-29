@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -52,19 +53,22 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             if (account != null) {
                 BackupManager.syncWithGoogleDrive(requireContext(), account.email ?: "Backup")
             } else {
-                findNavController().navigate(R.id.loginFragment)
+                // If not signed in with Google, prompt to go to profile to link
+                Toast.makeText(requireContext(), "Please sign in with Google in Profile first", Toast.LENGTH_LONG).show()
+                findNavController().navigate(R.id.profileFragment)
             }
         }
 
-        // Load counts
+        // Load profile and counts
         viewLifecycleOwner.lifecycleScope.launch {
             MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
                 if (profile != null) {
                     binding.tvProfileName.text = profile.name.ifEmpty { "Your Account" }
-                    binding.tvProfileEmail.text = profile.email
+                    binding.tvProfileEmail.text = profile.email.ifEmpty { "Manage your shop details" }
                 }
             }
         }
+
         viewLifecycleOwner.lifecycleScope.launch {
             MobileRepairApp.instance.database.serviceManDao().getAllServiceMen().collectLatest { list ->
                 binding.tvServiceMenCount.text = "${list.size} technicians"

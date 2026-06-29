@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mobilerepair.shop.R;
@@ -20,6 +21,9 @@ import java.lang.String;
 public final class FragmentProfileBinding implements ViewBinding {
   @NonNull
   private final ScrollView rootView;
+
+  @NonNull
+  public final SignInButton btnLinkGoogle;
 
   @NonNull
   public final MaterialButton btnRestoreNow;
@@ -48,13 +52,14 @@ public final class FragmentProfileBinding implements ViewBinding {
   @NonNull
   public final TextView tvLastSync;
 
-  private FragmentProfileBinding(@NonNull ScrollView rootView,
+  private FragmentProfileBinding(@NonNull ScrollView rootView, @NonNull SignInButton btnLinkGoogle,
       @NonNull MaterialButton btnRestoreNow, @NonNull MaterialButton btnSaveProfile,
       @NonNull MaterialButton btnSyncNow, @NonNull TextInputEditText etProfileEmail,
       @NonNull TextInputEditText etProfileName, @NonNull TextInputEditText etProfilePhone,
       @NonNull TextInputEditText etShopAddress, @NonNull TextInputEditText etShopName,
       @NonNull TextView tvLastSync) {
     this.rootView = rootView;
+    this.btnLinkGoogle = btnLinkGoogle;
     this.btnRestoreNow = btnRestoreNow;
     this.btnSaveProfile = btnSaveProfile;
     this.btnSyncNow = btnSyncNow;
@@ -93,6 +98,12 @@ public final class FragmentProfileBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnLinkGoogle;
+      SignInButton btnLinkGoogle = ViewBindings.findChildViewById(rootView, id);
+      if (btnLinkGoogle == null) {
+        break missingId;
+      }
+
       id = R.id.btnRestoreNow;
       MaterialButton btnRestoreNow = ViewBindings.findChildViewById(rootView, id);
       if (btnRestoreNow == null) {
@@ -147,9 +158,9 @@ public final class FragmentProfileBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentProfileBinding((ScrollView) rootView, btnRestoreNow, btnSaveProfile,
-          btnSyncNow, etProfileEmail, etProfileName, etProfilePhone, etShopAddress, etShopName,
-          tvLastSync);
+      return new FragmentProfileBinding((ScrollView) rootView, btnLinkGoogle, btnRestoreNow,
+          btnSaveProfile, btnSyncNow, etProfileEmail, etProfileName, etProfilePhone, etShopAddress,
+          etShopName, tvLastSync);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

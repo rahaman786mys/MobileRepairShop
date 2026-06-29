@@ -42,31 +42,32 @@ public final class UserProfileDao_Impl implements UserProfileDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `user_profile` (`email`,`name`,`phone`,`shopName`,`shopAddress`,`lastSyncTimestamp`) VALUES (?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `user_profile` (`id`,`email`,`name`,`phone`,`shopName`,`shopAddress`,`lastSyncTimestamp`) VALUES (?,?,?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final UserProfile entity) {
-        statement.bindString(1, entity.getEmail());
-        statement.bindString(2, entity.getName());
-        statement.bindString(3, entity.getPhone());
-        statement.bindString(4, entity.getShopName());
-        statement.bindString(5, entity.getShopAddress());
-        statement.bindLong(6, entity.getLastSyncTimestamp());
+        statement.bindLong(1, entity.getId());
+        statement.bindString(2, entity.getEmail());
+        statement.bindString(3, entity.getName());
+        statement.bindString(4, entity.getPhone());
+        statement.bindString(5, entity.getShopName());
+        statement.bindString(6, entity.getShopAddress());
+        statement.bindLong(7, entity.getLastSyncTimestamp());
       }
     };
     this.__deletionAdapterOfUserProfile = new EntityDeletionOrUpdateAdapter<UserProfile>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "DELETE FROM `user_profile` WHERE `email` = ?";
+        return "DELETE FROM `user_profile` WHERE `id` = ?";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final UserProfile entity) {
-        statement.bindString(1, entity.getEmail());
+        statement.bindLong(1, entity.getId());
       }
     };
   }
@@ -110,7 +111,7 @@ public final class UserProfileDao_Impl implements UserProfileDao {
 
   @Override
   public Flow<UserProfile> getUserProfileFlow() {
-    final String _sql = "SELECT * FROM user_profile LIMIT 1";
+    final String _sql = "SELECT * FROM user_profile WHERE id = 1 LIMIT 1";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"user_profile"}, new Callable<UserProfile>() {
       @Override
@@ -118,6 +119,7 @@ public final class UserProfileDao_Impl implements UserProfileDao {
       public UserProfile call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "email");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfPhone = CursorUtil.getColumnIndexOrThrow(_cursor, "phone");
@@ -126,6 +128,8 @@ public final class UserProfileDao_Impl implements UserProfileDao {
           final int _cursorIndexOfLastSyncTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "lastSyncTimestamp");
           final UserProfile _result;
           if (_cursor.moveToFirst()) {
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
             final String _tmpEmail;
             _tmpEmail = _cursor.getString(_cursorIndexOfEmail);
             final String _tmpName;
@@ -138,7 +142,7 @@ public final class UserProfileDao_Impl implements UserProfileDao {
             _tmpShopAddress = _cursor.getString(_cursorIndexOfShopAddress);
             final long _tmpLastSyncTimestamp;
             _tmpLastSyncTimestamp = _cursor.getLong(_cursorIndexOfLastSyncTimestamp);
-            _result = new UserProfile(_tmpEmail,_tmpName,_tmpPhone,_tmpShopName,_tmpShopAddress,_tmpLastSyncTimestamp);
+            _result = new UserProfile(_tmpId,_tmpEmail,_tmpName,_tmpPhone,_tmpShopName,_tmpShopAddress,_tmpLastSyncTimestamp);
           } else {
             _result = null;
           }
@@ -157,7 +161,7 @@ public final class UserProfileDao_Impl implements UserProfileDao {
 
   @Override
   public Object getUserProfile(final Continuation<? super UserProfile> $completion) {
-    final String _sql = "SELECT * FROM user_profile LIMIT 1";
+    final String _sql = "SELECT * FROM user_profile WHERE id = 1 LIMIT 1";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
     final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
     return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<UserProfile>() {
@@ -166,6 +170,7 @@ public final class UserProfileDao_Impl implements UserProfileDao {
       public UserProfile call() throws Exception {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfEmail = CursorUtil.getColumnIndexOrThrow(_cursor, "email");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfPhone = CursorUtil.getColumnIndexOrThrow(_cursor, "phone");
@@ -174,6 +179,8 @@ public final class UserProfileDao_Impl implements UserProfileDao {
           final int _cursorIndexOfLastSyncTimestamp = CursorUtil.getColumnIndexOrThrow(_cursor, "lastSyncTimestamp");
           final UserProfile _result;
           if (_cursor.moveToFirst()) {
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
             final String _tmpEmail;
             _tmpEmail = _cursor.getString(_cursorIndexOfEmail);
             final String _tmpName;
@@ -186,7 +193,7 @@ public final class UserProfileDao_Impl implements UserProfileDao {
             _tmpShopAddress = _cursor.getString(_cursorIndexOfShopAddress);
             final long _tmpLastSyncTimestamp;
             _tmpLastSyncTimestamp = _cursor.getLong(_cursorIndexOfLastSyncTimestamp);
-            _result = new UserProfile(_tmpEmail,_tmpName,_tmpPhone,_tmpShopName,_tmpShopAddress,_tmpLastSyncTimestamp);
+            _result = new UserProfile(_tmpId,_tmpEmail,_tmpName,_tmpPhone,_tmpShopName,_tmpShopAddress,_tmpLastSyncTimestamp);
           } else {
             _result = null;
           }

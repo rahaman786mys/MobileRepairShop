@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "user_profile")
 data class UserProfile(
-    @PrimaryKey val email: String, // Primary key is email since it's unique from Google
+    @PrimaryKey val id: Int = 1, // Always 1 for the shop owner
+    val email: String = "",
     val name: String = "",
     val phone: String = "",
     val shopName: String = "",

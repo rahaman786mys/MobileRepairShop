@@ -55,6 +55,7 @@ id btnGenerateInvoice
 id btnGoogleSync
 id btnHandover
 id btnInspect
+id btnLinkGoogle
 id btnQuotation
 id btnRestoreNow
 id btnSave

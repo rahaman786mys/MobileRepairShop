@@ -17,6 +17,7 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             val existing = userProfileDao.getUserProfile()
             val profile = UserProfile(
+                id = 1,
                 email = email,
                 name = name,
                 phone = phone,
@@ -30,10 +31,8 @@ class ProfileViewModel : ViewModel() {
 
     fun updateSyncTimestamp() {
         viewModelScope.launch {
-            val existing = userProfileDao.getUserProfile()
-            existing?.let {
-                userProfileDao.insertOrUpdate(it.copy(lastSyncTimestamp = System.currentTimeMillis()))
-            }
+            val existing = userProfileDao.getUserProfile() ?: UserProfile(id = 1)
+            userProfileDao.insertOrUpdate(existing.copy(lastSyncTimestamp = System.currentTimeMillis()))
         }
     }
 }
