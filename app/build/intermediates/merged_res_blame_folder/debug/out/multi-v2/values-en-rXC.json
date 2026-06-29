@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.mobilerepair.shop.app-mergeDebugResources-63:/values-en-rXC/values-en-rXC.xml",
+            "outputFile": "com.mobilerepair.shop.app-mergeDebugResources-64:/values-en-rXC/values-en-rXC.xml",
             "map": [
                 {
                     "source": "C:\\Users\\rhmna\\.gradle\\caches\\8.9\\transforms\\34a3bfc8901bd0257bdffb444465cb86\\transformed\\appcompat-1.6.1\\res\\values-en-rXC\\values-en-rXC.xml",

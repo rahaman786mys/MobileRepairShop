@@ -24,7 +24,9 @@ class SplashActivity : AppCompatActivity() {
 
     private fun checkBiometrics() {
         val biometricManager = BiometricManager.from(this)
-        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
+        val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        
+        when (biometricManager.canAuthenticate(authenticators)) {
             BiometricManager.BIOMETRIC_SUCCESS -> showBiometricPrompt()
             else -> proceedToMain() // No biometrics or disabled, proceed directly
         }
@@ -36,8 +38,8 @@ class SplashActivity : AppCompatActivity() {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
-                    Toast.makeText(applicationContext, "Auth error: $errString", Toast.LENGTH_SHORT).show()
-                    finish() // Close app if auth fails or cancelled
+                    Toast.makeText(applicationContext, "Security error: $errString", Toast.LENGTH_SHORT).show()
+                    finish() // Close app if security check is bypassed/failed
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -47,13 +49,13 @@ class SplashActivity : AppCompatActivity() {
 
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
-                    Toast.makeText(applicationContext, "Auth failed", Toast.LENGTH_SHORT).show()
+                    // Just a vibration/hint, usually we don't finish() here
                 }
             })
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("MuZZu Tech Security")
-            .setSubtitle("Authenticate to access shop data")
+            .setTitle("Repair Shop Security")
+            .setSubtitle("Authenticate to access your shop data")
             .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
             .build()
 
@@ -64,6 +66,6 @@ class SplashActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             startActivity(Intent(this, MainActivity::class.java))
             finish()
-        }, 500)
+        }, 300)
     }
 }

@@ -2,43 +2,43 @@ com.mobilerepair.shop.app-lifecycle-livedata-2.7.0-0 C:\Users\rhmna\.gradle\cach
 com.mobilerepair.shop.app-lifecycle-livedata-core-2.7.0-1 C:\Users\rhmna\.gradle\caches\8.9\transforms\03921868134a9533d0d0a8dc07c9cd5f\transformed\lifecycle-livedata-core-2.7.0\res
 com.mobilerepair.shop.app-coordinatorlayout-1.1.0-2 C:\Users\rhmna\.gradle\caches\8.9\transforms\0434e54823fb5de1bdd4ed131de01ebb\transformed\coordinatorlayout-1.1.0\res
 com.mobilerepair.shop.app-jetified-activity-1.8.2-3 C:\Users\rhmna\.gradle\caches\8.9\transforms\067285c8a7c850d7a5f2ab52f4395e85\transformed\jetified-activity-1.8.2\res
-com.mobilerepair.shop.app-navigation-ui-ktx-2.7.6-4 C:\Users\rhmna\.gradle\caches\8.9\transforms\11ef9a0877e1a91fdeb62a99e620a6b0\transformed\navigation-ui-ktx-2.7.6\res
-com.mobilerepair.shop.app-jetified-window-1.0.0-5 C:\Users\rhmna\.gradle\caches\8.9\transforms\18a22b7afc5efd2c4e1cc1f2966fae67\transformed\jetified-window-1.0.0\res
-com.mobilerepair.shop.app-lifecycle-viewmodel-2.7.0-6 C:\Users\rhmna\.gradle\caches\8.9\transforms\2471378375d08422e99363e2dd54025f\transformed\lifecycle-viewmodel-2.7.0\res
-com.mobilerepair.shop.app-jetified-lifecycle-process-2.7.0-7 C:\Users\rhmna\.gradle\caches\8.9\transforms\275597c8424c555e7da54029d7d52fb2\transformed\jetified-lifecycle-process-2.7.0\res
-com.mobilerepair.shop.app-jetified-appcompat-resources-1.6.1-8 C:\Users\rhmna\.gradle\caches\8.9\transforms\2a97773a93dde5a5c65de36889e920e7\transformed\jetified-appcompat-resources-1.6.1\res
-com.mobilerepair.shop.app-jetified-emoji2-views-helper-1.2.0-9 C:\Users\rhmna\.gradle\caches\8.9\transforms\2d134943555b1121fd92f93f7aba49a0\transformed\jetified-emoji2-views-helper-1.2.0\res
-com.mobilerepair.shop.app-jetified-glide-4.16.0-10 C:\Users\rhmna\.gradle\caches\8.9\transforms\2e16a715fb360f54b007b63470daed0d\transformed\jetified-glide-4.16.0\res
-com.mobilerepair.shop.app-jetified-camera-view-1.3.1-11 C:\Users\rhmna\.gradle\caches\8.9\transforms\2f060c355f2ed475b0033fa8730259a2\transformed\jetified-camera-view-1.3.1\res
-com.mobilerepair.shop.app-appcompat-1.6.1-12 C:\Users\rhmna\.gradle\caches\8.9\transforms\34a3bfc8901bd0257bdffb444465cb86\transformed\appcompat-1.6.1\res
-com.mobilerepair.shop.app-sqlite-2.4.0-13 C:\Users\rhmna\.gradle\caches\8.9\transforms\386ac568669a73212caebf8b5bd8f983\transformed\sqlite-2.4.0\res
-com.mobilerepair.shop.app-recyclerview-1.3.2-14 C:\Users\rhmna\.gradle\caches\8.9\transforms\3c87767c5d71e64181412f7dea2578e8\transformed\recyclerview-1.3.2\res
-com.mobilerepair.shop.app-jetified-emoji2-1.2.0-15 C:\Users\rhmna\.gradle\caches\8.9\transforms\479b09ea070b1c2aaf3723467ce5402e\transformed\jetified-emoji2-1.2.0\res
-com.mobilerepair.shop.app-navigation-fragment-ktx-2.7.6-16 C:\Users\rhmna\.gradle\caches\8.9\transforms\496daf23962250a50d8fad751db6b0c0\transformed\navigation-fragment-ktx-2.7.6\res
-com.mobilerepair.shop.app-core-1.12.0-17 C:\Users\rhmna\.gradle\caches\8.9\transforms\4a837047d1046aa71749e78de4ab0425\transformed\core-1.12.0\res
-com.mobilerepair.shop.app-jetified-annotation-experimental-1.3.1-18 C:\Users\rhmna\.gradle\caches\8.9\transforms\4b3752a7a277ef50dd71c67cc47b20ee\transformed\jetified-annotation-experimental-1.3.1\res
-com.mobilerepair.shop.app-jetified-profileinstaller-1.3.0-19 C:\Users\rhmna\.gradle\caches\8.9\transforms\5059183518f6abb5b1c1f685e02f7fcc\transformed\jetified-profileinstaller-1.3.0\res
-com.mobilerepair.shop.app-jetified-room-ktx-2.6.1-20 C:\Users\rhmna\.gradle\caches\8.9\transforms\58224755b5fdf8e3998a022560462637\transformed\jetified-room-ktx-2.6.1\res
-com.mobilerepair.shop.app-biometric-1.1.0-21 C:\Users\rhmna\.gradle\caches\8.9\transforms\59209b9d1236d84b0422e40fab6657dc\transformed\biometric-1.1.0\res
-com.mobilerepair.shop.app-jetified-lifecycle-livedata-ktx-2.7.0-22 C:\Users\rhmna\.gradle\caches\8.9\transforms\5b643dbd28b3babfa114322b086e95c3\transformed\jetified-lifecycle-livedata-ktx-2.7.0\res
-com.mobilerepair.shop.app-databinding-runtime-8.2.2-23 C:\Users\rhmna\.gradle\caches\8.9\transforms\5cf795223694bc5c4156c1be6f13d89d\transformed\databinding-runtime-8.2.2\res
-com.mobilerepair.shop.app-jetified-camera-core-1.3.1-24 C:\Users\rhmna\.gradle\caches\8.9\transforms\5d0d9968599fb5adf4b1ecb7645ace88\transformed\jetified-camera-core-1.3.1\res
-com.mobilerepair.shop.app-fragment-1.6.2-25 C:\Users\rhmna\.gradle\caches\8.9\transforms\5d9c80908bbdbe97a8c49fb12525ca8f\transformed\fragment-1.6.2\res
-com.mobilerepair.shop.app-jetified-lifecycle-viewmodel-savedstate-2.7.0-26 C:\Users\rhmna\.gradle\caches\8.9\transforms\66088beeac7c0c99dcbec22ec0cf8310\transformed\jetified-lifecycle-viewmodel-savedstate-2.7.0\res
-com.mobilerepair.shop.app-jetified-savedstate-1.2.1-27 C:\Users\rhmna\.gradle\caches\8.9\transforms\68113443b542f06adc675c037d357c53\transformed\jetified-savedstate-1.2.1\res
-com.mobilerepair.shop.app-jetified-camera-video-1.3.1-28 C:\Users\rhmna\.gradle\caches\8.9\transforms\70b273d9c2a63dcd2cd458a88464641b\transformed\jetified-camera-video-1.3.1\res
-com.mobilerepair.shop.app-jetified-camera-camera2-1.3.1-29 C:\Users\rhmna\.gradle\caches\8.9\transforms\79970e2deb7d43f59c4fc3c8f133cb45\transformed\jetified-camera-camera2-1.3.1\res
-com.mobilerepair.shop.app-cardview-1.0.0-30 C:\Users\rhmna\.gradle\caches\8.9\transforms\7c6db9d4c9f65c73c4d6d9118e9cca63\transformed\cardview-1.0.0\res
-com.mobilerepair.shop.app-constraintlayout-2.1.4-31 C:\Users\rhmna\.gradle\caches\8.9\transforms\80a6059764099e42534c0ebc02f9ba2f\transformed\constraintlayout-2.1.4\res
-com.mobilerepair.shop.app-transition-1.4.1-32 C:\Users\rhmna\.gradle\caches\8.9\transforms\81146555015a676917ff08a472a57bff\transformed\transition-1.4.1\res
-com.mobilerepair.shop.app-jetified-savedstate-ktx-1.2.1-33 C:\Users\rhmna\.gradle\caches\8.9\transforms\8285d85485dd214e23066dbd7bf3fd4b\transformed\jetified-savedstate-ktx-1.2.1\res
-com.mobilerepair.shop.app-jetified-startup-runtime-1.1.1-34 C:\Users\rhmna\.gradle\caches\8.9\transforms\86d859885adbbb8b781607f2a3eebbbc\transformed\jetified-startup-runtime-1.1.1\res
-com.mobilerepair.shop.app-navigation-common-2.7.6-35 C:\Users\rhmna\.gradle\caches\8.9\transforms\8b530e5d091d0b468dd5318b1e4b6f27\transformed\navigation-common-2.7.6\res
-com.mobilerepair.shop.app-jetified-core-ktx-1.12.0-36 C:\Users\rhmna\.gradle\caches\8.9\transforms\94369b2fa114779242bb88f0a3457690\transformed\jetified-core-ktx-1.12.0\res
-com.mobilerepair.shop.app-jetified-lifecycle-runtime-ktx-2.7.0-37 C:\Users\rhmna\.gradle\caches\8.9\transforms\964382ef333b5e2c1db491fb7a058e2b\transformed\jetified-lifecycle-runtime-ktx-2.7.0\res
-com.mobilerepair.shop.app-jetified-fragment-ktx-1.6.2-38 C:\Users\rhmna\.gradle\caches\8.9\transforms\9af6299967ca963c8accc5735c4cf0e6\transformed\jetified-fragment-ktx-1.6.2\res
-com.mobilerepair.shop.app-room-runtime-2.6.1-39 C:\Users\rhmna\.gradle\caches\8.9\transforms\9dea3c39123a183e4a2c6285203a4bcd\transformed\room-runtime-2.6.1\res
-com.mobilerepair.shop.app-jetified-play-services-basement-18.1.0-40 C:\Users\rhmna\.gradle\caches\8.9\transforms\9fbe28acca6354ec7e74ba7918ac9636\transformed\jetified-play-services-basement-18.1.0\res
+com.mobilerepair.shop.app-jetified-play-services-basement-18.2.0-4 C:\Users\rhmna\.gradle\caches\8.9\transforms\0aee68a20b87b97662263adedd385ce3\transformed\jetified-play-services-basement-18.2.0\res
+com.mobilerepair.shop.app-navigation-ui-ktx-2.7.6-5 C:\Users\rhmna\.gradle\caches\8.9\transforms\11ef9a0877e1a91fdeb62a99e620a6b0\transformed\navigation-ui-ktx-2.7.6\res
+com.mobilerepair.shop.app-jetified-window-1.0.0-6 C:\Users\rhmna\.gradle\caches\8.9\transforms\18a22b7afc5efd2c4e1cc1f2966fae67\transformed\jetified-window-1.0.0\res
+com.mobilerepair.shop.app-lifecycle-viewmodel-2.7.0-7 C:\Users\rhmna\.gradle\caches\8.9\transforms\2471378375d08422e99363e2dd54025f\transformed\lifecycle-viewmodel-2.7.0\res
+com.mobilerepair.shop.app-jetified-lifecycle-process-2.7.0-8 C:\Users\rhmna\.gradle\caches\8.9\transforms\275597c8424c555e7da54029d7d52fb2\transformed\jetified-lifecycle-process-2.7.0\res
+com.mobilerepair.shop.app-jetified-appcompat-resources-1.6.1-9 C:\Users\rhmna\.gradle\caches\8.9\transforms\2a97773a93dde5a5c65de36889e920e7\transformed\jetified-appcompat-resources-1.6.1\res
+com.mobilerepair.shop.app-jetified-emoji2-views-helper-1.2.0-10 C:\Users\rhmna\.gradle\caches\8.9\transforms\2d134943555b1121fd92f93f7aba49a0\transformed\jetified-emoji2-views-helper-1.2.0\res
+com.mobilerepair.shop.app-jetified-glide-4.16.0-11 C:\Users\rhmna\.gradle\caches\8.9\transforms\2e16a715fb360f54b007b63470daed0d\transformed\jetified-glide-4.16.0\res
+com.mobilerepair.shop.app-jetified-camera-view-1.3.1-12 C:\Users\rhmna\.gradle\caches\8.9\transforms\2f060c355f2ed475b0033fa8730259a2\transformed\jetified-camera-view-1.3.1\res
+com.mobilerepair.shop.app-appcompat-1.6.1-13 C:\Users\rhmna\.gradle\caches\8.9\transforms\34a3bfc8901bd0257bdffb444465cb86\transformed\appcompat-1.6.1\res
+com.mobilerepair.shop.app-sqlite-2.4.0-14 C:\Users\rhmna\.gradle\caches\8.9\transforms\386ac568669a73212caebf8b5bd8f983\transformed\sqlite-2.4.0\res
+com.mobilerepair.shop.app-recyclerview-1.3.2-15 C:\Users\rhmna\.gradle\caches\8.9\transforms\3c87767c5d71e64181412f7dea2578e8\transformed\recyclerview-1.3.2\res
+com.mobilerepair.shop.app-jetified-emoji2-1.2.0-16 C:\Users\rhmna\.gradle\caches\8.9\transforms\479b09ea070b1c2aaf3723467ce5402e\transformed\jetified-emoji2-1.2.0\res
+com.mobilerepair.shop.app-navigation-fragment-ktx-2.7.6-17 C:\Users\rhmna\.gradle\caches\8.9\transforms\496daf23962250a50d8fad751db6b0c0\transformed\navigation-fragment-ktx-2.7.6\res
+com.mobilerepair.shop.app-core-1.12.0-18 C:\Users\rhmna\.gradle\caches\8.9\transforms\4a837047d1046aa71749e78de4ab0425\transformed\core-1.12.0\res
+com.mobilerepair.shop.app-jetified-annotation-experimental-1.3.1-19 C:\Users\rhmna\.gradle\caches\8.9\transforms\4b3752a7a277ef50dd71c67cc47b20ee\transformed\jetified-annotation-experimental-1.3.1\res
+com.mobilerepair.shop.app-jetified-profileinstaller-1.3.0-20 C:\Users\rhmna\.gradle\caches\8.9\transforms\5059183518f6abb5b1c1f685e02f7fcc\transformed\jetified-profileinstaller-1.3.0\res
+com.mobilerepair.shop.app-jetified-room-ktx-2.6.1-21 C:\Users\rhmna\.gradle\caches\8.9\transforms\58224755b5fdf8e3998a022560462637\transformed\jetified-room-ktx-2.6.1\res
+com.mobilerepair.shop.app-biometric-1.1.0-22 C:\Users\rhmna\.gradle\caches\8.9\transforms\59209b9d1236d84b0422e40fab6657dc\transformed\biometric-1.1.0\res
+com.mobilerepair.shop.app-jetified-lifecycle-livedata-ktx-2.7.0-23 C:\Users\rhmna\.gradle\caches\8.9\transforms\5b643dbd28b3babfa114322b086e95c3\transformed\jetified-lifecycle-livedata-ktx-2.7.0\res
+com.mobilerepair.shop.app-databinding-runtime-8.2.2-24 C:\Users\rhmna\.gradle\caches\8.9\transforms\5cf795223694bc5c4156c1be6f13d89d\transformed\databinding-runtime-8.2.2\res
+com.mobilerepair.shop.app-jetified-camera-core-1.3.1-25 C:\Users\rhmna\.gradle\caches\8.9\transforms\5d0d9968599fb5adf4b1ecb7645ace88\transformed\jetified-camera-core-1.3.1\res
+com.mobilerepair.shop.app-fragment-1.6.2-26 C:\Users\rhmna\.gradle\caches\8.9\transforms\5d9c80908bbdbe97a8c49fb12525ca8f\transformed\fragment-1.6.2\res
+com.mobilerepair.shop.app-jetified-lifecycle-viewmodel-savedstate-2.7.0-27 C:\Users\rhmna\.gradle\caches\8.9\transforms\66088beeac7c0c99dcbec22ec0cf8310\transformed\jetified-lifecycle-viewmodel-savedstate-2.7.0\res
+com.mobilerepair.shop.app-jetified-savedstate-1.2.1-28 C:\Users\rhmna\.gradle\caches\8.9\transforms\68113443b542f06adc675c037d357c53\transformed\jetified-savedstate-1.2.1\res
+com.mobilerepair.shop.app-jetified-camera-video-1.3.1-29 C:\Users\rhmna\.gradle\caches\8.9\transforms\70b273d9c2a63dcd2cd458a88464641b\transformed\jetified-camera-video-1.3.1\res
+com.mobilerepair.shop.app-jetified-camera-camera2-1.3.1-30 C:\Users\rhmna\.gradle\caches\8.9\transforms\79970e2deb7d43f59c4fc3c8f133cb45\transformed\jetified-camera-camera2-1.3.1\res
+com.mobilerepair.shop.app-cardview-1.0.0-31 C:\Users\rhmna\.gradle\caches\8.9\transforms\7c6db9d4c9f65c73c4d6d9118e9cca63\transformed\cardview-1.0.0\res
+com.mobilerepair.shop.app-constraintlayout-2.1.4-32 C:\Users\rhmna\.gradle\caches\8.9\transforms\80a6059764099e42534c0ebc02f9ba2f\transformed\constraintlayout-2.1.4\res
+com.mobilerepair.shop.app-transition-1.4.1-33 C:\Users\rhmna\.gradle\caches\8.9\transforms\81146555015a676917ff08a472a57bff\transformed\transition-1.4.1\res
+com.mobilerepair.shop.app-jetified-savedstate-ktx-1.2.1-34 C:\Users\rhmna\.gradle\caches\8.9\transforms\8285d85485dd214e23066dbd7bf3fd4b\transformed\jetified-savedstate-ktx-1.2.1\res
+com.mobilerepair.shop.app-jetified-startup-runtime-1.1.1-35 C:\Users\rhmna\.gradle\caches\8.9\transforms\86d859885adbbb8b781607f2a3eebbbc\transformed\jetified-startup-runtime-1.1.1\res
+com.mobilerepair.shop.app-navigation-common-2.7.6-36 C:\Users\rhmna\.gradle\caches\8.9\transforms\8b530e5d091d0b468dd5318b1e4b6f27\transformed\navigation-common-2.7.6\res
+com.mobilerepair.shop.app-jetified-core-ktx-1.12.0-37 C:\Users\rhmna\.gradle\caches\8.9\transforms\94369b2fa114779242bb88f0a3457690\transformed\jetified-core-ktx-1.12.0\res
+com.mobilerepair.shop.app-jetified-lifecycle-runtime-ktx-2.7.0-38 C:\Users\rhmna\.gradle\caches\8.9\transforms\964382ef333b5e2c1db491fb7a058e2b\transformed\jetified-lifecycle-runtime-ktx-2.7.0\res
+com.mobilerepair.shop.app-jetified-fragment-ktx-1.6.2-39 C:\Users\rhmna\.gradle\caches\8.9\transforms\9af6299967ca963c8accc5735c4cf0e6\transformed\jetified-fragment-ktx-1.6.2\res
+com.mobilerepair.shop.app-room-runtime-2.6.1-40 C:\Users\rhmna\.gradle\caches\8.9\transforms\9dea3c39123a183e4a2c6285203a4bcd\transformed\room-runtime-2.6.1\res
 com.mobilerepair.shop.app-navigation-runtime-2.7.6-41 C:\Users\rhmna\.gradle\caches\8.9\transforms\a56062a7d979dd8fe097aa9f1b3a56b4\transformed\navigation-runtime-2.7.6\res
 com.mobilerepair.shop.app-jetified-viewpager2-1.1.0-beta02-42 C:\Users\rhmna\.gradle\caches\8.9\transforms\a7bd1df2b93a8640ac70de991daaea5c\transformed\jetified-viewpager2-1.1.0-beta02\res
 com.mobilerepair.shop.app-jetified-customview-poolingcontainer-1.0.0-43 C:\Users\rhmna\.gradle\caches\8.9\transforms\b788d6a42edb60e034e7b0cb7e802d0e\transformed\jetified-customview-poolingcontainer-1.0.0\res
@@ -49,20 +49,21 @@ com.mobilerepair.shop.app-slidingpanelayout-1.2.0-47 C:\Users\rhmna\.gradle\cach
 com.mobilerepair.shop.app-sqlite-framework-2.4.0-48 C:\Users\rhmna\.gradle\caches\8.9\transforms\ccfaca4abbfa799c5efecb4489e8a78e\transformed\sqlite-framework-2.4.0\res
 com.mobilerepair.shop.app-navigation-common-ktx-2.7.6-49 C:\Users\rhmna\.gradle\caches\8.9\transforms\d31c4371bc2cb0393fa24c75a9fbb06f\transformed\navigation-common-ktx-2.7.6\res
 com.mobilerepair.shop.app-drawerlayout-1.1.1-50 C:\Users\rhmna\.gradle\caches\8.9\transforms\df03f73b6b682db63d6728e37e00bc7a\transformed\drawerlayout-1.1.1\res
-com.mobilerepair.shop.app-lifecycle-runtime-2.7.0-51 C:\Users\rhmna\.gradle\caches\8.9\transforms\e4a90cf9cec9e3f712ef7674baee8bdd\transformed\lifecycle-runtime-2.7.0\res
-com.mobilerepair.shop.app-jetified-activity-ktx-1.8.2-52 C:\Users\rhmna\.gradle\caches\8.9\transforms\e4b7e1c1c5d32f5be588cef8947b03ae\transformed\jetified-activity-ktx-1.8.2\res
-com.mobilerepair.shop.app-jetified-lifecycle-service-2.7.0-53 C:\Users\rhmna\.gradle\caches\8.9\transforms\e81e18cacaa727f4dc4d8149cfd3806e\transformed\jetified-lifecycle-service-2.7.0\res
-com.mobilerepair.shop.app-navigation-fragment-2.7.6-54 C:\Users\rhmna\.gradle\caches\8.9\transforms\ed7f623c979a432e385122df85996259\transformed\navigation-fragment-2.7.6\res
-com.mobilerepair.shop.app-material-1.11.0-55 C:\Users\rhmna\.gradle\caches\8.9\transforms\f045c35c99b848d5d9637280593c2857\transformed\material-1.11.0\res
-com.mobilerepair.shop.app-jetified-lifecycle-viewmodel-ktx-2.7.0-56 C:\Users\rhmna\.gradle\caches\8.9\transforms\f18f1de490e21804f70e7562fe80cc29\transformed\jetified-lifecycle-viewmodel-ktx-2.7.0\res
-com.mobilerepair.shop.app-databinding-adapters-8.2.2-57 C:\Users\rhmna\.gradle\caches\8.9\transforms\f814346160c1adfe4cbe2718aa9a6637\transformed\databinding-adapters-8.2.2\res
-com.mobilerepair.shop.app-jetified-lifecycle-livedata-core-ktx-2.7.0-58 C:\Users\rhmna\.gradle\caches\8.9\transforms\f95c5e224c5818fad6135b8499ba5708\transformed\jetified-lifecycle-livedata-core-ktx-2.7.0\res
-com.mobilerepair.shop.app-navigation-runtime-ktx-2.7.6-59 C:\Users\rhmna\.gradle\caches\8.9\transforms\fe4e22034c1221862ae2153a15502801\transformed\navigation-runtime-ktx-2.7.6\res
-com.mobilerepair.shop.app-jetified-play-services-base-18.1.0-60 C:\Users\rhmna\.gradle\caches\8.9\transforms\ff4628602bc0b29316cf54b625bbe49f\transformed\jetified-play-services-base-18.1.0\res
-com.mobilerepair.shop.app-pngs-61 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\generated\res\pngs\debug
-com.mobilerepair.shop.app-resValues-62 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\generated\res\resValues\debug
-com.mobilerepair.shop.app-packageDebugResources-63 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.mobilerepair.shop.app-packageDebugResources-64 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.mobilerepair.shop.app-merged_res-65 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\intermediates\merged_res\debug
-com.mobilerepair.shop.app-debug-66 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\debug\res
-com.mobilerepair.shop.app-main-67 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\res
+com.mobilerepair.shop.app-jetified-play-services-auth-21.0.0-51 C:\Users\rhmna\.gradle\caches\8.9\transforms\e03ec3d3d0a34cee73f1f21af9ee994d\transformed\jetified-play-services-auth-21.0.0\res
+com.mobilerepair.shop.app-lifecycle-runtime-2.7.0-52 C:\Users\rhmna\.gradle\caches\8.9\transforms\e4a90cf9cec9e3f712ef7674baee8bdd\transformed\lifecycle-runtime-2.7.0\res
+com.mobilerepair.shop.app-jetified-activity-ktx-1.8.2-53 C:\Users\rhmna\.gradle\caches\8.9\transforms\e4b7e1c1c5d32f5be588cef8947b03ae\transformed\jetified-activity-ktx-1.8.2\res
+com.mobilerepair.shop.app-jetified-lifecycle-service-2.7.0-54 C:\Users\rhmna\.gradle\caches\8.9\transforms\e81e18cacaa727f4dc4d8149cfd3806e\transformed\jetified-lifecycle-service-2.7.0\res
+com.mobilerepair.shop.app-navigation-fragment-2.7.6-55 C:\Users\rhmna\.gradle\caches\8.9\transforms\ed7f623c979a432e385122df85996259\transformed\navigation-fragment-2.7.6\res
+com.mobilerepair.shop.app-material-1.11.0-56 C:\Users\rhmna\.gradle\caches\8.9\transforms\f045c35c99b848d5d9637280593c2857\transformed\material-1.11.0\res
+com.mobilerepair.shop.app-jetified-lifecycle-viewmodel-ktx-2.7.0-57 C:\Users\rhmna\.gradle\caches\8.9\transforms\f18f1de490e21804f70e7562fe80cc29\transformed\jetified-lifecycle-viewmodel-ktx-2.7.0\res
+com.mobilerepair.shop.app-databinding-adapters-8.2.2-58 C:\Users\rhmna\.gradle\caches\8.9\transforms\f814346160c1adfe4cbe2718aa9a6637\transformed\databinding-adapters-8.2.2\res
+com.mobilerepair.shop.app-jetified-lifecycle-livedata-core-ktx-2.7.0-59 C:\Users\rhmna\.gradle\caches\8.9\transforms\f95c5e224c5818fad6135b8499ba5708\transformed\jetified-lifecycle-livedata-core-ktx-2.7.0\res
+com.mobilerepair.shop.app-navigation-runtime-ktx-2.7.6-60 C:\Users\rhmna\.gradle\caches\8.9\transforms\fe4e22034c1221862ae2153a15502801\transformed\navigation-runtime-ktx-2.7.6\res
+com.mobilerepair.shop.app-jetified-play-services-base-18.1.0-61 C:\Users\rhmna\.gradle\caches\8.9\transforms\ff4628602bc0b29316cf54b625bbe49f\transformed\jetified-play-services-base-18.1.0\res
+com.mobilerepair.shop.app-pngs-62 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\generated\res\pngs\debug
+com.mobilerepair.shop.app-resValues-63 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\generated\res\resValues\debug
+com.mobilerepair.shop.app-packageDebugResources-64 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.mobilerepair.shop.app-packageDebugResources-65 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.mobilerepair.shop.app-merged_res-66 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\build\intermediates\merged_res\debug
+com.mobilerepair.shop.app-debug-67 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\debug\res
+com.mobilerepair.shop.app-main-68 C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\res

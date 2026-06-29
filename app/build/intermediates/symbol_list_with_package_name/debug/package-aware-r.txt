@@ -3320,7 +3320,9 @@ id btnAddSupplier
 id btnCompleteHandover
 id btnCompleteParts
 id btnDeletePart
+id btnDoSync
 id btnGenerateInvoice
+id btnGoogleSync
 id btnHandover
 id btnInspect
 id btnQuotation
@@ -3341,6 +3343,7 @@ id buttonPanel
 id cache_measures
 id callMeasure
 id cancel_button
+id cardCloudSync
 id cardCommonFaults
 id cardCustomers
 id cardLogout
@@ -3871,6 +3874,7 @@ id tvSummaryFault
 id tvSummaryParts
 id tvSupplier
 id tvSuppliersCount
+id tvSyncStatus
 id tvTodayExpense
 id tvTodayProfit
 id unchecked

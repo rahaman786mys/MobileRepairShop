@@ -4,6 +4,7 @@ package com.mobilerepair.shop.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -19,6 +20,12 @@ import java.lang.String;
 public final class FragmentMoreBinding implements ViewBinding {
   @NonNull
   private final ScrollView rootView;
+
+  @NonNull
+  public final ImageButton btnDoSync;
+
+  @NonNull
+  public final MaterialCardView cardCloudSync;
 
   @NonNull
   public final MaterialCardView cardCommonFaults;
@@ -50,13 +57,19 @@ public final class FragmentMoreBinding implements ViewBinding {
   @NonNull
   public final TextView tvSuppliersCount;
 
-  private FragmentMoreBinding(@NonNull ScrollView rootView,
-      @NonNull MaterialCardView cardCommonFaults, @NonNull MaterialCardView cardCustomers,
-      @NonNull MaterialCardView cardLogout, @NonNull MaterialCardView cardServiceMen,
-      @NonNull MaterialCardView cardSuppliers, @NonNull TextView tvAppVersion,
-      @NonNull TextView tvCustomersCount, @NonNull TextView tvFaultsCount,
-      @NonNull TextView tvServiceMenCount, @NonNull TextView tvSuppliersCount) {
+  @NonNull
+  public final TextView tvSyncStatus;
+
+  private FragmentMoreBinding(@NonNull ScrollView rootView, @NonNull ImageButton btnDoSync,
+      @NonNull MaterialCardView cardCloudSync, @NonNull MaterialCardView cardCommonFaults,
+      @NonNull MaterialCardView cardCustomers, @NonNull MaterialCardView cardLogout,
+      @NonNull MaterialCardView cardServiceMen, @NonNull MaterialCardView cardSuppliers,
+      @NonNull TextView tvAppVersion, @NonNull TextView tvCustomersCount,
+      @NonNull TextView tvFaultsCount, @NonNull TextView tvServiceMenCount,
+      @NonNull TextView tvSuppliersCount, @NonNull TextView tvSyncStatus) {
     this.rootView = rootView;
+    this.btnDoSync = btnDoSync;
+    this.cardCloudSync = cardCloudSync;
     this.cardCommonFaults = cardCommonFaults;
     this.cardCustomers = cardCustomers;
     this.cardLogout = cardLogout;
@@ -67,6 +80,7 @@ public final class FragmentMoreBinding implements ViewBinding {
     this.tvFaultsCount = tvFaultsCount;
     this.tvServiceMenCount = tvServiceMenCount;
     this.tvSuppliersCount = tvSuppliersCount;
+    this.tvSyncStatus = tvSyncStatus;
   }
 
   @Override
@@ -96,6 +110,18 @@ public final class FragmentMoreBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnDoSync;
+      ImageButton btnDoSync = ViewBindings.findChildViewById(rootView, id);
+      if (btnDoSync == null) {
+        break missingId;
+      }
+
+      id = R.id.cardCloudSync;
+      MaterialCardView cardCloudSync = ViewBindings.findChildViewById(rootView, id);
+      if (cardCloudSync == null) {
+        break missingId;
+      }
+
       id = R.id.cardCommonFaults;
       MaterialCardView cardCommonFaults = ViewBindings.findChildViewById(rootView, id);
       if (cardCommonFaults == null) {
@@ -156,9 +182,15 @@ public final class FragmentMoreBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentMoreBinding((ScrollView) rootView, cardCommonFaults, cardCustomers,
-          cardLogout, cardServiceMen, cardSuppliers, tvAppVersion, tvCustomersCount, tvFaultsCount,
-          tvServiceMenCount, tvSuppliersCount);
+      id = R.id.tvSyncStatus;
+      TextView tvSyncStatus = ViewBindings.findChildViewById(rootView, id);
+      if (tvSyncStatus == null) {
+        break missingId;
+      }
+
+      return new FragmentMoreBinding((ScrollView) rootView, btnDoSync, cardCloudSync,
+          cardCommonFaults, cardCustomers, cardLogout, cardServiceMen, cardSuppliers, tvAppVersion,
+          tvCustomersCount, tvFaultsCount, tvServiceMenCount, tvSuppliersCount, tvSyncStatus);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

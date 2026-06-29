@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.mobilerepair.shop.MobileRepairApp
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.databinding.FragmentMoreBinding
+import com.mobilerepair.shop.utils.BackupManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -42,6 +42,15 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         }
         binding.cardLogout.setOnClickListener {
             logout()
+        }
+
+        binding.cardCloudSync.setOnClickListener {
+            val account = GoogleSignIn.getLastSignedInAccount(requireContext())
+            if (account != null) {
+                BackupManager.syncWithGoogleDrive(requireContext(), account.email ?: "Backup")
+            } else {
+                findNavController().navigate(R.id.loginFragment)
+            }
         }
 
         // Load counts

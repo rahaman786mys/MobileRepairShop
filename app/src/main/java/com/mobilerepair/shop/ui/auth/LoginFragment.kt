@@ -1,21 +1,47 @@
 package com.mobilerepair.shop.ui.auth
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.Scope
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.databinding.FragmentLoginBinding
+import com.mobilerepair.shop.utils.BackupManager
 import com.mobilerepair.shop.utils.ValidationUtils
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+
+    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(Exception::class.java)
+                val email = account?.email ?: "user"
+                Toast.makeText(requireContext(), "Signed in as $email", Toast.LENGTH_SHORT).show()
+                
+                // Trigger Sync
+                BackupManager.syncWithGoogleDrive(requireContext(), email)
+                
+                // Proceed to login if not already done, or just show success
+                loginSuccess()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
@@ -43,6 +69,20 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.tvResendOtp.setOnClickListener {
             Toast.makeText(requireContext(), "OTP Resent", Toast.LENGTH_SHORT).show()
         }
+
+        binding.btnGoogleSync.setOnClickListener {
+            signInWithGoogle()
+        }
+    }
+
+    private fun signInWithGoogle() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestScopes(Scope("https://www.googleapis.com/auth/drive.appdata"))
+            .build()
+
+        val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+        googleSignInLauncher.launch(googleSignInClient.signInIntent)
     }
 
     private fun sendOtpSimulation(mobile: String) {

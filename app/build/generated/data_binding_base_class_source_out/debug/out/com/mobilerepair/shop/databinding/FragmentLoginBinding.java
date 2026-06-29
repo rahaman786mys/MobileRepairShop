@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -23,6 +24,9 @@ import java.lang.String;
 public final class FragmentLoginBinding implements ViewBinding {
   @NonNull
   private final LinearLayout rootView;
+
+  @NonNull
+  public final SignInButton btnGoogleSync;
 
   @NonNull
   public final MaterialButton btnSendOtp;
@@ -57,13 +61,15 @@ public final class FragmentLoginBinding implements ViewBinding {
   @NonNull
   public final TextView tvResendOtp;
 
-  private FragmentLoginBinding(@NonNull LinearLayout rootView, @NonNull MaterialButton btnSendOtp,
-      @NonNull MaterialButton btnVerifyOtp, @NonNull TextInputEditText etMobileNumber,
-      @NonNull TextInputEditText etOtp, @NonNull ImageView ivLogo,
-      @NonNull LinearLayout layoutMobileInput, @NonNull LinearLayout layoutOtpInput,
-      @NonNull ProgressBar progressBar, @NonNull TextInputLayout tilMobileNumber,
-      @NonNull TextView tvOtpSentTo, @NonNull TextView tvResendOtp) {
+  private FragmentLoginBinding(@NonNull LinearLayout rootView, @NonNull SignInButton btnGoogleSync,
+      @NonNull MaterialButton btnSendOtp, @NonNull MaterialButton btnVerifyOtp,
+      @NonNull TextInputEditText etMobileNumber, @NonNull TextInputEditText etOtp,
+      @NonNull ImageView ivLogo, @NonNull LinearLayout layoutMobileInput,
+      @NonNull LinearLayout layoutOtpInput, @NonNull ProgressBar progressBar,
+      @NonNull TextInputLayout tilMobileNumber, @NonNull TextView tvOtpSentTo,
+      @NonNull TextView tvResendOtp) {
     this.rootView = rootView;
+    this.btnGoogleSync = btnGoogleSync;
     this.btnSendOtp = btnSendOtp;
     this.btnVerifyOtp = btnVerifyOtp;
     this.etMobileNumber = etMobileNumber;
@@ -104,6 +110,12 @@ public final class FragmentLoginBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btnGoogleSync;
+      SignInButton btnGoogleSync = ViewBindings.findChildViewById(rootView, id);
+      if (btnGoogleSync == null) {
+        break missingId;
+      }
+
       id = R.id.btnSendOtp;
       MaterialButton btnSendOtp = ViewBindings.findChildViewById(rootView, id);
       if (btnSendOtp == null) {
@@ -170,9 +182,9 @@ public final class FragmentLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentLoginBinding((LinearLayout) rootView, btnSendOtp, btnVerifyOtp,
-          etMobileNumber, etOtp, ivLogo, layoutMobileInput, layoutOtpInput, progressBar,
-          tilMobileNumber, tvOtpSentTo, tvResendOtp);
+      return new FragmentLoginBinding((LinearLayout) rootView, btnGoogleSync, btnSendOtp,
+          btnVerifyOtp, etMobileNumber, etOtp, ivLogo, layoutMobileInput, layoutOtpInput,
+          progressBar, tilMobileNumber, tvOtpSentTo, tvResendOtp);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
