@@ -16,7 +16,7 @@ object NotificationUtils {
      */
     fun sendRepairStartedWhatsApp(context: Context, entry: RepairEntry) {
         val message = """
-            🛠️ *Repair Started - MuZZu Tech*
+            🛠️ *Repair Started - Repair Shop*
             
             Hello ${entry.customerName},
             Your device *${entry.deviceBrand} ${entry.deviceModel}* repair has started.
@@ -37,7 +37,7 @@ object NotificationUtils {
      */
     fun sendRepairCompletedWhatsApp(context: Context, entry: RepairEntry) {
         val message = """
-            ✅ *Repair Completed - MuZZu Tech*
+            ✅ *Repair Completed - Repair Shop*
             
             Hello ${entry.customerName},
             Great news! Your *${entry.deviceBrand} ${entry.deviceModel}* is ready for collection.
@@ -55,7 +55,7 @@ object NotificationUtils {
      */
     fun sendHandoverSummaryWhatsApp(context: Context, entry: RepairEntry, issuesFixed: String) {
         val message = """
-            🤝 *Device Collected - MuZZu Tech*
+            🤝 *Device Collected - Repair Shop*
             
             Hello ${entry.customerName},
             Thank you for collecting your *${entry.deviceBrand} ${entry.deviceModel}*.

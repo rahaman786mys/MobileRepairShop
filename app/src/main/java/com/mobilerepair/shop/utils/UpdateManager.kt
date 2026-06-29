@@ -22,7 +22,7 @@ import java.io.IOException
  */
 object UpdateManager {
 
-    private const val VERSION_URL = "https://raw.githubusercontent.com/rahaman786mys/MobileRepairShop/main/version.json"
+    private const val VERSION_URL = "https://raw.githubusercontent.com/rahaman786mys/MobileRepairShop/master/version.json"
     private val client = OkHttpClient()
     private var downloadId: Long = -1
 

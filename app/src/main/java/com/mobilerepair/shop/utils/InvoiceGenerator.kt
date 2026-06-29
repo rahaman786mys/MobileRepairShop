@@ -38,7 +38,7 @@ object InvoiceGenerator {
         titlePaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         titlePaint.textSize = 24f
         titlePaint.color = Color.parseColor("#2563EB")
-        canvas.drawText("MuZZu Tech", 40f, 60f, titlePaint)
+        canvas.drawText("Repair Shop", 40f, 60f, titlePaint)
 
         paint.textSize = 12f
         paint.color = Color.DKGRAY
