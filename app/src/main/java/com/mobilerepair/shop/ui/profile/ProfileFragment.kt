@@ -15,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.mobilerepair.shop.R
 import com.mobilerepair.shop.databinding.FragmentProfileBinding
 import com.mobilerepair.shop.utils.BackupManager
@@ -29,21 +30,19 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private val viewModel: ProfileViewModel by viewModels()
 
     private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(Exception::class.java)
-                val email = account?.email ?: ""
-                if (email.isNotEmpty()) {
-                    binding.etProfileEmail.setText(email)
-                    if (binding.etProfileName.text.isNullOrEmpty()) {
-                        binding.etProfileName.setText(account?.displayName)
-                    }
-                    Toast.makeText(requireContext(), "Google Account Linked: $email", Toast.LENGTH_SHORT).show()
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val email = account?.email ?: ""
+            if (email.isNotEmpty()) {
+                binding.etProfileEmail.setText(email)
+                if (binding.etProfileName.text.isNullOrEmpty()) {
+                    binding.etProfileName.setText(account?.displayName)
                 }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Link failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Google Account Linked: $email", Toast.LENGTH_SHORT).show()
             }
+        } catch (e: ApiException) {
+            Toast.makeText(requireContext(), "Link failed (Code: ${e.statusCode})", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -89,8 +88,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             val shop = binding.etShopName.text.toString().trim()
             val address = binding.etShopAddress.text.toString().trim()
 
-            if (name.isEmpty() || email.isEmpty()) {
-                Snackbar.make(binding.root, "Name and Email are required", Snackbar.LENGTH_SHORT).show()
+            if (name.isEmpty()) {
+                Snackbar.make(binding.root, "Full Name is required", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -105,11 +104,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         binding.btnSyncNow.setOnClickListener {
             val email = binding.etProfileEmail.text.toString().trim()
             if (email.isEmpty()) {
-                Snackbar.make(binding.root, "Please add an email first", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Please link your Google account first", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             
-            // Trigger Real Sync Hook
             BackupManager.syncWithGoogleDrive(requireContext(), email)
             viewModel.updateSyncTimestamp()
             Snackbar.make(binding.root, "Cloud backup initiated!", Snackbar.LENGTH_SHORT).show()
@@ -121,7 +119,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             .requestEmail()
             .build()
         val client = GoogleSignIn.getClient(requireActivity(), gso)
-        googleSignInLauncher.launch(client.signInIntent)
+        client.signOut().addOnCompleteListener {
+            googleSignInLauncher.launch(client.signInIntent)
+        }
     }
 
     override fun onDestroyView() {
