@@ -3,7 +3,7 @@
 # in the Android SDK tools proguard configuration.
 
 # Keep Room entities
--keep class com.mobilerepair.shop.data.model.** { *; }
+-keep class com.app.muzzutech.data.model.** { *; }
 
 # Keep ML Kit
 -keep class com.google.mlkit.** { *; }

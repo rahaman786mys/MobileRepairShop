@@ -12,7 +12,20 @@
           "package_name": "com.app.muzzutech"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "816690590049-csagvpo4493k7pcclj97stvh4mda3tu9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.muzzutech",
+            "certificate_hash": "0599516e661467f8bd4946397eaf2bddee2a1da6"
+          }
+        },
+        {
+          "client_id": "816690590049-iu6b5gktv2mit2imp2aagchs8jma8gr5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC-5-9Kn1mgbJC8SSVv3mpwf6BBjxxpuoA"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "816690590049-iu6b5gktv2mit2imp2aagchs8jma8gr5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.mobilerepair.shop.app-mergeDebugResources-64:/values-h360dp-land-v13/values-h360dp-land-v13.xml",
+            "outputFile": "com.app.muzzutech.app-mergeDebugResources-73:/values-h360dp-land-v13/values-h360dp-land-v13.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\rhmna\\.gradle\\caches\\8.9\\transforms\\f045c35c99b848d5d9637280593c2857\\transformed\\material-1.11.0\\res\\values-h360dp-land-v13\\values-h360dp-land-v13.xml",
+                    "source": "C:\\Users\\rhmna\\.gradle\\caches\\8.9\\transforms\\70075d504723af1c4e1a5c0930f4483e\\transformed\\material-1.11.0\\res\\values-h360dp-land-v13\\values-h360dp-land-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",

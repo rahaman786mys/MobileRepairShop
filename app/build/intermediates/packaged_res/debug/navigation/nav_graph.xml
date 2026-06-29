@@ -8,7 +8,7 @@
     <!-- Auth -->
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.mobilerepair.shop.ui.auth.LoginFragment"
+        android:name="com.app.muzzutech.ui.auth.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
         <action
@@ -21,115 +21,115 @@
     <!-- Dashboard -->
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.mobilerepair.shop.ui.dashboard.DashboardFragment"
+        android:name="com.app.muzzutech.ui.dashboard.DashboardFragment"
         android:label="Dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
     <!-- New Entry Flow -->
     <fragment
         android:id="@+id/entryFragment"
-        android:name="com.mobilerepair.shop.ui.entry.EntryFragment"
+        android:name="com.app.muzzutech.ui.entry.EntryFragment"
         android:label="New Repair Entry"
         tools:layout="@layout/fragment_entry" />
 
     <!-- Direct Sales -->
     <fragment
         android:id="@+id/saleFragment"
-        android:name="com.mobilerepair.shop.ui.sales.SaleFragment"
+        android:name="com.app.muzzutech.ui.sales.SaleFragment"
         android:label="Quick Sale"
         tools:layout="@layout/fragment_sale" />
 
     <fragment
         android:id="@+id/inspectionFragment"
-        android:name="com.mobilerepair.shop.ui.inspection.InspectionFragment"
+        android:name="com.app.muzzutech.ui.inspection.InspectionFragment"
         android:label="Inspection"
         tools:layout="@layout/fragment_inspection" />
 
     <fragment
         android:id="@+id/quotationFragment"
-        android:name="com.mobilerepair.shop.ui.quotation.QuotationFragment"
+        android:name="com.app.muzzutech.ui.quotation.QuotationFragment"
         android:label="Quotation"
         tools:layout="@layout/fragment_quotation" />
 
     <fragment
         android:id="@+id/sparePartsFragment"
-        android:name="com.mobilerepair.shop.ui.spareparts.SparePartsFragment"
+        android:name="com.app.muzzutech.ui.spareparts.SparePartsFragment"
         android:label="Spare Parts"
         tools:layout="@layout/fragment_spare_parts" />
 
     <fragment
         android:id="@+id/handoverFragment"
-        android:name="com.mobilerepair.shop.ui.handover.HandoverFragment"
+        android:name="com.app.muzzutech.ui.handover.HandoverFragment"
         android:label="Handover"
         tools:layout="@layout/fragment_handover" />
 
     <!-- Entries List -->
     <fragment
         android:id="@+id/entriesFragment"
-        android:name="com.mobilerepair.shop.ui.dashboard.EntriesListFragment"
+        android:name="com.app.muzzutech.ui.dashboard.EntriesListFragment"
         android:label="All Entries"
         tools:layout="@layout/fragment_entries_list" />
 
     <!-- Reports -->
     <fragment
         android:id="@+id/reportsFragment"
-        android:name="com.mobilerepair.shop.ui.reports.ReportsFragment"
+        android:name="com.app.muzzutech.ui.reports.ReportsFragment"
         android:label="Reports"
         tools:layout="@layout/fragment_reports" />
 
     <!-- More / Master Data -->
     <fragment
         android:id="@+id/moreFragment"
-        android:name="com.mobilerepair.shop.ui.master.MoreFragment"
+        android:name="com.app.muzzutech.ui.master.MoreFragment"
         android:label="More"
         tools:layout="@layout/fragment_more" />
 
     <fragment
         android:id="@+id/serviceManListFragment"
-        android:name="com.mobilerepair.shop.ui.master.servicemen.ServiceManListFragment"
+        android:name="com.app.muzzutech.ui.master.servicemen.ServiceManListFragment"
         android:label="Service Men"
         tools:layout="@layout/fragment_service_man_list" />
 
     <fragment
         android:id="@+id/serviceManAddFragment"
-        android:name="com.mobilerepair.shop.ui.master.servicemen.ServiceManAddFragment"
+        android:name="com.app.muzzutech.ui.master.servicemen.ServiceManAddFragment"
         android:label="Add Service Man"
         tools:layout="@layout/fragment_service_man_add" />
 
     <fragment
         android:id="@+id/supplierListFragment"
-        android:name="com.mobilerepair.shop.ui.master.suppliers.SupplierListFragment"
+        android:name="com.app.muzzutech.ui.master.suppliers.SupplierListFragment"
         android:label="Suppliers"
         tools:layout="@layout/fragment_supplier_list" />
 
     <fragment
         android:id="@+id/supplierAddFragment"
-        android:name="com.mobilerepair.shop.ui.master.suppliers.SupplierAddFragment"
+        android:name="com.app.muzzutech.ui.master.suppliers.SupplierAddFragment"
         android:label="Add Supplier"
         tools:layout="@layout/fragment_supplier_add" />
 
     <fragment
         android:id="@+id/commonFaultsFragment"
-        android:name="com.mobilerepair.shop.ui.master.faults.CommonFaultsFragment"
+        android:name="com.app.muzzutech.ui.master.faults.CommonFaultsFragment"
         android:label="Common Faults"
         tools:layout="@layout/fragment_common_faults" />
 
     <fragment
         android:id="@+id/customerListFragment"
-        android:name="com.mobilerepair.shop.ui.master.customers.CustomerListFragment"
+        android:name="com.app.muzzutech.ui.master.customers.CustomerListFragment"
         android:label="Customers"
         tools:layout="@layout/fragment_customer_list" />
 
     <!-- Entry Detail / Workflow -->
     <fragment
         android:id="@+id/entryDetailFragment"
-        android:name="com.mobilerepair.shop.ui.entry.EntryDetailFragment"
+        android:name="com.app.muzzutech.ui.entry.EntryDetailFragment"
         android:label="Entry Details"
         tools:layout="@layout/fragment_entry_detail" />
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.mobilerepair.shop.ui.profile.ProfileFragment"
+        android:name="com.app.muzzutech.ui.profile.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 

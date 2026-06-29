@@ -1,102 +1,98 @@
 [
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_service_man_list.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_service_man_list.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_supplier_add.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_supplier_add.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_customer_list.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_customer_list.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_entry.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_entry.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_sale.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_sale.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_inspection.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_inspection.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_entry_detail.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_entry_detail.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_common_faults.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_common_faults.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_entries_list.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_entries_list.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_service_man_add.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_service_man_add.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_reports.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_reports.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_reports.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_reports.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_supplier_add.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_supplier_add.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_handover.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_handover.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_common_faults.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_common_faults.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_dashboard.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_dashboard.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\activity_splash.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\activity_splash.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_entry_detail.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_entry_detail.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_dashboard.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_dashboard.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/item_added_part.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/item_added_part.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_supplier_list.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_supplier_list.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_quotation.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_quotation.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_entry.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_entry.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_sale.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_sale.xml"
     },
     {
-        "merged": "com.mobilerepair.shop.app-mergeDebugResources-65:/layout/fragment_profile.xml",
-        "source": "com.mobilerepair.shop.app-main-68:/layout/fragment_profile.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/item_repair_entry.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/item_repair_entry.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_inspection.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_inspection.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_service_man_list.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_service_man_list.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\item_added_part.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\item_added_part.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_login.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_login.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_profile.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_profile.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_entries_list.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_entries_list.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\item_common_fault.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\item_common_fault.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/item_common_fault.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/item_common_fault.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_handover.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_handover.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/activity_splash.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/activity_splash.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_quotation.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_quotation.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_supplier_list.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_supplier_list.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_service_man_add.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_service_man_add.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_spare_parts.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_spare_parts.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\activity_main.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\activity_main.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_more.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_more.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\item_repair_entry.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\item_repair_entry.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_profile.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_profile.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_login.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_login.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/fragment_customer_list.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/fragment_customer_list.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_spare_parts.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_spare_parts.xml"
-    },
-    {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_more.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_more.xml"
+        "merged": "com.app.muzzutech.app-mergeDebugResources-74:/layout/activity_main.xml",
+        "source": "com.app.muzzutech.app-main-77:/layout/activity_main.xml"
     }
 ]

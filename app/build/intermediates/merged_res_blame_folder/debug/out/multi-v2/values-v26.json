@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.mobilerepair.shop.app-mergeDebugResources-64:/values-v26/values-v26.xml",
+            "outputFile": "com.app.muzzutech.app-mergeDebugResources-73:/values-v26/values-v26.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\rhmna\\.gradle\\caches\\8.9\\transforms\\34a3bfc8901bd0257bdffb444465cb86\\transformed\\appcompat-1.6.1\\res\\values-v26\\values-v26.xml",
+                    "source": "C:\\Users\\rhmna\\.gradle\\caches\\8.9\\transforms\\6e68f8bb140080ee0c3097807a509aca\\transformed\\appcompat-1.6.1\\res\\values-v26\\values-v26.xml",
                     "from": {
                         "startLines": "2,3,4,8,12,16",
                         "startColumns": "4,4,4,4,4,4",
