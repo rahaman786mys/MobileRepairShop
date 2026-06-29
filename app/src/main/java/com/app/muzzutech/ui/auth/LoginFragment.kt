@@ -53,17 +53,19 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     loginSuccess()
                 }
             } else {
-                Toast.makeText(requireContext(), "Could not retrieve email. Check console settings.", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Could not retrieve email.", Toast.LENGTH_LONG).show()
             }
         } catch (e: ApiException) {
-            val errorMsg = when(e.statusCode) {
-                10 -> "DEVELOPER_ERROR (10): Register your SHA-1 in Google/Firebase Console."
-                12500 -> "Sign-in failed: Google Play Services mismatch or missing Client ID."
-                7 -> "Network error. Please check your internet."
-                else -> "Sign-in failed (Code: ${e.statusCode})"
+            val details = "Code: ${e.statusCode}\nMsg: ${e.message}\nStatus: ${e.status}"
+            Log.e("LoginFragment", "Google Sign-In Error: $details", e)
+            
+            val friendlyMsg = when(e.statusCode) {
+                10 -> "DEVELOPER_ERROR: Mismatch between app and Firebase. Please re-check SHA-1 and Client ID."
+                7 -> "Network error. Please check your connection."
+                12500 -> "Google Play Services issue. Please update Play Store."
+                else -> "Login Failed (Code: ${e.statusCode})"
             }
-            Log.e("LoginFragment", "Google sign in failed: ${e.statusCode}", e)
-            Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), friendlyMsg, Toast.LENGTH_LONG).show()
             binding.progressBar.isVisible = false
         }
     }
@@ -84,11 +86,13 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun signInWithGoogle() {
         binding.progressBar.isVisible = true
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
+            .requestProfile()
+            .requestIdToken(getString(R.string.default_web_client_id))
             .build()
 
         val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+        // Force sign out to allow fresh account selection
         googleSignInClient.signOut().addOnCompleteListener {
             googleSignInLauncher.launch(googleSignInClient.signInIntent)
         }
