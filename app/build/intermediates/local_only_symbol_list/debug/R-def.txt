@@ -50,6 +50,7 @@ id btnAddSupplier
 id btnCompleteHandover
 id btnCompleteParts
 id btnDeletePart
+id btnGenerateInvoice
 id btnHandover
 id btnInspect
 id btnQuotation

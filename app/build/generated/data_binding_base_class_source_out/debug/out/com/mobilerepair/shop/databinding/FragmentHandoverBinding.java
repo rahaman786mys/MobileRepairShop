@@ -28,6 +28,9 @@ public final class FragmentHandoverBinding implements ViewBinding {
   public final MaterialButton btnCompleteHandover;
 
   @NonNull
+  public final MaterialButton btnGenerateInvoice;
+
+  @NonNull
   public final TextInputEditText etCashAmount;
 
   @NonNull
@@ -61,14 +64,16 @@ public final class FragmentHandoverBinding implements ViewBinding {
   public final TextView tvSummaryParts;
 
   private FragmentHandoverBinding(@NonNull ScrollView rootView,
-      @NonNull MaterialButton btnCompleteHandover, @NonNull TextInputEditText etCashAmount,
-      @NonNull TextInputEditText etFinalAmount, @NonNull TextInputEditText etOnlineAmount,
-      @NonNull LinearLayout layoutSplitPayment, @NonNull RadioButton radioBoth,
-      @NonNull RadioButton radioCash, @NonNull RadioGroup radioGroupPayment,
-      @NonNull RadioButton radioOnline, @NonNull TextView tvSummaryCharge,
-      @NonNull TextView tvSummaryFault, @NonNull TextView tvSummaryParts) {
+      @NonNull MaterialButton btnCompleteHandover, @NonNull MaterialButton btnGenerateInvoice,
+      @NonNull TextInputEditText etCashAmount, @NonNull TextInputEditText etFinalAmount,
+      @NonNull TextInputEditText etOnlineAmount, @NonNull LinearLayout layoutSplitPayment,
+      @NonNull RadioButton radioBoth, @NonNull RadioButton radioCash,
+      @NonNull RadioGroup radioGroupPayment, @NonNull RadioButton radioOnline,
+      @NonNull TextView tvSummaryCharge, @NonNull TextView tvSummaryFault,
+      @NonNull TextView tvSummaryParts) {
     this.rootView = rootView;
     this.btnCompleteHandover = btnCompleteHandover;
+    this.btnGenerateInvoice = btnGenerateInvoice;
     this.etCashAmount = etCashAmount;
     this.etFinalAmount = etFinalAmount;
     this.etOnlineAmount = etOnlineAmount;
@@ -112,6 +117,12 @@ public final class FragmentHandoverBinding implements ViewBinding {
       id = R.id.btnCompleteHandover;
       MaterialButton btnCompleteHandover = ViewBindings.findChildViewById(rootView, id);
       if (btnCompleteHandover == null) {
+        break missingId;
+      }
+
+      id = R.id.btnGenerateInvoice;
+      MaterialButton btnGenerateInvoice = ViewBindings.findChildViewById(rootView, id);
+      if (btnGenerateInvoice == null) {
         break missingId;
       }
 
@@ -181,9 +192,10 @@ public final class FragmentHandoverBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentHandoverBinding((ScrollView) rootView, btnCompleteHandover, etCashAmount,
-          etFinalAmount, etOnlineAmount, layoutSplitPayment, radioBoth, radioCash,
-          radioGroupPayment, radioOnline, tvSummaryCharge, tvSummaryFault, tvSummaryParts);
+      return new FragmentHandoverBinding((ScrollView) rootView, btnCompleteHandover,
+          btnGenerateInvoice, etCashAmount, etFinalAmount, etOnlineAmount, layoutSplitPayment,
+          radioBoth, radioCash, radioGroupPayment, radioOnline, tvSummaryCharge, tvSummaryFault,
+          tvSummaryParts);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
