@@ -1,7 +1,7 @@
 package com.mobilerepair.shop.ui.profile
 
-import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,7 +42,13 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 Toast.makeText(requireContext(), "Google Account Linked: $email", Toast.LENGTH_SHORT).show()
             }
         } catch (e: ApiException) {
-            Toast.makeText(requireContext(), "Link failed (Code: ${e.statusCode})", Toast.LENGTH_SHORT).show()
+            val msg = when(e.statusCode) {
+                10 -> "Configuration Error (Code 10). Please register SHA-1 in Google Console."
+                7 -> "Network error. Check internet."
+                else -> "Link failed (Code: ${e.statusCode})"
+            }
+            Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
+            Log.e("ProfileFragment", "Google Link Error: ${e.statusCode}")
         }
     }
 
@@ -104,7 +110,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         binding.btnSyncNow.setOnClickListener {
             val email = binding.etProfileEmail.text.toString().trim()
             if (email.isEmpty()) {
-                Snackbar.make(binding.root, "Please link your Google account first", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Please enter an email for backup", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             

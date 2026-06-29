@@ -53,12 +53,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     loginSuccess()
                 }
             } else {
-                Toast.makeText(requireContext(), "Could not retrieve email", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Could not retrieve email. Check console settings.", Toast.LENGTH_LONG).show()
             }
         } catch (e: ApiException) {
             val errorMsg = when(e.statusCode) {
-                10 -> "Developer Error: Check SHA-1 Fingerprint in Console"
-                12500 -> "Sign-in failed: Google Play Services issue"
+                10 -> "DEVELOPER_ERROR (10): Register your SHA-1 in Google/Firebase Console."
+                12500 -> "Sign-in failed: Google Play Services mismatch or missing Client ID."
                 7 -> "Network error. Please check your internet."
                 else -> "Sign-in failed (Code: ${e.statusCode})"
             }
@@ -111,7 +111,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     binding.layoutMobileInput.isVisible = false
                     binding.layoutOtpInput.isVisible = true
                     binding.tvOtpSentTo.text = "OTP sent to +91 $phone"
-                    Toast.makeText(requireContext(), "OTP Sent Successfully", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(requireContext(), error ?: "Failed to send OTP", Toast.LENGTH_LONG).show()
                 }
@@ -139,7 +138,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun signInWithGoogle() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-            .requestProfile()
             .build()
 
         val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
