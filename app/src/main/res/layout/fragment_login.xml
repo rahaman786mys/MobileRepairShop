@@ -27,25 +27,93 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign in to manage your repair shop"
+        android:text="Login to manage your repair shop"
         android:textSize="16sp"
         android:textColor="@color/grey_600"
-        android:layout_marginBottom="48dp"/>
+        android:layout_marginBottom="32dp"/>
 
-    <!-- Only Google Sign In -->
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/btnGoogleSync"
+    <!-- Mobile Input Layout -->
+    <LinearLayout
+        android:id="@+id/layoutMobileInput"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginHorizontal="16dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Secure Login with Google"
-        android:textColor="@color/grey_600"
-        android:textSize="13sp" />
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilMobileNumber"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mobile Number">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etMobileNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="phone"
+                android:maxLength="10" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSendOtp"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:text="Send OTP"
+            app:cornerRadius="28dp" />
+    </LinearLayout>
+
+    <!-- OTP Input Layout -->
+    <LinearLayout
+        android:id="@+id/layoutOtpInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvOtpSentTo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:text="OTP sent to +91 9353934016"
+            android:textColor="@color/grey_600" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter OTP">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etOtp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="number"
+                android:letterSpacing="0.5"
+                android:maxLength="6" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVerifyOtp"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:text="Verify &amp; Login"
+            app:cornerRadius="28dp" />
+
+        <TextView
+            android:id="@+id/tvResendOtp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:text="Didn't receive code? Resend"
+            android:textColor="@color/primary"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -54,14 +122,9 @@
         android:layout_marginTop="24dp"
         android:visibility="gone"/>
 
-    <!-- Hidden OTP layouts for code cleanup compatibility -->
-    <LinearLayout
-        android:id="@+id/layoutMobileInput"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone" />
-    <LinearLayout
-        android:id="@+id/layoutOtpInput"
+    <!-- Hidden Google button for compatibility -->
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/btnGoogleSync"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
