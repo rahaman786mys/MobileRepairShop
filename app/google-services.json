@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "816690590049-csagvpo4493k7pcclj97stvh4mda3tu9.apps.googleusercontent.com",
+          "client_id": "816690590049-41572tq03l24a7ua8q28le21oktgdlce.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.app.muzzutech",
-            "certificate_hash": "0599516e661467f8bd4946397eaf2bddee2a1da6"
+            "certificate_hash": "d599516e661467f88d4946397eaf2bddee2a1da6"
           }
         },
         {
