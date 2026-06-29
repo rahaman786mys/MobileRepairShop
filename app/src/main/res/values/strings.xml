@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Repair Shop</string>
+    <string name="default_web_client_id">816690590049-iu6b5gktv2mit2imp2aagchs8jma8gr5.apps.googleusercontent.com</string>
     <!-- Trigger new build -->
 
     <!-- Navigation -->

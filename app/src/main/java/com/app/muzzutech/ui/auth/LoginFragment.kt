@@ -84,6 +84,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun signInWithGoogle() {
         binding.progressBar.isVisible = true
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
