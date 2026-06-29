@@ -25,6 +25,9 @@ public final class FragmentMoreBinding implements ViewBinding {
   public final ImageButton btnDoSync;
 
   @NonNull
+  public final MaterialCardView cardAccountProfile;
+
+  @NonNull
   public final MaterialCardView cardCloudSync;
 
   @NonNull
@@ -52,6 +55,12 @@ public final class FragmentMoreBinding implements ViewBinding {
   public final TextView tvFaultsCount;
 
   @NonNull
+  public final TextView tvProfileEmail;
+
+  @NonNull
+  public final TextView tvProfileName;
+
+  @NonNull
   public final TextView tvServiceMenCount;
 
   @NonNull
@@ -61,14 +70,17 @@ public final class FragmentMoreBinding implements ViewBinding {
   public final TextView tvSyncStatus;
 
   private FragmentMoreBinding(@NonNull ScrollView rootView, @NonNull ImageButton btnDoSync,
-      @NonNull MaterialCardView cardCloudSync, @NonNull MaterialCardView cardCommonFaults,
-      @NonNull MaterialCardView cardCustomers, @NonNull MaterialCardView cardLogout,
-      @NonNull MaterialCardView cardServiceMen, @NonNull MaterialCardView cardSuppliers,
-      @NonNull TextView tvAppVersion, @NonNull TextView tvCustomersCount,
-      @NonNull TextView tvFaultsCount, @NonNull TextView tvServiceMenCount,
-      @NonNull TextView tvSuppliersCount, @NonNull TextView tvSyncStatus) {
+      @NonNull MaterialCardView cardAccountProfile, @NonNull MaterialCardView cardCloudSync,
+      @NonNull MaterialCardView cardCommonFaults, @NonNull MaterialCardView cardCustomers,
+      @NonNull MaterialCardView cardLogout, @NonNull MaterialCardView cardServiceMen,
+      @NonNull MaterialCardView cardSuppliers, @NonNull TextView tvAppVersion,
+      @NonNull TextView tvCustomersCount, @NonNull TextView tvFaultsCount,
+      @NonNull TextView tvProfileEmail, @NonNull TextView tvProfileName,
+      @NonNull TextView tvServiceMenCount, @NonNull TextView tvSuppliersCount,
+      @NonNull TextView tvSyncStatus) {
     this.rootView = rootView;
     this.btnDoSync = btnDoSync;
+    this.cardAccountProfile = cardAccountProfile;
     this.cardCloudSync = cardCloudSync;
     this.cardCommonFaults = cardCommonFaults;
     this.cardCustomers = cardCustomers;
@@ -78,6 +90,8 @@ public final class FragmentMoreBinding implements ViewBinding {
     this.tvAppVersion = tvAppVersion;
     this.tvCustomersCount = tvCustomersCount;
     this.tvFaultsCount = tvFaultsCount;
+    this.tvProfileEmail = tvProfileEmail;
+    this.tvProfileName = tvProfileName;
     this.tvServiceMenCount = tvServiceMenCount;
     this.tvSuppliersCount = tvSuppliersCount;
     this.tvSyncStatus = tvSyncStatus;
@@ -113,6 +127,12 @@ public final class FragmentMoreBinding implements ViewBinding {
       id = R.id.btnDoSync;
       ImageButton btnDoSync = ViewBindings.findChildViewById(rootView, id);
       if (btnDoSync == null) {
+        break missingId;
+      }
+
+      id = R.id.cardAccountProfile;
+      MaterialCardView cardAccountProfile = ViewBindings.findChildViewById(rootView, id);
+      if (cardAccountProfile == null) {
         break missingId;
       }
 
@@ -170,6 +190,18 @@ public final class FragmentMoreBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tvProfileEmail;
+      TextView tvProfileEmail = ViewBindings.findChildViewById(rootView, id);
+      if (tvProfileEmail == null) {
+        break missingId;
+      }
+
+      id = R.id.tvProfileName;
+      TextView tvProfileName = ViewBindings.findChildViewById(rootView, id);
+      if (tvProfileName == null) {
+        break missingId;
+      }
+
       id = R.id.tvServiceMenCount;
       TextView tvServiceMenCount = ViewBindings.findChildViewById(rootView, id);
       if (tvServiceMenCount == null) {
@@ -188,9 +220,10 @@ public final class FragmentMoreBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentMoreBinding((ScrollView) rootView, btnDoSync, cardCloudSync,
-          cardCommonFaults, cardCustomers, cardLogout, cardServiceMen, cardSuppliers, tvAppVersion,
-          tvCustomersCount, tvFaultsCount, tvServiceMenCount, tvSuppliersCount, tvSyncStatus);
+      return new FragmentMoreBinding((ScrollView) rootView, btnDoSync, cardAccountProfile,
+          cardCloudSync, cardCommonFaults, cardCustomers, cardLogout, cardServiceMen, cardSuppliers,
+          tvAppVersion, tvCustomersCount, tvFaultsCount, tvProfileEmail, tvProfileName,
+          tvServiceMenCount, tvSuppliersCount, tvSyncStatus);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

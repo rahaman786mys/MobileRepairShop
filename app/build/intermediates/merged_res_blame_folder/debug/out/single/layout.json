@@ -8,12 +8,12 @@
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_customer_list.xml"
     },
     {
-        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_sale.xml",
-        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_sale.xml"
-    },
-    {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_entry_detail.xml",
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_entry_detail.xml"
+    },
+    {
+        "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_sale.xml",
+        "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_sale.xml"
     },
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_entries_list.xml",
@@ -46,6 +46,10 @@
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_entry.xml",
         "source": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-main-68:\\layout\\fragment_entry.xml"
+    },
+    {
+        "merged": "com.mobilerepair.shop.app-mergeDebugResources-65:/layout/fragment_profile.xml",
+        "source": "com.mobilerepair.shop.app-main-68:/layout/fragment_profile.xml"
     },
     {
         "merged": "C:\\Users\\rhmna\\.gradle\\daemon\\8.9\\com.mobilerepair.shop.app-mergeDebugResources-65:\\layout\\fragment_inspection.xml",

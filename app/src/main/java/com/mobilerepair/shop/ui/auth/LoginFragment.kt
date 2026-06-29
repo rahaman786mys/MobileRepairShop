@@ -10,14 +10,18 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
 import com.mobilerepair.shop.R
+import com.mobilerepair.shop.MobileRepairApp
+import com.mobilerepair.shop.data.model.UserProfile
 import com.mobilerepair.shop.databinding.FragmentLoginBinding
 import com.mobilerepair.shop.utils.BackupManager
 import com.mobilerepair.shop.utils.ValidationUtils
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
@@ -32,6 +36,17 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 val email = account?.email ?: "user"
                 Toast.makeText(requireContext(), "Signed in as $email", Toast.LENGTH_SHORT).show()
                 
+                // Save Initial Profile
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val dao = MobileRepairApp.instance.database.userProfileDao()
+                    if (dao.getUserProfile() == null) {
+                        dao.insertOrUpdate(UserProfile(
+                            email = email,
+                            name = account?.displayName ?: ""
+                        ))
+                    }
+                }
+
                 // Trigger Sync
                 BackupManager.syncWithGoogleDrive(requireContext(), email)
                 

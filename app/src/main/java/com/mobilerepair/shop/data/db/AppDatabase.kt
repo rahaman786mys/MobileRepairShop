@@ -16,9 +16,10 @@ import com.mobilerepair.shop.data.model.*
         SparePartPurchase::class,
         Customer::class,
         Dealer::class,
-        Sale::class
+        Sale::class,
+        UserProfile::class
     ],
-    version = 3, // Incremented version for new entities and schema changes
+    version = 5, // Incremented version for UserProfile
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -31,6 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun customerDao(): CustomerDao
     abstract fun dealerDao(): DealerDao
     abstract fun saleDao(): SaleDao
+    abstract fun userProfileDao(): UserProfileDao
 
     companion object {
         @Volatile

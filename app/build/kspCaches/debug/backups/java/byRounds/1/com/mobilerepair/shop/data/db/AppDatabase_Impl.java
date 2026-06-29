@@ -27,6 +27,8 @@ import com.mobilerepair.shop.data.db.dao.SparePartPurchaseDao;
 import com.mobilerepair.shop.data.db.dao.SparePartPurchaseDao_Impl;
 import com.mobilerepair.shop.data.db.dao.SupplierDao;
 import com.mobilerepair.shop.data.db.dao.SupplierDao_Impl;
+import com.mobilerepair.shop.data.db.dao.UserProfileDao;
+import com.mobilerepair.shop.data.db.dao.UserProfileDao_Impl;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
@@ -58,10 +60,12 @@ public final class AppDatabase_Impl extends AppDatabase {
 
   private volatile SaleDao _saleDao;
 
+  private volatile UserProfileDao _userProfileDao;
+
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(5) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `repair_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deviceBrand` TEXT NOT NULL, `deviceModel` TEXT NOT NULL, `entryPhotoPath` TEXT NOT NULL, `customerName` TEXT NOT NULL, `customerMobile` TEXT NOT NULL, `customerCity` TEXT NOT NULL, `dealerName` TEXT NOT NULL, `dealerMobile` TEXT NOT NULL, `serviceManId` INTEGER NOT NULL, `entryDate` INTEGER NOT NULL, `faultDetected` TEXT NOT NULL, `faultDescription` TEXT NOT NULL, `additionalFaults` TEXT NOT NULL, `inspectionPhotoPath` TEXT NOT NULL, `inspectionDate` INTEGER NOT NULL, `inspectionDone` INTEGER NOT NULL, `chargeAmount` REAL NOT NULL, `advanceAmount` REAL NOT NULL, `quotationDate` INTEGER NOT NULL, `quotationDone` INTEGER NOT NULL, `sparePartPhotoPath` TEXT NOT NULL, `sparePartName` TEXT NOT NULL, `sparePartPurchasePrice` REAL NOT NULL, `supplierId` INTEGER NOT NULL, `sparePartDate` INTEGER NOT NULL, `sparePartDone` INTEGER NOT NULL, `workStatus` TEXT NOT NULL, `completionDate` INTEGER NOT NULL, `workDone` INTEGER NOT NULL, `finalAmount` REAL NOT NULL, `paymentMode` TEXT NOT NULL, `onlineAmount` REAL NOT NULL, `cashAmount` REAL NOT NULL, `handoverDate` INTEGER NOT NULL, `handoverDone` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)");
@@ -72,8 +76,9 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `customers` (`mobileNumber` TEXT NOT NULL, `name` TEXT, `city` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobileNumber`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `dealers` (`mobileNumber` TEXT NOT NULL, `name` TEXT, `city` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`mobileNumber`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `sales` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `itemName` TEXT NOT NULL, `supplierId` TEXT NOT NULL, `purchasePrice` REAL NOT NULL, `salePrice` REAL NOT NULL, `saleDate` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `user_profile` (`email` TEXT NOT NULL, `name` TEXT NOT NULL, `phone` TEXT NOT NULL, `shopName` TEXT NOT NULL, `shopAddress` TEXT NOT NULL, `lastSyncTimestamp` INTEGER NOT NULL, PRIMARY KEY(`email`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ce175ebb3d4886bdb34edecae976ce96')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c12e514f362d08456df7e15199f61cfc')");
       }
 
       @Override
@@ -86,6 +91,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("DROP TABLE IF EXISTS `customers`");
         db.execSQL("DROP TABLE IF EXISTS `dealers`");
         db.execSQL("DROP TABLE IF EXISTS `sales`");
+        db.execSQL("DROP TABLE IF EXISTS `user_profile`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -297,9 +303,25 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoSales + "\n"
                   + " Found:\n" + _existingSales);
         }
+        final HashMap<String, TableInfo.Column> _columnsUserProfile = new HashMap<String, TableInfo.Column>(6);
+        _columnsUserProfile.put("email", new TableInfo.Column("email", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUserProfile.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUserProfile.put("phone", new TableInfo.Column("phone", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUserProfile.put("shopName", new TableInfo.Column("shopName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUserProfile.put("shopAddress", new TableInfo.Column("shopAddress", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUserProfile.put("lastSyncTimestamp", new TableInfo.Column("lastSyncTimestamp", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysUserProfile = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesUserProfile = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoUserProfile = new TableInfo("user_profile", _columnsUserProfile, _foreignKeysUserProfile, _indicesUserProfile);
+        final TableInfo _existingUserProfile = TableInfo.read(db, "user_profile");
+        if (!_infoUserProfile.equals(_existingUserProfile)) {
+          return new RoomOpenHelper.ValidationResult(false, "user_profile(com.mobilerepair.shop.data.model.UserProfile).\n"
+                  + " Expected:\n" + _infoUserProfile + "\n"
+                  + " Found:\n" + _existingUserProfile);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "ce175ebb3d4886bdb34edecae976ce96", "52fd3574d5215278816c16c85e598049");
+    }, "c12e514f362d08456df7e15199f61cfc", "b044a2ed6fecb8be794f8384f1b1be64");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -310,7 +332,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "repair_entries","service_men","suppliers","common_faults","spare_part_purchases","customers","dealers","sales");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "repair_entries","service_men","suppliers","common_faults","spare_part_purchases","customers","dealers","sales","user_profile");
   }
 
   @Override
@@ -327,6 +349,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       _db.execSQL("DELETE FROM `customers`");
       _db.execSQL("DELETE FROM `dealers`");
       _db.execSQL("DELETE FROM `sales`");
+      _db.execSQL("DELETE FROM `user_profile`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
@@ -349,6 +372,7 @@ public final class AppDatabase_Impl extends AppDatabase {
     _typeConvertersMap.put(CustomerDao.class, CustomerDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(DealerDao.class, DealerDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(SaleDao.class, SaleDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(UserProfileDao.class, UserProfileDao_Impl.getRequiredConverters());
     return _typeConvertersMap;
   }
 
@@ -475,6 +499,20 @@ public final class AppDatabase_Impl extends AppDatabase {
           _saleDao = new SaleDao_Impl(this);
         }
         return _saleDao;
+      }
+    }
+  }
+
+  @Override
+  public UserProfileDao userProfileDao() {
+    if (_userProfileDao != null) {
+      return _userProfileDao;
+    } else {
+      synchronized(this) {
+        if(_userProfileDao == null) {
+          _userProfileDao = new UserProfileDao_Impl(this);
+        }
+        return _userProfileDao;
       }
     }
   }

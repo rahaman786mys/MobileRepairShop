@@ -40,6 +40,9 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         binding.cardCommonFaults.setOnClickListener {
             findNavController().navigate(R.id.commonFaultsFragment)
         }
+        binding.cardAccountProfile.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
         binding.cardLogout.setOnClickListener {
             logout()
         }
@@ -54,6 +57,14 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         }
 
         // Load counts
+        viewLifecycleOwner.lifecycleScope.launch {
+            MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
+                if (profile != null) {
+                    binding.tvProfileName.text = profile.name.ifEmpty { "Your Account" }
+                    binding.tvProfileEmail.text = profile.email
+                }
+            }
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             MobileRepairApp.instance.database.serviceManDao().getAllServiceMen().collectLatest { list ->
                 binding.tvServiceMenCount.text = "${list.size} technicians"

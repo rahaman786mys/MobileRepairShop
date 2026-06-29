@@ -1,20 +1,20 @@
 -- Merging decision tree log ---
 provider#androidx.core.content.FileProvider
-INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:42:9-50:20
+INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:43:9-51:20
 	android:grantUriPermissions
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:46:13-47
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:47:13-47
 	android:authorities
 		INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:44:13-64
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:45:13-64
 	android:exported
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:45:13-37
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:46:13-37
 	android:name
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:43:13-62
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:44:13-62
 manifest
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:2:1-52:12
-INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:2:1-52:12
-INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:2:1-52:12
-INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:2:1-52:12
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:2:1-53:12
+INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:2:1-53:12
+INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:2:1-53:12
+INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:2:1-53:12
 MERGED from [androidx.databinding:databinding-adapters:8.2.2] C:\Users\rhmna\.gradle\caches\8.9\transforms\f814346160c1adfe4cbe2718aa9a6637\transformed\databinding-adapters-8.2.2\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.databinding:databinding-ktx:8.2.2] C:\Users\rhmna\.gradle\caches\8.9\transforms\e690e12a845206c81380e4b4b5ddad39\transformed\jetified-databinding-ktx-8.2.2\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.databinding:databinding-runtime:8.2.2] C:\Users\rhmna\.gradle\caches\8.9\transforms\5cf795223694bc5c4156c1be6f13d89d\transformed\databinding-runtime-8.2.2\AndroidManifest.xml:2:1-7:12
@@ -158,15 +158,19 @@ MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Us
 MERGED from [com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\rhmna\.gradle\caches\8.9\transforms\aeff72a316afff62c3d4d592dcc803d5\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:26:5-67
 	android:name
 		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:11:22-64
-uses-feature#android.hardware.camera
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:13:5-84
-	android:required
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:13:58-81
+uses-permission#android.permission.REQUEST_INSTALL_PACKAGES
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:12:5-83
 	android:name
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:13:19-57
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:12:22-80
+uses-feature#android.hardware.camera
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:14:5-84
+	android:required
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:14:58-81
+	android:name
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:14:19-57
 application
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:15:5-51:19
-INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:15:5-51:19
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:16:5-52:19
+INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:16:5-52:19
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\rhmna\.gradle\caches\8.9\transforms\f045c35c99b848d5d9637280593c2857\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] C:\Users\rhmna\.gradle\caches\8.9\transforms\f045c35c99b848d5d9637280593c2857\transformed\material-1.11.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\rhmna\.gradle\caches\8.9\transforms\80a6059764099e42534c0ebc02f9ba2f\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
@@ -226,55 +230,55 @@ MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\rhmna\.gradle\c
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] C:\Users\rhmna\.gradle\caches\8.9\transforms\4a837047d1046aa71749e78de4ab0425\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:21:9-35
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:22:9-35
 	android:label
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:19:9-41
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:20:9-41
 	android:roundIcon
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:20:9-51
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:21:9-51
 	tools:targetApi
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:24:9-29
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:25:9-29
 	android:icon
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:18:9-46
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:19:9-46
 	android:allowBackup
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:17:9-35
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:18:9-35
 	android:theme
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:22:9-54
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:23:9-54
 	android:usesCleartextTraffic
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:23:9-44
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:24:9-44
 	android:name
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:16:9-40
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:17:9-40
 activity#com.mobilerepair.shop.SplashActivity
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:26:9-34:20
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:27:9-35:20
 	android:exported
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:28:13-36
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:29:13-36
 	android:theme
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:29:13-58
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:30:13-58
 	android:name
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:27:13-43
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:28:13-43
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:30:13-33:29
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:31:13-34:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:31:17-69
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:32:17-69
 	android:name
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:31:25-66
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:32:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:32:17-77
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:33:17-77
 	android:name
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:32:27-74
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:33:27-74
 activity#com.mobilerepair.shop.MainActivity
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:36:9-40:20
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:37:9-41:20
 	android:windowSoftInputMode
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:39:13-55
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:40:13-55
 	android:exported
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:38:13-37
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:39:13-37
 	android:name
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:37:13-41
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:38:13-41
 meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:47:13-49:54
+ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:48:13-50:54
 	android:resource
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:49:17-51
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:50:17-51
 	android:name
-		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:48:17-67
+		ADDED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml:49:17-67
 uses-sdk
 INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\rhmna\OneDrive\Desktop\testing 2\MobileRepairShop\app\src\main\AndroidManifest.xml
