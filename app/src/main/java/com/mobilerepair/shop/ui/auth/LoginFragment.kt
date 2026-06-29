@@ -20,6 +20,7 @@ import com.mobilerepair.shop.R
 import com.mobilerepair.shop.data.model.UserProfile
 import com.mobilerepair.shop.databinding.FragmentLoginBinding
 import com.mobilerepair.shop.utils.BackupManager
+import com.mobilerepair.shop.utils.OtpManager
 import com.mobilerepair.shop.utils.ValidationUtils
 import kotlinx.coroutines.launch
 
@@ -76,25 +77,62 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
         binding.btnSendOtp.setOnClickListener {
             if (ValidationUtils.validatePhoneNumber(binding.tilMobileNumber)) {
-                sendOtpSimulation(binding.etMobileNumber.text.toString())
+                sendRealOtp(binding.etMobileNumber.text.toString())
             }
         }
 
         binding.btnVerifyOtp.setOnClickListener {
-            val otp = binding.etOtp.text.toString()
-            if (otp == "123456") { 
-                loginSuccess()
+            val code = binding.etOtp.text.toString().trim()
+            if (code.length == 4) {
+                verifyRealOtp(code)
             } else {
-                Toast.makeText(requireContext(), "Invalid OTP", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please enter 4-digit code", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.tvResendOtp.setOnClickListener {
-            Toast.makeText(requireContext(), "OTP Resent", Toast.LENGTH_SHORT).show()
+            sendRealOtp(binding.etMobileNumber.text.toString())
         }
 
         binding.btnGoogleSync.setOnClickListener {
             signInWithGoogle()
+        }
+    }
+
+    private fun sendRealOtp(phone: String) {
+        binding.progressBar.isVisible = true
+        binding.btnSendOtp.isEnabled = false
+        
+        OtpManager.sendOtp(phone) { success, error ->
+            activity?.runOnUiThread {
+                binding.progressBar.isVisible = false
+                binding.btnSendOtp.isEnabled = true
+                if (success) {
+                    binding.layoutMobileInput.isVisible = false
+                    binding.layoutOtpInput.isVisible = true
+                    binding.tvOtpSentTo.text = "OTP sent to +91 $phone"
+                    Toast.makeText(requireContext(), "OTP Sent Successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), error ?: "Failed to send OTP", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun verifyRealOtp(code: String) {
+        binding.progressBar.isVisible = true
+        binding.btnVerifyOtp.isEnabled = false
+        
+        OtpManager.verifyOtp(code) { success, error ->
+            activity?.runOnUiThread {
+                binding.progressBar.isVisible = false
+                binding.btnVerifyOtp.isEnabled = true
+                if (success) {
+                    loginSuccess()
+                } else {
+                    Toast.makeText(requireContext(), error ?: "Verification Failed", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -105,22 +143,9 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             .build()
 
         val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
-        // Sign out first to force account picker
         googleSignInClient.signOut().addOnCompleteListener {
             googleSignInLauncher.launch(googleSignInClient.signInIntent)
         }
-    }
-
-    private fun sendOtpSimulation(mobile: String) {
-        binding.progressBar.isVisible = true
-        binding.btnSendOtp.isEnabled = false
-        
-        view?.postDelayed({
-            binding.progressBar.isVisible = false
-            binding.layoutMobileInput.isVisible = false
-            binding.layoutOtpInput.isVisible = true
-            binding.tvOtpSentTo.text = "OTP sent to +91 $mobile"
-        }, 1000)
     }
 
     private fun loginSuccess() {
