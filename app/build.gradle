@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'com.mobilerepair.shop'
+    namespace 'com.app.muzzutech'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.mobilerepair.shop"
+        applicationId "com.app.muzzutech"
         minSdk 26
         targetSdk 34
         versionCode 4
