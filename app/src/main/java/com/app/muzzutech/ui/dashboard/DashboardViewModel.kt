@@ -6,7 +6,6 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class DashboardViewModel : ViewModel() {
@@ -51,18 +50,22 @@ class DashboardViewModel : ViewModel() {
                 _completedToday.value = count
             }
         }
+        // Revenue = sum of finalAmount for entries handed over today
         viewModelScope.launch {
-            combine(
-                repository.getEntriesByDateRange(todayStart, todayEnd),
-                database.sparePartPurchaseDao().getTotalPurchaseInRange(todayStart, todayEnd)
-            ) { entries, investTotal ->
-                val revenue = entries.sumOf { it.chargeAmount }
-                val invest = investTotal ?: 0.0
-                _dailyRevenue.value = revenue
-                _dailyInvest.value = invest
-                _dailyProfit.value = revenue - invest
-            }.collect {}
+            repository.getRevenueInRange(todayStart, todayEnd).collect { revenue ->
+                _dailyRevenue.value = revenue ?: 0.0
+                _dailyProfit.value = (revenue ?: 0.0) - _dailyInvest.value
+            }
         }
+        // Invest = sum of parts purchased today
+        viewModelScope.launch {
+            database.sparePartPurchaseDao()
+                .getTotalPurchaseInRange(todayStart, todayEnd).collect { total ->
+                    _dailyInvest.value = total ?: 0.0
+                    _dailyProfit.value = _dailyRevenue.value - (total ?: 0.0)
+                }
+        }
+        // Paid vs Due from supplier payments today
         viewModelScope.launch {
             database.paymentDao()
                 .getPaymentsByTypeAndDate("SUPPLIER", todayStart, todayEnd).collect { payments ->
