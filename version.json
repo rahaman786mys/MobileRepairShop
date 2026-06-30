@@ -1,1 +1,1 @@
-{"versionCode": 5, "versionName": "1.0.4", "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-debug.apk", "releaseNotes": "• WhatsApp OTP Login\n• Fixed Google Sign-In\n• Fixed in-app update system\n• Bug fixes and improvements"}
+{"versionCode": 6, "versionName": "1.0.5", "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-debug.apk", "releaseNotes": "• Fixed Google Sign-In (SHA-1 mismatch)\n• WhatsApp OTP Login added\n• Fixed in-app update system\n• Auto-update from GitHub Releases"}
