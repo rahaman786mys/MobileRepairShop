@@ -4,16 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:clickable="true"
-    android:focusable="true"
-    app:cardElevation="3dp">
+    android:layout_marginBottom="12dp"
+    style="@style/Widget.MuZZu.Card">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="16dp"
+        android:gravity="center_vertical">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -26,16 +25,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Customer"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                style="@style/TextAppearance.MuZZu.Heading"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/tvCustomerMobile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mobile"
-                android:textColor="@color/text_secondary"
+                style="@style/TextAppearance.MuZZu.Body"
                 android:textSize="13sp" />
 
             <TextView
@@ -44,7 +42,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Fault"
-                android:textColor="@color/text_primary"
+                style="@style/TextAppearance.MuZZu.Body"
+                android:textColor="@color/muzzu_text_main"
                 android:textSize="13sp" />
 
             <TextView
@@ -52,14 +51,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Date"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                style="@style/TextAppearance.MuZZu.Label"
+                android:textSize="10sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="end|center_vertical"
+            android:layout_height="wrap_content"
+            android:gravity="end"
             android:orientation="vertical">
 
             <TextView
@@ -67,18 +66,30 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="₹ 0"
-                android:textColor="@color/accent"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                style="@style/TextAppearance.MuZZu.Heading"
+                android:textColor="@color/muzzu_accent"
+                android:textSize="15sp" />
 
-            <TextView
-                android:id="@+id/tvStatus"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Pending"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="6dp"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="4dp"
+                app:cardBackgroundColor="@color/muzzu_surface_elevated"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/muzzu_border">
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="Pending"
+                    style="@style/TextAppearance.MuZZu.Label"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -40,10 +40,25 @@
     <color name="grey_100">#F8FAFC</color>
     <color name="grey_200">#F1F5F9</color>
     <color name="grey_300">#E2E8F0</color>
+    <color name="grey_500">#64748B</color>
     <color name="grey_600">#475569</color>
     <color name="success">#10B981</color>
     <color name="error">#EF4444</color>
     <color name="warning">#F59E0B</color>
+
+    <color name="accent">#3B82F6</color>
+    <color name="grey_400">#94A3B8</color>
+    <color name="status_pending">#EF4444</color>
+    <color name="status_in_progress">#3B82F6</color>
+    <color name="status_progress">#3B82F6</color>
+    <color name="status_done">#10B981</color>
+
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#475569</color>
+
+    <color name="gradient_start">#0F172A</color>
+    <color name="gradient_center">#1E293B</color>
+    <color name="gradient_end">#334155</color>
 
     <!-- Card Backgrounds - Remapped to Premium palette -->
     <color name="card_bg_blue">#F8FAFC</color>
