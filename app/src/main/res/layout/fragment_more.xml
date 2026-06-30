@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Settings & Master Data"
+                android:text="Settings &amp; Master Data"
                 android:textColor="#C7D2FE"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -374,13 +374,13 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Section: Data & Security -->
+            <!-- Section: Data &amp; Security -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="8dp"
-                android:text="Data & Security"
+                android:text="Data &amp; Security"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
