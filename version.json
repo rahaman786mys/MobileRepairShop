@@ -1,6 +1,1 @@
-{
-  "versionCode": 4,
-  "versionName": "1.0.3",
-  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/actions",
-  "releaseNotes": "• UI Refinement: Minimalist Dashboard\n• Removed branding as requested\n• Improved text contrast for better readability\n• Enhanced Navigation experience"
-}
+{"versionCode": 5, "versionName": "1.0.4", "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-debug.apk", "releaseNotes": "• WhatsApp OTP Login\n• Fixed Google Sign-In\n• Fixed in-app update system\n• Bug fixes and improvements"}
