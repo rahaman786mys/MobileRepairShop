@@ -38,8 +38,13 @@ class SplashActivity : AppCompatActivity() {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
-                    Toast.makeText(applicationContext, "Security error: $errString", Toast.LENGTH_SHORT).show()
-                    finish() // Close app if security check is bypassed/failed
+                    // If error is "CANCELED" or "USER_CANCELED", don't close, just allow retry or fallback
+                    if (errorCode == BiometricPrompt.ERROR_USER_CANCELED || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                         Toast.makeText(applicationContext, "Authentication required", Toast.LENGTH_SHORT).show()
+                         // Optionally show a button to retry
+                    } else {
+                         proceedToMain() // Fallback to main if biometric hardware fails weirdly
+                    }
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {

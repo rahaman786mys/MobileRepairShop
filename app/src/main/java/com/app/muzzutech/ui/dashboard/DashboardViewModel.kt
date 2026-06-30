@@ -41,39 +41,53 @@ class DashboardViewModel : ViewModel() {
         val todayEnd = DateUtils.getEndOfDay()
 
         viewModelScope.launch {
-            repository.getPendingCount().collect { count ->
-                _pendingCount.value = count
-            }
+            try {
+                repository.getPendingCount().collect { count ->
+                    _pendingCount.value = count
+                }
+            } catch (e: Exception) { e.printStackTrace() }
         }
         viewModelScope.launch {
-            repository.getCompletedCountInRange(todayStart, todayEnd).collect { count ->
-                _completedToday.value = count
-            }
+            try {
+                repository.getCompletedCountInRange(todayStart, todayEnd).collect { count ->
+                    _completedToday.value = count
+                }
+            } catch (e: Exception) { e.printStackTrace() }
         }
         // Revenue = sum of finalAmount for entries handed over today
         viewModelScope.launch {
-            repository.getRevenueInRange(todayStart, todayEnd).collect { revenue ->
-                _dailyRevenue.value = revenue ?: 0.0
-                _dailyProfit.value = (revenue ?: 0.0) - _dailyInvest.value
-            }
+            try {
+                repository.getRevenueInRange(todayStart, todayEnd).collect { revenue ->
+                    _dailyRevenue.value = revenue ?: 0.0
+                    updateProfit()
+                }
+            } catch (e: Exception) { e.printStackTrace() }
         }
         // Invest = sum of parts purchased today
         viewModelScope.launch {
-            database.sparePartPurchaseDao()
-                .getTotalPurchaseInRange(todayStart, todayEnd).collect { total ->
-                    _dailyInvest.value = total ?: 0.0
-                    _dailyProfit.value = _dailyRevenue.value - (total ?: 0.0)
-                }
+            try {
+                database.sparePartPurchaseDao()
+                    .getTotalPurchaseInRange(todayStart, todayEnd).collect { total ->
+                        _dailyInvest.value = total ?: 0.0
+                        updateProfit()
+                    }
+            } catch (e: Exception) { e.printStackTrace() }
         }
         // Paid vs Due from supplier payments today
         viewModelScope.launch {
-            database.paymentDao()
-                .getPaymentsByTypeAndDate("SUPPLIER", todayStart, todayEnd).collect { payments ->
-                    val paid = payments.filter { it.status == "PAID" }.sumOf { it.totalAmount }
-                    val due = payments.filter { it.status != "PAID" }.sumOf { it.dueAmount }
-                    _dailyPaidInvest.value = paid
-                    _dailyDueInvest.value = due
-                }
+            try {
+                database.paymentDao()
+                    .getPaymentsByTypeAndDate("SUPPLIER", todayStart, todayEnd).collect { payments ->
+                        val paid = payments.filter { it.status == "PAID" }.sumOf { it.totalAmount }
+                        val due = payments.filter { it.status != "PAID" }.sumOf { it.dueAmount }
+                        _dailyPaidInvest.value = paid
+                        _dailyDueInvest.value = due
+                    }
+            } catch (e: Exception) { e.printStackTrace() }
         }
+    }
+
+    private fun updateProfit() {
+        _dailyProfit.value = _dailyRevenue.value - _dailyInvest.value
     }
 }

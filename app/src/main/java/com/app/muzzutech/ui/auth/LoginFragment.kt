@@ -117,12 +117,17 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun loginSuccess(email: String = "") {
-        val prefs = requireContext().getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
-        prefs.edit().putBoolean("is_logged_in", true).apply()
-        if (email.isNotEmpty()) {
-            prefs.edit().putString("logged_in_email", email).apply()
+        val ctx = context ?: return
+        val prefs = ctx.getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
+        prefs.edit().apply {
+            putBoolean("is_logged_in", true)
+            if (email.isNotEmpty()) putString("logged_in_email", email)
+            apply()
         }
-        findNavController().navigate(R.id.action_loginFragment_to_dashboardFragment)
+        
+        if (isAdded) {
+            findNavController().navigate(R.id.action_loginFragment_to_dashboardFragment)
+        }
     }
 
     override fun onDestroyView() {
