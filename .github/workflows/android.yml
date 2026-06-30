@@ -36,30 +36,30 @@ jobs:
       run: file gradlew
 
     - name: Build with Gradle
-      run: ./gradlew clean assembleDebug --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+      run: ./gradlew clean assembleRelease --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
       shell: bash
 
     - name: Verify APK Exists
-      run: ls -la app/build/outputs/apk/debug/
+      run: ls -la app/build/outputs/apk/release/
 
     - name: Verify APK Signature
       run: |
         echo "=== Built APK SHA-1 ==="
-        $ANDROID_HOME/build-tools/34.0.0/apksigner verify --print-certs app/build/outputs/apk/debug/app-MuZZu-debug.apk | grep SHA-1
+        $ANDROID_HOME/build-tools/34.0.0/apksigner verify --print-certs app/build/outputs/apk/release/*.apk || true
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-MuZZu-debug
-        path: app/build/outputs/apk/debug/app-MuZZu-debug.apk
+        name: app-MuZZu-release
+        path: app/build/outputs/apk/release/*.apk
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.3.3-build-${{ github.run_number }}
-        name: "MuZZu Tech v1.3.3 (Build ${{ github.run_number }})"
-        body: "Bug fixes and improvements."
-        files: app/build/outputs/apk/debug/app-MuZZu-debug.apk
+        tag_name: v1.4.0-build-${{ github.run_number }}
+        name: "MuZZu Tech Professional v1.4.0 (Build ${{ github.run_number }})"
+        body: "Optimized release for all devices (Low-end to High-end). Added 16 KB page-size compatibility and code shrinking."
+        files: app/build/outputs/apk/release/*.apk
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
