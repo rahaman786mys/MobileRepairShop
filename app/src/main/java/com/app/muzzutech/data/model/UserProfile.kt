@@ -8,11 +8,13 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "user_profile")
 data class UserProfile(
-    @PrimaryKey val id: Int = 1, // Always 1 for the shop owner
-    val email: String = "",
-    val name: String = "",
-    val phone: String = "",
-    val shopName: String = "",
-    val shopAddress: String = "",
-    val lastSyncTimestamp: Long = 0
+  @PrimaryKey val id: Int = 1, // Always 1 for the shop owner
+  val email: String = "",
+  val name: String = "",
+  val phone: String = "",
+  val shopName: String = "",
+  val shopAddress: String = "",
+  val gstNo: String = "", // Optional GST number
+  val profilePhotoPath: String = "", // Local path to profile photo
+  val lastSyncTimestamp: Long = 0
 )

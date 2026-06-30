@@ -13,21 +13,23 @@ class ProfileViewModel : ViewModel() {
 
     val profileFlow: Flow<UserProfile?> = userProfileDao.getUserProfileFlow()
 
-    fun saveProfile(name: String, phone: String, shopName: String, shopAddress: String, email: String) {
-        viewModelScope.launch {
-            val existing = userProfileDao.getUserProfile()
-            val profile = UserProfile(
-                id = 1,
-                email = email,
-                name = name,
-                phone = phone,
-                shopName = shopName,
-                shopAddress = shopAddress,
-                lastSyncTimestamp = existing?.lastSyncTimestamp ?: 0
-            )
-            userProfileDao.insertOrUpdate(profile)
-        }
-    }
+fun saveProfile(name: String, phone: String, shopName: String, shopAddress: String, email: String, gstNo: String = "", profilePhotoPath: String = "") {
+  viewModelScope.launch {
+    val existing = userProfileDao.getUserProfile()
+    val profile = UserProfile(
+      id = 1,
+      email = email,
+      name = name,
+      phone = phone,
+      shopName = shopName,
+      shopAddress = shopAddress,
+      gstNo = gstNo,
+      profilePhotoPath = profilePhotoPath,
+      lastSyncTimestamp = existing?.lastSyncTimestamp ?: 0
+    )
+    userProfileDao.insertOrUpdate(profile)
+  }
+}
 
     fun updateSyncTimestamp() {
         viewModelScope.launch {

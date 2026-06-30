@@ -186,14 +186,104 @@
                             app:tint="@color/muzzu_border" />
                     </com.google.android.material.card.MaterialCardView>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnTakePhoto"
-                        style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="Open Camera"
-                        android:textAllCaps="false" />
+<com.google.android.material.button.MaterialButton
+android:id="@+id/btnTakePhoto"
+style="@style/Widget.Material3.Button.TonalButton"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_marginTop="12dp"
+android:text="Open Camera (Photo 1)"
+android:textAllCaps="false" />
+
+<!-- Extra Items Section -->
+<com.google.android.material.card.MaterialCardView
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_marginTop="24dp"
+style="@style/Widget.MuZZu.Card">
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:padding="16dp">
+<TextView
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Extra Items"
+style="@style/TextAppearance.MuZZu.Label"
+android:layout_marginBottom="12dp" />
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="horizontal">
+<com.google.android.material.checkbox.MaterialCheckBox
+android:id="@+id/cbCharge"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_weight="1"
+android:text="Charge"
+android:textSize="13sp" />
+<com.google.android.material.checkbox.MaterialCheckBox
+android:id="@+id/cbChip"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_weight="1"
+android:text="Chip"
+android:textSize="13sp" />
+</LinearLayout>
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="horizontal"
+android:layout_marginTop="4dp">
+<com.google.android.material.checkbox.MaterialCheckBox
+android:id="@+id/cbSim"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_weight="1"
+android:text="SIM"
+android:textSize="13sp" />
+<com.google.android.material.checkbox.MaterialCheckBox
+android:id="@+id/cbPouch"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_weight="1"
+android:text="Pouch"
+android:textSize="13sp" />
+</LinearLayout>
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="horizontal"
+android:layout_marginTop="4dp"
+android:gravity="center_vertical">
+<com.google.android.material.checkbox.MaterialCheckBox
+android:id="@+id/cbOther"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Other"
+android:textSize="13sp" />
+<com.google.android.material.textfield.TextInputLayout
+android:id="@+id/tilOtherItem"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_weight="1"
+android:layout_marginStart="8dp"
+style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+app:boxStrokeWidth="1dp"
+app:boxStrokeColor="@color/muzzu_border"
+android:visibility="gone">
+<com.google.android.material.textfield.TextInputEditText
+android:id="@+id/etOtherItem"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="Specify item"
+android:inputType="text"
+android:textSize="13sp" />
+</com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>
+</LinearLayout>
+</com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"

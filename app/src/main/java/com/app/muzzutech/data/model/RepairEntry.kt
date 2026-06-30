@@ -11,17 +11,20 @@ data class RepairEntry(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
-    // === ENTRY STAGE ===
-    val deviceBrand: String = "",              // e.g., Samsung, iPhone
-    val deviceModel: String = "",              // e.g., Galaxy S21
-    val entryPhotoPath: String = "",           // Photo of phone at entry
-    val customerName: String = "",
-    val customerMobile: String = "",
-    val customerCity: String = "",
-    val dealerName: String = "",               // If coming from a dealer
-    val dealerMobile: String = "",
-    val serviceManId: Long = 0,                // Assigned service man
-    val entryDate: Long = System.currentTimeMillis(),
+// === ENTRY STAGE ===
+val deviceBrand: String = "", // e.g., Samsung, iPhone
+val deviceModel: String = "", // e.g., Galaxy S21
+val entryPhotoPath: String = "", // Photo 1 of phone at entry
+val entryPhotoPath2: String = "", // Photo 2 of phone at entry
+val customerName: String = "",
+val customerMobile: String = "",
+val customerCity: String = "",
+val dealerName: String = "", // If coming from a dealer
+val dealerMobile: String = "",
+val serviceManId: Long = 0, // Assigned service man (0 = not selected)
+val serviceManName: String = "", // Cached name for display
+val entryDate: Long = System.currentTimeMillis(),
+val isDraft: Boolean = false, // true = saved as draft
 
     // === INSPECTION STAGE ===
     val faultDetected: String = "",            // Main fault

@@ -1,5 +1,8 @@
 package com.app.muzzutech.ui.profile
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,11 +10,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -20,17 +26,41 @@ import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentProfileBinding
 import com.app.muzzutech.utils.BackupManager
 import com.app.muzzutech.utils.DateUtils
+import com.app.muzzutech.utils.PhotoUtils
 import com.app.muzzutech.utils.ValidationUtils
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
-    private var _binding: FragmentProfileBinding? = null
-    private val binding get() = _binding!!
-    private val viewModel: ProfileViewModel by viewModels()
+  private var _binding: FragmentProfileBinding? = null
+  private val binding get() = _binding!!
+  private val viewModel: ProfileViewModel by viewModels()
 
-    private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+  private var profilePhotoFile: File? = null
+  private var profilePhotoUri: Uri? = null
+  private var currentPhotoPath: String = ""
+
+  private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+    if (success && profilePhotoUri != null) {
+      binding.ivProfilePhoto.setImageURI(profilePhotoUri)
+      currentPhotoPath = profilePhotoFile?.absolutePath ?: ""
+    }
+  }
+
+  private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    uri?.let {
+      binding.ivProfilePhoto.setImageURI(it)
+      currentPhotoPath = it.toString()
+    }
+  }
+
+  private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+    if (granted) openProfileCamera() else Toast.makeText(requireContext(), "Camera permission required", Toast.LENGTH_SHORT).show()
+  }
+
+  private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
             val account = task.getResult(ApiException::class.java)
@@ -58,54 +88,97 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
 
-        observeProfile()
-        setupListeners()
-    }
+    observeProfile()
+    setupListeners()
+    binding.btnTakeProfilePhoto.setOnClickListener { showPhotoPicker() }
+  }
 
-    private fun observeProfile() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.profileFlow.collectLatest { profile ->
-                    profile?.let {
-                        binding.etProfileName.setText(it.name)
-                        binding.etProfileEmail.setText(it.email)
-                        binding.etProfilePhone.setText(it.phone)
-                        binding.etShopName.setText(it.shopName)
-                        binding.etShopAddress.setText(it.shopAddress)
-                        
-                        if (it.lastSyncTimestamp > 0) {
-                            binding.tvLastSync.text = "Last Sync: ${DateUtils.formatDateTime(it.lastSyncTimestamp)}"
-                        } else {
-                            binding.tvLastSync.text = "Last Sync: Never"
-                        }
-                    }
-                }
+  private fun showPhotoPicker() {
+    val options = arrayOf("Take Camera Photo", "Choose from Gallery")
+    androidx.appcompat.app.AlertDialog.Builder(requireContext())
+      .setTitle("Profile Photo")
+      .setItems(options) { _, which ->
+        when (which) {
+          0 -> {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+              == PackageManager.PERMISSION_GRANTED) {
+              openProfileCamera()
+            } else {
+              cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
+          }
+          1 -> openProfileGallery()
         }
+      }
+      .show()
+  }
+
+  private fun openProfileCamera() {
+    profilePhotoFile = PhotoUtils.createPhotoFile(requireContext(), "PROF_")
+    profilePhotoUri = profilePhotoFile?.let {
+      FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
     }
-
-    private fun setupListeners() {
-binding.btnSaveProfile.setOnClickListener {
-  val name = binding.etProfileName.text.toString().trim()
-  val email = binding.etProfileEmail.text.toString().trim()
-  val phone = binding.etProfilePhone.text.toString().trim()
-  val shop = binding.etShopName.text.toString().trim()
-  val address = binding.etShopAddress.text.toString().trim()
-
-  if (name.isEmpty()) {
-    Snackbar.make(binding.root, "Full Name is required", Snackbar.LENGTH_SHORT).show()
-    return@setOnClickListener
-  }
-  if (phone.isNotEmpty() && !ValidationUtils.validatePhoneNumber(binding.tilProfilePhone)) {
-    return@setOnClickListener
+    profilePhotoUri?.let { cameraLauncher.launch(it) }
   }
 
-  viewModel.saveProfile(name, phone, shop, address, email)
-  Snackbar.make(binding.root, "Profile saved successfully!", Snackbar.LENGTH_SHORT).show()
-}
+  private fun openProfileGallery() {
+    galleryLauncher.launch("image/*")
+  }
+
+  private fun observeProfile() {
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.profileFlow.collectLatest { profile ->
+          profile?.let {
+            binding.etProfileName.setText(it.name)
+            binding.etProfileEmail.setText(it.email)
+            binding.etProfilePhone.setText(it.phone)
+            binding.etShopName.setText(it.shopName)
+            binding.etShopAddress.setText(it.shopAddress)
+            binding.etShopGst.setText(it.gstNo)
+
+            if (it.profilePhotoPath.isNotEmpty()) {
+              Glide.with(this@ProfileFragment)
+                .load(it.profilePhotoPath)
+                .circleCrop()
+                .into(binding.ivProfilePhoto)
+              currentPhotoPath = it.profilePhotoPath
+            }
+
+            if (it.lastSyncTimestamp > 0) {
+              binding.tvLastSync.text = "Last Sync: ${DateUtils.formatDateTime(it.lastSyncTimestamp)}"
+            } else {
+              binding.tvLastSync.text = "Last Sync: Never"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private fun setupListeners() {
+    binding.btnSaveProfile.setOnClickListener {
+      val name = binding.etProfileName.text.toString().trim()
+      val email = binding.etProfileEmail.text.toString().trim()
+      val phone = binding.etProfilePhone.text.toString().trim()
+      val shop = binding.etShopName.text.toString().trim()
+      val address = binding.etShopAddress.text.toString().trim()
+      val gst = binding.etShopGst.text.toString().trim()
+
+      if (name.isEmpty()) {
+        Snackbar.make(binding.root, "Full Name is required", Snackbar.LENGTH_SHORT).show()
+        return@setOnClickListener
+      }
+      if (phone.isNotEmpty() && !ValidationUtils.validatePhoneNumber(binding.tilProfilePhone)) {
+        return@setOnClickListener
+      }
+
+      viewModel.saveProfile(name, phone, shop, address, email, gst, currentPhotoPath)
+      Snackbar.make(binding.root, "Profile saved successfully!", Snackbar.LENGTH_SHORT).show()
+    }
 
         binding.btnLinkGoogle.setOnClickListener {
             linkGoogleAccount()

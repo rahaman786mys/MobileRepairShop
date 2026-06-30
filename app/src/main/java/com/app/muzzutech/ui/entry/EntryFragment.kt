@@ -36,8 +36,10 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     private val binding get() = _binding!!
     private val viewModel: EntryViewModel by viewModels()
 
-    private var photoFile: File? = null
-    private var photoUri: Uri? = null
+private var photoFile: File? = null
+private var photoUri: Uri? = null
+private var photoFile2: File? = null
+private var photoUri2: Uri? = null
     private var serviceMenList = listOf<ServiceMan>()
 
     private val brands = listOf(
@@ -46,15 +48,21 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         "Nokia", "Micromax", "Lava", "IQOO", "Infinix", "Techno", "Nothing", "Others"
     )
 
-    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && photoUri != null) {
-            binding.ivEntryPhoto.setImageURI(photoUri)
-        }
-    }
+private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+  if (success && photoUri != null) {
+    binding.ivEntryPhoto.setImageURI(photoUri)
+  }
+}
 
-    private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) openCamera()
-    }
+private val cameraLauncher2 = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+  if (success && photoUri2 != null) {
+    binding.ivEntryPhoto2.setImageURI(photoUri2)
+  }
+}
+
+private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+  if (granted) openCamera()
+}
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentEntryBinding.inflate(inflater, container, false)
@@ -77,21 +85,39 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun setupClickListeners() {
-        binding.btnTakePhoto.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED
-            ) {
-                openCamera()
-            } else {
-                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }
+binding.btnTakePhoto.setOnClickListener {
+  if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+      == PackageManager.PERMISSION_GRANTED
+  ) {
+    openCamera()
+  } else {
+    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+  }
+}
 
-        binding.btnSaveEntry.setOnClickListener {
-            saveEntry()
-        }
+binding.btnTakePhoto2.setOnClickListener {
+  if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+      == PackageManager.PERMISSION_GRANTED
+  ) {
+    openCamera2()
+  } else {
+    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+  }
+}
 
-        binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecked ->
+binding.cbOther.setOnCheckedChangeListener { _, isChecked ->
+  binding.tilOtherItem.isVisible = isChecked
+}
+
+binding.btnSaveEntry.setOnClickListener {
+  saveEntry()
+}
+
+binding.btnSaveDraft.setOnClickListener {
+  saveDraft()
+}
+
+binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 // Clear fields on switch
                 binding.etMobileNumber.setText("")
@@ -134,15 +160,36 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         }
     }
 
-    private fun openCamera() {
-        photoFile = PhotoUtils.createPhotoFile(requireContext())
-        photoUri = photoFile?.let {
-            FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
-        }
-        photoUri?.let { cameraLauncher.launch(it) }
+  private fun openCamera() {
+    photoFile = PhotoUtils.createPhotoFile(requireContext())
+    photoUri = photoFile?.let {
+      FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
     }
+    photoUri?.let { cameraLauncher.launch(it) }
+  }
 
-    private fun setupServiceManSpinner(men: List<ServiceMan>) {
+  private fun openCamera2() {
+    photoFile2 = PhotoUtils.createPhotoFile(requireContext())
+    photoUri2 = photoFile2?.let {
+      FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+    }
+    photoUri2?.let { cameraLauncher2.launch(it) }
+  }
+
+  private fun collectExtraItems(): String {
+    val items = mutableListOf<String>()
+    if (binding.cbCharge.isChecked) items.add("Charge")
+    if (binding.cbChip.isChecked) items.add("Chip")
+    if (binding.cbSim.isChecked) items.add("SIM")
+    if (binding.cbPouch.isChecked) items.add("Pouch")
+    if (binding.cbOther.isChecked) {
+      val other = binding.etOtherItem.text.toString().trim()
+      if (other.isNotEmpty()) items.add("Other: $other")
+    }
+    return items.joinToString(", ")
+  }
+
+  private fun setupServiceManSpinner(men: List<ServiceMan>) {
         serviceMenList = men
         val names = men.map { it.name }.toMutableList()
         names.add(0, "Select Service Man")
