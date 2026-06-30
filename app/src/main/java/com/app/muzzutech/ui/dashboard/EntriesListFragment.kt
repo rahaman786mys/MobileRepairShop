@@ -38,10 +38,10 @@ class EntriesListFragment : Fragment(R.layout.fragment_entries_list) {
         binding.rvEntries.layoutManager = LinearLayoutManager(requireContext())
         binding.rvEntries.adapter = adapter
 
-        // Load all entries
+        // Load pending entries only
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                MobileRepairApp.instance.repairRepository.getAllEntries().collectLatest { entries ->
+                MobileRepairApp.instance.repairRepository.getPendingEntries().collectLatest { entries ->
                     adapter.submitList(entries)
                 }
             }

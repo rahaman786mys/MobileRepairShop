@@ -3,18 +3,14 @@ package com.app.muzzutech.ui.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.muzzutech.MobileRepairApp
-import com.app.muzzutech.data.model.RepairEntry
-import com.app.muzzutech.utils.AIAdvisor
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class DashboardViewModel : ViewModel() {
 
     private val repository = MobileRepairApp.instance.repairRepository
-    private val purchaseDao = MobileRepairApp.instance.database.sparePartPurchaseDao()
 
     private val _pendingCount = MutableStateFlow(0)
     val pendingCount: StateFlow<Int> = _pendingCount
@@ -22,31 +18,14 @@ class DashboardViewModel : ViewModel() {
     private val _completedToday = MutableStateFlow(0)
     val completedToday: StateFlow<Int> = _completedToday
 
-    private val _recentEntries = MutableStateFlow<List<RepairEntry>>(emptyList())
-    val recentEntries: StateFlow<List<RepairEntry>> = _recentEntries
+    private val _dailyProfit = MutableStateFlow(0.0)
+    val dailyProfit: StateFlow<Double> = _dailyProfit
 
-    private val _businessHealth = MutableStateFlow<AIAdvisor.BusinessHealth?>(null)
-    val businessHealth: StateFlow<AIAdvisor.BusinessHealth?> = _businessHealth
+    private val _dailyExpense = MutableStateFlow(0.0)
+    val dailyExpense: StateFlow<Double> = _dailyExpense
 
     init {
         loadDashboardData()
-        observeBusinessHealth()
-    }
-
-    private fun observeBusinessHealth() {
-        viewModelScope.launch {
-            val todayStart = DateUtils.getStartOfDay()
-            val todayEnd = DateUtils.getEndOfDay()
-            
-            combine(
-                repository.getEntriesByDateRange(todayStart, todayEnd),
-                purchaseDao.getPurchasesByDateRange(todayStart, todayEnd)
-            ) { entries, purchases ->
-                AIAdvisor.analyzeDailyHealth(entries, purchases)
-            }.collect { health ->
-                _businessHealth.value = health
-            }
-        }
     }
 
     fun loadDashboardData() {
@@ -63,9 +42,21 @@ class DashboardViewModel : ViewModel() {
             }
         }
         viewModelScope.launch {
-            repository.getAllEntries().collect { entries ->
-                _recentEntries.value = entries.take(10)
+            val todayStart = DateUtils.getStartOfDay()
+            val todayEnd = DateUtils.getEndOfDay()
+            repository.getEntriesByDateRange(todayStart, todayEnd).collect { entries ->
+                val revenue = entries.sumOf { it.chargeAmount }
+                _dailyProfit.value = revenue
             }
+        }
+        viewModelScope.launch {
+            val todayStart = DateUtils.getStartOfDay()
+            val todayEnd = DateUtils.getEndOfDay()
+            MobileRepairApp.instance.database.sparePartPurchaseDao()
+                .getPurchasesByDateRange(todayStart, todayEnd).collect { purchases ->
+                    val expense = purchases.sumOf { it.purchasePrice * it.quantity }
+                    _dailyExpense.value = expense
+                }
         }
     }
 }

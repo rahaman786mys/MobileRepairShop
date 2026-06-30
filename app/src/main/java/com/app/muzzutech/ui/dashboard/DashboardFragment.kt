@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -12,10 +11,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
-import com.app.muzzutech.adapter.RepairEntryAdapter
 import com.app.muzzutech.databinding.FragmentDashboardBinding
 import com.app.muzzutech.utils.UpdateManager
 import kotlinx.coroutines.flow.collectLatest
@@ -26,7 +23,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
     private val viewModel: DashboardViewModel by viewModels()
-    private lateinit var adapter: RepairEntryAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
@@ -36,22 +32,11 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView()
         setupClickListeners()
-        setupSearchView()
         observeData()
 
         // Check for updates
         UpdateManager.checkForUpdates(requireContext())
-    }
-
-    private fun setupRecyclerView() {
-        adapter = RepairEntryAdapter { entry ->
-            val bundle = Bundle().apply { putLong("entryId", entry.id) }
-            findNavController().navigate(R.id.entryDetailFragment, bundle)
-        }
-        binding.rvRecentEntries.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvRecentEntries.adapter = adapter
     }
 
     private fun setupClickListeners() {
@@ -81,17 +66,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         }
     }
 
-    private fun setupSearchView() {
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return true
-            }
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return true
-            }
-        })
-    }
-
     private fun observeData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -109,18 +83,15 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.recentEntries.collectLatest { entries ->
-                    adapter.submitList(entries)
+                viewModel.dailyProfit.collectLatest { profit ->
+                    binding.tvTodayProfit.text = "₹ ${String.format("%.0f", profit)}"
                 }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.businessHealth.collectLatest { health ->
-                    health?.let {
-                        binding.tvTodayProfit.text = "₹ ${String.format("%.0f", it.dailyProfit)}"
-                        binding.tvTodayExpense.text = "₹ ${String.format("%.0f", it.dailyExpense)}"
-                    }
+                viewModel.dailyExpense.collectLatest { expense ->
+                    binding.tvTodayExpense.text = "₹ ${String.format("%.0f", expense)}"
                 }
             }
         }

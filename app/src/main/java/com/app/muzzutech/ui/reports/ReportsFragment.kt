@@ -79,16 +79,9 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.aiInsights.collectLatest { insights ->
-                    binding.tvAIInsights.text = insights
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.supplierPurchases.collectLatest { purchases ->
                     val total = purchases.sumOf { it.purchasePrice * it.quantity }
-                    binding.tvAIInsights.text = "${binding.tvAIInsights.text}\n\n💰 Supplier Purchases: ₹ ${String.format("%.0f", total)}"
+                    binding.tvSupplierPurchaseTotal.text = "₹ ${String.format("%.0f", total)}"
                 }
             }
         }

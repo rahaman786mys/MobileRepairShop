@@ -54,23 +54,6 @@
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.MediumComponent" />
             </LinearLayout>
 
-            <!-- Search Bar -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                app:cardCornerRadius="28dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#FFFFFF">
-
-                <androidx.appcompat.widget.SearchView
-                    android:id="@+id/searchView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:iconifiedByDefault="false"
-                    app:queryHint="Search by Phone Number..."
-                    app:queryBackground="@android:color/transparent" />
-            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
         <!-- Content Body -->
@@ -218,62 +201,6 @@
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- AI Smart Move Card -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_gradient_primary"
-                android:padding="20dp"
-                android:layout_marginTop="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="AI Smart Move"
-                        android:textColor="#C7D2FE"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/tvHealthScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="90%"
-                        android:textColor="#FFFFFF"
-                        android:textStyle="bold"
-                        android:background="#33FFFFFF"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="4dp"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvSmartMoveTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Steady Growth Mode"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvSmartMoveDesc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Loading business intelligence..."
-                    android:textColor="#E0E7FF"
-                    android:textSize="13sp" />
             </LinearLayout>
 
             <!-- Missing Info Card -->
@@ -689,23 +616,6 @@
                 </com.google.android.material.card.MaterialCardView>
 
             </GridLayout>
-
-            <!-- Recent Repairs -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp"
-                android:text="Recent Repairs"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvRecentEntries"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
 
         </LinearLayout>
     </LinearLayout>

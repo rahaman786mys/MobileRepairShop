@@ -130,7 +130,7 @@
                 android:layout_height="match_parent" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- AI Insights -->
+        <!-- Supplier Purchases -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -146,35 +146,26 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="AI Insights"
+                    android:text="Supplier Purchases"
                     android:textColor="@color/primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tvAIInsights"
+                    android:id="@+id/tvSupplierPurchaseTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Analyzing data..." />
+                    android:text="₹ 0" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvSupplierPurchases"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:nestedScrollingEnabled="false" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Supplier Purchases"
-            android:textColor="@color/primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSupplierPurchases"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:nestedScrollingEnabled="false" />
 
     </LinearLayout>
 </ScrollView>

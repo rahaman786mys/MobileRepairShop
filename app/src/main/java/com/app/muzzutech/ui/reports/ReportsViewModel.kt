@@ -6,7 +6,6 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.data.model.SparePartPurchase
 import com.app.muzzutech.data.db.dao.RepairEntryDao
 import com.app.muzzutech.data.db.dao.DailyReportRow
-import com.app.muzzutech.utils.AIAnalyzer
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,9 +27,6 @@ class ReportsViewModel : ViewModel() {
 
     private val _supplierPurchases = MutableStateFlow<List<SparePartPurchase>>(emptyList())
     val supplierPurchases: StateFlow<List<SparePartPurchase>> = _supplierPurchases
-
-    private val _aiInsights = MutableStateFlow("")
-    val aiInsights: StateFlow<String> = _aiInsights
 
     fun loadReport(period: String) {
         val (start, end) = when (period) {
@@ -58,23 +54,6 @@ class ReportsViewModel : ViewModel() {
         viewModelScope.launch {
             purchaseDao.getPurchasesByDateRange(start, end).collect { purchases ->
                 _supplierPurchases.value = purchases
-            }
-        }
-        viewModelScope.launch {
-            // AI Insights
-            repository.getEntriesByDateRange(start, end).collect { entries ->
-                val trends = AIAnalyzer.analyzeRepairTrends(entries)
-                val insights = buildString {
-                    append("📊 AI Analysis:\n")
-                    append("• Total Repairs: ${trends.totalRepairs}\n")
-                    append("• Completed: ${trends.completedRepairs}\n")
-                    append("• Avg Revenue/Job: ₹ ${String.format("%.0f", trends.averageRevenue)}\n")
-                    append("• Avg Repair Time: ${trends.averageRepairTimeDays} days\n")
-                    if (trends.topFaults.isNotEmpty()) {
-                        append("• Most Common: ${trends.topFaults[0]}\n")
-                    }
-                }
-                _aiInsights.value = insights
             }
         }
     }

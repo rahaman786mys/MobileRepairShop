@@ -61,21 +61,6 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardElevation="2dp">
-            <TextView
-                android:id="@+id/tvAISuggestions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:text="Take a photo for AI analysis..."
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-        </com.google.android.material.card.MaterialCardView>
-
         <!-- Inspection Photo -->
         <TextView
             android:layout_width="wrap_content"

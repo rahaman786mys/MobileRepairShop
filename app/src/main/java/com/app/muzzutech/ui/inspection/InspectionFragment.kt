@@ -2,7 +2,6 @@ package com.app.muzzutech.ui.inspection
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,9 +42,6 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
             binding.ivInspectionPhoto.setImageURI(
                 FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", photoFile!!)
             )
-            // Run AI analysis
-            val bitmap = BitmapFactory.decodeFile(photoFile!!.absolutePath)
-            viewModel.analyzePhoto(bitmap)
         }
     }
 
@@ -118,7 +114,7 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
             MobileRepairApp.instance.repairRepository.getEntryById(entryId)?.let { entry ->
                 val updated = entry.copy(
                     faultDetected = fault,
-                    faultDescription = binding.tvAISuggestions.text.toString(),
+                    faultDescription = "",
                     inspectionPhotoPath = photoFile?.absolutePath ?: "",
                     inspectionDate = System.currentTimeMillis(),
                     inspectionDone = true
@@ -136,15 +132,6 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.commonFaults.collectLatest { faults ->
                     faultAdapter.submitList(faults)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.aiSuggestions.collectLatest { suggestions ->
-                    if (suggestions.isNotEmpty()) {
-                        binding.tvAISuggestions.text = "AI Suggestions:\n${suggestions.joinToString("\n")}"
-                    }
                 }
             }
         }

@@ -13,7 +13,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentQuotationBinding
-import com.app.muzzutech.utils.AIAnalyzer
 import com.app.muzzutech.utils.NotificationUtils
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -43,8 +42,6 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
                 viewModel.entry.collectLatest { entry ->
                     if (entry != null) {
                         binding.tvFaultDetected.text = "Fault: ${entry.faultDetected}"
-                        val aiEstimate = AIAnalyzer.estimateRepairCost(entry.faultDetected, listOf())
-                        binding.tvAICostEstimate.text = "AI Estimate: ₹ ${String.format("%.0f", aiEstimate)}"
                     }
                 }
             }

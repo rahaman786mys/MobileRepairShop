@@ -37,15 +37,6 @@
                     android:text="Fault: -"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/tvAICostEstimate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="AI Estimate: ₹ 0"
-                    android:textColor="@color/accent"
-                    android:textSize="14sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
