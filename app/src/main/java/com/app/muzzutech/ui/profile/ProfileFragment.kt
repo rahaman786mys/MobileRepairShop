@@ -121,8 +121,11 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun linkGoogleAccount() {
+        val webClientId = getString(R.string.default_web_client_id)
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
+            .requestIdToken(webClientId)
+            .requestServerAuthCode(webClientId)
             .build()
         val client = GoogleSignIn.getClient(requireActivity(), gso)
         client.signOut().addOnCompleteListener {
