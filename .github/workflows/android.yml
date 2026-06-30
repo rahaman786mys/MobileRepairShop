@@ -22,21 +22,13 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Inject Debug Keystore
-      run: |
-        mkdir -p /home/runner/.android
-        echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > /home/runner/.android/debug.keystore
-        ls -la /home/runner/.android/debug.keystore
-        keytool -list -keystore /home/runner/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -v | grep SHA1
-        echo "Keystore injected successfully"
-
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
     - name: Build with Gradle
       run: ./gradlew clean assembleDebug --no-daemon --stacktrace
 
-    - name: Upload APK
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-debug
@@ -45,9 +37,9 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v${{ github.run_number }}
-        name: "Release v${{ github.run_number }}"
-        body: "Auto-generated release from commit ${{ github.sha }}"
+        tag_name: v1.0.4-build-${{ github.run_number }}
+        name: "Repair Shop Beta v1.0.4 (Build ${{ github.run_number }})"
+        body: "Stable Beta Release with Gmail-Only login and Cloud Sync. This version includes the final SHA-1 and package alignment."
         files: app/build/outputs/apk/debug/app-debug.apk
         prerelease: false
       env:
