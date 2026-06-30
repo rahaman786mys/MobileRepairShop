@@ -57,6 +57,12 @@ android {
         jvmTarget = '17'
     }
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     configurations.all {
         resolutionStrategy {
             force 'com.google.android.gms:play-services-basement:18.5.0'
