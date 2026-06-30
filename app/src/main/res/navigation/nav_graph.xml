@@ -133,4 +133,23 @@
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 
+    <!-- Dues & Payments -->
+    <fragment
+        android:id="@+id/duesFragment"
+        android:name="com.app.muzzutech.ui.dues.DuesFragment"
+        android:label="Dues"
+        tools:layout="@layout/fragment_dues" />
+
+    <fragment
+        android:id="@+id/payDuesFragment"
+        android:name="com.app.muzzutech.ui.dues.PayDuesFragment"
+        android:label="Record Payment"
+        tools:layout="@layout/fragment_pay_dues" />
+
+    <fragment
+        android:id="@+id/partReturnFragment"
+        android:name="com.app.muzzutech.ui.dues.PartReturnFragment"
+        android:label="Return Parts"
+        tools:layout="@layout/fragment_part_return" />
+
 </navigation>

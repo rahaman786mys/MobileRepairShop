@@ -17,9 +17,12 @@ import com.app.muzzutech.data.model.*
         Customer::class,
         Dealer::class,
         Sale::class,
-        UserProfile::class
+        UserProfile::class,
+        Payment::class,
+        PartReturn::class,
+        PaymentTransaction::class
     ],
-    version = 5, // Incremented version for UserProfile
+    version = 6, // Incremented for Dues & Payment system
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -33,6 +36,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun dealerDao(): DealerDao
     abstract fun saleDao(): SaleDao
     abstract fun userProfileDao(): UserProfileDao
+    abstract fun paymentDao(): PaymentDao
+    abstract fun partReturnDao(): PartReturnDao
+    abstract fun paymentTransactionDao(): PaymentTransactionDao
 
     companion object {
         @Volatile

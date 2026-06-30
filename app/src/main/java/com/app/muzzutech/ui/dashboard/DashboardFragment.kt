@@ -67,6 +67,15 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         binding.cardSuppliersGrid.setOnClickListener {
             findNavController().navigate(R.id.supplierListFragment)
         }
+        binding.cardDuesGrid?.setOnClickListener {
+            findNavController().navigate(R.id.duesFragment)
+        }
+        binding.cardReportsGrid?.setOnClickListener {
+            findNavController().navigate(R.id.reportsFragment)
+        }
+        binding.cardMoreGrid?.setOnClickListener {
+            findNavController().navigate(R.id.moreFragment)
+        }
         binding.btnFixMissingInfo.setOnClickListener {
             findNavController().navigate(R.id.profileFragment)
         }
