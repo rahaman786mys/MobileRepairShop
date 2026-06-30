@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentLoginBinding
+import com.app.muzzutech.utils.WhatsAppOtpUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -62,23 +63,26 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.btnSendOtp.setOnClickListener {
             val phone = binding.etMobileNumber.text.toString().trim()
             if (phone.length == 10) {
-                sendOtpSimulation(phone)
+                sendOtpViaWhatsApp(phone)
             } else {
-                binding.tilMobileNumber.error = "Enter valid 10-digit number"
+                binding.tilMobileNumber.error = "Enter valid 10-digit WhatsApp number"
             }
         }
 
         binding.btnVerifyOtp.setOnClickListener {
             val otp = binding.etOtp.text.toString().trim()
-            if (otp == "123456" || otp == "000000") { // Demo OTPs
+            if (WhatsAppOtpUtil.validateOtp(otp)) {
                 loginSuccess()
             } else {
-                Toast.makeText(requireContext(), "Invalid OTP. Use 123456", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Invalid OTP. Check your WhatsApp", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.tvResendOtp.setOnClickListener {
-            Toast.makeText(requireContext(), "OTP Resent", Toast.LENGTH_SHORT).show()
+            val phone = binding.etMobileNumber.text.toString().trim()
+            if (phone.length == 10) {
+                sendOtpViaWhatsApp(phone)
+            }
         }
     }
 
@@ -94,17 +98,22 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
-    private fun sendOtpSimulation(mobile: String) {
-        binding.progressBar.isVisible = true
-        binding.btnSendOtp.isEnabled = false
-        
-        view?.postDelayed({
-            binding.progressBar.isVisible = false
-            binding.layoutMobileInput.isVisible = false
-            binding.layoutOtpInput.isVisible = true
-            binding.tvOtpSentTo.text = "Demo OTP sent to +91 $mobile"
-            Toast.makeText(requireContext(), "Use Demo OTP: 123456", Toast.LENGTH_LONG).show()
-        }, 1000)
+    private fun sendOtpViaWhatsApp(mobile: String) {
+        val otp = WhatsAppOtpUtil.sendOtpViaWhatsApp(requireContext(), mobile)
+        if (otp != null) {
+            binding.progressBar.isVisible = true
+            binding.btnSendOtp.isEnabled = false
+
+            view?.postDelayed({
+                binding.progressBar.isVisible = false
+                binding.layoutMobileInput.isVisible = false
+                binding.layoutOtpInput.isVisible = true
+                binding.tvOtpSentTo.text = "OTP sent via WhatsApp to +91 $mobile\n\nCheck your WhatsApp, copy the OTP and enter it below."
+                Toast.makeText(requireContext(), "WhatsApp opened! Send the message to yourself", Toast.LENGTH_LONG).show()
+            }, 500)
+        } else {
+            Toast.makeText(requireContext(), "Failed to open WhatsApp", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun loginSuccess(email: String = "") {
