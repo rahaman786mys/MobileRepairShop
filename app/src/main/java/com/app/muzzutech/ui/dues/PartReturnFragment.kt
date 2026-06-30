@@ -13,6 +13,7 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.data.model.PartReturn
 import com.app.muzzutech.databinding.FragmentPartReturnBinding
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
@@ -71,8 +72,7 @@ class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
 
             viewLifecycleOwner.lifecycleScope.launch {
                 val db = MobileRepairApp.instance.database
-                val parts = db.sparePartPurchaseDao().getAllPurchases()
-                val partsList = kotlinx.coroutines.flow.first(parts)
+                val partsList = db.sparePartPurchaseDao().getAllPurchases().first()
 
                 val selectedPos = binding.spinnerSelectPart.selectedItemPosition
                 if (selectedPos >= 0 && selectedPos < partsList.size) {

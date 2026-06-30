@@ -23,7 +23,7 @@ interface SparePartPurchaseDao {
     fun getAllPurchases(): Flow<List<SparePartPurchase>>
 
     @Query("SELECT * FROM spare_part_purchases WHERE supplierId = :supplierId ORDER BY purchaseDate DESC")
-    fun getPurchasesBySupplier(supplierId: Long): Flow<List<SparePartPurchase>>
+    fun getPurchasesBySupplier(supplierId: String): Flow<List<SparePartPurchase>>
 
     @Query("SELECT * FROM spare_part_purchases WHERE purchaseDate BETWEEN :startDate AND :endDate ORDER BY purchaseDate DESC")
     fun getPurchasesByDateRange(startDate: Long, endDate: Long): Flow<List<SparePartPurchase>>
