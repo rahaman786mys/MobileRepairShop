@@ -20,7 +20,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.muzzutech.R
-import com.app.muzzutech.adapter.AddedPartAdapter
 import com.app.muzzutech.data.model.Supplier
 import com.app.muzzutech.databinding.FragmentSparePartsBinding
 import com.app.muzzutech.utils.PhotoUtils
@@ -33,7 +32,7 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
     private var _binding: FragmentSparePartsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SparePartsViewModel by viewModels()
-    private lateinit var partAdapter: AddedPartAdapter
+    private lateinit var partAdapter: com.app.muzzutech.adapter.AddedPartAdapter
 
     private var entryId: Long = 0
     private var photoFile: File? = null
@@ -66,7 +65,7 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
     }
 
     private fun setupRecyclerView() {
-        partAdapter = AddedPartAdapter { part ->
+        partAdapter = com.app.muzzutech.adapter.AddedPartAdapter { part ->
             viewModel.deletePart(part)
         }
         binding.rvAddedParts.apply {
@@ -90,6 +89,10 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
             addPart()
         }
 
+        binding.btnAddSupplierQuick.setOnClickListener {
+            findNavController().navigate(R.id.supplierAddFragment)
+        }
+
         binding.btnCompleteParts.setOnClickListener {
             val bundle = Bundle().apply { putLong("entryId", entryId) }
             findNavController().navigate(R.id.handoverFragment, bundle)
@@ -106,8 +109,8 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
 
     private fun setupSupplierSpinner(suppliers: List<Supplier>) {
         suppliersList = suppliers
-        val names = suppliers.map { it.name }.toMutableList()
-        names.add(0, "Select Supplier")
+        val names = suppliers.map { "${it.name} (${it.mobile})" }.toMutableList()
+        names.add(0, "Select Supplier *")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, names)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerSupplier.adapter = adapter
@@ -116,6 +119,7 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
     private fun addPart() {
         val partName = binding.etPartName.text.toString().trim()
         val priceText = binding.etPurchasePrice.text.toString().trim()
+        val quantity = binding.etQuantity.text.toString().trim().toIntOrNull() ?: 1
 
         if (partName.isEmpty()) {
             Snackbar.make(binding.root, "Please enter part name", Snackbar.LENGTH_LONG).show()
@@ -124,26 +128,38 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
 
         val price = priceText.toDoubleOrNull() ?: 0.0
         val selectedPos = binding.spinnerSupplier.selectedItemPosition
-        
+
+        if (selectedPos == 0) {
+            Snackbar.make(binding.root, "Please select a supplier (or add new)", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
         val supplier = if (selectedPos > 0 && selectedPos <= suppliersList.size) {
             suppliersList[selectedPos - 1]
         } else null
+
+        val payLater = binding.radioPayLater.isChecked
 
         viewModel.addPart(
             repairEntryId = entryId,
             partName = partName,
             photoPath = photoFile?.absolutePath ?: "",
-            price = price,
+            price = price * quantity,
             supplierId = supplier?.mobile ?: "",
-            supplierName = supplier?.name ?: ""
+            supplierName = supplier?.name ?: "",
+            payLater = payLater
         )
 
-        // Clear fields
         binding.etPartName.text?.clear()
         binding.etPurchasePrice.text?.clear()
+        binding.etQuantity.text?.clear()
         binding.ivPartPhoto.setImageResource(R.drawable.ic_add)
         photoFile = null
-        Snackbar.make(binding.root, "Part added!", Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(
+            binding.root,
+            if (payLater) "Part added! Due recorded for supplier." else "Part added! Marked as paid.",
+            Snackbar.LENGTH_SHORT
+        ).show()
     }
 
     private fun observeViewModel() {
@@ -162,6 +178,11 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadSuppliers()
     }
 
     override fun onDestroyView() {
