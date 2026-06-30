@@ -101,6 +101,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Both" />
+
+            <RadioButton
+                android:id="@+id/radioPayLater"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Pay Later" />
         </RadioGroup>
 
         <LinearLayout

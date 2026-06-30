@@ -77,8 +77,11 @@ object UpdateManager {
 
     private fun startDownload(context: Context, url: String) {
         // Cleanup old downloads
-        val oldFile = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "repair_shop_update.apk")
-        if (oldFile.exists()) oldFile.delete()
+        val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+        if (downloadsDir != null) {
+            val oldFile = File(downloadsDir, "repair_shop_update.apk")
+            if (oldFile.exists()) oldFile.delete()
+        }
 
         Toast.makeText(context, "Downloading update...", Toast.LENGTH_SHORT).show()
 

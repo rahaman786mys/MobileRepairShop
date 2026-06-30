@@ -12,7 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
+import com.app.muzzutech.data.model.Payment
 import com.app.muzzutech.databinding.FragmentHandoverBinding
 import com.app.muzzutech.utils.InvoiceGenerator
 import com.app.muzzutech.utils.NotificationUtils
@@ -47,7 +49,8 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
     private fun setupListeners() {
         // Payment mode toggle
         binding.radioGroupPayment.setOnCheckedChangeListener { _, checkedId ->
-            binding.layoutSplitPayment.visibility = if (checkedId == R.id.radioBoth) View.VISIBLE else View.GONE
+            val showSplit = checkedId == R.id.radioBoth
+            binding.layoutSplitPayment.visibility = if (showSplit) View.VISIBLE else View.GONE
         }
 
         binding.btnCompleteHandover.setOnClickListener { completeHandover() }
@@ -109,22 +112,44 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
             R.id.radioCash -> "Cash"
             R.id.radioOnline -> "Online"
             R.id.radioBoth -> "Both"
+            R.id.radioPayLater -> "Pay Later"
             else -> {
                 Snackbar.make(binding.root, "Select payment mode", Snackbar.LENGTH_LONG).show()
                 return
             }
         }
 
-        val cashAmount = if (paymentMode == "Both") {
+        val isPayLater = paymentMode == "Pay Later"
+        val cashAmount = if (!isPayLater && paymentMode == "Both") {
             binding.etCashAmount.text.toString().toDoubleOrNull() ?: 0.0
-        } else if (paymentMode == "Cash") finalAmount else 0.0
+        } else if (!isPayLater && paymentMode == "Cash") finalAmount else 0.0
 
-        val onlineAmount = if (paymentMode == "Both") {
+        val onlineAmount = if (!isPayLater && paymentMode == "Both") {
             binding.etOnlineAmount.text.toString().toDoubleOrNull() ?: 0.0
-        } else if (paymentMode == "Online") finalAmount else 0.0
+        } else if (!isPayLater && paymentMode == "Online") finalAmount else 0.0
 
         viewModel.completeHandover(entryId, finalAmount, paymentMode, cashAmount, onlineAmount)
-        
+
+        // Create payment record for customer if Pay Later
+        if (isPayLater) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.entry.value?.let { entry ->
+                    val payment = Payment(
+                        personType = "CUSTOMER",
+                        personMobile = entry.customerMobile,
+                        personName = entry.customerName,
+                        description = "Repair - ${entry.deviceBrand} ${entry.deviceModel} (${entry.faultDetected})",
+                        totalAmount = finalAmount,
+                        paidAmount = 0.0,
+                        dueAmount = finalAmount,
+                        status = "UNPAID",
+                        linkedEntryId = entry.id
+                    )
+                    MobileRepairApp.instance.database.paymentDao().insert(payment)
+                }
+            }
+        }
+
         // Notify Customer via WhatsApp & Show Print button
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.entry.value?.let { entry ->
