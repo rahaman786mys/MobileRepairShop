@@ -22,11 +22,23 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Inject Debug Keystore
+      run: |
+        echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > app/debug.keystore
+        ls -la app/debug.keystore
+        echo "=== Keystore SHA-1 ==="
+        keytool -list -keystore app/debug.keystore -storepass android -alias androiddebugkey -keypass android -v | grep SHA1
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
     - name: Build with Gradle
       run: ./gradlew clean assembleDebug --no-daemon --stacktrace
+
+    - name: Verify APK Signature
+      run: |
+        echo "=== Built APK SHA-1 ==="
+        $ANDROID_HOME/build-tools/34.0.0/apksigner verify --print-certs app/build/outputs/apk/debug/app-debug.apk | grep SHA-1
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4

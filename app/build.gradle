@@ -22,7 +22,7 @@ android {
 
     signingConfigs {
         debug {
-            def keystoreFile = new File(System.getProperty('user.home'), '.android/debug.keystore')
+            def keystoreFile = rootProject.file('app/debug.keystore')
             if (keystoreFile.exists()) {
                 storeFile keystoreFile
                 storePassword 'android'

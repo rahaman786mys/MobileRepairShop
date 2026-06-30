@@ -26,3 +26,6 @@ captures/
 *.ap_
 *.dex
 *.class
+
+# Keystore (injected via GitHub Secrets)
+app/debug.keystore
