@@ -9,8 +9,17 @@
         <item name="colorOnSecondary">@color/white</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
         <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="materialCardViewStyle">@style/Widget.MuZZu.CardView</item>
     </style>
 
+    <!-- Modern Card Style -->
+    <style name="Widget.MuZZu.CardView" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">4dp</item>
+    </style>
+
+    <!-- Bottom Nav Styles -->
     <style name="BottomNavText.Active" parent="Widget.Material3.BottomNavigationView">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
@@ -19,5 +28,19 @@
     <style name="BottomNavText.Inactive" parent="Widget.Material3.BottomNavigationView">
         <item name="android:textSize">11sp</item>
         <item name="android:textStyle">normal</item>
+    </style>
+
+    <!-- Gradient Header Text -->
+    <style name="TextAppearance.MuZZu.Header" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Icon Circle -->
+    <style name="IconCircle">
+        <item name="android:layout_width">56dp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">28sp</item>
     </style>
 </resources>
