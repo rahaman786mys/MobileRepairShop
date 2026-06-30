@@ -52,6 +52,16 @@
                     android:src="@drawable/ic_dashboard"
                     app:tint="#FFFFFF"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.MediumComponent" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivSearch"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="#FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true" />
             </LinearLayout>
 
         </LinearLayout>
@@ -99,25 +109,28 @@
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
-                <!-- Expense Card -->
+                <!-- Invest Card (clickable) -->
                 <LinearLayout
+                    android:id="@+id/cardInvest"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:background="@drawable/bg_gradient_orange"
                     android:padding="16dp"
-                    android:layout_marginStart="6dp">
+                    android:layout_marginStart="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Today's Expense"
+                        android:text="Today's Invest"
                         android:textColor="#FEF3C7"
                         android:textSize="12sp" />
 
                     <TextView
-                        android:id="@+id/tvTodayExpense"
+                        android:id="@+id/tvTodayInvest"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₹ 0"

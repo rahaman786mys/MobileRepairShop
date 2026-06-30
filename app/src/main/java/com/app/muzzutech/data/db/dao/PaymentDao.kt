@@ -39,4 +39,10 @@ interface PaymentDao {
 
     @Query("SELECT COALESCE(SUM(dueAmount), 0) FROM payments WHERE personMobile = :mobile AND status != 'PAID'")
     fun getTotalDueByMobile(mobile: String): Flow<Double>
+
+    @Query("SELECT * FROM payments WHERE personType = :type AND createdAt BETWEEN :startDate AND :endDate ORDER BY createdAt DESC")
+    fun getPaymentsByTypeAndDate(type: String, startDate: Long, endDate: Long): Flow<List<Payment>>
+
+    @Query("SELECT COUNT(*) FROM payments WHERE personType = :type AND createdAt BETWEEN :startDate AND :endDate")
+    fun getPaymentCountByTypeAndDate(type: String, startDate: Long, endDate: Long): Flow<Int>
 }

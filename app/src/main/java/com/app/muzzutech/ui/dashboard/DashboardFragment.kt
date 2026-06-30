@@ -1,5 +1,6 @@
 package com.app.muzzutech.ui.dashboard
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,7 +36,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         setupClickListeners()
         observeData()
 
-        // Check for updates
         UpdateManager.checkForUpdates(requireContext())
     }
 
@@ -64,6 +64,28 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         binding.btnFixMissingInfo.setOnClickListener {
             findNavController().navigate(R.id.profileFragment)
         }
+        binding.cardInvest.setOnClickListener {
+            showInvestDialog()
+        }
+        binding.ivSearch.setOnClickListener {
+            findNavController().navigate(R.id.entriesFragment)
+        }
+    }
+
+    private fun showInvestDialog() {
+        val paid = viewModel.dailyPaidInvest.value
+        val due = viewModel.dailyDueInvest.value
+        val total = viewModel.dailyInvest.value
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Today's Investment")
+            .setMessage(
+                "Total Invest: ₹ ${String.format("%.0f", total)}\n\n" +
+                "✅ Paid: ₹ ${String.format("%.0f", paid)}\n" +
+                "⏳ Due: ₹ ${String.format("%.0f", due)}"
+            )
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun observeData() {
@@ -90,13 +112,12 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dailyExpense.collectLatest { expense ->
-                    binding.tvTodayExpense.text = "₹ ${String.format("%.0f", expense)}"
+                viewModel.dailyInvest.collectLatest { invest ->
+                    binding.tvTodayInvest.text = "₹ ${String.format("%.0f", invest)}"
                 }
             }
         }
-        
-        // Check for missing phone number in profile
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
