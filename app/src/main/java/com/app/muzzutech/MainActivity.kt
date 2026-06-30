@@ -32,7 +32,11 @@ class MainActivity : AppCompatActivity() {
         val isLoggedIn = prefs.getBoolean("is_logged_in", false)
         
         if (isLoggedIn && navController.currentDestination?.id == R.id.loginFragment) {
-            navController.navigate(R.id.dashboardFragment)
+            try {
+                navController.navigate(R.id.dashboardFragment)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         // Set up bottom navigation

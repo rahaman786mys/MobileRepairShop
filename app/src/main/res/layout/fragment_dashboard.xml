@@ -78,6 +78,8 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:text="Today's Profit"
                             style="@style/TextAppearance.MuZZu.Label" />
                         <TextView
@@ -106,6 +108,8 @@
                         android:clickable="true"
                         android:focusable="true">
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:text="Investment"
                             style="@style/TextAppearance.MuZZu.Label" />
                         <TextView
@@ -138,6 +142,8 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:text="Pending"
                             style="@style/TextAppearance.MuZZu.Label" />
                         <TextView
@@ -163,6 +169,8 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:text="Completed"
                             style="@style/TextAppearance.MuZZu.Label" />
                         <TextView
@@ -214,6 +222,8 @@
 
         <!-- Quick Actions Grid -->
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Quick Actions"
             style="@style/TextAppearance.MuZZu.Heading"
             android:layout_marginBottom="16dp" />

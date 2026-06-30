@@ -12,6 +12,8 @@
         android:padding="20dp">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Financial Insights"
             style="@style/TextAppearance.MuZZu.Heading"
             android:layout_marginBottom="24dp" />
@@ -72,6 +74,8 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Total Revenue"
                         style="@style/TextAppearance.MuZZu.Label" />
                     <TextView
@@ -94,6 +98,8 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Completed"
                         style="@style/TextAppearance.MuZZu.Label" />
                     <TextView
@@ -120,6 +126,8 @@
                 android:orientation="vertical"
                 android:padding="16dp">
                 <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Performance Trend"
                     style="@style/TextAppearance.MuZZu.Label"
                     android:layout_marginBottom="16dp" />
@@ -132,6 +140,8 @@
 
         <!-- Inventory Expenses -->
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Inventory Investment"
             style="@style/TextAppearance.MuZZu.Heading"
             android:textSize="18sp"

@@ -12,6 +12,8 @@
         android:padding="20dp">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="New Repair Entry"
             style="@style/TextAppearance.MuZZu.Heading"
             android:layout_marginBottom="24dp" />
@@ -28,6 +30,8 @@
                 android:orientation="vertical"
                 android:padding="16dp">
                 <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Select Entry Type"
                     style="@style/TextAppearance.MuZZu.Label"
                     android:layout_marginBottom="12dp" />
@@ -70,6 +74,8 @@
                 android:padding="20dp">
 
                 <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Contact Information"
                     style="@style/TextAppearance.MuZZu.Label"
                     android:layout_marginBottom="16dp" />
@@ -126,6 +132,8 @@
                         android:layout_marginVertical="24dp" />
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Device Details"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:layout_marginBottom="16dp" />
@@ -154,6 +162,8 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Inspection Photo"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:layout_marginTop="24dp"
@@ -201,6 +211,8 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Assign Specialist"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:layout_marginTop="24dp"

@@ -12,6 +12,8 @@
         android:padding="20dp">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Settings &amp; Tools"
             style="@style/TextAppearance.MuZZu.Heading"
             android:layout_marginBottom="24dp" />
@@ -75,6 +77,8 @@
 
         <!-- Master Data Group -->
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Master Records"
             style="@style/TextAppearance.MuZZu.Label"
             android:layout_marginBottom="12dp" />
@@ -233,6 +237,8 @@
 
         <!-- Security & Backup -->
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Data &amp; Security"
             style="@style/TextAppearance.MuZZu.Label"
             android:layout_marginBottom="12dp" />
