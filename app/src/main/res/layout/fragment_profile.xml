@@ -72,17 +72,20 @@
                     android:layout_marginTop="8dp"
                     android:layout_gravity="center_horizontal" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="Phone Number"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etProfilePhone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="phone" />
+<com.google.android.material.textfield.TextInputLayout
+android:id="@+id/tilProfilePhone"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_marginTop="12dp"
+android:hint="Phone Number"
+style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+<com.google.android.material.textfield.TextInputEditText
+android:id="@+id/etProfilePhone"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="10-digit Mobile Number"
+android:inputType="phone"
+android:maxLength="10" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout

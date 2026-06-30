@@ -23,17 +23,19 @@
                 android:inputType="textPersonName" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etMobile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Mobile"
-                android:inputType="phone" />
+<com.google.android.material.textfield.TextInputLayout
+android:id="@+id/tilServiceManMobile"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_marginTop="8dp"
+style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+<com.google.android.material.textfield.TextInputEditText
+android:id="@+id/etMobile"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="10-digit Mobile"
+android:inputType="phone"
+android:maxLength="10" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

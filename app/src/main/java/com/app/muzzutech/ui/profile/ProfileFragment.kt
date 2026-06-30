@@ -20,6 +20,7 @@ import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentProfileBinding
 import com.app.muzzutech.utils.BackupManager
 import com.app.muzzutech.utils.DateUtils
+import com.app.muzzutech.utils.ValidationUtils
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -87,21 +88,24 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun setupListeners() {
-        binding.btnSaveProfile.setOnClickListener {
-            val name = binding.etProfileName.text.toString().trim()
-            val email = binding.etProfileEmail.text.toString().trim()
-            val phone = binding.etProfilePhone.text.toString().trim()
-            val shop = binding.etShopName.text.toString().trim()
-            val address = binding.etShopAddress.text.toString().trim()
+binding.btnSaveProfile.setOnClickListener {
+  val name = binding.etProfileName.text.toString().trim()
+  val email = binding.etProfileEmail.text.toString().trim()
+  val phone = binding.etProfilePhone.text.toString().trim()
+  val shop = binding.etShopName.text.toString().trim()
+  val address = binding.etShopAddress.text.toString().trim()
 
-            if (name.isEmpty()) {
-                Snackbar.make(binding.root, "Full Name is required", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+  if (name.isEmpty()) {
+    Snackbar.make(binding.root, "Full Name is required", Snackbar.LENGTH_SHORT).show()
+    return@setOnClickListener
+  }
+  if (phone.isNotEmpty() && !ValidationUtils.validatePhoneNumber(binding.tilProfilePhone)) {
+    return@setOnClickListener
+  }
 
-            viewModel.saveProfile(name, phone, shop, address, email)
-            Snackbar.make(binding.root, "Profile saved successfully!", Snackbar.LENGTH_SHORT).show()
-        }
+  viewModel.saveProfile(name, phone, shop, address, email)
+  Snackbar.make(binding.root, "Profile saved successfully!", Snackbar.LENGTH_SHORT).show()
+}
 
         binding.btnLinkGoogle.setOnClickListener {
             linkGoogleAccount()
