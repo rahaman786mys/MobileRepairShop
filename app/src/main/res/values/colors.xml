@@ -1,64 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Basic Colors -->
+    <!--
+      MuZZu Tech Premium Design System
+      Aesthetic: Minimalist, Slate/Electric Blue, High Contrast
+    -->
+
+    <!-- Core Neutrals -->
+    <color name="muzzu_bg">#F1F5F9</color>
+    <color name="muzzu_surface">#FFFFFF</color>
+    <color name="muzzu_surface_elevated">#F8FAFC</color>
+    <color name="muzzu_border">#E2E8F0</color>
+    <color name="muzzu_border_focus">#94A3B8</color>
+
+    <!-- Primary Branding -->
+    <color name="muzzu_primary">#0F172A</color> <!-- Deep Midnight -->
+    <color name="muzzu_accent">#3B82F6</color>  <!-- Electric Blue -->
+    <color name="muzzu_accent_light">#DBEAFE</color>
+    <color name="muzzu_accent_dark">#1D4ED8</color>
+
+    <!-- Typography -->
+    <color name="muzzu_text_main">#0F172A</color>
+    <color name="muzzu_text_sub">#475569</color>
+    <color name="muzzu_text_muted">#94A3B8</color>
+    <color name="muzzu_text_on_dark">#FFFFFF</color>
+
+    <!-- Semantic States (Subtle) -->
+    <color name="muzzu_success">#10B981</color>
+    <color name="muzzu_error">#EF4444</color>
+    <color name="muzzu_warning">#F59E0B</color>
+
+    <!-- Legacy Mappings (Ensures app doesn't crash while migrating) -->
+    <color name="primary">#0F172A</color>
+    <color name="primary_variant">#1E293B</color>
+    <color name="background">#F1F5F9</color>
+    <color name="surface">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
-
-    <!-- Greyscale -->
-    <color name="grey_100">#F1F5F9</color>
-    <color name="grey_200">#E2E8F0</color>
-    <color name="grey_300">#CBD5E1</color>
-    <color name="grey_400">#64748B</color>
-    <color name="grey_500">#334155</color>
-    <color name="grey_600">#1E293B</color>
-    <color name="grey_700">#0F172A</color>
-    <color name="grey_800">#020617</color>
-    <color name="grey_900">#000000</color>
-
-    <!-- Branding - Modern Indigo/Purple Gradient -->
-    <color name="primary">#6366F1</color>
-    <color name="primary_variant">#4F46E5</color>
-    <color name="primary_dark">#4338CA</color>
-    <color name="primary_light">#818CF8</color>
-    <color name="accent">#F59E0B</color>
-    <color name="accent_light">#FBBF24</color>
-    <color name="background">#F1F5F9</color>
-    <color name="surface">#FFFFFF</color>
-
-    <!-- Text Colors -->
-    <color name="text_primary">#0F172A</color>
-    <color name="text_secondary">#475569</color>
-
-    <!-- Gradient Colors -->
-    <color name="gradient_start">#6366F1</color>
-    <color name="gradient_center">#7C3AED</color>
-    <color name="gradient_end">#9333EA</color>
-
-    <!-- Status & Semantic -->
-    <color name="status_pending">#EF4444</color>
-    <color name="status_in_progress">#3B82F6</color>
-    <color name="status_progress">#3B82F6</color>
-    <color name="status_done">#10B981</color>
-
+    <color name="grey_100">#F8FAFC</color>
+    <color name="grey_200">#F1F5F9</color>
+    <color name="grey_300">#E2E8F0</color>
+    <color name="grey_600">#475569</color>
     <color name="success">#10B981</color>
     <color name="error">#EF4444</color>
     <color name="warning">#F59E0B</color>
-    <color name="info">#3B82F6</color>
 
-    <!-- Card Backgrounds - Soft Pastels -->
-    <color name="card_bg_blue">#E0F2FE</color>
-    <color name="card_bg_green">#DCFCE7</color>
-    <color name="card_bg_orange">#FFEDD5</color>
-    <color name="card_bg_purple">#EDE9FE</color>
-    <color name="card_bg_pink">#FCE7F3</color>
-    <color name="card_bg_indigo">#E0E7FF</color>
-
-    <!-- Icon Background Tints -->
-    <color name="icon_bg_blue">#3B82F6</color>
-    <color name="icon_bg_green">#10B981</color>
-    <color name="icon_bg_orange">#F59E0B</color>
-    <color name="icon_bg_purple">#8B5CF6</color>
-    <color name="icon_bg_pink">#EC4899</color>
-    <color name="icon_bg_indigo">#6366F1</color>
+    <!-- Card Backgrounds - Remapped to Premium palette -->
+    <color name="card_bg_blue">#F8FAFC</color>
+    <color name="card_bg_green">#F8FAFC</color>
+    <color name="card_bg_orange">#F8FAFC</color>
+    <color name="card_bg_purple">#F8FAFC</color>
+    <color name="card_bg_pink">#F8FAFC</color>
+    <color name="card_bg_indigo">#F8FAFC</color>
 </resources>
