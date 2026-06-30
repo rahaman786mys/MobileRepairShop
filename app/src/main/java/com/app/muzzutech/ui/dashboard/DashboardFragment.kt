@@ -122,6 +122,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
                     binding.cardMissingInfo.isVisible = profile == null || profile.phone.isEmpty()
+                    binding.tvWorkshopTitle.text = profile?.shopName?.ifEmpty { "MuZZu Tech" } ?: "MuZZu Tech"
                 }
             }
         }

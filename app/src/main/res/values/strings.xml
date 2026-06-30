@@ -2,7 +2,29 @@
 <resources>
     <string name="app_name">MuZZu Tech</string>
     <string name="default_web_client_id">816690590049-efj39799qqgl18qs17kr10iutfiqhv18.apps.googleusercontent.com</string>
-    <!-- Trigger new build -->
+
+    <!-- Premium UI Labels -->
+    <string name="ui_workshop_overview">Workshop Overview</string>
+    <string name="ui_todays_profit">Today\'s Profit</string>
+    <string name="ui_investment">Investment</string>
+    <string name="ui_pending">Pending</string>
+    <string name="ui_completed">Completed</string>
+    <string name="ui_active_jobs">Active Jobs</string>
+    <string name="ui_direct_sales">Direct Sales</string>
+    <string name="ui_job_ledger">Job Ledger</string>
+    <string name="ui_financial_insights">Financial Insights</string>
+    <string name="ui_settings_tools">Settings &amp; Tools</string>
+    <string name="ui_master_records">Master Records</string>
+    <string name="ui_service_technicians">Service Technicians</string>
+    <string name="ui_customers_dealers">Customers &amp; Dealers</string>
+    <string name="ui_wholesale_suppliers">Wholesale Suppliers</string>
+    <string name="ui_google_cloud_sync">Google Cloud Sync</string>
+    <string name="ui_export_backup">Export Local Backup</string>
+    <string name="ui_sign_out">Sign Out</string>
+    <string name="ui_app_tagline">The Professional Repair Suite</string>
+    <string name="ui_sign_in_google">Sign in with Google</string>
+    <string name="ui_secure_otp">Send Secure OTP</string>
+    <string name="ui_verify_enter">Verify &amp; Enter</string>
 
     <!-- Navigation -->
     <string name="nav_dashboard">Dashboard</string>
@@ -13,6 +35,9 @@
 
     <!-- Entry Screen -->
     <string name="entry_title">New Repair Entry</string>
+    <string name="entry_contact_info">Contact Information</string>
+    <string name="entry_device_details">Device Details</string>
+    <string name="entry_register">Register Entry</string>
     <string name="entry_photo">Take Photo of Phone</string>
     <string name="entry_customer_name">Customer Name</string>
     <string name="entry_customer_mobile">Customer Mobile</string>
@@ -27,28 +52,26 @@
     <string name="entry_model_name">Model Name (e.g. Galaxy S21)</string>
     <string name="welcome_master">Welcome back, Master</string>
 
-    <!-- Inspection Screen -->
-    <string name="inspection_title">Inspection</string>
-    <string name="inspection_common_faults">Common Faults</string>
-    <string name="inspection_custom_fault">Custom Fault</string>
-    <string name="inspection_photo">Inspection Photo</string>
-    <string name="inspection_ai_suggest">AI Suggestions</string>
-    <string name="inspection_save">Save Inspection</string>
+    <!-- Status -->
+    <string name="status_pending">Pending</string>
+    <string name="status_in_progress">In Progress</string>
+    <string name="status_done">Done</string>
+
+    <!-- Reports -->
+    <string name="report_daily">Daily</string>
+    <string name="report_weekly">Weekly</string>
+    <string name="report_monthly">Monthly</string>
+    <string name="report_custom">Custom Range</string>
+    <string name="report_total_revenue">Total Revenue</string>
+    <string name="report_total_repairs">Total Repairs</string>
+    <string name="report_pending">Pending</string>
+    <string name="report_supplier_purchase">Supplier Purchases</string>
 
     <!-- Quotation Screen -->
     <string name="quotation_title">Quotation</string>
     <string name="quotation_charge">Repair Charge (₹)</string>
     <string name="quotation_advance">Advance Amount (₹)</string>
     <string name="quotation_save">Save Quotation</string>
-
-    <!-- Spare Parts Screen -->
-    <string name="spare_title">Spare Parts</string>
-    <string name="spare_name">Part Name</string>
-    <string name="spare_photo">Part Photo</string>
-    <string name="spare_purchase_price">Purchase Price (₹)</string>
-    <string name="spare_select_supplier">Select Supplier</string>
-    <string name="spare_add">Add Part</string>
-    <string name="spare_save">Complete Parts</string>
 
     <!-- Handover Screen -->
     <string name="handover_title">Handover</string>
@@ -60,21 +83,6 @@
     <string name="handover_cash_amount">Cash Amount</string>
     <string name="handover_online_amount">Online Amount</string>
     <string name="handover_complete">Complete Handover</string>
-
-    <!-- Status -->
-    <string name="status_pending">Pending</string>
-    <string name="status_in_progress">In Progress</string>
-    <string name="status_done">Done</string>
-
-    <!-- Reports -->
-    <string name="report_daily">Daily</string>
-    <string name="report_weekly">Weekly</string>
-    <string name="report_monthly">Monthly</string>
-    <string name="report_custom">Custom</string>
-    <string name="report_total_revenue">Total Revenue</string>
-    <string name="report_total_repairs">Total Repairs</string>
-    <string name="report_pending">Pending</string>
-    <string name="report_supplier_purchase">Supplier Purchases</string>
 
     <!-- More / Master Data -->
     <string name="more_service_men">Service Men</string>
