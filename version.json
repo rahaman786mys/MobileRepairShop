@@ -1,6 +1,6 @@
 {
-  "versionCode": 20,
-  "versionName": "1.5.0",
+  "versionCode": 22,
+  "versionName": "1.5.3",
   "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-MuZZu-release.apk",
-  "releaseNotes": "• CRITICAL: Fixed In-App Installer for modern Android devices\n• NEW: Integrated Tally-style Supplier/Customer ledgers\n• NEW: Premium Dashboard with live Shop Branding\n• FIXED: Photo preview and data draft reliability"
+  "releaseNotes": "• CRITICAL: Fixed 'Binary XML' crash on older Android devices\n• FIXED: Resolved 'Start Error: null' on New Entry screen\n• STABILITY: Removed incompatible layout attributes (marginVertical/Horizontal)\n• RELIABILITY: Hardened state reset and navigation logic"
 }

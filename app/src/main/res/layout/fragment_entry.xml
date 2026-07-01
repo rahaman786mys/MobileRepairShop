@@ -49,7 +49,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Customer"
-                        android:paddingVertical="12dp" />
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnTypeDealer"
                         style="@style/Widget.Material3.Button.OutlinedButton"
@@ -57,7 +58,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Dealer"
-                        android:paddingVertical="12dp" />
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp" />
                 </com.google.android.material.button.MaterialButtonToggleGroup>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -129,7 +131,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="@color/muzzu_border"
-                        android:layout_marginVertical="24dp" />
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="24dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -142,7 +145,8 @@
                         android:id="@+id/spinnerBrand"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:paddingHorizontal="12dp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
                         android:background="@drawable/bg_spinner_premium" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -238,7 +242,6 @@
                         android:layout_marginTop="24dp"
                         android:hint="Extra Items Received"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        app:endIconMode="dropdown_menu"
                         app:boxStrokeWidth="1dp"
                         app:boxStrokeColor="@color/muzzu_border">
                         <com.google.android.material.textfield.TextInputEditText
@@ -295,7 +298,8 @@
                         android:id="@+id/spinnerServiceMan"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:paddingHorizontal="12dp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
                         android:background="@drawable/bg_spinner_premium" />
 
                     <LinearLayout

@@ -96,7 +96,8 @@
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
                         android:background="@color/muzzu_border"
-                        android:layout_marginHorizontal="16dp" />
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp" />
 
                     <!-- Invest Stat -->
                     <LinearLayout
@@ -127,7 +128,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/muzzu_border"
-                    android:layout_marginVertical="16dp" />
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -160,7 +162,8 @@
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
                         android:background="@color/muzzu_border"
-                        android:layout_marginHorizontal="16dp" />
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp" />
 
                     <!-- Completed Stat -->
                     <LinearLayout
@@ -417,7 +420,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:layout_marginHorizontal="6dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
             style="@style/Widget.MuZZu.Card">
             <LinearLayout
                 android:layout_width="match_parent"

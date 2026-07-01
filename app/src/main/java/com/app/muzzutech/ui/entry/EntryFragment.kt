@@ -79,13 +79,16 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             binding.root
         } catch (e: Exception) {
             Log.e("EntryFragment", "Inflation Error", e)
-            Toast.makeText(requireContext(), "Screen Error: ${e.message}", Toast.LENGTH_LONG).show()
+            val msg = e.message ?: e.toString()
+            Toast.makeText(requireContext(), "Screen Error: $msg", Toast.LENGTH_LONG).show()
             View(requireContext())
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (_binding == null) return
+
         Log.d("EntryFragment", "onViewCreated started")
         
         try {
@@ -109,7 +112,8 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             }
         } catch (e: Exception) {
             Log.e("EntryFragment", "onViewCreated Error", e)
-            Toast.makeText(requireContext(), "Start Error: ${e.message}", Toast.LENGTH_LONG).show()
+            val msg = e.message ?: e.toString()
+            Toast.makeText(requireContext(), "Start Error: $msg", Toast.LENGTH_LONG).show()
         }
     }
 
