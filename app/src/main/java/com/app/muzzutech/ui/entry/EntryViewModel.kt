@@ -25,6 +25,10 @@ class EntryViewModel : ViewModel() {
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving
 
+    fun resetSaveState() {
+        _saveSuccess.value = null
+    }
+
     init {
         loadServiceMen()
     }

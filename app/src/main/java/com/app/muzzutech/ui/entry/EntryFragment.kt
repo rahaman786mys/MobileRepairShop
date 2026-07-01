@@ -80,19 +80,8 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        // Restore photos if available
-        savedInstanceState?.let { bundle ->
-            val p1 = bundle.getString("photo1")
-            val p2 = bundle.getString("photo2")
-            if (!p1.isNullOrEmpty()) {
-                photoFile = File(p1)
-                Glide.with(this).load(photoFile).centerCrop().into(binding.ivEntryPhoto)
-            }
-            if (!p2.isNullOrEmpty()) {
-                photoFile2 = File(p2)
-                Glide.with(this).load(photoFile2).centerCrop().into(binding.ivEntryPhoto2)
-            }
-        }
+        // CRITICAL: Reset the success state from any previous session in the ViewModel
+        viewModel.resetSaveState()
 
         setupClickListeners()
         setupMobileWatcher()
@@ -319,20 +308,14 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.saveSuccess.collectLatest { id ->
                     if (id != null && id > 0 && isAdded) {
-                        // Reset success to prevent loops
-                        Snackbar.make(binding.root, "Success!", Snackbar.LENGTH_SHORT).show()
+                        // After successful save, navigate to inspection
+                        viewModel.resetSaveState()
                         val bundle = Bundle().apply { putLong("entryId", id) }
                         findNavController().navigate(R.id.inspectionFragment, bundle)
                     }
                 }
             }
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("photo1", photoFile?.absolutePath)
-        outState.putString("photo2", photoFile2?.absolutePath)
     }
 
     override fun onDestroyView() {
