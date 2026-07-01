@@ -55,13 +55,15 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     private val selectedExtraItems = mutableSetOf<String>()
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && photoUri != null) {
+        if (success && photoUri != null && isAdded) {
+            binding.ivEntryPhoto.setPadding(0, 0, 0, 0)
             Glide.with(this).load(photoUri).centerCrop().into(binding.ivEntryPhoto)
         }
     }
 
     private val cameraLauncher2 = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && photoUri2 != null) {
+        if (success && photoUri2 != null && isAdded) {
+            binding.ivEntryPhoto2.setPadding(0, 0, 0, 0)
             Glide.with(this).load(photoUri2).centerCrop().into(binding.ivEntryPhoto2)
         }
     }
@@ -98,7 +100,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             }
 
             AlertDialog.Builder(requireContext())
-                .setTitle("Select Extra Items Received")
+                .setTitle("Extra Items Received")
                 .setMultiChoiceItems(extraItemsList, selectedArray) { _, which, isChecked ->
                     if (isChecked) selectedExtraItems.add(extraItemsList[which])
                     else selectedExtraItems.remove(extraItemsList[which])
@@ -140,7 +142,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             saveEntry(isDraft = true)
         }
 
-        binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecked ->
+        binding.toggleGroupEntryType.addOnButtonCheckedListener { _, _, isChecked ->
             if (isChecked) {
                 binding.etMobileNumber.setText("")
                 binding.etName.setText("")
@@ -156,8 +158,9 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun autoSaveDraft() {
+        if (!isAdded) return
         val mobile = binding.etMobileNumber.text.toString().trim()
-        if (mobile.length >= 4) { // Save as draft if at least part of mobile is entered
+        if (mobile.length >= 4) {
             saveEntry(isDraft = true)
         }
     }
@@ -195,7 +198,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun openCamera() {
-        photoFile = PhotoUtils.createPhotoFile(requireContext())
+        photoFile = PhotoUtils.createPhotoFile(requireContext(), "ENTRY1_")
         photoUri = photoFile?.let {
             FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
         }
@@ -203,7 +206,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun openCamera2() {
-        photoFile2 = PhotoUtils.createPhotoFile(requireContext())
+        photoFile2 = PhotoUtils.createPhotoFile(requireContext(), "ENTRY2_")
         photoUri2 = photoFile2?.let {
             FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
         }
@@ -223,6 +226,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun setupServiceManSpinner(men: List<ServiceMan>) {
+        if (!isAdded) return
         serviceMenList = men
         val names = men.map { it.name }.toMutableList()
         names.add(0, "Select Specialist *")
@@ -232,6 +236,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun saveEntry(isDraft: Boolean = false) {
+        if (!isAdded) return
         val name = binding.etName.text.toString().trim()
         val mobile = binding.etMobileNumber.text.toString().trim()
         val city = binding.etCity.text.toString().trim()
@@ -246,25 +251,28 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
                 return
             }
 
-            if (binding.spinnerBrand.selectedItemPosition == 0) {
+            if (binding.spinnerBrand.selectedItemPosition <= 0) {
                 Snackbar.make(binding.root, "Please select a brand", Snackbar.LENGTH_SHORT).show()
                 return
             }
 
             if (model.isEmpty()) {
-                Snackbar.make(binding.root, "Please enter model name", Snackbar.LENGTH_SHORT).show()
+                binding.etModelName.error = "Model name required"
                 return
             }
 
-            if (binding.spinnerServiceMan.selectedItemPosition == 0) {
+            if (binding.spinnerServiceMan.selectedItemPosition <= 0) {
                 Snackbar.make(binding.root, "Mandatory: Assign a specialist", Snackbar.LENGTH_SHORT).show()
                 return
             }
         } else if (mobile.isEmpty()) {
-            return // Don't save draft if even mobile is empty
+            return 
         }
 
-        val brand = brands[binding.spinnerBrand.selectedItemPosition]
+        val brand = if (binding.spinnerBrand.selectedItemPosition > 0) {
+            brands[binding.spinnerBrand.selectedItemPosition]
+        } else ""
+
         val selectedPos = binding.spinnerServiceMan.selectedItemPosition
         val serviceManId = if (selectedPos > 0 && selectedPos <= serviceMenList.size) {
             serviceMenList[selectedPos - 1].id
@@ -296,26 +304,14 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.saveSuccess.collectLatest { id ->
-                    if (id != null && id > 0 && !viewModel.isSaving.value) {
-                        // Only navigate if it wasn't an auto-save draft
-                        // We check a custom flag or if fragment is actually in foreground and user clicked save
+                    if (id != null && id > 0 && isAdded) {
+                        // Reset success to prevent loops
+                        Snackbar.make(binding.root, "Success!", Snackbar.LENGTH_SHORT).show()
+                        val bundle = Bundle().apply { putLong("entryId", id) }
+                        findNavController().navigate(R.id.inspectionFragment, bundle)
                     }
                 }
             }
-        }
-        
-        // Finalized manual save navigation
-        binding.btnSaveEntry.setOnClickListener {
-             saveEntry(isDraft = false)
-             viewLifecycleOwner.lifecycleScope.launch {
-                 viewModel.saveSuccess.collectLatest { id ->
-                     if (id != null && id > 0) {
-                         Snackbar.make(binding.root, "Entry Registered!", Snackbar.LENGTH_SHORT).show()
-                         val bundle = Bundle().apply { putLong("entryId", id) }
-                         findNavController().navigate(R.id.inspectionFragment, bundle)
-                     }
-                 }
-             }
         }
     }
 
