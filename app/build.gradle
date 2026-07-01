@@ -13,8 +13,8 @@ android {
         applicationId "com.app.muzzutech"
         minSdk 24
         targetSdk 34
-versionCode 17
-versionName "1.4.5"
+        versionCode 18
+        versionName "1.4.5"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

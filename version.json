@@ -1,1 +1,6 @@
-{"versionCode": 17, "versionName": "1.4.5", "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-MuZZu-debug.apk", "releaseNotes": "• NEW: Extra Items dropdown (Charge, Chip, SIM, Pouch, Other)\n• NEW: Draft auto-save + Drafts section\n• NEW: Mandatory 2 photos + Service Man selection\n• FIXED: Inspection - removed AI suggestions and inspection photo\n• FIXED: Common Faults moved to Quotation/Repair Details\n• FIXED: Delete Work option added\n• FIXED: Profit shows only paid amounts, unpaid goes to dues\n• FIXED: Phone validation 10-digit enforced everywhere\n• UPDATE: Check for updates now works correctly"}
+{
+  "versionCode": 18,
+  "versionName": "1.4.5",
+  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-MuZZu-release.apk",
+  "releaseNotes": "• FIXED: Photo preview loading issue solved\n• NEW: Extra Items multi-select dropdown\n• NEW: Mandatory 2 photos & specialist assignment\n• NEW: Auto-save draft on exit\n• NEW: Export to Downloads vs Share to other apps\n• NEW: Reports date range calendar picker\n• FIXED: Profit only counts paid transactions"
+}

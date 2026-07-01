@@ -15,6 +15,9 @@ interface CustomerDao {
     @Query("SELECT * FROM customers WHERE mobileNumber = :mobile")
     suspend fun getCustomerByMobile(mobile: String): Customer?
 
+    @Query("SELECT * FROM customers WHERE mobileNumber = :mobile")
+    fun getCustomerByMobileFlow(mobile: String): Flow<Customer?>
+
     @Query("SELECT * FROM customers ORDER BY createdAt DESC")
     fun getAllCustomers(): Flow<List<Customer>>
 }

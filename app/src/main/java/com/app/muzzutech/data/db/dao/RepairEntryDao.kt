@@ -67,6 +67,9 @@ interface RepairEntryDao {
 
     @Query("SELECT * FROM repair_entries WHERE customerName LIKE '%' || :query || '%' OR customerMobile LIKE '%' || :query || '%' OR dealerName LIKE '%' || :query || '%'")
     fun searchEntries(query: String): Flow<List<RepairEntry>>
+
+    @Query("SELECT * FROM repair_entries WHERE customerMobile = :mobile OR dealerMobile = :mobile ORDER BY entryDate DESC")
+    fun getEntriesByMobile(mobile: String): Flow<List<RepairEntry>>
 }
 
 data class DailyReportRow(

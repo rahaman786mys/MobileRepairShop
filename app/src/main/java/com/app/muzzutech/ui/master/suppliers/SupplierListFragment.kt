@@ -49,6 +49,13 @@ class SupplierListFragment : Fragment(R.layout.fragment_supplier_list) {
                             val s = suppliers[position]
                             holder.itemView.findViewById<TextView>(android.R.id.text1).text = s.name
                             holder.itemView.findViewById<TextView>(android.R.id.text2).text = "${s.companyName} | ${s.mobile}"
+                            
+                            holder.itemView.setOnClickListener {
+                                val bundle = Bundle().apply {
+                                    putString("supplierMobile", s.mobile)
+                                }
+                                findNavController().navigate(R.id.supplierDetailFragment, bundle)
+                            }
                         }
                         override fun getItemCount() = suppliers.size
                     }

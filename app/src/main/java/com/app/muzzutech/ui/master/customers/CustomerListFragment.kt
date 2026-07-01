@@ -16,6 +16,8 @@ import com.app.muzzutech.databinding.FragmentCustomerListBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+import androidx.navigation.fragment.findNavController
+
 class CustomerListFragment : Fragment(R.layout.fragment_customer_list) {
 
     private var _binding: FragmentCustomerListBinding? = null
@@ -46,6 +48,13 @@ class CustomerListFragment : Fragment(R.layout.fragment_customer_list) {
             val customer = list[position]
             holder.text1.text = customer.name ?: "Unknown"
             holder.text2.text = customer.mobileNumber
+            
+            holder.itemView.setOnClickListener {
+                val bundle = Bundle().apply {
+                    putString("customerMobile", customer.mobileNumber)
+                }
+                findNavController().navigate(R.id.customerDetailFragment, bundle)
+            }
         }
         override fun getItemCount() = list.size
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {

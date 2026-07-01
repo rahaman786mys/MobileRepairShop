@@ -2,10 +2,7 @@ package com.app.muzzutech.ui.master
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,16 +11,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentMoreBinding
 import com.app.muzzutech.utils.BackupManager
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
 class MoreFragment : Fragment(R.layout.fragment_more) {
 
@@ -73,7 +67,7 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             }
         }
 
-        binding.cardBackupLocal.setOnClickListener { backupToDownloads() }
+        binding.cardBackupLocal.setOnClickListener { showBackupOptions() }
         binding.cardRestoreLocal.setOnClickListener {
             restorePicker.launch("*/*")
         }
@@ -111,42 +105,24 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
 
         try {
             val pInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
-            binding.tvAppVersion.text = "Version ${pInfo.versionName}"
+            binding.tvAppVersion.text = "MuZZu Tech Professional v${pInfo.versionName}"
         } catch (e: Exception) {
-            binding.tvAppVersion.text = "Version 1.0.1"
+            binding.tvAppVersion.text = "MuZZu Tech Professional"
         }
     }
 
-    private fun backupToDownloads() {
-        try {
-            val dbFile = requireContext().getDatabasePath("mobile_repair_shop_db")
-            if (!dbFile.exists()) {
-                Toast.makeText(requireContext(), "No database found", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            val backupFile = File(requireContext().cacheDir, "MuZZuTech_Backup.db")
-            FileInputStream(dbFile).use { input ->
-                FileOutputStream(backupFile).use { output ->
-                    input.channel.transferTo(0, input.channel.size(), output.channel)
+    private fun showBackupOptions() {
+        val options = arrayOf("Save to Downloads (Locally)", "Share Backup to Other Apps")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Export Data Backup")
+            .setItems(options) { _, which ->
+                if (which == 0) {
+                    BackupManager.exportLocally(requireContext())
+                } else {
+                    BackupManager.shareBackup(requireContext())
                 }
             }
-
-            val uri = androidx.core.content.FileProvider.getUriForFile(
-                requireContext(),
-                "${requireContext().packageName}.fileprovider",
-                backupFile
-            )
-
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/octet-stream"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-            startActivity(Intent.createChooser(shareIntent, "Save Backup"))
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Backup failed: ${e.message}", Toast.LENGTH_LONG).show()
-        }
+            .show()
     }
 
     private fun restoreBackup(uri: android.net.Uri) {

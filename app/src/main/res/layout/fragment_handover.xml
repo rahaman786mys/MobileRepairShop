@@ -159,6 +159,15 @@
             android:textSize="16sp" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelWork"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="Cancel &amp; Delete Work"
+            android:textColor="@color/muzzu_error" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGenerateInvoice"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"

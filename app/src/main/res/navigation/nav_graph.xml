@@ -100,7 +100,21 @@
         android:id="@+id/supplierListFragment"
         android:name="com.app.muzzutech.ui.master.suppliers.SupplierListFragment"
         android:label="Suppliers"
-        tools:layout="@layout/fragment_supplier_list" />
+        tools:layout="@layout/fragment_supplier_list" >
+        <action
+            android:id="@+id/action_supplierList_to_detail"
+            app:destination="@id/supplierDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/supplierDetailFragment"
+        android:name="com.app.muzzutech.ui.master.suppliers.SupplierDetailFragment"
+        android:label="Supplier Ledger"
+        tools:layout="@layout/fragment_supplier_detail">
+        <argument
+            android:name="supplierMobile"
+            app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/supplierAddFragment"
@@ -118,7 +132,21 @@
         android:id="@+id/customerListFragment"
         android:name="com.app.muzzutech.ui.master.customers.CustomerListFragment"
         android:label="Customers"
-        tools:layout="@layout/fragment_customer_list" />
+        tools:layout="@layout/fragment_customer_list">
+        <action
+            android:id="@+id/action_customerList_to_detail"
+            app:destination="@id/customerDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/customerDetailFragment"
+        android:name="com.app.muzzutech.ui.master.customers.CustomerDetailFragment"
+        android:label="Customer Ledger"
+        tools:layout="@layout/fragment_customer_detail">
+        <argument
+            android:name="customerMobile"
+            app:argType="string" />
+    </fragment>
 
     <!-- Entry Detail / Workflow -->
     <fragment

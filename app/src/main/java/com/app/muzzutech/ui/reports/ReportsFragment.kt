@@ -1,26 +1,28 @@
 package com.app.muzzutech.ui.reports
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.muzzutech.R
-import com.app.muzzutech.adapter.RepairEntryAdapter
-import com.app.muzzutech.data.db.dao.RepairEntryDao
 import com.app.muzzutech.data.db.dao.DailyReportRow
+import com.app.muzzutech.data.model.Sale
 import com.app.muzzutech.databinding.FragmentReportsBinding
-import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.*
 
 class ReportsFragment : Fragment(R.layout.fragment_reports) {
 
@@ -36,23 +38,35 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Default to daily
         binding.chipDaily.isChecked = true
         viewModel.loadReport("Daily")
 
-        // Period selector
         binding.chipGroupPeriod.setOnCheckedChangeListener { _, checkedId ->
-            val period = when (checkedId) {
-                R.id.chipDaily -> "Daily"
-                R.id.chipWeekly -> "Weekly"
-                R.id.chipMonthly -> "Monthly"
-                R.id.chipCustom -> "Custom"
-                else -> "Daily"
+            when (checkedId) {
+                R.id.chipDaily -> viewModel.loadReport("Daily")
+                R.id.chipWeekly -> viewModel.loadReport("Weekly")
+                R.id.chipMonthly -> viewModel.loadReport("Monthly")
+                R.id.chipCustom -> showDateRangePicker()
             }
-            viewModel.loadReport(period)
         }
 
         observeData()
+    }
+
+    private fun showDateRangePicker() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        DatePickerDialog(requireContext(), { _, sYear, sMonth, sDay ->
+            val start = Calendar.getInstance().apply { set(sYear, sMonth, sDay, 0, 0) }.timeInMillis
+            DatePickerDialog(requireContext(), { _, eYear, eMonth, eDay ->
+                val end = Calendar.getInstance().apply { set(eYear, eMonth, eDay, 23, 59) }.timeInMillis
+                viewModel.loadCustomReport(start, end)
+                binding.chipCustom.text = "Range: $sDay/${sMonth+1} - $eDay/${eMonth+1}"
+            }, year, month, day).show()
+        }, year, month, day).show()
     }
 
     private fun observeData() {
@@ -79,23 +93,43 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.supplierPurchases.collectLatest { purchases ->
-                    val total = purchases.sumOf { it.purchasePrice * it.quantity }
-                    binding.tvSupplierPurchaseTotal.text = "₹ ${String.format("%.0f", total)}"
+                viewModel.directSales.collectLatest { sales ->
+                    setupSalesList(sales)
                 }
             }
         }
     }
 
+    private fun setupSalesList(sales: List<Sale>) {
+        binding.rvDirectSales.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvDirectSales.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+                object : RecyclerView.ViewHolder(
+                    LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+                ) {}
+
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                val s = sales[position]
+                holder.itemView.findViewById<TextView>(android.R.id.text1).text = s.itemName
+                holder.itemView.findViewById<TextView>(android.R.id.text2).text = 
+                    "Price: ₹${s.salePrice} | Profit: ₹${s.salePrice - s.purchasePrice}"
+            }
+            override fun getItemCount() = sales.size
+        }
+    }
+
     private fun updateChart(report: List<DailyReportRow>) {
-        if (report.isEmpty()) return
+        if (report.isEmpty()) {
+            binding.barChart.clear()
+            return
+        }
 
         val entries = report.mapIndexed { index: Int, row: DailyReportRow ->
             BarEntry(index.toFloat(), row.totalRevenue?.toFloat() ?: 0f)
         }
 
         val dataSet = BarDataSet(entries, "Revenue").apply {
-            color = resources.getColor(R.color.primary, null)
+            color = resources.getColor(R.color.muzzu_accent, null)
             valueTextSize = 10f
         }
         binding.barChart.data = BarData(dataSet)

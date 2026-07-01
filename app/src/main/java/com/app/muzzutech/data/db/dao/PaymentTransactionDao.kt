@@ -27,4 +27,7 @@ interface PaymentTransactionDao {
 
     @Query("SELECT COALESCE(SUM(amount), 0) FROM payment_transactions WHERE personMobile = :mobile")
     fun getTotalPaidByMobile(mobile: String): Flow<Double>
+
+    @Query("SELECT * FROM payment_transactions WHERE transactionDate BETWEEN :start AND :end")
+    fun getTransactionsByDateRange(start: Long, end: Long): Flow<List<PaymentTransaction>>
 }

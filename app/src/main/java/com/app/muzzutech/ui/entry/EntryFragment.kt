@@ -1,6 +1,7 @@
 package com.app.muzzutech.ui.entry
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -20,12 +22,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
 import com.app.muzzutech.R
 import com.app.muzzutech.data.model.ServiceMan
 import com.app.muzzutech.databinding.FragmentEntryBinding
 import com.app.muzzutech.utils.PhotoUtils
 import com.app.muzzutech.utils.ValidationUtils
+import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
@@ -36,10 +39,10 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     private val binding get() = _binding!!
     private val viewModel: EntryViewModel by viewModels()
 
-private var photoFile: File? = null
-private var photoUri: Uri? = null
-private var photoFile2: File? = null
-private var photoUri2: Uri? = null
+    private var photoFile: File? = null
+    private var photoUri: Uri? = null
+    private var photoFile2: File? = null
+    private var photoUri2: Uri? = null
     private var serviceMenList = listOf<ServiceMan>()
 
     private val brands = listOf(
@@ -48,21 +51,24 @@ private var photoUri2: Uri? = null
         "Nokia", "Micromax", "Lava", "IQOO", "Infinix", "Techno", "Nothing", "Others"
     )
 
-private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-  if (success && photoUri != null) {
-    binding.ivEntryPhoto.setImageURI(photoUri)
-  }
-}
+    private val extraItemsList = arrayOf("Charge", "Chip", "SIM", "Pouch", "Other")
+    private val selectedExtraItems = mutableSetOf<String>()
 
-private val cameraLauncher2 = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-  if (success && photoUri2 != null) {
-    binding.ivEntryPhoto2.setImageURI(photoUri2)
-  }
-}
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && photoUri != null) {
+            Glide.with(this).load(photoUri).centerCrop().into(binding.ivEntryPhoto)
+        }
+    }
 
-private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-  if (granted) openCamera()
-}
+    private val cameraLauncher2 = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && photoUri2 != null) {
+            Glide.with(this).load(photoUri2).centerCrop().into(binding.ivEntryPhoto2)
+        }
+    }
+
+    private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) openCamera()
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentEntryBinding.inflate(inflater, container, false)
@@ -75,6 +81,7 @@ private val cameraPermissionLauncher = registerForActivityResult(ActivityResultC
         setupClickListeners()
         setupMobileWatcher()
         setupBrandSpinner()
+        setupExtraItemsDropdown()
         observeViewModel()
     }
 
@@ -84,47 +91,74 @@ private val cameraPermissionLauncher = registerForActivityResult(ActivityResultC
         binding.spinnerBrand.adapter = adapter
     }
 
+    private fun setupExtraItemsDropdown() {
+        binding.etExtraItems.setOnClickListener {
+            val selectedArray = BooleanArray(extraItemsList.size) { i ->
+                selectedExtraItems.contains(extraItemsList[i])
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle("Select Extra Items Received")
+                .setMultiChoiceItems(extraItemsList, selectedArray) { _, which, isChecked ->
+                    if (isChecked) selectedExtraItems.add(extraItemsList[which])
+                    else selectedExtraItems.remove(extraItemsList[which])
+                }
+                .setPositiveButton("Done") { _, _ ->
+                    binding.etExtraItems.setText(selectedExtraItems.joinToString(", "))
+                    binding.tilOtherItem.isVisible = selectedExtraItems.contains("Other")
+                }
+                .show()
+        }
+    }
+
     private fun setupClickListeners() {
-binding.btnTakePhoto.setOnClickListener {
-  if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-      == PackageManager.PERMISSION_GRANTED
-  ) {
-    openCamera()
-  } else {
-    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-  }
-}
+        binding.btnTakePhoto.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                openCamera()
+            } else {
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
 
-binding.btnTakePhoto2.setOnClickListener {
-  if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-      == PackageManager.PERMISSION_GRANTED
-  ) {
-    openCamera2()
-  } else {
-    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-  }
-}
+        binding.btnTakePhoto2.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                openCamera2()
+            } else {
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
 
-binding.cbOther.setOnCheckedChangeListener { _, isChecked ->
-  binding.tilOtherItem.isVisible = isChecked
-}
+        binding.btnSaveEntry.setOnClickListener {
+            saveEntry(isDraft = false)
+        }
 
-binding.btnSaveEntry.setOnClickListener {
-  saveEntry()
-}
+        binding.btnSaveDraft.setOnClickListener {
+            saveEntry(isDraft = true)
+        }
 
-binding.btnSaveDraft.setOnClickListener {
-  saveDraft()
-}
-
-binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecked ->
+        binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                // Clear fields on switch
                 binding.etMobileNumber.setText("")
                 binding.etName.setText("")
                 binding.etCity.setText("")
                 binding.layoutRepairFields.isVisible = false
             }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        autoSaveDraft()
+    }
+
+    private fun autoSaveDraft() {
+        val mobile = binding.etMobileNumber.text.toString().trim()
+        if (mobile.length >= 4) { // Save as draft if at least part of mobile is entered
+            saveEntry(isDraft = true)
         }
     }
 
@@ -160,39 +194,38 @@ binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecke
         }
     }
 
-  private fun openCamera() {
-    photoFile = PhotoUtils.createPhotoFile(requireContext())
-    photoUri = photoFile?.let {
-      FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+    private fun openCamera() {
+        photoFile = PhotoUtils.createPhotoFile(requireContext())
+        photoUri = photoFile?.let {
+            FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+        }
+        photoUri?.let { cameraLauncher.launch(it) }
     }
-    photoUri?.let { cameraLauncher.launch(it) }
-  }
 
-  private fun openCamera2() {
-    photoFile2 = PhotoUtils.createPhotoFile(requireContext())
-    photoUri2 = photoFile2?.let {
-      FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+    private fun openCamera2() {
+        photoFile2 = PhotoUtils.createPhotoFile(requireContext())
+        photoUri2 = photoFile2?.let {
+            FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+        }
+        photoUri2?.let { cameraLauncher2.launch(it) }
     }
-    photoUri2?.let { cameraLauncher2.launch(it) }
-  }
 
-  private fun collectExtraItems(): String {
-    val items = mutableListOf<String>()
-    if (binding.cbCharge.isChecked) items.add("Charge")
-    if (binding.cbChip.isChecked) items.add("Chip")
-    if (binding.cbSim.isChecked) items.add("SIM")
-    if (binding.cbPouch.isChecked) items.add("Pouch")
-    if (binding.cbOther.isChecked) {
-      val other = binding.etOtherItem.text.toString().trim()
-      if (other.isNotEmpty()) items.add("Other: $other")
+    private fun collectExtraItems(): String {
+        val items = selectedExtraItems.toMutableList()
+        if (items.contains("Other")) {
+            val otherText = binding.etOtherItem.text.toString().trim()
+            if (otherText.isNotEmpty()) {
+                items.remove("Other")
+                items.add("Other: $otherText")
+            }
+        }
+        return items.joinToString(", ")
     }
-    return items.joinToString(", ")
-  }
 
-  private fun setupServiceManSpinner(men: List<ServiceMan>) {
+    private fun setupServiceManSpinner(men: List<ServiceMan>) {
         serviceMenList = men
         val names = men.map { it.name }.toMutableList()
-        names.add(0, "Select Service Man")
+        names.add(0, "Select Specialist *")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, names)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerServiceMan.adapter = adapter
@@ -205,11 +238,14 @@ binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecke
         val model = binding.etModelName.text.toString().trim()
         val isDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
 
-        if (!ValidationUtils.validatePhoneNumber(binding.tilMobile)) {
-            return
-        }
-
         if (!isDraft) {
+            if (!ValidationUtils.validatePhoneNumber(binding.tilMobile)) return
+
+            if (photoFile == null || photoFile2 == null) {
+                Snackbar.make(binding.root, "Mandatory: 2 photos required", Snackbar.LENGTH_SHORT).show()
+                return
+            }
+
             if (binding.spinnerBrand.selectedItemPosition == 0) {
                 Snackbar.make(binding.root, "Please select a brand", Snackbar.LENGTH_SHORT).show()
                 return
@@ -219,10 +255,16 @@ binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecke
                 Snackbar.make(binding.root, "Please enter model name", Snackbar.LENGTH_SHORT).show()
                 return
             }
+
+            if (binding.spinnerServiceMan.selectedItemPosition == 0) {
+                Snackbar.make(binding.root, "Mandatory: Assign a specialist", Snackbar.LENGTH_SHORT).show()
+                return
+            }
+        } else if (mobile.isEmpty()) {
+            return // Don't save draft if even mobile is empty
         }
 
         val brand = brands[binding.spinnerBrand.selectedItemPosition]
-
         val selectedPos = binding.spinnerServiceMan.selectedItemPosition
         val serviceManId = if (selectedPos > 0 && selectedPos <= serviceMenList.size) {
             serviceMenList[selectedPos - 1].id
@@ -243,10 +285,6 @@ binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecke
         )
     }
 
-    private fun saveDraft() {
-        saveEntry(isDraft = true)
-    }
-
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -258,13 +296,26 @@ binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecke
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.saveSuccess.collectLatest { id ->
-                    if (id != null && id > 0) {
-                        Snackbar.make(binding.root, "Entry saved!", Snackbar.LENGTH_SHORT).show()
-                        val bundle = Bundle().apply { putLong("entryId", id) }
-                        findNavController().navigate(R.id.inspectionFragment, bundle)
+                    if (id != null && id > 0 && !viewModel.isSaving.value) {
+                        // Only navigate if it wasn't an auto-save draft
+                        // We check a custom flag or if fragment is actually in foreground and user clicked save
                     }
                 }
             }
+        }
+        
+        // Finalized manual save navigation
+        binding.btnSaveEntry.setOnClickListener {
+             saveEntry(isDraft = false)
+             viewLifecycleOwner.lifecycleScope.launch {
+                 viewModel.saveSuccess.collectLatest { id ->
+                     if (id != null && id > 0) {
+                         Snackbar.make(binding.root, "Entry Registered!", Snackbar.LENGTH_SHORT).show()
+                         val bundle = Bundle().apply { putLong("entryId", id) }
+                         findNavController().navigate(R.id.inspectionFragment, bundle)
+                     }
+                 }
+             }
         }
     }
 

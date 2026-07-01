@@ -1,5 +1,7 @@
 package com.app.muzzutech.ui.handover
 
+import android.app.AlertDialog
+import android.widget.Toast
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -54,9 +56,31 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
         }
 
         binding.btnCompleteHandover.setOnClickListener { completeHandover() }
+
+        binding.btnCancelWork.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("Cancel & Delete Work?")
+                .setMessage("Are you sure you want to cancel this work? It will be moved to drafts.")
+                .setPositiveButton("Yes, Cancel") { _, _ ->
+                    cancelWork()
+                }
+                .setNegativeButton("No", null)
+                .show()
+        }
         
         binding.btnGenerateInvoice.setOnClickListener {
             generateAndShareInvoice()
+        }
+    }
+
+    private fun cancelWork() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.entry.value?.let { entry ->
+                val updated = entry.copy(isDraft = true, workStatus = "Cancelled")
+                MobileRepairApp.instance.repairRepository.update(updated)
+                Toast.makeText(requireContext(), "Work Cancelled & Moved to Drafts", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack(R.id.dashboardFragment, false)
+            }
         }
     }
 

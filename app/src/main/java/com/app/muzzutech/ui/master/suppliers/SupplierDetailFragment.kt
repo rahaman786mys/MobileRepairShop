@@ -1,0 +1,94 @@
+package com.app.muzzutech.ui.master.suppliers
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.app.muzzutech.MobileRepairApp
+import com.app.muzzutech.R
+import com.app.muzzutech.databinding.FragmentSupplierDetailBinding
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
+class SupplierDetailFragment : Fragment(R.layout.fragment_supplier_detail) {
+
+    private var _binding: FragmentSupplierDetailBinding? = null
+    private val binding get() = _binding!!
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentSupplierDetailBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val mobile = arguments?.getString("supplierMobile") ?: ""
+
+        loadSupplierData(mobile)
+    }
+
+    private fun loadSupplierData(mobile: String) {
+        val db = MobileRepairApp.instance.database
+        
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                db.supplierDao().getSupplierByMobileFlow(mobile).collectLatest { supplier ->
+                    supplier?.let {
+                        binding.tvSupplierName.text = it.name
+                        binding.tvSupplierMobile.text = it.mobile
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                db.sparePartPurchaseDao().getPurchasesBySupplier(mobile).collectLatest { purchases ->
+                    val totalBought = purchases.sumOf { it.purchasePrice * it.quantity }
+                    binding.tvTotalBought.text = "₹ ${String.format("%.0f", totalBought)}"
+                    
+                    db.paymentDao().getPaymentsByMobile(mobile).collectLatest { payments ->
+                        val totalDue = payments.sumOf { it.dueAmount }
+                        val totalPaid = totalBought - totalDue
+                        
+                        binding.tvTotalPaid.text = "₹ ${String.format("%.0f", totalPaid)}"
+                        binding.tvBalanceDue.text = "₹ ${String.format("%.0f", totalDue)}"
+                    }
+
+                    setupPurchasesList(purchases)
+                }
+            }
+        }
+    }
+
+    private fun setupPurchasesList(purchases: List<com.app.muzzutech.data.model.SparePartPurchase>) {
+        binding.rvSupplierPurchases.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvSupplierPurchases.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+                object : RecyclerView.ViewHolder(
+                    LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+                ) {}
+
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                val p = purchases[position]
+                holder.itemView.findViewById<TextView>(android.R.id.text1).text = "${p.partName} (Qty: ${p.quantity})"
+                holder.itemView.findViewById<TextView>(android.R.id.text2).text = 
+                    "Price: ₹${p.purchasePrice} | Total: ₹${p.purchasePrice * p.quantity}"
+            }
+
+            override fun getItemCount() = purchases.size
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

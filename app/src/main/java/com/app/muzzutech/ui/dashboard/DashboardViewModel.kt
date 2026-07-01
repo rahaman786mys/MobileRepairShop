@@ -54,16 +54,19 @@ class DashboardViewModel : ViewModel() {
                 }
             } catch (e: Exception) { e.printStackTrace() }
         }
-        // Revenue = sum of finalAmount for entries handed over today
+        
+        // Revenue = sum of actual PAID amounts from transactions today
         viewModelScope.launch {
             try {
-                repository.getRevenueInRange(todayStart, todayEnd).collect { revenue ->
-                    _dailyRevenue.value = revenue ?: 0.0
+                database.paymentTransactionDao().getTransactionsByDateRange(todayStart, todayEnd).collect { transactions ->
+                    val totalPaidToday = transactions.sumOf { it.amount }
+                    _dailyRevenue.value = totalPaidToday
                     updateProfit()
                 }
             } catch (e: Exception) { e.printStackTrace() }
         }
-        // Invest = sum of parts purchased today
+
+        // Invest = sum of parts purchased today (Expenses)
         viewModelScope.launch {
             try {
                 database.sparePartPurchaseDao()
@@ -73,6 +76,7 @@ class DashboardViewModel : ViewModel() {
                     }
             } catch (e: Exception) { e.printStackTrace() }
         }
+
         // Paid vs Due from supplier payments today
         viewModelScope.launch {
             try {
@@ -88,6 +92,7 @@ class DashboardViewModel : ViewModel() {
     }
 
     private fun updateProfit() {
+        // Profit is actual cash in (paid amounts) minus actual cash out (invested in parts)
         _dailyProfit.value = _dailyRevenue.value - _dailyInvest.value
     }
 }

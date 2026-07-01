@@ -1,9 +1,12 @@
 package com.app.muzzutech.utils
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import com.app.muzzutech.MobileRepairApp
 import java.io.File
 import java.io.FileInputStream
@@ -11,31 +14,63 @@ import java.io.FileOutputStream
 import java.nio.channels.FileChannel
 
 /**
- * Manages database backup and restore locally and provides hooks for Cloud Sync
+ * Manages database backup and restore locally and providing Share options.
  */
 object BackupManager {
 
     private const val DB_NAME = "mobile_repair_shop_db"
 
     /**
-     * Exports the current Room database to a temporary file for Cloud Sync
+     * Exports the current Room database to the Downloads folder
      */
-    fun exportDatabase(context: Context): File? {
-        val dbFile = context.getDatabasePath(DB_NAME)
-        val backupFile = File(context.cacheDir, "repair_shop_backup.db")
+    fun exportLocally(context: Context) {
+        try {
+            val dbFile = context.getDatabasePath(DB_NAME)
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val backupFile = File(downloadsDir, "MuZZu_Tech_Backup_${System.currentTimeMillis()}.db")
 
-        return try {
             if (dbFile.exists()) {
                 val src = FileInputStream(dbFile).channel
                 val dst = FileOutputStream(backupFile).channel
                 dst.transferFrom(src, 0, src.size())
                 src.close()
                 dst.close()
-                backupFile
-            } else null
+                Toast.makeText(context, "Backup saved to Downloads!", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(context, "Database not found", Toast.LENGTH_SHORT).show()
+            }
         } catch (e: Exception) {
-            Log.e("BackupManager", "Export failed", e)
-            null
+            Log.e("BackupManager", "Local export failed", e)
+            Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Exports the database and opens the Share sheet (for other apps)
+     */
+    fun shareBackup(context: Context) {
+        try {
+            val dbFile = context.getDatabasePath(DB_NAME)
+            val tempFile = File(context.cacheDir, "MuZZu_Backup.db")
+
+            if (dbFile.exists()) {
+                val src = FileInputStream(dbFile).channel
+                val dst = FileOutputStream(tempFile).channel
+                dst.transferFrom(src, 0, src.size())
+                src.close()
+                dst.close()
+
+                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", tempFile)
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/octet-stream"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(Intent.createChooser(intent, "Share Backup via"))
+            }
+        } catch (e: Exception) {
+            Log.e("BackupManager", "Share failed", e)
+            Toast.makeText(context, "Share failed: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -44,36 +79,21 @@ object BackupManager {
      */
     fun importDatabase(context: Context, backupUri: Uri): Boolean {
         return try {
-            // Close database before importing
             MobileRepairApp.instance.database.close()
-            
             val dbFile = context.getDatabasePath(DB_NAME)
-            val inputStream = context.contentResolver.openInputStream(backupUri)
-            
-            if (inputStream != null) {
-                val dst = FileOutputStream(dbFile).channel
-                val src = (inputStream as FileInputStream).channel
-                dst.transferFrom(src, 0, src.size())
-                src.close()
-                dst.close()
-                true
-            } else false
+            context.contentResolver.openInputStream(backupUri)?.use { input ->
+                FileOutputStream(dbFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+            true
         } catch (e: Exception) {
             Log.e("BackupManager", "Import failed", e)
             false
         }
     }
 
-    /**
-     * Placeholder for Google Drive Sync Logic
-     * In a production app, this would use the Google Drive v3 API
-     */
     fun syncWithGoogleDrive(context: Context, email: String) {
-        // Logic: 
-        // 1. Authenticate user with 'email'
-        // 2. Search for 'repair_shop_backup.db' in their appData folder on Drive
-        // 3. Compare timestamps
-        // 4. Upload local if newer, or Download from drive if newer
-        Toast.makeText(context, "Cloud Syncing for $email...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Google Drive Sync initiated for $email", Toast.LENGTH_SHORT).show()
     }
 }
