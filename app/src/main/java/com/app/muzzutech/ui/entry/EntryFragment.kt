@@ -198,7 +198,7 @@ binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecke
         binding.spinnerServiceMan.adapter = adapter
     }
 
-    private fun saveEntry() {
+    private fun saveEntry(isDraft: Boolean = false) {
         val name = binding.etName.text.toString().trim()
         val mobile = binding.etMobileNumber.text.toString().trim()
         val city = binding.etCity.text.toString().trim()
@@ -209,14 +209,16 @@ binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecke
             return
         }
 
-        if (binding.spinnerBrand.selectedItemPosition == 0) {
-            Snackbar.make(binding.root, "Please select a brand", Snackbar.LENGTH_SHORT).show()
-            return
-        }
+        if (!isDraft) {
+            if (binding.spinnerBrand.selectedItemPosition == 0) {
+                Snackbar.make(binding.root, "Please select a brand", Snackbar.LENGTH_SHORT).show()
+                return
+            }
 
-        if (model.isEmpty()) {
-            Snackbar.make(binding.root, "Please enter model name", Snackbar.LENGTH_SHORT).show()
-            return
+            if (model.isEmpty()) {
+                Snackbar.make(binding.root, "Please enter model name", Snackbar.LENGTH_SHORT).show()
+                return
+            }
         }
 
         val brand = brands[binding.spinnerBrand.selectedItemPosition]
@@ -228,14 +230,21 @@ binding.toggleGroupEntryType.addOnButtonCheckedListener { _, checkedId, isChecke
 
         viewModel.saveEntry(
             photoPath = photoFile?.absolutePath ?: "",
+            photoPath2 = photoFile2?.absolutePath ?: "",
             name = name,
             mobile = mobile,
             city = city,
             isDealer = isDealer,
             serviceManId = serviceManId,
             brand = brand,
-            model = model
+            model = model,
+            extraItems = collectExtraItems(),
+            isDraft = isDraft
         )
+    }
+
+    private fun saveDraft() {
+        saveEntry(isDraft = true)
     }
 
     private fun observeViewModel() {

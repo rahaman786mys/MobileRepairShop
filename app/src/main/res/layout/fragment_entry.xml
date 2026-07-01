@@ -195,6 +195,41 @@ android:layout_marginTop="12dp"
 android:text="Open Camera (Photo 1)"
 android:textAllCaps="false" />
 
+                    <!-- Second Photo -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Additional Photo"
+                        style="@style/TextAppearance.MuZZu.Label"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        app:cardElevation="0dp"
+                        app:cardCornerRadius="12dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/muzzu_border">
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/ivEntryPhoto2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_plus_premium"
+                            android:padding="60dp"
+                            app:tint="@color/muzzu_border" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTakePhoto2"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Open Camera (Photo 2)"
+                        android:textAllCaps="false" />
+
 <!-- Extra Items Section -->
 <com.google.android.material.card.MaterialCardView
 android:layout_width="match_parent"
@@ -315,14 +350,32 @@ android:textSize="13sp" />
                         android:paddingHorizontal="12dp"
                         android:background="@drawable/bg_spinner_premium" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSaveEntry"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="64dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="32dp"
-                        android:text="Register Entry"
-                        style="@style/Widget.MuZZu.Button"
-                        android:textSize="18sp" />
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSaveDraft"
+                            android:layout_width="0dp"
+                            android:layout_height="64dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Save Draft"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:textSize="16sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSaveEntry"
+                            android:layout_width="0dp"
+                            android:layout_height="64dp"
+                            android:layout_weight="1.5"
+                            android:layout_marginStart="8dp"
+                            android:text="Register Entry"
+                            style="@style/Widget.MuZZu.Button"
+                            android:textSize="16sp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

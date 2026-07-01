@@ -42,13 +42,16 @@ class EntryViewModel : ViewModel() {
 
     fun saveEntry(
         photoPath: String,
+        photoPath2: String = "",
         name: String,
         mobile: String,
         city: String,
         isDealer: Boolean,
         serviceManId: Long,
         brand: String,
-        model: String
+        model: String,
+        extraItems: String = "",
+        isDraft: Boolean = false
     ) {
         viewModelScope.launch {
             _isSaving.value = true
@@ -62,6 +65,7 @@ class EntryViewModel : ViewModel() {
 
             val entry = RepairEntry(
                 entryPhotoPath = photoPath,
+                entryPhotoPath2 = photoPath2,
                 customerName = if (!isDealer) name else "",
                 customerMobile = if (!isDealer) mobile else "",
                 customerCity = city,
@@ -70,7 +74,9 @@ class EntryViewModel : ViewModel() {
                 serviceManId = serviceManId,
                 deviceBrand = brand,
                 deviceModel = model,
-                entryDate = System.currentTimeMillis()
+                entryDate = System.currentTimeMillis(),
+                faultDescription = extraItems, // Storing extra items here for now
+                isDraft = isDraft
             )
             val id = repository.insert(entry)
             _saveSuccess.value = id
