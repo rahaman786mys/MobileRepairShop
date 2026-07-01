@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    style="@style/Widget.MuZZu.Card"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/muzzu_surface_elevated">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvItemName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Item Name"
+                style="@style/TextAppearance.MuZZu.Heading"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvSupplierInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Supplier"
+                style="@style/TextAppearance.MuZZu.Label"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvSalePrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹ 0"
+                style="@style/TextAppearance.MuZZu.Heading"
+                android:textSize="14sp"
+                android:textColor="@color/muzzu_accent" />
+
+            <TextView
+                android:id="@+id/tvProfit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profit: ₹ 0"
+                style="@style/TextAppearance.MuZZu.Body"
+                android:textSize="11sp"
+                android:textColor="@color/muzzu_success"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -105,14 +105,16 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         binding.rvDirectSales.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
                 object : RecyclerView.ViewHolder(
-                    LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+                    LayoutInflater.from(parent.context).inflate(R.layout.item_sale_ledger, parent, false)
                 ) {}
 
             override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
                 val s = sales[position]
-                holder.itemView.findViewById<TextView>(android.R.id.text1).text = s.itemName
-                holder.itemView.findViewById<TextView>(android.R.id.text2).text = 
-                    "Price: ₹${s.salePrice} | Profit: ₹${s.salePrice - s.purchasePrice}"
+                holder.itemView.findViewById<TextView>(R.id.tvItemName).text = s.itemName
+                holder.itemView.findViewById<TextView>(R.id.tvSupplierInfo).text = "Ref: ${s.supplierId}"
+                holder.itemView.findViewById<TextView>(R.id.tvSalePrice).text = "₹${s.salePrice}"
+                val profit = s.salePrice - s.purchasePrice
+                holder.itemView.findViewById<TextView>(R.id.tvProfit).text = "Profit: ₹$profit"
             }
             override fun getItemCount() = sales.size
         }

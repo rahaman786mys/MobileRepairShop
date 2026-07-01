@@ -30,11 +30,11 @@ object BackupManager {
             val backupFile = File(downloadsDir, "MuZZu_Tech_Backup_${System.currentTimeMillis()}.db")
 
             if (dbFile.exists()) {
-                val src = FileInputStream(dbFile).channel
-                val dst = FileOutputStream(backupFile).channel
-                dst.transferFrom(src, 0, src.size())
-                src.close()
-                dst.close()
+                FileInputStream(dbFile).use { input ->
+                    FileOutputStream(backupFile).use { output ->
+                        input.channel.transferTo(0, input.channel.size(), output.channel)
+                    }
+                }
                 Toast.makeText(context, "Backup saved to Downloads!", Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(context, "Database not found", Toast.LENGTH_SHORT).show()
@@ -54,11 +54,11 @@ object BackupManager {
             val tempFile = File(context.cacheDir, "MuZZu_Backup.db")
 
             if (dbFile.exists()) {
-                val src = FileInputStream(dbFile).channel
-                val dst = FileOutputStream(tempFile).channel
-                dst.transferFrom(src, 0, src.size())
-                src.close()
-                dst.close()
+                FileInputStream(dbFile).use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        input.channel.transferTo(0, input.channel.size(), output.channel)
+                    }
+                }
 
                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", tempFile)
                 val intent = Intent(Intent.ACTION_SEND).apply {

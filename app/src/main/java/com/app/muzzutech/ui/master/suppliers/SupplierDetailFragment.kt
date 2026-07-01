@@ -61,10 +61,34 @@ class SupplierDetailFragment : Fragment(R.layout.fragment_supplier_detail) {
                         binding.tvTotalPaid.text = "₹ ${String.format("%.0f", totalPaid)}"
                         binding.tvBalanceDue.text = "₹ ${String.format("%.0f", totalDue)}"
                     }
+                    
+                    db.paymentTransactionDao().getTransactionsByMobile(mobile).collectLatest { transactions ->
+                        setupPaymentHistory(transactions)
+                    }
 
                     setupPurchasesList(purchases)
                 }
             }
+        }
+    }
+
+    private fun setupPaymentHistory(transactions: List<com.app.muzzutech.data.model.PaymentTransaction>) {
+        binding.rvPaymentHistory.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvPaymentHistory.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+                object : RecyclerView.ViewHolder(
+                    LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+                ) {}
+
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                val t = transactions[position]
+                holder.itemView.findViewById<TextView>(android.R.id.text1).text = 
+                    "Paid: ₹${t.amount} (${t.paymentMode})"
+                holder.itemView.findViewById<TextView>(android.R.id.text2).text = 
+                    com.app.muzzutech.utils.DateUtils.formatDateTime(t.transactionDate)
+            }
+
+            override fun getItemCount() = transactions.size
         }
     }
 

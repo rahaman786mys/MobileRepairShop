@@ -1,6 +1,6 @@
 {
-  "versionCode": 18,
-  "versionName": "1.4.5",
+  "versionCode": 20,
+  "versionName": "1.5.0",
   "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-MuZZu-release.apk",
-  "releaseNotes": "• FIXED: Photo preview loading issue solved\n• NEW: Extra Items multi-select dropdown\n• NEW: Mandatory 2 photos & specialist assignment\n• NEW: Auto-save draft on exit\n• NEW: Export to Downloads vs Share to other apps\n• NEW: Reports date range calendar picker\n• FIXED: Profit only counts paid transactions"
+  "releaseNotes": "• CRITICAL: Fixed In-App Installer for modern Android devices\n• NEW: Integrated Tally-style Supplier/Customer ledgers\n• NEW: Premium Dashboard with live Shop Branding\n• FIXED: Photo preview and data draft reliability"
 }

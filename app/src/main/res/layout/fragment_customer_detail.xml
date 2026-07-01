@@ -108,6 +108,20 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvWorkHistory"
         android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:clipToPadding="false"
+        android:padding="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Payment History"
+        style="@style/TextAppearance.MuZZu.Label"
+        android:padding="16dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPaymentHistory"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:padding="8dp" />

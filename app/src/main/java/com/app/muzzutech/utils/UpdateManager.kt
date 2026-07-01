@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import com.google.gson.Gson
 import okhttp3.*
 import java.io.File
@@ -21,11 +22,17 @@ object UpdateManager {
     private val client = OkHttpClient.Builder()
         .followRedirects(true)
         .followSslRedirects(true)
+        .cache(null) // Disable cache to ensure we get fresh version info
         .build()
     private var skippedVersionCode: Int = -1
 
     fun checkForUpdates(context: Context, onNoUpdate: (() -> Unit)? = null) {
-        val request = Request.Builder().url(VERSION_URL).build()
+        // Add timestamp to bypass GitHub/System caching
+        val urlWithCacheBuster = "$VERSION_URL?t=${System.currentTimeMillis()}"
+        val request = Request.Builder()
+            .url(urlWithCacheBuster)
+            .header("Cache-Control", "no-cache")
+            .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -157,7 +164,11 @@ object UpdateManager {
     }
 
     private fun installApk(context: Context, apkFile: File) {
-        val uri = Uri.fromFile(apkFile)
+        val uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            apkFile
+        )
 
         val installIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/vnd.android.package-archive")
