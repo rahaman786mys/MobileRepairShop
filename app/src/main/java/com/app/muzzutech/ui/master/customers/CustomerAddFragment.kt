@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.app.muzzutech.MobileRepairApp
+import com.app.muzzutech.R
 import com.app.muzzutech.data.model.Customer
 import com.app.muzzutech.data.model.Dealer
 import com.app.muzzutech.databinding.FragmentCustomerAddBinding
