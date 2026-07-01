@@ -42,7 +42,7 @@ class CustomerDetailFragment : Fragment(R.layout.fragment_customer_detail) {
                 db.customerDao().getCustomerByMobileFlow(mobile).collectLatest { customer ->
                     customer?.let {
                         binding.tvCustomerName.text = it.name
-                        binding.tvCustomerMobile.text = it.mobile
+                        binding.tvCustomerMobile.text = it.mobileNumber
                     }
                 }
             }

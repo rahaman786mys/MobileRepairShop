@@ -52,7 +52,7 @@
     </style>
 
     <!-- Bottom Nav Styles -->
-    <style name="BottomNavText" parent="Widget.Material3.BottomNavigationView" />
+    <style name="BottomNavText" parent="TextAppearance.Material3.LabelMedium" />
 
     <style name="BottomNavText.Active">
         <item name="android:textSize">12sp</item>

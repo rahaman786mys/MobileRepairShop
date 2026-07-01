@@ -25,12 +25,12 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvWorkshopTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="MuZZu Tech"
-                        style="@style/TextAppearance.MuZZu.Display" />
+                <TextView
+                    android:id="@+id/tvWorkshopTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MuZZu Tech"
+                    style="@style/TextAppearance.MuZZu.Display" />
 
                 <TextView
                     android:layout_width="wrap_content"

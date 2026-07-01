@@ -50,6 +50,8 @@
                     android:orientation="vertical"
                     android:gravity="center">
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="TOTAL BOUGHT"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:textColor="@color/muzzu_text_on_dark"
@@ -76,6 +78,8 @@
                     android:orientation="vertical"
                     android:gravity="center">
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="TOTAL PAID"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:textColor="@color/muzzu_text_on_dark"
@@ -102,6 +106,8 @@
                     android:orientation="vertical"
                     android:gravity="center">
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="BALANCE DUE"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:textColor="@color/muzzu_text_on_dark"
