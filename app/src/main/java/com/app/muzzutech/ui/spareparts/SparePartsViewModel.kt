@@ -56,19 +56,33 @@ class SparePartsViewModel : ViewModel() {
             )
             val partId = purchaseDao.insert(part)
 
-            if (payLater && price > 0 && supplierId.isNotEmpty()) {
+            if (price > 0 && supplierId.isNotEmpty()) {
                 val payment = Payment(
                     personType = "SUPPLIER",
                     personMobile = supplierId,
                     personName = supplierName,
                     description = "Parts: $partName (Repair #$repairEntryId)",
                     totalAmount = price,
-                    paidAmount = 0.0,
-                    dueAmount = price,
-                    status = "UNPAID",
+                    paidAmount = if (payLater) 0.0 else price,
+                    dueAmount = if (payLater) price else 0.0,
+                    status = if (payLater) "UNPAID" else "PAID",
                     linkedPartId = partId
                 )
-                paymentDao.insert(payment)
+                val paymentId = paymentDao.insert(payment)
+
+                // If paid immediately, create a transaction record
+                if (!payLater) {
+                    val transaction = com.app.muzzutech.data.model.PaymentTransaction(
+                        paymentId = paymentId,
+                        personType = "SUPPLIER",
+                        personMobile = supplierId,
+                        personName = supplierName,
+                        amount = price,
+                        paymentMode = "CASH", // Default to cash for quick purchase
+                        note = "Immediate payment for $partName"
+                    )
+                    database.paymentTransactionDao().insert(transaction)
+                }
             }
         }
     }

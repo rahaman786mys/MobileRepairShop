@@ -180,4 +180,10 @@
         android:label="Return Parts"
         tools:layout="@layout/fragment_part_return" />
 
+    <fragment
+        android:id="@+id/inventoryFragment"
+        android:name="com.app.muzzutech.ui.master.inventory.InventoryFragment"
+        android:label="Inventory Ledger"
+        tools:layout="@layout/fragment_inventory" />
+
 </navigation>

@@ -126,6 +126,22 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.totalCustomerDue.collectLatest { due ->
+                    binding.tvCustomerDuesTotal.text = "₹ ${String.format("%.0f", due)}"
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.totalSupplierDue.collectLatest { due ->
+                    binding.tvSupplierDuesTotal.text = "₹ ${String.format("%.0f", due)}"
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
                     _binding?.let { b ->
                         b.cardMissingInfo.isVisible = profile == null || profile.phone.isEmpty()

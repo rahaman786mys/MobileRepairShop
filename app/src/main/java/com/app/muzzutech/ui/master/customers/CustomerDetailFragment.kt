@@ -39,10 +39,18 @@ class CustomerDetailFragment : Fragment(R.layout.fragment_customer_detail) {
         
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Check Customers
                 db.customerDao().getCustomerByMobileFlow(mobile).collectLatest { customer ->
-                    customer?.let {
-                        binding.tvCustomerName.text = it.name
-                        binding.tvCustomerMobile.text = it.mobileNumber
+                    if (customer != null) {
+                        binding.tvCustomerName.text = customer.name
+                        binding.tvCustomerMobile.text = customer.mobileNumber
+                    } else {
+                        // Check Dealers
+                        val dealer = db.dealerDao().getDealerByMobile(mobile)
+                        dealer?.let {
+                            binding.tvCustomerName.text = it.name
+                            binding.tvCustomerMobile.text = it.mobileNumber
+                        }
                     }
                 }
             }

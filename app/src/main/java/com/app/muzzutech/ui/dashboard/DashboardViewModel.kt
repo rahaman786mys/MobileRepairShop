@@ -6,6 +6,7 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class DashboardViewModel : ViewModel() {
@@ -32,6 +33,12 @@ class DashboardViewModel : ViewModel() {
     private val _dailyDueInvest = MutableStateFlow(0.0)
     val dailyDueInvest: StateFlow<Double> = _dailyDueInvest
 
+    private val _totalCustomerDue = MutableStateFlow(0.0)
+    val totalCustomerDue: StateFlow<Double> = _totalCustomerDue
+
+    private val _totalSupplierDue = MutableStateFlow(0.0)
+    val totalSupplierDue: StateFlow<Double> = _totalSupplierDue
+
     init {
         loadDashboardData()
     }
@@ -55,44 +62,61 @@ class DashboardViewModel : ViewModel() {
             } catch (e: Exception) { e.printStackTrace() }
         }
         
-        // Revenue = sum of actual PAID amounts from transactions today
+        // Revenue (Cash In) = Sum of actual PAID amounts from CUSTOMER/DEALER today
         viewModelScope.launch {
             try {
                 database.paymentTransactionDao().getTransactionsByDateRange(todayStart, todayEnd).collect { transactions ->
-                    val totalPaidToday = transactions.sumOf { it.amount }
-                    _dailyRevenue.value = totalPaidToday
-                    updateProfit()
+                    val revenue = transactions.filter { it.personType != "SUPPLIER" }.sumOf { it.amount }
+                    val expense = transactions.filter { it.personType == "SUPPLIER" }.sumOf { it.amount }
+                    
+                    _dailyRevenue.value = revenue
+                    // Net Cash Flow = Revenue - Actual Cash paid out to suppliers today
+                    _dailyProfit.value = revenue - expense
                 }
             } catch (e: Exception) { e.printStackTrace() }
         }
 
-        // Invest = sum of parts purchased today (Expenses)
+        // Investment = sum of parts purchased today (Regardless of paid/due)
         viewModelScope.launch {
             try {
                 database.sparePartPurchaseDao()
                     .getTotalPurchaseInRange(todayStart, todayEnd).collect { total ->
                         _dailyInvest.value = total ?: 0.0
-                        updateProfit()
                     }
             } catch (e: Exception) { e.printStackTrace() }
         }
 
-        // Paid vs Due from supplier payments today
+        // Paid vs Due from supplier obligations today
         viewModelScope.launch {
             try {
                 database.paymentDao()
                     .getPaymentsByTypeAndDate("SUPPLIER", todayStart, todayEnd).collect { payments ->
-                        val paid = payments.filter { it.status == "PAID" }.sumOf { it.totalAmount }
-                        val due = payments.filter { it.status != "PAID" }.sumOf { it.dueAmount }
+                        val paid = payments.sumOf { it.paidAmount }
+                        val due = payments.sumOf { it.dueAmount }
                         _dailyPaidInvest.value = paid
                         _dailyDueInvest.value = due
                     }
             } catch (e: Exception) { e.printStackTrace() }
         }
-    }
 
-    private fun updateProfit() {
-        // Profit is actual cash in (paid amounts) minus actual cash out (invested in parts)
-        _dailyProfit.value = _dailyRevenue.value - _dailyInvest.value
+        // Customer Dues Total (Accounts Receivable)
+        viewModelScope.launch {
+            try {
+                database.paymentDao().getTotalDueByType("CUSTOMER").collectLatest { total ->
+                    database.paymentDao().getTotalDueByType("DEALER").collectLatest { dTotal ->
+                        _totalCustomerDue.value = total + dTotal
+                    }
+                }
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+
+        // Supplier Dues Total (Accounts Payable)
+        viewModelScope.launch {
+            try {
+                database.paymentDao().getTotalDueByType("SUPPLIER").collectLatest { total ->
+                    _totalSupplierDue.value = total
+                }
+            } catch (e: Exception) { e.printStackTrace() }
+        }
     }
 }

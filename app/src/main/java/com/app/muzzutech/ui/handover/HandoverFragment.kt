@@ -154,26 +154,6 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
 
         viewModel.completeHandover(entryId, finalAmount, paymentMode, cashAmount, onlineAmount)
 
-        // Create payment record for customer if Pay Later
-        if (isPayLater) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.entry.value?.let { entry ->
-                    val payment = Payment(
-                        personType = "CUSTOMER",
-                        personMobile = entry.customerMobile,
-                        personName = entry.customerName,
-                        description = "Repair - ${entry.deviceBrand} ${entry.deviceModel} (${entry.faultDetected})",
-                        totalAmount = finalAmount,
-                        paidAmount = 0.0,
-                        dueAmount = finalAmount,
-                        status = "UNPAID",
-                        linkedEntryId = entry.id
-                    )
-                    MobileRepairApp.instance.database.paymentDao().insert(payment)
-                }
-            }
-        }
-
         // Notify Customer via WhatsApp & Show Print button
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.entry.value?.let { entry ->

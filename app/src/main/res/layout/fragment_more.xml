@@ -232,6 +232,34 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+
+                <!-- Inventory -->
+                <LinearLayout
+                    android:id="@+id/cardInventory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_workflow_premium"
+                        app:tint="@color/muzzu_text_sub" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:text="Inventory Ledger (Tally)"
+                        style="@style/TextAppearance.MuZZu.Body"
+                        android:textColor="@color/muzzu_text_main" />
+                </LinearLayout>
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

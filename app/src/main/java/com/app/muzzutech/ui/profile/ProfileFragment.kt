@@ -129,6 +129,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
   }
 
   private fun observeProfile() {
+    val prefs = requireContext().getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
+    binding.switchBiometric.isChecked = prefs.getBoolean("biometric_enabled", false)
+
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.profileFlow.collectLatest { profile ->
@@ -194,6 +197,13 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             BackupManager.syncWithGoogleDrive(requireContext(), email)
             viewModel.updateSyncTimestamp()
             Snackbar.make(binding.root, "Cloud backup initiated!", Snackbar.LENGTH_SHORT).show()
+        }
+
+        binding.switchBiometric.setOnCheckedChangeListener { _, isChecked ->
+            val prefs = requireContext().getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("biometric_enabled", isChecked).apply()
+            val status = if (isChecked) "enabled" else "disabled"
+            Toast.makeText(requireContext(), "Biometric security $status", Toast.LENGTH_SHORT).show()
         }
     }
 

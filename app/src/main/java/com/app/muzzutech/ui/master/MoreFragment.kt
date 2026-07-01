@@ -50,6 +50,9 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         binding.cardCommonFaults.setOnClickListener {
             findNavController().navigate(R.id.commonFaultsFragment)
         }
+        binding.cardInventory.setOnClickListener {
+            findNavController().navigate(R.id.inventoryFragment)
+        }
         binding.cardAccountProfile.setOnClickListener {
             findNavController().navigate(R.id.profileFragment)
         }
@@ -88,8 +91,11 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
-            MobileRepairApp.instance.database.customerDao().getAllCustomers().collectLatest { list ->
-                binding.tvCustomersCount.text = "${list.size} customers"
+            MobileRepairApp.instance.database.customerDao().getAllCustomers().collectLatest { customers ->
+                MobileRepairApp.instance.database.dealerDao().getAllDealers().collectLatest { dealers ->
+                    val total = customers.size + dealers.size
+                    binding.tvCustomersCount.text = "$total people"
+                }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {

@@ -23,6 +23,14 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun checkBiometrics() {
+        val prefs = getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
+        val isBiometricEnabled = prefs.getBoolean("biometric_enabled", false)
+
+        if (!isBiometricEnabled) {
+            proceedToMain()
+            return
+        }
+
         val biometricManager = BiometricManager.from(this)
         val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
         
