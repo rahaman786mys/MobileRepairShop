@@ -1,6 +1,6 @@
 {
-  "versionCode": 23,
-  "versionName": "1.5.5",
+  "versionCode": 24,
+  "versionName": "1.5.6",
   "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-MuZZu-release.apk",
-  "releaseNotes": "• STABILITY: Full code review and stability pass completed (95%)\n• NEW: Integrated Direct Sale accounting and cash flow tracking\n• FIXED: Photo visibility and persistence across all repair stages\n• ENHANCEMENT: Profile editing for Customers, Dealers, and Suppliers\n• SECURITY: Biometric unlock is now optional and toggleable"
+  "releaseNotes": "• CRITICAL: Fixed APK signing issue (App will now install correctly)\n• STABILITY: Version 1.5.6 with full Tally-style features\n• FIXED: Photo persistence and profile editing verified"
 }
