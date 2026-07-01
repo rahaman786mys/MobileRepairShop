@@ -10,11 +10,11 @@ import kotlinx.coroutines.launch
 
 class EntryViewModel : ViewModel() {
 
-    private val repository = MobileRepairApp.instance.repairRepository
-    private val db = MobileRepairApp.instance.database
-    private val serviceManDao = db.serviceManDao()
-    private val customerDao = db.customerDao()
-    private val dealerDao = db.dealerDao()
+    private val repository by lazy { MobileRepairApp.instance.repairRepository }
+    private val db by lazy { MobileRepairApp.instance.database }
+    private val serviceManDao by lazy { db.serviceManDao() }
+    private val customerDao by lazy { db.customerDao() }
+    private val dealerDao by lazy { db.dealerDao() }
 
     private val _serviceMen = MutableStateFlow<List<ServiceMan>>(emptyList())
     val serviceMen: StateFlow<List<ServiceMan>> = _serviceMen
