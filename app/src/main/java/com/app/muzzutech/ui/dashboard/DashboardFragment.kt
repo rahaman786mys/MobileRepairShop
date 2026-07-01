@@ -1,6 +1,7 @@
 package com.app.muzzutech.ui.dashboard
 
 import android.app.AlertDialog
+import android.widget.Toast
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,7 +42,12 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
     private fun setupClickListeners() {
         binding.cardService.setOnClickListener {
-            findNavController().navigate(R.id.entryFragment)
+            try {
+                findNavController().navigate(R.id.entryFragment)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(requireContext(), "Navigation Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
         binding.cardSales.setOnClickListener {
             findNavController().navigate(R.id.saleFragment)
@@ -121,8 +127,10 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
-                    binding.cardMissingInfo.isVisible = profile == null || profile.phone.isEmpty()
-                    binding.tvWorkshopTitle.text = profile?.shopName?.ifEmpty { "MuZZu Tech" } ?: "MuZZu Tech"
+                    _binding?.let { b ->
+                        b.cardMissingInfo.isVisible = profile == null || profile.phone.isEmpty()
+                        b.tvWorkshopTitle.text = profile?.shopName?.ifEmpty { "MuZZu Tech" } ?: "MuZZu Tech"
+                    }
                 }
             }
         }

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -73,21 +74,43 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentEntryBinding.inflate(inflater, container, false)
-        return binding.root
+        return try {
+            _binding = FragmentEntryBinding.inflate(inflater, container, false)
+            binding.root
+        } catch (e: Exception) {
+            Log.e("EntryFragment", "Inflation Error", e)
+            Toast.makeText(requireContext(), "Screen Error: ${e.message}", Toast.LENGTH_LONG).show()
+            View(requireContext())
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("EntryFragment", "onViewCreated started")
         
-        // CRITICAL: Reset the success state from any previous session in the ViewModel
-        viewModel.resetSaveState()
+        try {
+            viewModel.resetSaveState()
 
-        setupClickListeners()
-        setupMobileWatcher()
-        setupBrandSpinner()
-        setupExtraItemsDropdown()
-        observeViewModel()
+            setupClickListeners()
+            setupMobileWatcher()
+            setupBrandSpinner()
+            setupExtraItemsDropdown()
+            observeViewModel()
+            
+            savedInstanceState?.let { bundle ->
+                bundle.getString("photo1")?.let { 
+                    photoFile = File(it)
+                    Glide.with(this).load(photoFile).centerCrop().into(binding.ivEntryPhoto)
+                }
+                bundle.getString("photo2")?.let { 
+                    photoFile2 = File(it)
+                    Glide.with(this).load(photoFile2).centerCrop().into(binding.ivEntryPhoto2)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("EntryFragment", "onViewCreated Error", e)
+            Toast.makeText(requireContext(), "Start Error: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setupBrandSpinner() {
@@ -308,14 +331,20 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.saveSuccess.collectLatest { id ->
                     if (id != null && id > 0 && isAdded) {
-                        // After successful save, navigate to inspection
                         viewModel.resetSaveState()
+                        Snackbar.make(binding.root, "Entry Registered!", Snackbar.LENGTH_SHORT).show()
                         val bundle = Bundle().apply { putLong("entryId", id) }
                         findNavController().navigate(R.id.inspectionFragment, bundle)
                     }
                 }
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("photo1", photoFile?.absolutePath)
+        outState.putString("photo2", photoFile2?.absolutePath)
     }
 
     override fun onDestroyView() {

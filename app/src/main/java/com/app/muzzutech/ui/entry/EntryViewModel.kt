@@ -83,7 +83,11 @@ class EntryViewModel : ViewModel() {
                 isDraft = isDraft
             )
             val id = repository.insert(entry)
-            _saveSuccess.value = id
+            
+            // Only trigger navigation if NOT a draft
+            if (!isDraft) {
+                _saveSuccess.value = id
+            }
             _isSaving.value = false
         }
     }
