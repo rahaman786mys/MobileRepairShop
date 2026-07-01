@@ -11,22 +11,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/muzzu_surface"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tvCustomerName"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Customer Name"
-            style="@style/TextAppearance.MuZZu.Heading" />
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvCustomerMobile"
+            <TextView
+                android:id="@+id/tvCustomerName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/entry_customer_name"
+                style="@style/TextAppearance.MuZZu.Heading" />
+
+            <TextView
+                android:id="@+id/tvCustomerMobile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mobile"
+                style="@style/TextAppearance.MuZZu.Body" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditCustomer"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mobile"
-            style="@style/TextAppearance.MuZZu.Body" />
+            android:text="@string/edit"
+            app:icon="@android:drawable/ic_menu_edit" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp">
 
         <!-- Stats Box -->
         <com.google.android.material.card.MaterialCardView
@@ -52,7 +76,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TOTAL JOBS"
+                        android:text="@string/total_jobs"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:textColor="@color/muzzu_text_on_dark"
                         android:alpha="0.7" />
@@ -80,7 +104,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="BALANCE DUE"
+                        android:text="@string/balance_due"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:textColor="@color/muzzu_text_on_dark"
                         android:alpha="0.7" />
@@ -101,7 +125,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Work History"
+        android:text="@string/work_history"
         style="@style/TextAppearance.MuZZu.Label"
         android:padding="16dp" />
 
@@ -115,7 +139,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Payment History"
+        android:text="@string/payment_history"
         style="@style/TextAppearance.MuZZu.Label"
         android:padding="16dp" />
 

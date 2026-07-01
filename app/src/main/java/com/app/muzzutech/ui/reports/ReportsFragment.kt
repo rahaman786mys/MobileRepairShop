@@ -41,12 +41,14 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         binding.chipDaily.isChecked = true
         viewModel.loadReport("Daily")
 
-        binding.chipGroupPeriod.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.chipDaily -> viewModel.loadReport("Daily")
-                R.id.chipWeekly -> viewModel.loadReport("Weekly")
-                R.id.chipMonthly -> viewModel.loadReport("Monthly")
-                R.id.chipCustom -> showDateRangePicker()
+        binding.chipGroupPeriod.setOnCheckedStateChangeListener { _, checkedIds: List<Int> ->
+            if (checkedIds.isNotEmpty()) {
+                when (checkedIds.first()) {
+                    R.id.chipDaily -> viewModel.loadReport("Daily")
+                    R.id.chipWeekly -> viewModel.loadReport("Weekly")
+                    R.id.chipMonthly -> viewModel.loadReport("Monthly")
+                    R.id.chipCustom -> showDateRangePicker()
+                }
             }
         }
 
@@ -73,7 +75,7 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.revenue.collectLatest { rev ->
-                    binding.tvReportRevenue.text = "₹ ${String.format("%.0f", rev)}"
+                    binding.tvReportRevenue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(rev)
                 }
             }
         }

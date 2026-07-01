@@ -65,12 +65,12 @@ object InvoiceGenerator {
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
 
         canvas.drawText("Repair Service & Labor", 40f, yPos, paint)
-        canvas.drawText("₹${String.format("%.0f", entry.chargeAmount)}", 480f, yPos, paint)
+        canvas.drawText(PriceUtils.formatPrice(entry.chargeAmount), 480f, yPos, paint)
         yPos += 25f
 
         parts.forEach { part ->
             canvas.drawText("Part: ${part.partName}", 40f, yPos, paint)
-            canvas.drawText("₹${String.format("%.0f", part.purchasePrice * part.quantity)}", 480f, yPos, paint)
+            canvas.drawText(PriceUtils.formatPrice(part.purchasePrice * part.quantity), 480f, yPos, paint)
             yPos += 25f
         }
 
@@ -78,7 +78,7 @@ object InvoiceGenerator {
         yPos += 30f
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         canvas.drawText("TOTAL PAID", 350f, yPos, paint)
-        canvas.drawText("₹${String.format("%.0f", entry.finalAmount)}", 480f, yPos, paint)
+        canvas.drawText(PriceUtils.formatPrice(entry.finalAmount), 480f, yPos, paint)
 
         yPos += 50f
         paint.textSize = 10f

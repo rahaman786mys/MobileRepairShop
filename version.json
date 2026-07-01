@@ -1,6 +1,6 @@
 {
-  "versionCode": 22,
-  "versionName": "1.5.3",
+  "versionCode": 23,
+  "versionName": "1.5.5",
   "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-MuZZu-release.apk",
-  "releaseNotes": "• CRITICAL: Fixed 'Binary XML' crash on older Android devices\n• FIXED: Resolved 'Start Error: null' on New Entry screen\n• STABILITY: Removed incompatible layout attributes (marginVertical/Horizontal)\n• RELIABILITY: Hardened state reset and navigation logic"
+  "releaseNotes": "• STABILITY: Full code review and stability pass completed (95%)\n• NEW: Integrated Direct Sale accounting and cash flow tracking\n• FIXED: Photo visibility and persistence across all repair stages\n• ENHANCEMENT: Profile editing for Customers, Dealers, and Suppliers\n• SECURITY: Biometric unlock is now optional and toggleable"
 }

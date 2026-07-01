@@ -41,7 +41,7 @@ class RepairEntryAdapter(
             tvDate.text = DateUtils.formatDateTime(entry.createdAt)
 
             val amount = if (entry.finalAmount > 0) entry.finalAmount else entry.chargeAmount
-            tvAmount.text = "₹ ${String.format("%.0f", amount)}"
+            tvAmount.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
 
             // Status color
             tvStatus.setTextColor(

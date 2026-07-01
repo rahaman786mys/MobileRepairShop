@@ -13,8 +13,10 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentEntryDetailBinding
 import com.app.muzzutech.utils.DateUtils
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
 
 class EntryDetailFragment : Fragment(R.layout.fragment_entry_detail) {
 
@@ -42,8 +44,22 @@ class EntryDetailFragment : Fragment(R.layout.fragment_entry_detail) {
                         binding.tvDetailServiceMan.text = "Service Man ID: ${entry.serviceManId}"
                         binding.tvDetailDate.text = "Entry: ${DateUtils.formatDateTime(entry.createdAt)}"
                         binding.tvDetailFault.text = "Fault: ${entry.faultDetected.ifEmpty { "Not inspected" }}"
-                        binding.tvDetailCharge.text = "Charge: ₹ ${String.format("%.0f", entry.chargeAmount)}"
+                        binding.tvDetailCharge.text = "Charge: ${com.app.muzzutech.utils.PriceUtils.formatPrice(entry.chargeAmount)}"
                         binding.tvDetailStatus.text = "Status: ${entry.workStatus}"
+
+                        // Load Photos
+                        if (entry.entryPhotoPath.isNotEmpty()) {
+                            Glide.with(this@EntryDetailFragment).load(File(entry.entryPhotoPath))
+                                .centerCrop().placeholder(R.drawable.ic_dashboard).into(binding.ivDetailPhoto1)
+                        }
+                        if (entry.entryPhotoPath2.isNotEmpty()) {
+                            Glide.with(this@EntryDetailFragment).load(File(entry.entryPhotoPath2))
+                                .centerCrop().placeholder(R.drawable.ic_dashboard).into(binding.ivDetailPhoto2)
+                        }
+                        if (entry.inspectionPhotoPath.isNotEmpty()) {
+                            Glide.with(this@EntryDetailFragment).load(File(entry.inspectionPhotoPath))
+                                .centerCrop().placeholder(R.drawable.ic_dashboard).into(binding.ivDetailPhotoInsp)
+                        }
                     }
                 }
             }

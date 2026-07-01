@@ -86,9 +86,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         AlertDialog.Builder(requireContext())
             .setTitle("Today's Investment")
             .setMessage(
-                "Total Invest: ₹ ${String.format("%.0f", total)}\n\n" +
-                "✅ Paid: ₹ ${String.format("%.0f", paid)}\n" +
-                "⏳ Due: ₹ ${String.format("%.0f", due)}"
+                "Total Invest: ${com.app.muzzutech.utils.PriceUtils.formatPrice(total)}\n\n" +
+                "✅ Paid: ${com.app.muzzutech.utils.PriceUtils.formatPrice(paid)}\n" +
+                "⏳ Due: ${com.app.muzzutech.utils.PriceUtils.formatPrice(due)}"
             )
             .setPositiveButton("OK", null)
             .show()
@@ -112,14 +112,14 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.dailyProfit.collectLatest { profit ->
-                    binding.tvTodayProfit.text = "₹ ${String.format("%.0f", profit)}"
+                    binding.tvTodayProfit.text = com.app.muzzutech.utils.PriceUtils.formatPrice(profit)
                 }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.dailyInvest.collectLatest { invest ->
-                    binding.tvTodayInvest.text = "₹ ${String.format("%.0f", invest)}"
+                    binding.tvTodayInvest.text = com.app.muzzutech.utils.PriceUtils.formatPrice(invest)
                 }
             }
         }
@@ -127,7 +127,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.totalCustomerDue.collectLatest { due ->
-                    binding.tvCustomerDuesTotal.text = "₹ ${String.format("%.0f", due)}"
+                    binding.tvCustomerDuesTotal.text = com.app.muzzutech.utils.PriceUtils.formatPrice(due)
                 }
             }
         }
@@ -135,7 +135,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.totalSupplierDue.collectLatest { due ->
-                    binding.tvSupplierDuesTotal.text = "₹ ${String.format("%.0f", due)}"
+                    binding.tvSupplierDuesTotal.text = com.app.muzzutech.utils.PriceUtils.formatPrice(due)
                 }
             }
         }

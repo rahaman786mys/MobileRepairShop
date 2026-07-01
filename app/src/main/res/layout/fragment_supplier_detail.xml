@@ -11,22 +11,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/muzzu_surface"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tvSupplierName"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Supplier Name"
-            style="@style/TextAppearance.MuZZu.Heading" />
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvSupplierMobile"
+            <TextView
+                android:id="@+id/tvSupplierName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Supplier Name"
+                style="@style/TextAppearance.MuZZu.Heading" />
+
+            <TextView
+                android:id="@+id/tvSupplierMobile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mobile"
+                style="@style/TextAppearance.MuZZu.Body" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditSupplier"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mobile"
-            style="@style/TextAppearance.MuZZu.Body" />
+            android:text="@string/edit"
+            app:icon="@android:drawable/ic_menu_edit" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp">
 
         <!-- Tally Box -->
         <com.google.android.material.card.MaterialCardView
@@ -52,7 +76,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TOTAL BOUGHT"
+                        android:text="@string/total_bought"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:textColor="@color/muzzu_text_on_dark"
                         android:alpha="0.7" />
@@ -80,7 +104,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TOTAL PAID"
+                        android:text="@string/total_paid"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:textColor="@color/muzzu_text_on_dark"
                         android:alpha="0.7" />
@@ -108,7 +132,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="BALANCE DUE"
+                        android:text="@string/balance_due"
                         style="@style/TextAppearance.MuZZu.Label"
                         android:textColor="@color/muzzu_text_on_dark"
                         android:alpha="0.7" />
@@ -125,6 +149,20 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/direct_sales_history"
+        style="@style/TextAppearance.MuZZu.Label"
+        android:padding="16dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSupplierSales"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:clipToPadding="false"
+        android:padding="8dp" />
 
     <TextView
         android:layout_width="wrap_content"

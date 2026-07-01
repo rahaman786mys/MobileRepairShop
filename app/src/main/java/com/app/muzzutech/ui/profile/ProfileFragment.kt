@@ -43,16 +43,23 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
   private var currentPhotoPath: String = ""
 
   private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-    if (success && profilePhotoUri != null) {
-      binding.ivProfilePhoto.setImageURI(profilePhotoUri)
+    if (success && profilePhotoUri != null && isAdded) {
+      Glide.with(this).load(profilePhotoUri).circleCrop().into(binding.ivProfilePhoto)
       currentPhotoPath = profilePhotoFile?.absolutePath ?: ""
     }
   }
 
   private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
     uri?.let {
-      binding.ivProfilePhoto.setImageURI(it)
-      currentPhotoPath = it.toString()
+      if (isAdded) {
+        val destFile = com.app.muzzutech.utils.PhotoUtils.createPhotoFile(requireContext(), "GAL_")
+        if (com.app.muzzutech.utils.PhotoUtils.copyUriToFile(requireContext(), it, destFile)) {
+          currentPhotoPath = destFile.absolutePath
+          Glide.with(this).load(destFile).circleCrop().into(binding.ivProfilePhoto)
+        } else {
+          Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
+        }
+      }
     }
   }
 

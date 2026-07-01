@@ -69,8 +69,7 @@ class ReportsViewModel : ViewModel() {
             }
         }
         viewModelScope.launch {
-            saleDao.getAllSales().collect { sales ->
-                // Filter locally for now or add query in DAO
+            saleDao.getSalesByDateRange(start, end).collect { sales ->
                 _directSales.value = sales
             }
         }

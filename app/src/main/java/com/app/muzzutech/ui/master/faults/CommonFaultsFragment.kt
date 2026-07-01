@@ -61,7 +61,8 @@ class CommonFaultsFragment : Fragment(R.layout.fragment_common_faults) {
                         override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
                             val f = faults[position]
                             holder.itemView.findViewById<TextView>(android.R.id.text1).text = f.faultName
-                            holder.itemView.findViewById<TextView>(android.R.id.text2).text = "${f.category} | ₹${String.format("%.0f", f.defaultCharge)}"
+                            holder.itemView.findViewById<TextView>(android.R.id.text2).text = 
+                                "${f.category} | ${com.app.muzzutech.utils.PriceUtils.formatPrice(f.defaultCharge)}"
                         }
                         override fun getItemCount() = faults.size
                     }

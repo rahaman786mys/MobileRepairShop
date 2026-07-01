@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.muzzutech.MobileRepairApp
@@ -32,6 +33,13 @@ class SupplierDetailFragment : Fragment(R.layout.fragment_supplier_detail) {
         val mobile = arguments?.getString("supplierMobile") ?: ""
 
         loadSupplierData(mobile)
+
+        binding.btnEditSupplier.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("supplierMobile", mobile)
+            }
+            findNavController().navigate(R.id.supplierAddFragment, bundle)
+        }
     }
 
     private fun loadSupplierData(mobile: String) {
@@ -52,23 +60,46 @@ class SupplierDetailFragment : Fragment(R.layout.fragment_supplier_detail) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 db.sparePartPurchaseDao().getPurchasesBySupplier(mobile).collectLatest { purchases ->
                     val totalBought = purchases.sumOf { it.purchasePrice * it.quantity }
-                    binding.tvTotalBought.text = "₹ ${String.format("%.0f", totalBought)}"
+                    binding.tvTotalBought.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalBought)
                     
                     db.paymentDao().getPaymentsByMobile(mobile).collectLatest { payments ->
                         val totalDue = payments.sumOf { it.dueAmount }
                         val totalPaid = totalBought - totalDue
                         
-                        binding.tvTotalPaid.text = "₹ ${String.format("%.0f", totalPaid)}"
-                        binding.tvBalanceDue.text = "₹ ${String.format("%.0f", totalDue)}"
+                        binding.tvTotalPaid.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalPaid)
+                        binding.tvBalanceDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalDue)
                     }
                     
                     db.paymentTransactionDao().getTransactionsByMobile(mobile).collectLatest { transactions ->
                         setupPaymentHistory(transactions)
                     }
 
+                    db.saleDao().getSalesBySupplier(mobile).collectLatest { sales ->
+                        setupSalesList(sales)
+                    }
+
                     setupPurchasesList(purchases)
                 }
             }
+        }
+    }
+
+    private fun setupSalesList(sales: List<com.app.muzzutech.data.model.Sale>) {
+        binding.rvSupplierSales.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvSupplierSales.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+                object : RecyclerView.ViewHolder(
+                    LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+                ) {}
+
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                val s = sales[position]
+                holder.itemView.findViewById<TextView>(android.R.id.text1).text = s.itemName
+                holder.itemView.findViewById<TextView>(android.R.id.text2).text = 
+                    "Sold for: ₹${s.salePrice} | Buy Price: ₹${s.purchasePrice}"
+            }
+
+            override fun getItemCount() = sales.size
         }
     }
 

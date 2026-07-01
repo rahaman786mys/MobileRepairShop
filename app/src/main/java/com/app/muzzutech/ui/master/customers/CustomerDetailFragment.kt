@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.muzzutech.MobileRepairApp
@@ -32,6 +33,14 @@ class CustomerDetailFragment : Fragment(R.layout.fragment_customer_detail) {
         val mobile = arguments?.getString("customerMobile") ?: ""
 
         loadCustomerData(mobile)
+
+        binding.btnEditCustomer.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("customerMobile", mobile)
+                putBoolean("isDealer", arguments?.getBoolean("isDealer") ?: false)
+            }
+            findNavController().navigate(R.id.customerAddFragment, bundle)
+        }
     }
 
     private fun loadCustomerData(mobile: String) {
@@ -39,17 +48,17 @@ class CustomerDetailFragment : Fragment(R.layout.fragment_customer_detail) {
         
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Check Customers
+                // Combine Customer and Dealer checks
                 db.customerDao().getCustomerByMobileFlow(mobile).collectLatest { customer ->
                     if (customer != null) {
                         binding.tvCustomerName.text = customer.name
                         binding.tvCustomerMobile.text = customer.mobileNumber
                     } else {
-                        // Check Dealers
-                        val dealer = db.dealerDao().getDealerByMobile(mobile)
-                        dealer?.let {
-                            binding.tvCustomerName.text = it.name
-                            binding.tvCustomerMobile.text = it.mobileNumber
+                        db.dealerDao().getDealerByMobileFlow(mobile).collectLatest { dealer ->
+                            dealer?.let {
+                                binding.tvCustomerName.text = "${it.name} (Dealer)"
+                                binding.tvCustomerMobile.text = it.mobileNumber
+                            }
                         }
                     }
                 }
@@ -63,7 +72,7 @@ class CustomerDetailFragment : Fragment(R.layout.fragment_customer_detail) {
                     
                     db.paymentDao().getPaymentsByMobile(mobile).collectLatest { payments ->
                         val totalDue = payments.sumOf { it.dueAmount }
-                        binding.tvBalanceDue.text = "₹ ${String.format("%.0f", totalDue)}"
+                        binding.tvBalanceDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalDue)
                     }
 
                     db.paymentTransactionDao().getTransactionsByMobile(mobile).collectLatest { transactions ->

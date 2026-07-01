@@ -144,7 +144,8 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
             repairEntryId = entryId,
             partName = partName,
             photoPath = photoFile?.absolutePath ?: "",
-            price = price * quantity,
+            price = price, // Per unit price
+            quantity = quantity,
             supplierId = supplier?.mobile ?: "",
             supplierName = supplier?.name ?: "",
             payLater = payLater

@@ -11,4 +11,9 @@ interface SaleDao {
 
     @Query("SELECT * FROM sales ORDER BY saleDate DESC")
     fun getAllSales(): Flow<List<Sale>>
+
+    @Query("SELECT * FROM sales WHERE supplierId = :supplierId ORDER BY saleDate DESC")
+    fun getSalesBySupplier(supplierId: String): Flow<List<Sale>>
+    @Query("SELECT * FROM sales WHERE saleDate BETWEEN :start AND :end ORDER BY saleDate DESC")
+    fun getSalesByDateRange(start: Long, end: Long): Flow<List<Sale>>
 }

@@ -56,7 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Select Supplier *"
+                android:text="@string/select_supplier"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary" />
 
@@ -73,7 +73,7 @@
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
                 style="@style/Widget.Material3.Button.TextButton"
-                android:text="+ Add New Supplier"
+                android:text="@string/add_new_supplier"
                 android:textColor="@color/primary" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -107,7 +107,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="32dp"
-                android:text="Complete Sale"
+                android:text="@string/complete_sale"
                 android:textSize="16sp" />
 
         </LinearLayout>

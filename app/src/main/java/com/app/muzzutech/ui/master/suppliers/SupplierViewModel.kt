@@ -36,4 +36,6 @@ class SupplierViewModel : ViewModel() {
             ))
         }
     }
+
+    suspend fun getSupplierByMobile(mobile: String): Supplier? = dao.getSupplierByMobile(mobile)
 }

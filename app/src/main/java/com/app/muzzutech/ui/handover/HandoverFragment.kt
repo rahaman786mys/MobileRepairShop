@@ -108,7 +108,7 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
                 viewModel.entry.collectLatest { entry ->
                     if (entry != null) {
                         binding.tvSummaryFault.text = "Fault: ${entry.faultDetected}"
-                        binding.tvSummaryCharge.text = "Charge: ₹ ${String.format("%.0f", entry.chargeAmount)}"
+                        binding.tvSummaryCharge.text = "Charge: ${com.app.muzzutech.utils.PriceUtils.formatPrice(entry.chargeAmount)}"
                     }
                 }
             }

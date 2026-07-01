@@ -40,7 +40,7 @@ class InventoryFragment : Fragment(R.layout.fragment_inventory) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 db.sparePartPurchaseDao().getAllPurchases().collectLatest { purchases ->
                     val totalValue = purchases.sumOf { it.purchasePrice * it.quantity }
-                    binding.tvTotalInventoryValue.text = "₹ ${String.format("%.0f", totalValue)}"
+                    binding.tvTotalInventoryValue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalValue)
                     binding.tvTotalItemsCount.text = purchases.size.toString()
                     
                     setupRecyclerView(purchases)

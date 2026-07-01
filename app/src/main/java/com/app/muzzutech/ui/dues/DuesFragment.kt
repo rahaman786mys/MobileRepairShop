@@ -62,12 +62,15 @@ class DuesFragment : Fragment(R.layout.fragment_dues) {
     }
 
     private fun updateTabColors() {
-        binding.tabAll.setBackgroundColor(resources.getColor(R.color.background))
-        binding.tabDealer.setBackgroundColor(resources.getColor(R.color.background))
-        binding.tabSupplier.setBackgroundColor(resources.getColor(R.color.background))
-        binding.tabCustomer.setBackgroundColor(resources.getColor(R.color.background))
+        val context = requireContext()
+        val inactiveColor = androidx.core.content.ContextCompat.getColor(context, R.color.muzzu_bg)
+        val activeColor = androidx.core.content.ContextCompat.getColor(context, R.color.muzzu_primary)
 
-        val activeColor = resources.getColor(R.color.primary)
+        binding.tabAll.setBackgroundColor(inactiveColor)
+        binding.tabDealer.setBackgroundColor(inactiveColor)
+        binding.tabSupplier.setBackgroundColor(inactiveColor)
+        binding.tabCustomer.setBackgroundColor(inactiveColor)
+
         when (currentTab) {
             "ALL" -> binding.tabAll.setBackgroundColor(activeColor)
             "DEALER" -> binding.tabDealer.setBackgroundColor(activeColor)
@@ -80,28 +83,28 @@ class DuesFragment : Fragment(R.layout.fragment_dues) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.totalDue.collectLatest { amount ->
-                    binding.tvTotalDue.text = "₹ ${String.format("%.0f", amount)}"
+                    binding.tvTotalDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
                 }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.dealerDue.collectLatest { amount ->
-                    binding.tvDealerDue.text = "₹ ${String.format("%.0f", amount)}"
+                    binding.tvDealerDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
                 }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.supplierDue.collectLatest { amount ->
-                    binding.tvSupplierDue.text = "₹ ${String.format("%.0f", amount)}"
+                    binding.tvSupplierDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
                 }
             }
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.customerDue.collectLatest { amount ->
-                    binding.tvCustomerDue.text = "₹ ${String.format("%.0f", amount)}"
+                    binding.tvCustomerDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
                 }
             }
         }
@@ -147,16 +150,17 @@ class DuesFragment : Fragment(R.layout.fragment_dues) {
                 val p = payments[position]
                 holder.itemView.findViewById<TextView>(R.id.tvPersonName).text = p.personName.ifEmpty { p.personMobile }
                 holder.itemView.findViewById<TextView>(R.id.tvPersonMobile).text = p.personMobile
-                holder.itemView.findViewById<TextView>(R.id.tvDueAmount).text = "₹ ${String.format("%.0f", p.dueAmount)}"
+                holder.itemView.findViewById<TextView>(R.id.tvDueAmount).text = 
+                    com.app.muzzutech.utils.PriceUtils.formatPrice(p.dueAmount)
                 holder.itemView.findViewById<TextView>(R.id.tvDescription).text = p.description
                 val statusColor = when (p.status) {
-                    "PAID" -> R.color.success
-                    "PARTIAL" -> R.color.warning
-                    else -> R.color.error
+                    "PAID" -> R.color.muzzu_success
+                    "PARTIAL" -> R.color.muzzu_warning
+                    else -> R.color.muzzu_error
                 }
                 holder.itemView.findViewById<TextView>(R.id.tvStatus).apply {
                     text = p.status
-                    setTextColor(resources.getColor(statusColor))
+                    setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), statusColor))
                 }
                 holder.itemView.setOnClickListener {
                     val bundle = Bundle().apply {

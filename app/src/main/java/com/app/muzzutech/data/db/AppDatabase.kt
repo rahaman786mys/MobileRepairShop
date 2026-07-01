@@ -22,7 +22,7 @@ import com.app.muzzutech.data.model.*
         PartReturn::class,
         PaymentTransaction::class
     ],
-    version = 7, // Incremented for v1.4.5 schema changes
+    version = 8, // Incremented for Direct Sale accounting
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

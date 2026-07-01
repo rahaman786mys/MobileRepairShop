@@ -33,25 +33,34 @@ class CustomerListFragment : Fragment(R.layout.fragment_customer_list) {
         binding.rvCustomers.layoutManager = LinearLayoutManager(requireContext())
         
         viewLifecycleOwner.lifecycleScope.launch {
-            MobileRepairApp.instance.database.customerDao().getAllCustomers().collectLatest { list ->
-                binding.rvCustomers.adapter = CustomerAdapter(list)
+            val db = MobileRepairApp.instance.database
+            db.customerDao().getAllCustomers().collectLatest { customers ->
+                db.dealerDao().getAllDealers().collectLatest { dealers ->
+                    val combined = mutableListOf<PersonListItem>()
+                    combined.addAll(customers.map { PersonListItem(it.name ?: "Unknown", it.mobileNumber, false) })
+                    combined.addAll(dealers.map { PersonListItem(it.name ?: "Unknown", it.mobileNumber, true) })
+                    binding.rvCustomers.adapter = CustomerAdapter(combined)
+                }
             }
         }
     }
 
-    inner class CustomerAdapter(private val list: List<Customer>) : RecyclerView.Adapter<CustomerAdapter.ViewHolder>() {
+    data class PersonListItem(val name: String, val mobile: String, val isDealer: Boolean)
+
+    inner class CustomerAdapter(private val list: List<PersonListItem>) : RecyclerView.Adapter<CustomerAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
             return ViewHolder(view)
         }
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val customer = list[position]
-            holder.text1.text = customer.name ?: "Unknown"
-            holder.text2.text = customer.mobileNumber
+            val item = list[position]
+            holder.text1.text = if (item.isDealer) "${item.name} (Dealer)" else item.name
+            holder.text2.text = item.mobile
             
             holder.itemView.setOnClickListener {
                 val bundle = Bundle().apply {
-                    putString("customerMobile", customer.mobileNumber)
+                    putString("customerMobile", item.mobile)
+                    putBoolean("isDealer", item.isDealer)
                 }
                 findNavController().navigate(R.id.customerDetailFragment, bundle)
             }

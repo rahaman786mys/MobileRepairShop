@@ -15,6 +15,9 @@ interface DealerDao {
     @Query("SELECT * FROM dealers WHERE mobileNumber = :mobile")
     suspend fun getDealerByMobile(mobile: String): Dealer?
 
+    @Query("SELECT * FROM dealers WHERE mobileNumber = :mobile")
+    fun getDealerByMobileFlow(mobile: String): Flow<Dealer?>
+
     @Query("SELECT * FROM dealers ORDER BY createdAt DESC")
     fun getAllDealers(): Flow<List<Dealer>>
 }

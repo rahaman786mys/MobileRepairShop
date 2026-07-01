@@ -41,6 +41,7 @@ class SparePartsViewModel : ViewModel() {
         partName: String,
         photoPath: String,
         price: Double,
+        quantity: Int,
         supplierId: String,
         supplierName: String,
         payLater: Boolean
@@ -51,20 +52,22 @@ class SparePartsViewModel : ViewModel() {
                 partName = partName,
                 partPhotoPath = photoPath,
                 purchasePrice = price,
+                quantity = quantity,
                 supplierId = supplierId,
                 supplierName = supplierName
             )
             val partId = purchaseDao.insert(part)
+            val totalCost = price * quantity
 
-            if (price > 0 && supplierId.isNotEmpty()) {
+            if (totalCost > 0 && supplierId.isNotEmpty()) {
                 val payment = Payment(
                     personType = "SUPPLIER",
                     personMobile = supplierId,
                     personName = supplierName,
-                    description = "Parts: $partName (Repair #$repairEntryId)",
-                    totalAmount = price,
-                    paidAmount = if (payLater) 0.0 else price,
-                    dueAmount = if (payLater) price else 0.0,
+                    description = "Parts: $partName x $quantity (Repair #$repairEntryId)",
+                    totalAmount = totalCost,
+                    paidAmount = if (payLater) 0.0 else totalCost,
+                    dueAmount = if (payLater) totalCost else 0.0,
                     status = if (payLater) "UNPAID" else "PAID",
                     linkedPartId = partId
                 )
@@ -77,9 +80,9 @@ class SparePartsViewModel : ViewModel() {
                         personType = "SUPPLIER",
                         personMobile = supplierId,
                         personName = supplierName,
-                        amount = price,
-                        paymentMode = "CASH", // Default to cash for quick purchase
-                        note = "Immediate payment for $partName"
+                        amount = totalCost,
+                        paymentMode = "CASH",
+                        note = "Immediate payment for $partName x $quantity"
                     )
                     database.paymentTransactionDao().insert(transaction)
                 }

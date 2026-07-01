@@ -148,6 +148,12 @@
             app:argType="string" />
     </fragment>
 
+    <fragment
+        android:id="@+id/customerAddFragment"
+        android:name="com.app.muzzutech.ui.master.customers.CustomerAddFragment"
+        android:label="Customer Profile"
+        tools:layout="@layout/fragment_customer_add" />
+
     <!-- Entry Detail / Workflow -->
     <fragment
         android:id="@+id/entryDetailFragment"

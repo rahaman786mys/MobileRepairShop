@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.app.muzzutech.databinding.ActivityMainBinding
 import com.app.muzzutech.utils.UpdateManager
 
@@ -27,6 +26,9 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
+        // Set up bottom navigation
+        binding.bottomNavigation.setupWithNavController(navController)
+
         // Check login state
         val prefs = getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
         val isLoggedIn = prefs.getBoolean("is_logged_in", false)
@@ -38,10 +40,6 @@ class MainActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
-
-        // Set up bottom navigation
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.setupWithNavController(navController)
 
         // Update toolbar title and visibility of bottom nav based on current destination
         navController.addOnDestinationChangedListener { _, destination, _ ->

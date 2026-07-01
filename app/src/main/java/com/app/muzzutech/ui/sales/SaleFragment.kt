@@ -41,10 +41,8 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadSuppliers()
-    }
+    // Removed onResume() override that was triggering loadSuppliers() repeatedly
+    // The coroutine inside loadSuppliers() (using repeatOnLifecycle) handles lifecycles correctly.
 
     private fun loadSuppliers() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -84,14 +82,45 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
         val supplier = suppliersList[selectedPos - 1]
 
         viewLifecycleOwner.lifecycleScope.launch {
+            val db = MobileRepairApp.instance.database
+            
+            // 1. Record the Sale
             val sale = Sale(
                 itemName = itemName,
                 supplierId = supplier.mobile,
+                supplierName = supplier.name,
                 purchasePrice = purchasePrice,
-                salePrice = salePrice
+                salePrice = salePrice,
+                customerPaid = salePrice, // Assuming full payment for Direct Sale for now
+                customerDue = 0.0
             )
-            MobileRepairApp.instance.database.saleDao().insert(sale)
-            Toast.makeText(requireContext(), "Sale Recorded!", Toast.LENGTH_SHORT).show()
+            db.saleDao().insert(sale)
+            
+            // 2. Record the Cash Inflow (Revenue)
+            val transactionIn = com.app.muzzutech.data.model.PaymentTransaction(
+                personType = "CUSTOMER",
+                personMobile = "DIRECT_SALE", // Special tag for direct sales
+                personName = "Cash Customer",
+                amount = salePrice,
+                paymentMode = "CASH",
+                note = "Direct Sale: $itemName"
+            )
+            db.paymentTransactionDao().insert(transactionIn)
+            
+            // 3. Record the Cash Outflow (Supplier Payment)
+            if (purchasePrice > 0) {
+                val transactionOut = com.app.muzzutech.data.model.PaymentTransaction(
+                    personType = "SUPPLIER",
+                    personMobile = supplier.mobile,
+                    personName = supplier.name,
+                    amount = purchasePrice,
+                    paymentMode = "CASH",
+                    note = "Purchase for Direct Sale: $itemName"
+                )
+                db.paymentTransactionDao().insert(transactionOut)
+            }
+
+            Toast.makeText(requireContext(), R.string.sale_recorded, Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
         }
     }

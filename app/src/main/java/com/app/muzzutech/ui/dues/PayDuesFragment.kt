@@ -62,9 +62,9 @@ class PayDuesFragment : Fragment(R.layout.fragment_pay_dues) {
             payment?.let { p ->
                 binding.tvPersonName.text = p.personName.ifEmpty { p.personMobile }
                 binding.tvPersonMobile.text = p.personMobile
-                binding.tvTotalAmount.text = "₹ ${String.format("%.0f", p.totalAmount)}"
-                binding.tvPaidAmount.text = "₹ ${String.format("%.0f", p.paidAmount)}"
-                binding.tvDueAmount.text = "₹ ${String.format("%.0f", p.dueAmount)}"
+                binding.tvTotalAmount.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p.totalAmount)
+                binding.tvPaidAmount.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p.paidAmount)
+                binding.tvDueAmount.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p.dueAmount)
                 binding.tvDescription.text = p.description
                 binding.etAmount.setText(p.dueAmount.toInt().toString())
             }
@@ -115,7 +115,7 @@ class PayDuesFragment : Fragment(R.layout.fragment_pay_dues) {
                     if (transactions.isNotEmpty()) {
                         binding.layoutHistory.visibility = View.VISIBLE
                         binding.tvHistory.text = transactions.joinToString("\n") { t ->
-                            "₹${String.format("%.0f", t.amount)} - ${t.paymentMode} - ${com.app.muzzutech.utils.DateUtils.formatDateTime(t.transactionDate)}"
+                            "${com.app.muzzutech.utils.PriceUtils.formatPrice(t.amount)} - ${t.paymentMode} - ${com.app.muzzutech.utils.DateUtils.formatDateTime(t.transactionDate)}"
                         }
                     }
                 }
