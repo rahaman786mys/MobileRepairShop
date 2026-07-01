@@ -6,18 +6,22 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CustomerDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(customer: Customer)
 
-    @Update
-    suspend fun update(customer: Customer)
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	suspend fun insert(customer: Customer)
 
-    @Query("SELECT * FROM customers WHERE mobileNumber = :mobile")
-    suspend fun getCustomerByMobile(mobile: String): Customer?
+	@Query("DELETE FROM customers WHERE mobileNumber = :mobile")
+	suspend fun deleteByMobile(mobile: String)
 
-    @Query("SELECT * FROM customers WHERE mobileNumber = :mobile")
-    fun getCustomerByMobileFlow(mobile: String): Flow<Customer?>
+	@Update
+	suspend fun update(customer: Customer)
 
-    @Query("SELECT * FROM customers ORDER BY createdAt DESC")
-    fun getAllCustomers(): Flow<List<Customer>>
+	@Query("SELECT * FROM customers WHERE mobileNumber = :mobile")
+	suspend fun getCustomerByMobile(mobile: String): Customer?
+
+	@Query("SELECT * FROM customers WHERE mobileNumber = :mobile")
+	fun getCustomerByMobileFlow(mobile: String): Flow<Customer?>
+
+	@Query("SELECT * FROM customers ORDER BY createdAt DESC")
+	fun getAllCustomers(): Flow<List<Customer>>
 }
