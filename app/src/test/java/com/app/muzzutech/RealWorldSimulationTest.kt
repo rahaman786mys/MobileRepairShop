@@ -330,7 +330,7 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                     serviceManId = smId, serviceManName = sm.name,
                     isDraft = false, workStatus = status,                     finalAmount = charge, handoverDone = done,
                     entryDate = daysAgo(7 + rng.nextInt(18)),
-                    handoverDate = if (done) daysAgo(rng.nextInt(5)) else 0L,
+                    handoverDate = if (done) daysAgo(rng.nextInt(5), 0) else 0L,
                     quotationDone = true, sparePartDone = true, workDone = done))
                 state.repairEntryIds.add(entryId)
 
