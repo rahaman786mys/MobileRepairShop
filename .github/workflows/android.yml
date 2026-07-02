@@ -22,10 +22,9 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Run Unit Tests
       run: ./gradlew test --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
@@ -46,32 +45,26 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
 
-    - name: Inject Debug Keystore
-      run: |
-        echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > app/debug.keystore
-        keytool -list -keystore app/debug.keystore -storepass android -alias androiddebugkey -keypass android -v | grep SHA1
-
-    - name: Build Release APK
-      run: ./gradlew assembleRelease --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx2g -XX:MaxMetaspaceSize=512m"
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx2g -XX:MaxMetaspaceSize=512m"
       shell: bash
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: app-MuZZu-release
-        path: app/build/outputs/apk/release/*.apk
+        name: app-debug
+        path: app/build/outputs/apk/debug/*.apk
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v1.5.6-build-${{ github.run_number }}
-        name: "MuZZu Tech Professional v1.5.6 (Build ${{ github.run_number }})"
-        files: app/build/outputs/apk/release/*.apk
+        name: "MuZZu Tech v1.5.6 (Build ${{ github.run_number }})"
+        files: app/build/outputs/apk/debug/*.apk
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
