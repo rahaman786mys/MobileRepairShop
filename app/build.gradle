@@ -48,6 +48,9 @@ android {
     testOptions {
         unitTests {
             includeAndroidResources = true
+            all {
+                maxHeapSize = "2g"
+            }
         }
     }
 
@@ -73,7 +76,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.7.7'
     implementation 'androidx.navigation:navigation-ui-ktx:2.7.7'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.1'
-    implementation 'androidx.biometric:biometric:1.2.0-alpha05'
+    implementation 'androidx.biometric:biometric:1.1.0'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     ksp 'com.github.bumptech.glide:compiler:4.16.0'
 
