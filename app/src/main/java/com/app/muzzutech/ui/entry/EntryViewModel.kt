@@ -25,8 +25,16 @@ class EntryViewModel : ViewModel() {
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving
 
+    // Track draft entry IDs by mobile to prevent duplicates from autoSaveDraft
+    private val draftEntryIds = mutableMapOf<String, Long>()
+
     fun resetSaveState() {
         _saveSuccess.value = null
+    }
+
+    /** Call when leaving the entry screen completely to clear draft tracking */
+    fun clearDraftTracking() {
+        draftEntryIds.clear()
     }
 
     init {
@@ -59,12 +67,37 @@ class EntryViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             _isSaving.value = true
-            
+
             // Save/Update contact info
             if (isDealer) {
                 dealerDao.insert(Dealer(mobile, name, city))
             } else {
                 customerDao.insert(Customer(mobile, name, city))
+            }
+
+            // If we already have a draft for this mobile, update it instead of creating duplicate
+            val existingDraftId = if (isDraft) draftEntryIds[mobile] else null
+
+            if (existingDraftId != null) {
+                val existing = repository.getEntryById(existingDraftId)
+                if (existing != null) {
+                    repository.update(existing.copy(
+                        entryPhotoPath = photoPath.ifEmpty { existing.entryPhotoPath },
+                        entryPhotoPath2 = photoPath2.ifEmpty { existing.entryPhotoPath2 },
+                        customerName = if (!isDealer) name else existing.customerName,
+                        customerMobile = if (!isDealer) mobile else existing.customerMobile,
+                        customerCity = city,
+                        dealerName = if (isDealer) name else existing.dealerName,
+                        dealerMobile = if (isDealer) mobile else existing.dealerMobile,
+                        serviceManId = serviceManId,
+                        deviceBrand = brand.ifEmpty { existing.deviceBrand },
+                        deviceModel = model.ifEmpty { existing.deviceModel },
+                        faultDescription = extraItems,
+                        isDraft = true
+                    ))
+                    _isSaving.value = false
+                    return@launch
+                }
             }
 
             val entry = RepairEntry(
@@ -83,9 +116,11 @@ class EntryViewModel : ViewModel() {
                 isDraft = isDraft
             )
             val id = repository.insert(entry)
-            
-            // Only trigger navigation if NOT a draft
-            if (!isDraft) {
+
+            if (isDraft) {
+                draftEntryIds[mobile] = id
+            } else {
+                draftEntryIds.remove(mobile)
                 _saveSuccess.value = id
             }
             _isSaving.value = false

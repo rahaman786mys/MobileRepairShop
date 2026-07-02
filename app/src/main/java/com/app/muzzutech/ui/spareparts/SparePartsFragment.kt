@@ -126,7 +126,22 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
             return
         }
 
+        if (photoFile == null) {
+            Snackbar.make(binding.root, "Please upload a photo of the part", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
         val price = priceText.toDoubleOrNull() ?: 0.0
+        if (price <= 0.0) {
+            Snackbar.make(binding.root, "Please enter a valid purchase price", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
+        if (quantity <= 0) {
+            Snackbar.make(binding.root, "Please enter quantity (minimum 1)", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
         val selectedPos = binding.spinnerSupplier.selectedItemPosition
 
         if (selectedPos == 0) {

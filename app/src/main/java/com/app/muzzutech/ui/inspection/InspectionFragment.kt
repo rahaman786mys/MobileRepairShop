@@ -59,6 +59,18 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
         super.onViewCreated(view, savedInstanceState)
         entryId = arguments?.getLong("entryId", 0) ?: 0
 
+        // Load existing entry to show previously taken inspection photo
+        viewLifecycleOwner.lifecycleScope.launch {
+            MobileRepairApp.instance.repairRepository.getEntryByIdFlow(entryId).collectLatest { entry ->
+                if (entry != null && entry.inspectionPhotoPath.isNotEmpty()) {
+                    photoFile = File(entry.inspectionPhotoPath)
+                    binding.ivInspectionPhoto.setPadding(0, 0, 0, 0)
+                    Glide.with(this@InspectionFragment).load(photoFile)
+                        .centerCrop().into(binding.ivInspectionPhoto)
+                }
+            }
+        }
+
         setupRecyclerView()
         setupClickListeners()
         observeViewModel()
