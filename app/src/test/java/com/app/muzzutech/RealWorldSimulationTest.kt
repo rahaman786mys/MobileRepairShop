@@ -475,13 +475,13 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                 supplierId = mobile, supplierName = sup.name,
                 partName = cp.name, returnReason = "Defective batch",
                 refundAmount = refundAmount)))
-            paymentTxnDao.insert(PaymentTransaction(
-                paymentId = 0L, personType = "SUPPLIER_CREDIT", personMobile = mobile, personName = sup.name,
-                amount = -refundAmount, paymentMode = "ADJUSTMENT",
-                transactionDate = daysAgo(5, 10)))
-            // update unpaid supplier payment to reflect credit
             val unpaid = paymentDao.getAllPayments().first()
                 .firstOrNull { it.personMobile == mobile && it.personType == "SUPPLIER" && it.status == "UNPAID" }
+            val creditPaymentId = unpaid?.id ?: 0L
+            paymentTxnDao.insert(PaymentTransaction(
+                paymentId = creditPaymentId, personType = "SUPPLIER_CREDIT", personMobile = mobile, personName = sup.name,
+                amount = -refundAmount, paymentMode = "ADJUSTMENT",
+                transactionDate = daysAgo(5, 10)))
             if (unpaid != null) {
                 paymentDao.update(unpaid.copy(
                     dueAmount = kotlin.math.max(0.0, unpaid.dueAmount - refundAmount)
@@ -526,7 +526,7 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
             val txns = paymentTxnDao.getTransactionsByPayment(p.id).first()
             val paid = txns.filter { it.amount > 0 }.sumOf { it.amount }
             val cred = txns.filter { it.amount < 0 }.sumOf { kotlin.math.abs(it.amount) }
-            val due = kotlin.math.max(0.0, p.totalAmount - paid + cred)
+            val due = kotlin.math.max(0.0, p.totalAmount - paid - cred)
             dueCalc += due
             if (kotlin.math.abs(due - p.dueAmount) > 0.01)
                 mismatches.add(MismatchRecord("Supplier-Due", "Payment #${p.id}: calc=$due stored=${p.dueAmount}", due, p.dueAmount))
