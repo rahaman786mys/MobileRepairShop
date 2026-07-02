@@ -276,7 +276,8 @@ class RealWorldSimulationTest {
                     paymentTxnDao.insert(PaymentTransaction(
                         paymentId = payId, personType = "SUPPLIER", personMobile = mobile,
                         personName = sup.name, amount = amt,
-                        paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE"))
+paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
+			transactionDate = daysAgo(25 + rng.nextInt(5), 11)))
                 }
             }
         }
@@ -392,11 +393,13 @@ class RealWorldSimulationTest {
             val paid = kotlin.math.round(sPrice * (if (rng.nextDouble() < 0.75) 1.0 else rng.nextDouble() * 0.5) * 100.0) / 100.0
             val sup = TestFixtures.SUPPLIER_DATA.random()
 
+            val saleDate = daysAgo(18 - (it % 18), 12 + rng.nextInt(6))
             saleDao.insert(Sale(
                 itemName = "${part.name} x$qty", supplierId = sup.mobile, supplierName = sup.company,
                 purchasePrice = part.costPrice * qty, salePrice = sPrice,
                 paidToSupplier = kotlin.math.round(part.costPrice * qty * paid / sPrice * 100.0) / 100.0,
-                customerPaid = paid))
+customerPaid = paid,
+		saleDate = saleDate))
             state.directSaleCount++
         }
         println("  ${state.directSaleCount} direct sales recorded")
@@ -467,13 +470,23 @@ class RealWorldSimulationTest {
             val pp = sparePartDao.getPurchasesBySupplier(mobile).first().random()
             val cp = TestFixtures.PARTS_CATALOG.find { it.name == pp.partName } ?: TestFixtures.PARTS_CATALOG.random()
             val qty = 1 + rng.nextInt(3)
+            val refundAmount = kotlin.math.round(cp.costPrice * qty * 100.0) / 100.0
             state.supplierReturnIds.add(partReturnDao.insert(PartReturn(
                 supplierId = mobile, supplierName = sup.name,
-                partName = "${cp.name} (defective)", returnReason = "Defective batch",
-                refundAmount = kotlin.math.round(cp.costPrice * qty * 100.0) / 100.0)))
+                partName = cp.name, returnReason = "Defective batch",
+                refundAmount = refundAmount)))
             paymentTxnDao.insert(PaymentTransaction(
                 paymentId = 0L, personType = "SUPPLIER_CREDIT", personMobile = mobile, personName = sup.name,
-                amount = -kotlin.math.round(cp.costPrice * qty * 100.0) / 100.0, paymentMode = "ADJUSTMENT"))
+                amount = -refundAmount, paymentMode = "ADJUSTMENT",
+                transactionDate = daysAgo(5, 10)))
+            // update unpaid supplier payment to reflect credit
+            val unpaid = paymentDao.getAllPayments().first()
+                .firstOrNull { it.personMobile == mobile && it.personType == "SUPPLIER" && it.status == "UNPAID" }
+            if (unpaid != null) {
+                paymentDao.update(unpaid.copy(
+                    dueAmount = kotlin.math.max(0.0, unpaid.dueAmount - refundAmount)
+                ))
+            }
         }
         println("  ${state.supplierReturnIds.size} supplier returns")
     }
