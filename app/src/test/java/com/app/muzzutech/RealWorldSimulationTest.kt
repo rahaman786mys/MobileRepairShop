@@ -116,6 +116,7 @@ class RealWorldSimulationTest {
         val partPurchaseIds: MutableList<Long> = mutableListOf(),
         val supplierPaymentIds: MutableList<Long> = mutableListOf(),
         val customerMobiles: MutableList<String> = mutableListOf(),
+        val dealerMobiles: MutableList<String> = mutableListOf(),
         val repairEntryIds: MutableList<Long> = mutableListOf(),
         val cancelledRepairIds: MutableList<Long> = mutableListOf(),
         val partReturnIds: MutableList<Long> = mutableListOf(),
@@ -175,6 +176,7 @@ class RealWorldSimulationTest {
         state.partPurchaseIds.clear()
         state.supplierPaymentIds.clear()
         state.customerMobiles.clear()
+        state.dealerMobiles.clear()
         state.repairEntryIds.clear()
         state.cancelledRepairIds.clear()
         state.partReturnIds.clear()
@@ -220,6 +222,18 @@ class RealWorldSimulationTest {
         assertEquals(5, allSM.size)
         assertTrue("All service men active", allSM.all { it.isActive })
         println("  5 service men registered")
+
+        val faultDefs = listOf(
+            "Screen broken" to "Display", "Battery drain" to "Battery",
+            "Charging failure" to "Charging", "Camera malfunction" to "Camera",
+            "Water damage" to "Body", "No power" to "Motherboard"
+        )
+        faultDefs.forEach { (name, cat) ->
+            commonFaultDao.insert(CommonFault(faultName = name, category = cat, sortOrder = faultDefs.indexOf(name to cat)))
+        }
+        val faultCount = commonFaultDao.getAllFaults().first().size
+        assertEquals(6, faultCount)
+        println("  ${faultCount} common faults configured")
     }
 
     // SCENARIO 2: 10 Suppliers + Inventory (60-120 orders, mixed paid/unpaid)
@@ -302,9 +316,16 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
             val sup = supplierDao.getSupplierByMobile(mobile)!!
             repeat(8) {
                 idx++
-                val mob = TestFixtures.randomMobile(idx)
-                customerDao.insert(Customer(mobileNumber = mob, name = TestFixtures.randomPersonName(), city = sup.city))
-                state.customerMobiles.add(mob)
+                val isDealer = idx <= 8
+                val mob = TestFixtures.randomMobile(if (isDealer) 2000 + idx else idx)
+
+                if (isDealer) {
+                    dealerDao.insert(Dealer(mobileNumber = mob, name = TestFixtures.randomPersonName(), city = sup.city))
+                    state.dealerMobiles.add(mob)
+                } else {
+                    customerDao.insert(Customer(mobileNumber = mob, name = TestFixtures.randomPersonName(), city = sup.city))
+                    state.customerMobiles.add(mob)
+                }
 
                 val smId = state.serviceManIds.random()
                 val sm = serviceManDao.getServiceManById(smId)!!
@@ -321,8 +342,13 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                 val done = !cancelled && rng.nextDouble() < 0.88
 
                 val status = when { cancelled -> "Cancelled"; done -> "Done"; else -> "In Progress" }
+                val pType = if (isDealer) "DEALER" else "CUSTOMER"
                 val entryId = repairDao.insert(RepairEntry(
-                    customerMobile = mob, customerName = TestFixtures.randomPersonName(), customerCity = sup.city,
+                    customerMobile = if (isDealer) "" else mob,
+                    customerName = if (isDealer) "" else TestFixtures.randomPersonName(),
+                    dealerMobile = if (isDealer) mob else "",
+                    dealerName = if (isDealer) TestFixtures.randomPersonName() else "",
+                    customerCity = if (isDealer) "" else sup.city,
                     deviceBrand = TestFixtures.randomBrand(), deviceModel = TestFixtures.randomPhoneModel(),
                     faultDetected = listOf("Screen broken","Battery drain","Charging failure","Camera malfunction","Button stuck","Water damage","No power","Slow performance").random(),
                     sparePartName = parts.joinToString(", ") { it.name },
@@ -338,12 +364,13 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                 val payStatus = when { cancelled -> "CANCELLED"; balance <= 0.01 -> "PAID"; advance > 0 -> "PARTIAL"; else -> "UNPAID" }
                 if (!cancelled || advance > 0 || rng.nextDouble() < 0.3) {
                     val payId = paymentDao.insert(Payment(
-                        personType = "CUSTOMER", personMobile = mob, personName = "Customer",
+                        personType = pType, personMobile = mob, personName = if (isDealer) "Dealer" else "Customer",
                         description = "Repair: $status", totalAmount = charge,
-                        paidAmount = advance, dueAmount = kotlin.math.max(0.0, balance), status = payStatus))
+                        paidAmount = advance, dueAmount = kotlin.math.max(0.0, balance), status = payStatus,
+                        linkedEntryId = entryId))
                     if (advance > 0.01) {
-                        paymentTxnDao.insert(PaymentTransaction(paymentId = payId, personType = "CUSTOMER",
-                            personMobile = mob, personName = "Customer", amount = advance,
+                        paymentTxnDao.insert(PaymentTransaction(paymentId = payId, personType = pType,
+                            personMobile = mob, personName = if (isDealer) "Dealer" else "Customer", amount = advance,
                             paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE"))
                     }
                 }
@@ -358,7 +385,40 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                 if (cancelled) state.cancelledRepairIds.add(entryId)
             }
         }
-        println("  ${state.customerMobiles.size} customers, ${state.repairEntryIds.size} repairs, ${state.cancelledRepairIds.size} cancelled")
+        // Handover simulation: pick 2 pending repairs and complete handover
+        val pendingHandover = repairDao.getPendingEntries().first().take(2)
+        pendingHandover.forEach { entry ->
+            val personMobile = entry.customerMobile.ifEmpty { entry.dealerMobile }
+            val personName = entry.customerName.ifEmpty { entry.dealerName }
+            val personType = if (entry.customerMobile.isNotEmpty()) "CUSTOMER" else "DEALER"
+            val handoverAmount = entry.chargeAmount - entry.advanceAmount
+            repairDao.update(entry.copy(
+                finalAmount = entry.chargeAmount, paymentMode = "CASH",
+                cashAmount = handoverAmount, onlineAmount = 0.0,
+                handoverDate = daysAgo(1, 0), handoverDone = true,
+                workStatus = "Done", workDone = true,
+                completionDate = System.currentTimeMillis()))
+            val existingPay = paymentDao.getAllPayments().first().firstOrNull { it.linkedEntryId == entry.id }
+            if (existingPay != null) {
+                paymentDao.update(existingPay.copy(
+                    paidAmount = existingPay.paidAmount + handoverAmount,
+                    dueAmount = 0.0, status = "PAID"))
+                paymentTxnDao.insert(PaymentTransaction(
+                    paymentId = existingPay.id, personType = personType,
+                    personMobile = personMobile, personName = personName,
+                    amount = handoverAmount, paymentMode = "CASH"))
+            } else {
+                val payId = paymentDao.insert(Payment(
+                    personType = personType, personMobile = personMobile, personName = personName,
+                    description = "Handover - ${entry.deviceBrand} ${entry.deviceModel}",
+                    totalAmount = entry.chargeAmount, paidAmount = handoverAmount,
+                    dueAmount = 0.0, status = "PAID", linkedEntryId = entry.id))
+                paymentTxnDao.insert(PaymentTransaction(
+                    paymentId = payId, personType = personType, personMobile = personMobile,
+                    personName = personName, amount = handoverAmount, paymentMode = "CASH"))
+            }
+        }
+        println("  ${state.customerMobiles.size} customers, ${state.dealerMobiles.size} dealers, ${state.repairEntryIds.size} repairs, ${state.cancelledRepairIds.size} cancelled")
     }
 
     // SCENARIO 4: 30 Direct Walk-in Sales
@@ -434,15 +494,19 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
         val completed = repairDao.getCompletedEntries().first().toMutableList()
         repeat(minOf(5, completed.size)) {
             val entry = completed[it]
+            val isDealer = entry.customerMobile.isEmpty()
+            val personMobile = entry.customerMobile.ifEmpty { entry.dealerMobile }
+            val personName = entry.customerName.ifEmpty { entry.dealerName }
             val refund = kotlin.math.round(entry.chargeAmount * (0.5 + rng.nextDouble() * 0.5) * 100.0) / 100.0
             val payId = paymentDao.insert(Payment(
-                personType = "CUSTOMER_REFUND", personMobile = entry.customerMobile, personName = entry.customerName,
+                personType = if (isDealer) "DEALER_REFUND" else "CUSTOMER_REFUND",
+                personMobile = personMobile, personName = personName,
                 description = "Refund - repair #${entry.id}", totalAmount = refund,
                 paidAmount = refund, dueAmount = 0.0, status = "REFUNDED", linkedEntryId = entry.id))
             state.refundPaymentIds.add(payId)
             paymentTxnDao.insert(PaymentTransaction(
-                paymentId = payId, personType = "CUSTOMER_REFUND", personMobile = entry.customerMobile,
-                personName = entry.customerName, amount = -refund, paymentMode = "CASH"))
+                paymentId = payId, personType = if (isDealer) "DEALER_REFUND" else "CUSTOMER_REFUND",
+                personMobile = personMobile, personName = personName, amount = -refund, paymentMode = "CASH"))
         }
         println("  ${state.refundPaymentIds.size} customer refunds")
 
@@ -525,16 +589,27 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                 mismatches.add(MismatchRecord("Cust-Payment", "Payment #${p.id}", paid, p.paidAmount))
         }
 
+        // 7e: Dealer Payments
+        val dealerPays = paymentDao.getAllPayments().first().filter { it.personType == "DEALER" && it.status != "CANCELLED" }
+        var dealerPaidCalc = 0.0
+        dealerPays.forEach { p ->
+            val paid = paymentTxnDao.getTransactionsByPayment(p.id).first().filter { it.amount > 0 }.sumOf { it.amount }
+            dealerPaidCalc += paid
+            if (kotlin.math.abs(paid - p.paidAmount) > 0.01)
+                mismatches.add(MismatchRecord("Dealer-Payment", "Payment #${p.id}", paid, p.paidAmount))
+        }
+
         val totalRevenue = revCalc + saleDao.getAllSales().first().sumOf { it.customerPaid }
         val totalCogs = supPays.sumOf { it.totalAmount }
         println("  Revenue=Rs.${totalRevenue.toInt()}  COGS=Rs.${totalCogs.toInt()}  Profit=Rs.${(totalRevenue - totalCogs).toInt()}")
-        println("  SupplierDue(calc)=Rs.${dueCalc.toInt()}  CustPaid(calc)=Rs.${custPaidCalc.toInt()}")
+        println("  SupplierDue(calc)=Rs.${dueCalc.toInt()}  CustPaid(calc)=Rs.${custPaidCalc.toInt()}  DealerPaid(calc)=Rs.${dealerPaidCalc.toInt()}")
 
         val report = ReconciliationReport(listOf(
             ScenarioResult("Inventory", mismatches.none { it.category == "Inventory" }, mismatches.filter { it.category == "Inventory" }),
             ScenarioResult("Revenue", mismatches.none { it.category.startsWith("Revenue") }, mismatches.filter { it.category.startsWith("Revenue") }),
             ScenarioResult("Supplier-Due", mismatches.none { it.category.startsWith("Supplier-Due") }, mismatches.filter { it.category.startsWith("Supplier-Due") }),
-            ScenarioResult("Cust-Payments", mismatches.none { it.category.startsWith("Cust") }, mismatches.filter { it.category.startsWith("Cust") })
+            ScenarioResult("Cust-Payments", mismatches.none { it.category.startsWith("Cust") }, mismatches.filter { it.category.startsWith("Cust") }),
+            ScenarioResult("Dealer-Payments", mismatches.none { it.category.startsWith("Dealer") }, mismatches.filter { it.category.startsWith("Dealer") })
         ), mismatches.size, mismatches.isEmpty())
         report.printSummary()
         mismatches.forEach { println("MISMATCH [${it.category}]: expected=${it.expected}, actual=${it.actual} - ${it.description}") }
@@ -555,7 +630,7 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
         scenario07_reconciliation()
         println("\nSIMULATION COMPLETE")
         println("  ServiceMen: ${state.serviceManIds.size}  Suppliers: ${state.supplierMobiles.size}")
-        println("  PartPurchases: ${state.partPurchaseIds.size}  Customers: ${state.customerMobiles.size}")
+        println("  PartPurchases: ${state.partPurchaseIds.size}  Customers: ${state.customerMobiles.size}  Dealers: ${state.dealerMobiles.size}")
         println("  Repairs: ${state.repairEntryIds.size}  Cancelled: ${state.cancelledRepairIds.size}")
         println("  PartReturns: ${state.partReturnIds.size}  DirectSales: ${state.directSaleCount}")
         println("  Refunds: ${state.refundPaymentIds.size}  SupplierReturns: ${state.supplierReturnIds.size}")
