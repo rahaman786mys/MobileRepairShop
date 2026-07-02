@@ -95,7 +95,7 @@ class BusinessLogicIntegrationTest {
         val purchaseId = sparePartPurchaseDao.insert(partPurchase)
 
         // Verify initial quantity = 10
-        val initialPurchases = sparePartPurchaseDao.getAllPurchases().toList().first()
+        val initialPurchases = sparePartPurchaseDao.getAllPurchases().first()
         val initialQty = initialPurchases.first { it.id == purchaseId }.quantity
         assertEquals("Initial quantity should be 10", 10, initialQty)
 
@@ -112,7 +112,7 @@ class BusinessLogicIntegrationTest {
         repairEntryDao.update(completedEntry)
 
         // Assert: quantity is now 9
-        val finalPurchases = sparePartPurchaseDao.getAllPurchases().toList().first()
+        val finalPurchases = sparePartPurchaseDao.getAllPurchases().first()
         val finalQty = finalPurchases.first { it.id == purchaseId }.quantity
         assertEquals("Quantity should decrease from 10 to 9 after handover", 9, finalQty)
     }
@@ -145,7 +145,7 @@ class BusinessLogicIntegrationTest {
         var fetched = customerDao.getCustomerByMobile(customer.mobileNumber)
         assertEquals("Customer should exist", "John Doe", fetched?.name)
 
-        var payments = paymentDao.getAllPayments().toList().first()
+        var payments = paymentDao.getAllPayments().first()
         assertTrue(
             "Payment should exist",
             payments.any { it.personMobile == customer.mobileNumber }
@@ -178,7 +178,7 @@ class BusinessLogicIntegrationTest {
         )
         sparePartPurchaseDao.insert(partPurchase)
 
-        var purchases = sparePartPurchaseDao.getAllPurchases().toList().first()
+        var purchases = sparePartPurchaseDao.getAllPurchases().first()
         assertTrue("Purchase should exist", purchases.any { it.supplierId == supplier.mobile })
 
         // Delete supplier - should not crash
@@ -199,7 +199,7 @@ class BusinessLogicIntegrationTest {
         )
         saleDao.insert(sale)
 
-        val allSales = saleDao.getAllSales().toList().first()
+        val allSales = saleDao.getAllSales().first()
         assertTrue("Sale should exist", allSales.any { it.itemName == "Screen" })
     }
 
