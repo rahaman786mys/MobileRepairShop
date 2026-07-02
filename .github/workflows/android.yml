@@ -26,6 +26,9 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
     - name: Run Unit Tests
       run: ./gradlew test --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
       shell: bash
@@ -48,6 +51,9 @@ jobs:
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
     - name: Build Debug APK
       run: ./gradlew assembleDebug --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx2g -XX:MaxMetaspaceSize=512m"
