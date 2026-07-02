@@ -92,6 +92,28 @@
                     android:text="@string/take_photo"
                     android:textAllCaps="false" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAiAnalyse"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="AI Analyse Photo"
+                    android:textAllCaps="false"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvAiSuggestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"
+                    android:padding="12dp"
+                    android:background="@drawable/bg_rounded_card"
+                    android:textColor="@color/muzzu_text_main"
+                    android:textSize="13sp"
+                    android:lineSpacingExtra="4dp" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

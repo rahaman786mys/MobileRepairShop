@@ -16,16 +16,21 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.adapter.CommonFaultAdapter
 import com.app.muzzutech.databinding.FragmentInspectionBinding
+import com.app.muzzutech.utils.AIAnalyzer
+import com.app.muzzutech.utils.NotificationUtils
 import com.app.muzzutech.utils.PhotoUtils
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class InspectionFragment : Fragment(R.layout.fragment_inspection) {
@@ -43,6 +48,7 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
         if (success && photoUri != null && isAdded) {
             binding.ivInspectionPhoto.setPadding(0, 0, 0, 0)
             Glide.with(this).load(photoUri).centerCrop().into(binding.ivInspectionPhoto)
+            binding.btnAiAnalyse.visibility = View.VISIBLE
         }
     }
 
@@ -67,6 +73,7 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
                     binding.ivInspectionPhoto.setPadding(0, 0, 0, 0)
                     Glide.with(this@InspectionFragment).load(photoFile)
                         .centerCrop().into(binding.ivInspectionPhoto)
+                    binding.btnAiAnalyse.visibility = View.VISIBLE
                 }
             }
         }
@@ -96,8 +103,35 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }
+        binding.btnAiAnalyse.setOnClickListener { runAiAnalysis() }
         binding.btnSaveInspection.setOnClickListener {
             saveInspection()
+        }
+    }
+
+    private fun runAiAnalysis() {
+        val file = photoFile ?: return
+        val faults = viewModel.commonFaults.value
+        binding.btnAiAnalyse.text = "Analysing..."
+        binding.btnAiAnalyse.isEnabled = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            val bitmap = withContext(Dispatchers.IO) {
+                BitmapFactory.decodeFile(file.absolutePath)
+            }
+            val suggestions = AIAnalyzer.suggestFaultsFromPhoto(bitmap, faults)
+            val text = if (suggestions.isEmpty()) {
+                "No suggestions available. Try a clearer photo."
+            } else {
+                buildString {
+                    append("AI Suggestions:\n")
+                    suggestions.forEachIndexed { idx, s -> append("${idx + 1}. $s\n") }
+                    append("\nTap a common fault above or type below.")
+                }
+            }
+            binding.tvAiSuggestions.text = text
+            binding.tvAiSuggestions.visibility = View.VISIBLE
+            binding.btnAiAnalyse.text = "AI Analyse Photo"
+            binding.btnAiAnalyse.isEnabled = true
         }
     }
 
@@ -130,6 +164,13 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
                     inspectionDone = true
                 )
                 MobileRepairApp.instance.repairRepository.update(updated)
+
+                if (updated.customerMobile.isNotEmpty()) {
+                    try {
+                        NotificationUtils.sendRepairStartedWhatsApp(requireContext(), updated)
+                    } catch (_: Exception) {
+                    }
+                }
 
                 val bundle = Bundle().apply { putLong("entryId", entryId) }
                 findNavController().navigate(R.id.quotationFragment, bundle)

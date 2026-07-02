@@ -150,6 +150,26 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.businessHealth.collectLatest { health ->
+                    _binding?.let { b ->
+                        if (health == null) {
+                            b.cardAiAdvisor.isVisible = false
+                        } else {
+                            b.cardAiAdvisor.isVisible = true
+                            b.tvAiMoveTitle.text = health.smartMove
+                            b.tvAiHealthScore.text = "Score: ${health.healthScore}/100"
+                            b.tvAiRecommendation.text = health.recommendation
+                            b.tvAiRevenue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(health.dailyRevenue)
+                            b.tvAiExpense.text = com.app.muzzutech.utils.PriceUtils.formatPrice(health.dailyExpense)
+                            b.tvAiMargin.text = "${String.format("%.0f", health.profitMargin)}%"
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

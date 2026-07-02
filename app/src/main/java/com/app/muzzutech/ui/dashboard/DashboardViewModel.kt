@@ -3,6 +3,7 @@ package com.app.muzzutech.ui.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.muzzutech.MobileRepairApp
+import com.app.muzzutech.utils.AIAdvisor
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,6 +40,9 @@ class DashboardViewModel : ViewModel() {
 
     private val _totalSupplierDue = MutableStateFlow(0.0)
     val totalSupplierDue: StateFlow<Double> = _totalSupplierDue
+
+    private val _businessHealth = MutableStateFlow<AIAdvisor.BusinessHealth?>(null)
+    val businessHealth: StateFlow<AIAdvisor.BusinessHealth?> = _businessHealth
 
     init {
         loadDashboardData()
@@ -119,6 +123,26 @@ class DashboardViewModel : ViewModel() {
             try {
                 database.paymentDao().getTotalDueByType("SUPPLIER").collectLatest { total ->
                     _totalSupplierDue.value = total
+                }
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+
+        // AI Advisor - Daily Business Health
+        loadBusinessHealth()
+    }
+
+    private fun loadBusinessHealth() {
+        val todayStart = DateUtils.getStartOfDay()
+        val todayEnd = DateUtils.getEndOfDay()
+        viewModelScope.launch {
+            try {
+                combine(
+                    database.repairEntryDao().getEntriesByDateRange(todayStart, todayEnd),
+                    database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd)
+                ) { repairs, parts ->
+                    AIAdvisor.analyzeDailyHealth(repairs, parts)
+                }.collect { health ->
+                    _businessHealth.value = health
                 }
             } catch (e: Exception) { e.printStackTrace() }
         }

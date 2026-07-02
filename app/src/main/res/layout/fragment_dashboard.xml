@@ -289,6 +289,119 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- AI Advisor Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAiAdvisor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="#1A6366F1"
+            app:strokeColor="@color/muzzu_primary"
+            style="@style/Widget.MuZZu.Card">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvAiMoveTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Smart Move"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/muzzu_primary" />
+
+                    <TextView
+                        android:id="@+id/tvAiHealthScore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/muzzu_success" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvAiRecommendation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="13sp"
+                    android:textColor="@color/muzzu_text_main"
+                    android:lineSpacingExtra="3dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Revenue"
+                        android:textSize="11sp"
+                        android:textColor="@color/muzzu_text_sub" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Expense"
+                        android:textSize="11sp"
+                        android:textColor="@color/muzzu_text_sub" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Margin"
+                        android:textSize="11sp"
+                        android:textColor="@color/muzzu_text_sub" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="2dp">
+
+                    <TextView
+                        android:id="@+id/tvAiRevenue"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        android:textColor="@color/muzzu_text_main" />
+                    <TextView
+                        android:id="@+id/tvAiExpense"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        android:textColor="@color/muzzu_error" />
+                    <TextView
+                        android:id="@+id/tvAiMargin"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textStyle="bold"
+                        android:textSize="13sp"
+                        android:textColor="@color/muzzu_primary" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Quick Actions Grid -->
         <TextView
             android:layout_width="wrap_content"
