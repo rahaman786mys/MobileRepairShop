@@ -290,7 +290,10 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
     @Test
     fun scenario03_customerRepairFlow() = runBlocking {
         if (state.supplierMobiles.isEmpty()) scenario02_supplierAndInventory()
-        clearRepairTables()
+        if (state.repairEntryIds.isNotEmpty()) {
+            println("  Already have ${state.repairEntryIds.size} repairs")
+            return@runBlocking
+        }
         println("\nSCENARIO 03: CUSTOMER + REPAIR FLOW")
         val rng = Random(54321)
         var idx = 0
@@ -356,26 +359,6 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
             }
         }
         println("  ${state.customerMobiles.size} customers, ${state.repairEntryIds.size} repairs, ${state.cancelledRepairIds.size} cancelled")
-    }
-
-    private suspend fun clearRepairTables() {
-        paymentTxnDao.getAllTransactions().first().forEach { paymentTxnDao.delete(it) }
-        paymentDao.getAllPayments().first().forEach { paymentDao.delete(it) }
-        partReturnDao.getAllReturns().first().forEach { partReturnDao.delete(it) }
-        // SaleDao no @Delete - cleared by fresh in-memory DB
-        saleDao.getAllSales().first()
-        sparePartDao.getAllPurchases().first().forEach { sparePartDao.delete(it) }
-        repairDao.getAllEntries().first().forEach { repairDao.delete(it) }
-        customerDao.getAllCustomers().first().forEach { customerDao.deleteByMobile(it.mobileNumber) }
-        state.customerMobiles.clear()
-        state.repairEntryIds.clear()
-        state.cancelledRepairIds.clear()
-        state.partReturnIds.clear()
-        state.directSaleIds.clear()
-        state.directSaleCount = 0
-        state.partPurchaseIds.clear()
-        state.supplierMobiles.clear()
-        state.supplierPaymentIds.clear()
     }
 
     // SCENARIO 4: 30 Direct Walk-in Sales
