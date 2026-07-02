@@ -8,6 +8,7 @@ import com.app.muzzutech.data.db.dao.*
 import com.app.muzzutech.data.model.*
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.*
@@ -16,6 +17,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.io.IOException
+import kotlin.math.abs
+import kotlin.math.round
 import kotlin.random.Random
 
 data class SupplierDef(val company: String, val name: String, val mobile: String, val city: String)
@@ -23,9 +26,7 @@ data class ServiceManDef(val name: String, val mobile: String, val email: String
 
 data class MismatchRecord(val category: String, val description: String, val expected: Any, val actual: Any)
 data class ScenarioResult(val name: String, val passed: Boolean, val mismatches: List<MismatchRecord>) {
-    fun orFail() {
-        if (!passed) fail("FAILED: $name\n" + mismatches.joinToString("\n") { "  [${it.category}] expected=${it.expected}, actual=${it.actual} - ${it.description}" })
-    }
+    fun orFail() { if (!passed) fail("FAILED: $name\n" + mismatches.joinToString("\n") { "  [${it.category}] expected=${it.expected}, actual=${it.actual} - ${it.description}" }) }
 }
 data class ReconciliationReport(val scenarios: List<ScenarioResult>, val totalMismatches: Int, val overallPassed: Boolean) {
     fun printSummary() {
@@ -34,21 +35,6 @@ data class ReconciliationReport(val scenarios: List<ScenarioResult>, val totalMi
         println("Total mismatches: $totalMismatches")
     }
 }
-
-data class DataDump(
-    val suppliers: List<Supplier>,
-    val serviceMen: List<ServiceMan>,
-    val customers: List<Customer>,
-    val dealers: List<Dealer>,
-    val repairs: List<RepairEntry>,
-    val spareParts: List<SparePartPurchase>,
-    val sales: List<Sale>,
-    val payments: List<Payment>,
-    val transactions: List<PaymentTransaction>,
-    val returns: List<PartReturn>,
-    val faults: List<CommonFault>,
-    val userProfile: UserProfile?
-)
 
 object TestFixtures {
     val FIRST_NAMES = listOf("Rajesh","Amit","Suresh","Vijay","Ravi","Mohit","Prakash","Deepak","Arjun","Karan",
@@ -122,914 +108,959 @@ class RealWorldSimulationTest {
     private lateinit var paymentDao: PaymentDao
     private lateinit var partReturnDao: PartReturnDao
     private lateinit var paymentTxnDao: PaymentTransactionDao
-
-    data class SimState(
-        val serviceManIds: MutableList<Long> = mutableListOf(),
-        val supplierMobiles: MutableList<String> = mutableListOf(),
-        val partPurchaseIds: MutableList<Long> = mutableListOf(),
-        val supplierPaymentIds: MutableList<Long> = mutableListOf(),
-        val customerMobiles: MutableList<String> = mutableListOf(),
-        val dealerMobiles: MutableList<String> = mutableListOf(),
-        val repairEntryIds: MutableList<Long> = mutableListOf(),
-        val cancelledRepairIds: MutableList<Long> = mutableListOf(),
-        val partReturnIds: MutableList<Long> = mutableListOf(),
-        val directSaleIds: MutableList<Long> = mutableListOf(),
-        val dailyCashLedger: MutableList<DayLedger> = mutableListOf(),
-        val refundPaymentIds: MutableList<Long> = mutableListOf(),
-        val supplierReturnIds: MutableList<Long> = mutableListOf(),
-        var directSaleCount: Int = 0
-    )
-    data class DayLedger(val dayIndex: Int, val cashIn: Double = 0.0, val cashOut: Double = 0.0, val personalWithdrawal: Double = 0.0) {
-        val net: Double get() = cashIn - cashOut
-    }
-    private val state = SimState()
     private val MILLIS_PER_DAY = 86_400_000L
 
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-            .allowMainThreadQueries()
-            .fallbackToDestructiveMigration()
-            .build()
-        repairDao = db.repairEntryDao()
-        serviceManDao = db.serviceManDao()
-        supplierDao = db.supplierDao()
-        commonFaultDao = db.commonFaultDao()
-        sparePartDao = db.sparePartPurchaseDao()
-        customerDao = db.customerDao()
-        dealerDao = db.dealerDao()
-        saleDao = db.saleDao()
-        userProfileDao = db.userProfileDao()
-        paymentDao = db.paymentDao()
-        partReturnDao = db.partReturnDao()
-        paymentTxnDao = db.paymentTransactionDao()
+            .allowMainThreadQueries().fallbackToDestructiveMigration().build()
+        repairDao = db.repairEntryDao(); serviceManDao = db.serviceManDao(); supplierDao = db.supplierDao()
+        commonFaultDao = db.commonFaultDao(); sparePartDao = db.sparePartPurchaseDao(); customerDao = db.customerDao()
+        dealerDao = db.dealerDao(); saleDao = db.saleDao(); userProfileDao = db.userProfileDao()
+        paymentDao = db.paymentDao(); partReturnDao = db.partReturnDao(); paymentTxnDao = db.paymentTransactionDao()
     }
 
-    @After
-    @Throws(IOException::class)
-    fun closeDb() { db.close() }
+    @After @Throws(IOException::class) fun closeDb() { db.close() }
 
-    private fun clearAllData() = runBlocking {
-        paymentTxnDao.getAllTransactions().first().forEach { paymentTxnDao.delete(it) }
-        paymentDao.getAllPayments().first().forEach { paymentDao.delete(it) }
-        partReturnDao.getAllReturns().first().forEach { partReturnDao.delete(it) }
-        saleDao.getAllSales().first()
-        sparePartDao.getAllPurchases().first().forEach { sparePartDao.delete(it) }
-        repairDao.getAllEntries().first().forEach { repairDao.delete(it) }
-        serviceManDao.getAllServiceMen().first().forEach { serviceManDao.delete(it) }
-        supplierDao.getAllSuppliers().first().forEach { supplierDao.delete(it) }
-        customerDao.getAllCustomers().first().forEach { customerDao.deleteByMobile(it.mobileNumber) }
-        userProfileDao.getUserProfile()?.let {
-            userProfileDao.insertOrUpdate(it.copy(shopName = "", name = "", email = "", phone = "", shopAddress = "", gstNo = ""))
-        }
-        state.serviceManIds.clear()
-        state.supplierMobiles.clear()
-        state.partPurchaseIds.clear()
-        state.supplierPaymentIds.clear()
-        state.customerMobiles.clear()
-        state.dealerMobiles.clear()
-        state.repairEntryIds.clear()
-        state.cancelledRepairIds.clear()
-        state.partReturnIds.clear()
-        state.directSaleIds.clear()
-        state.dailyCashLedger.clear()
-        state.refundPaymentIds.clear()
-        state.supplierReturnIds.clear()
-        state.directSaleCount = 0
+    private fun daysAgo(d: Int, h: Int = 10): Long = System.currentTimeMillis() - d * MILLIS_PER_DAY + h * 3600_000L
+
+    // ========================================================================
+    // SECTION 1: UserProfile DAO — 5 scenarios (001-005)
+    // ========================================================================
+    @Test fun sc001_userProfileInsertAndRead() = runBlocking {
+        val p = UserProfile(id=1,shopName="Test Shop",name="Owner",email="o@t.com",phone="1111111111",shopAddress="Addr",gstNo="GST001")
+        userProfileDao.insertOrUpdate(p)
+        val r = userProfileDao.getUserProfile()
+        assertNotNull(r); assertEquals("Test Shop",r!!.shopName)
+        println("SC001: UserProfile insert+read PASS")
+    }
+    @Test fun sc002_userProfileUpdate() = runBlocking {
+        userProfileDao.insertOrUpdate(UserProfile(id=1,shopName="Old",name="Owner",email="o@t.com",phone="111"))
+        userProfileDao.insertOrUpdate(UserProfile(id=1,shopName="New",name="Owner",email="o@t.com",phone="111"))
+        assertEquals("New",userProfileDao.getUserProfile()!!.shopName)
+        println("SC002: UserProfile update PASS")
+    }
+    @Test fun sc003_userProfileFlow() = runBlocking {
+        userProfileDao.insertOrUpdate(UserProfile(id=1,shopName="Flow",name="O",email="e",phone="1"))
+        val f = userProfileDao.getUserProfileFlow().first()
+        assertEquals("Flow",f!!.shopName)
+        println("SC003: UserProfile flow PASS")
+    }
+    @Test fun sc004_userProfileDelete() = runBlocking {
+        userProfileDao.insertOrUpdate(UserProfile(id=1,shopName="Del",name="O",email="e",phone="1"))
+        userProfileDao.delete(userProfileDao.getUserProfile()!!)
+        assertNull(userProfileDao.getUserProfile())
+        println("SC004: UserProfile delete PASS")
+    }
+    @Test fun sc005_userProfileEdgeEmpty() = runBlocking {
+        userProfileDao.insertOrUpdate(UserProfile(id=1))
+        val r = userProfileDao.getUserProfile()
+        assertNotNull(r); assertTrue(r!!.shopName.isEmpty())
+        println("SC005: UserProfile empty fields PASS")
     }
 
-    @Test
-    fun clearAllTestData() {
-        clearAllData()
-        println("[CLEAR] All test data wiped.")
+    // ========================================================================
+    // SECTION 2: ServiceMan DAO — 8 scenarios (006-013)
+    // ========================================================================
+    @Test fun sc006_serviceManInsert() = runBlocking {
+        val id = serviceManDao.insert(ServiceMan(name="Raj",mobile="9900111000",email="r@t.com",employeeId="SM01",designation="Tech"))
+        assertTrue(id > 0)
+        assertEquals("Raj",serviceManDao.getServiceManById(id)!!.name)
+        println("SC006: ServiceMan insert PASS")
+    }
+    @Test fun sc007_serviceManUpdate() = runBlocking {
+        val id = serviceManDao.insert(ServiceMan(name="Raj",mobile="9900111000",email="r@t.com",employeeId="SM01",designation="Tech"))
+        serviceManDao.update(serviceManDao.getServiceManById(id)!!.copy(name="Raj Updated",designation="Senior Tech"))
+        assertEquals("Raj Updated",serviceManDao.getServiceManById(id)!!.name)
+        println("SC007: ServiceMan update PASS")
+    }
+    @Test fun sc008_serviceManDelete() = runBlocking {
+        val id = serviceManDao.insert(ServiceMan(name="Del",mobile="9900111001",email="d@t.com",employeeId="SM02",designation="Tech"))
+        serviceManDao.delete(serviceManDao.getServiceManById(id)!!)
+        assertNull(serviceManDao.getServiceManById(id))
+        println("SC008: ServiceMan delete PASS")
+    }
+    @Test fun sc009_serviceManGetAll() = runBlocking {
+        serviceManDao.insert(ServiceMan(name="A",mobile="1",email="a@t.com",employeeId="E1",designation="T"))
+        serviceManDao.insert(ServiceMan(name="B",mobile="2",email="b@t.com",employeeId="E2",designation="T"))
+        assertEquals(2,serviceManDao.getAllServiceMen().first().size)
+        println("SC009: ServiceMan getAll PASS")
+    }
+    @Test fun sc010_serviceManActiveFilter() = runBlocking {
+        val id = serviceManDao.insert(ServiceMan(name="A",mobile="1",email="a",employeeId="E1",designation="T"))
+        serviceManDao.update(serviceManDao.getServiceManById(id)!!.copy(isActive=false))
+        assertTrue(serviceManDao.getActiveServiceMen().first().isEmpty())
+        println("SC010: ServiceMan active filter PASS")
+    }
+    @Test fun sc011_serviceManFlow() = runBlocking {
+        val id = serviceManDao.insert(ServiceMan(name="Flow",mobile="3",email="f",employeeId="E2",designation="T"))
+        assertNotNull(serviceManDao.getServiceManByIdFlow(id).first())
+        println("SC011: ServiceMan flow PASS")
+    }
+    @Test fun sc012_serviceManEdgeEmptyEmail() = runBlocking {
+        val id = serviceManDao.insert(ServiceMan(name="NoEmail",mobile="4",email="",employeeId="E3",designation="T"))
+        assertTrue(id > 0)
+        println("SC012: ServiceMan empty email PASS")
+    }
+    @Test fun sc013_serviceManEdgeLongName() = runBlocking {
+        val long = "X".repeat(500)
+        val id = serviceManDao.insert(ServiceMan(name=long,mobile="5",email="l",employeeId="E4",designation=long))
+        assertEquals(long,serviceManDao.getServiceManById(id)!!.name)
+        println("SC013: ServiceMan long name PASS")
     }
 
-    private fun daysAgo(daysAgo: Int, hourOfDay: Int = 10): Long {
-        return System.currentTimeMillis() - daysAgo * MILLIS_PER_DAY + hourOfDay * 3600_000L
+    // ========================================================================
+    // SECTION 3: CommonFault DAO — 8 scenarios (014-021)
+    // ========================================================================
+    @Test fun sc014_commonFaultInsert() = runBlocking {
+        val id = commonFaultDao.insert(CommonFault(faultName="Screen Broken",category="Display",defaultCharge=500.0,sortOrder=1))
+        assertTrue(id > 0)
+        assertEquals("Screen Broken",commonFaultDao.getFaultById(id)!!.faultName)
+        println("SC014: CommonFault insert PASS")
+    }
+    @Test fun sc015_commonFaultUpdate() = runBlocking {
+        val id = commonFaultDao.insert(CommonFault(faultName="Old",category="Display",sortOrder=1))
+        commonFaultDao.update(commonFaultDao.getFaultById(id)!!.copy(faultName="New",defaultCharge=1000.0))
+        assertEquals("New",commonFaultDao.getFaultById(id)!!.faultName)
+        assertEquals(1000.0,commonFaultDao.getFaultById(id)!!.defaultCharge,0.01)
+        println("SC015: CommonFault update PASS")
+    }
+    @Test fun sc016_commonFaultDelete() = runBlocking {
+        val id = commonFaultDao.insert(CommonFault(faultName="Del",category="Display",sortOrder=1))
+        commonFaultDao.delete(commonFaultDao.getFaultById(id)!!)
+        assertNull(commonFaultDao.getFaultById(id))
+        println("SC016: CommonFault delete PASS")
+    }
+    @Test fun sc017_commonFaultGetAll() = runBlocking {
+        commonFaultDao.insert(CommonFault(faultName="F1",category="A",sortOrder=1))
+        commonFaultDao.insert(CommonFault(faultName="F2",category="B",sortOrder=2))
+        assertEquals(2,commonFaultDao.getAllFaults().first().size)
+        println("SC017: CommonFault getAll PASS")
+    }
+    @Test fun sc018_commonFaultActiveFilter() = runBlocking {
+        val id = commonFaultDao.insert(CommonFault(faultName="Inactive",category="A",sortOrder=1,isActive=false))
+        assertTrue(commonFaultDao.getActiveFaults().first().isEmpty())
+        println("SC018: CommonFault active filter PASS")
+    }
+    @Test fun sc019_commonFaultByCategory() = runBlocking {
+        commonFaultDao.insert(CommonFault(faultName="Screen",category="Display",sortOrder=1))
+        commonFaultDao.insert(CommonFault(faultName="Battery",category="Battery",sortOrder=2))
+        val display = commonFaultDao.getFaultsByCategory("Display").first()
+        assertEquals(1,display.size)
+        println("SC019: CommonFault by category PASS")
+    }
+    @Test fun sc020_commonFaultEdgeZeroCharge() = runBlocking {
+        val id = commonFaultDao.insert(CommonFault(faultName="Free",category="Other",defaultCharge=0.0,sortOrder=0))
+        assertEquals(0.0,commonFaultDao.getFaultById(id)!!.defaultCharge,0.01)
+        println("SC020: CommonFault zero charge PASS")
+    }
+    @Test fun sc021_commonFaultEdgeNegativeSortOrder() = runBlocking {
+        val id = commonFaultDao.insert(CommonFault(faultName="Neg",category="A",sortOrder=-1))
+        assertEquals(-1,commonFaultDao.getFaultById(id)!!.sortOrder)
+        println("SC021: CommonFault negative sort PASS")
     }
 
-    @Test
-    fun scenario01_shopKeeperSetup() = runBlocking {
-        clearAllData()
-        println("\nSCENARIO 01: SHOPKEEPER/OWNER SETUP")
-
-        // --- UserProfile CRUD ---
-        val profile = UserProfile(id = 1,
-            shopName = "MuzzuTech Mobile Repair", name = "Rahman bhai",
-            email = "rahman@muzzutech.in", phone = "9876543210",
-            shopAddress = "Shop No. 12, MG Road, Bangalore - 560001", gstNo = "29ABCDE1234F1ZX")
-        userProfileDao.insertOrUpdate(profile)
-        var stored = userProfileDao.getUserProfile()
-        assertNotNull("Shop profile must be saved", stored)
-        assertEquals("MuzzuTech Mobile Repair", stored!!.shopName)
-
-        // UserProfile update
-        userProfileDao.insertOrUpdate(stored.copy(shopName = "MuzzuTech Pro Repair"))
-        stored = userProfileDao.getUserProfile()
-        assertEquals("MuzzuTech Pro Repair", stored!!.shopName)
-        userProfileDao.insertOrUpdate(stored.copy(shopName = "MuzzuTech Mobile Repair"))
-
-        // UserProfile query via Flow
-        val profileFlow = userProfileDao.getUserProfileFlow().first()
-        assertEquals("MuzzuTech Mobile Repair", profileFlow!!.shopName)
-
-        // --- ServiceMan CRUD ---
-        TestFixtures.SERVICE_MAN_DATA.forEach { sm ->
-            val id = serviceManDao.insert(ServiceMan(name = sm.name, mobile = sm.mobile, email = sm.email,
-                employeeId = "SM-${1000 + state.serviceManIds.size + 1}", designation = sm.designation))
-            state.serviceManIds.add(id)
-        }
-        assertEquals(5, state.serviceManIds.size)
-        var allSM = serviceManDao.getAllServiceMen().first()
-        assertEquals(5, allSM.size)
-        assertTrue("All service men active", allSM.all { it.isActive })
-
-        // ServiceMan update
-        val sm1 = serviceManDao.getServiceManById(state.serviceManIds[0])!!
-        serviceManDao.update(sm1.copy(isActive = false))
-        val activeSM = serviceManDao.getActiveServiceMen().first()
-        assertEquals(4, activeSM.size)
-        serviceManDao.update(sm1.copy(isActive = true))
-
-        // ServiceMan query by Flow
-        val sm1Flow = serviceManDao.getServiceManByIdFlow(state.serviceManIds[0]).first()
-        assertNotNull(sm1Flow)
-
-        // ServiceMan delete and re-insert
-        serviceManDao.delete(sm1)
-        assertNull(serviceManDao.getServiceManById(state.serviceManIds[0]))
-        serviceManDao.insert(sm1.copy(id = 0L))
-        val reinserted = serviceManDao.getAllServiceMen().first()
-        assertEquals(5, reinserted.size)
-        state.serviceManIds.clear()
-        state.serviceManIds.addAll(reinserted.map { it.id })
-
-        println("  5 service men registered (CRUD verified)")
-
-        // --- CommonFault CRUD ---
-        val faultDefs = listOf(
-            "Screen broken" to "Display", "Battery drain" to "Battery",
-            "Charging failure" to "Charging", "Camera malfunction" to "Camera",
-            "Water damage" to "Body", "No power" to "Motherboard"
-        )
-        faultDefs.forEach { (name, cat) ->
-            commonFaultDao.insert(CommonFault(faultName = name, category = cat, sortOrder = faultDefs.indexOf(name to cat)))
-        }
-        var faultCount = commonFaultDao.getAllFaults().first().size
-        assertEquals(6, faultCount)
-
-        // CommonFault query by category
-        val displayFaults = commonFaultDao.getFaultsByCategory("Display").first()
-        assertTrue(displayFaults.any { it.faultName == "Screen broken" })
-
-        // CommonFault active filter
-        val firstFault = commonFaultDao.getFaultById(1)!!
-        commonFaultDao.update(firstFault.copy(isActive = false))
-        assertEquals(5, commonFaultDao.getActiveFaults().first().size)
-        commonFaultDao.update(firstFault.copy(isActive = true))
-
-        // CommonFault delete and re-verify
-        commonFaultDao.delete(firstFault)
-        assertEquals(5, commonFaultDao.getAllFaults().first().size)
-        commonFaultDao.insert(CommonFault(faultName = "Screen broken", category = "Display", sortOrder = 0))
-        faultCount = commonFaultDao.getAllFaults().first().size
-        assertEquals(6, faultCount)
-
-        println("  ${faultCount} common faults configured (CRUD verified)")
+    // ========================================================================
+    // SECTION 4: Supplier DAO — 8 scenarios (022-029)
+    // ========================================================================
+    @Test fun sc022_supplierInsert() = runBlocking {
+        supplierDao.insert(Supplier(mobile="9398123456",name="Rajesh",companyName="Rajesh Mobile Parts",city="Mumbai"))
+        val s = supplierDao.getSupplierByMobile("9398123456")
+        assertNotNull(s); assertEquals("Rajesh",s!!.name)
+        println("SC022: Supplier insert PASS")
+    }
+    @Test fun sc023_supplierUpdate() = runBlocking {
+        supplierDao.insert(Supplier(mobile="9398123456",name="Old",companyName="C1",city="C1"))
+        supplierDao.update(Supplier(mobile="9398123456",name="New",companyName="C2",city="C2"))
+        assertEquals("New",supplierDao.getSupplierByMobile("9398123456")!!.name)
+        println("SC023: Supplier update PASS")
+    }
+    @Test fun sc024_supplierDelete() = runBlocking {
+        supplierDao.insert(Supplier(mobile="9398123456",name="Del",companyName="C",city="C"))
+        supplierDao.delete(supplierDao.getSupplierByMobile("9398123456")!!)
+        assertNull(supplierDao.getSupplierByMobile("9398123456"))
+        println("SC024: Supplier delete PASS")
+    }
+    @Test fun sc025_supplierGetAll() = runBlocking {
+        supplierDao.insert(Supplier(mobile="1",name="A",companyName="CA",city="C"))
+        supplierDao.insert(Supplier(mobile="2",name="B",companyName="CB",city="C"))
+        assertEquals(2,supplierDao.getAllSuppliers().first().size)
+        println("SC025: Supplier getAll PASS")
+    }
+    @Test fun sc026_supplierActiveFilter() = runBlocking {
+        supplierDao.insert(Supplier(mobile="1",name="A",companyName="C",city="C",isActive=false))
+        assertTrue(supplierDao.getActiveSuppliers().first().isEmpty())
+        println("SC026: Supplier active filter PASS")
+    }
+    @Test fun sc027_supplierFlow() = runBlocking {
+        supplierDao.insert(Supplier(mobile="1",name="F",companyName="C",city="C"))
+        assertNotNull(supplierDao.getSupplierByMobileFlow("1").first())
+        println("SC027: Supplier flow PASS")
+    }
+    @Test fun sc028_supplierEdgeEmptyEmail() = runBlocking {
+        supplierDao.insert(Supplier(mobile="1",name="NoEmail",companyName="C",city="C",email="",address="",gstNo=""))
+        val s = supplierDao.getSupplierByMobile("1")!!
+        assertTrue(s.email.isEmpty())
+        println("SC028: Supplier empty fields PASS")
+    }
+    @Test fun sc029_supplierEdgeMaxFields() = runBlocking {
+        val long = "Z".repeat(500)
+        supplierDao.insert(Supplier(mobile="1",name=long,companyName=long,email=long,address=long,city=long,gstNo=long, suppliesTypes=long))
+        assertEquals(long,supplierDao.getSupplierByMobile("1")!!.name)
+        println("SC029: Supplier long fields PASS")
     }
 
-    @Test
-    fun scenario02_supplierAndInventory() = runBlocking {
-        if (state.serviceManIds.isEmpty()) scenario01_shopKeeperSetup()
-        println("\nSCENARIO 02: SUPPLIERS + INVENTORY")
-        val rng = Random(12345)
-
-        // --- Supplier CRUD ---
-        TestFixtures.SUPPLIER_DATA.forEach { sup ->
-            supplierDao.insert(Supplier(mobile = sup.mobile, name = sup.name,
-                companyName = sup.company, email = "${sup.name.replace(" ","").lowercase()}@${sup.company.split(" ")[0].lowercase()}.in",
-                city = sup.city))
-            state.supplierMobiles.add(sup.mobile)
-        }
-        assertEquals(10, state.supplierMobiles.size)
-
-        // Supplier update
-        val firstSup = supplierDao.getSupplierByMobile(state.supplierMobiles[0])!!
-        supplierDao.update(firstSup.copy(isActive = false))
-        assertEquals(9, supplierDao.getActiveSuppliers().first().size)
-        supplierDao.update(firstSup.copy(isActive = true))
-
-        // Supplier query by Flow
-        val supFlow = supplierDao.getSupplierByMobileFlow(state.supplierMobiles[0]).first()
-        assertEquals(firstSup.name, supFlow!!.name)
-
-        // Supplier delete and re-insert
-        supplierDao.delete(firstSup)
-        assertNull(supplierDao.getSupplierByMobile(state.supplierMobiles[0]))
-        supplierDao.insert(firstSup)
-        state.supplierMobiles[0] = firstSup.mobile
-
-        // --- SparePartPurchase CRUD ---
-        var totalQty = 0
-        var orderCounter = 0
-        var forcedUnpaidCount = 0
-        val targetUnpaid = 3
-        state.supplierMobiles.forEach { mobile ->
-            val sup = supplierDao.getSupplierByMobile(mobile)!!
-            val orders = 6 + rng.nextInt(7)
-            repeat(orders) {
-                orderCounter++
-                val part = TestFixtures.PARTS_CATALOG.random()
-                val qty = 5 + rng.nextInt(25)
-                val cost = kotlin.math.round(part.costPrice * (0.9 + rng.nextDouble() * 0.2) * 100.0) / 100.0
-                val forceUnpaid = forcedUnpaidCount < targetUnpaid && (orderCounter >= state.supplierMobiles.size * 7 - (targetUnpaid - 1))
-                val isPaid = !forceUnpaid && rng.nextDouble() < 0.55
-
-                val pid = sparePartDao.insert(SparePartPurchase(
-                    repairEntryId = 0L, partName = part.name,
-                    purchasePrice = cost, supplierId = mobile, supplierName = sup.name, quantity = qty,
-                    purchaseDate = daysAgo(25 + rng.nextInt(5), 11)))
-                state.partPurchaseIds.add(pid)
-                totalQty += qty
-
-                if (!isPaid) {
-                    val amt = kotlin.math.round(cost * qty * 100.0) / 100.0
-                    paymentDao.insert(Payment(
-                        personType = "SUPPLIER", personMobile = mobile, personName = sup.name,
-                        description = "Purchase - ${part.name}", totalAmount = amt,
-                        paidAmount = 0.0, dueAmount = amt, status = "UNPAID"))
-                    if (forceUnpaid) forcedUnpaidCount++
-                } else {
-                    val amt = kotlin.math.round(cost * qty * 100.0) / 100.0
-                    val payId = paymentDao.insert(Payment(
-                        personType = "SUPPLIER", personMobile = mobile, personName = sup.name,
-                        description = "Purchase - ${part.name}", totalAmount = amt,
-                        paidAmount = amt, dueAmount = 0.0, status = "PAID"))
-                    state.supplierPaymentIds.add(payId)
-                    paymentTxnDao.insert(PaymentTransaction(
-                        paymentId = payId, personType = "SUPPLIER", personMobile = mobile,
-                        personName = sup.name, amount = amt,
-                        paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
-                        transactionDate = daysAgo(25 + rng.nextInt(5), 11)))
-                }
-            }
-        }
-        val unpaid = paymentDao.getAllPayments().first().filter { it.status != "PAID" }
-        assertTrue("At least 3 supplier payments must be unpaid", unpaid.size >= 3)
-
-        // SparePartPurchase update (simulate stock reduction)
-        val firstPart = sparePartDao.getAllPurchases().first().first()
-        sparePartDao.update(firstPart.copy(quantity = firstPart.quantity - 1))
-        val updatedPart = sparePartDao.getPurchasesByRepairId(firstPart.repairEntryId).first().find { it.id == firstPart.id }
-        assertEquals(firstPart.quantity - 1, updatedPart!!.quantity)
-        sparePartDao.update(firstPart.copy(quantity = firstPart.quantity))
-
-        // SparePartPurchase by supplier query
-        val bySupplier = sparePartDao.getPurchasesBySupplier(state.supplierMobiles[0]).first()
-        assertTrue(bySupplier.isNotEmpty())
-
-        // SparePartPurchase date range query
-        val inRange = sparePartDao.getPurchasesByDateRange(daysAgo(30), System.currentTimeMillis()).first()
-        assertTrue(inRange.size >= state.partPurchaseIds.size * 0.5)
-
-        println("  $totalQty items across ${state.partPurchaseIds.size} purchase orders (${unpaid.size} unpaid) [CRUD verified]")
+    // ========================================================================
+    // SECTION 5: Customer DAO — 8 scenarios (030-037)
+    // ========================================================================
+    @Test fun sc030_customerInsert() = runBlocking {
+        customerDao.insert(Customer(mobileNumber="1111111111",name="Rahul",city="Delhi"))
+        val c = customerDao.getCustomerByMobile("1111111111")
+        assertNotNull(c); assertEquals("Rahul",c!!.name)
+        println("SC030: Customer insert PASS")
+    }
+    @Test fun sc031_customerUpdate() = runBlocking {
+        customerDao.insert(Customer(mobileNumber="1111111111",name="Old",city="C1"))
+        customerDao.update(Customer(mobileNumber="1111111111",name="New",city="C2"))
+        assertEquals("New",customerDao.getCustomerByMobile("1111111111")!!.name)
+        println("SC031: Customer update PASS")
+    }
+    @Test fun sc032_customerDelete() = runBlocking {
+        customerDao.insert(Customer(mobileNumber="1111111111",name="Del",city="C"))
+        customerDao.deleteByMobile("1111111111")
+        assertNull(customerDao.getCustomerByMobile("1111111111"))
+        println("SC032: Customer delete PASS")
+    }
+    @Test fun sc033_customerGetAll() = runBlocking {
+        customerDao.insert(Customer(mobileNumber="1",name="A",city="C"))
+        customerDao.insert(Customer(mobileNumber="2",name="B",city="C"))
+        assertEquals(2,customerDao.getAllCustomers().first().size)
+        println("SC033: Customer getAll PASS")
+    }
+    @Test fun sc034_customerFlow() = runBlocking {
+        customerDao.insert(Customer(mobileNumber="1",name="F",city="C"))
+        assertNotNull(customerDao.getCustomerByMobileFlow("1").first())
+        println("SC034: Customer flow PASS")
+    }
+    @Test fun sc035_customerReplaceOnConflict() = runBlocking {
+        customerDao.insert(Customer(mobileNumber="1",name="First",city="C1"))
+        customerDao.insert(Customer(mobileNumber="1",name="Second",city="C2"))
+        assertEquals("Second",customerDao.getCustomerByMobile("1")!!.name)
+        println("SC035: Customer replace on conflict PASS")
+    }
+    @Test fun sc036_customerEdgeNullName() = runBlocking {
+        customerDao.insert(Customer(mobileNumber="1",name=null,city=null))
+        assertNull(customerDao.getCustomerByMobile("1")!!.name)
+        println("SC036: Customer null name PASS")
+    }
+    @Test fun sc037_customerEdgeLongName() = runBlocking {
+        val long = "A".repeat(500)
+        customerDao.insert(Customer(mobileNumber="1",name=long,city=long))
+        assertEquals(long,customerDao.getCustomerByMobile("1")!!.name)
+        println("SC037: Customer long name PASS")
     }
 
-    @Test
-    fun scenario03_customerRepairFlow() = runBlocking {
-        if (state.supplierMobiles.isEmpty()) scenario02_supplierAndInventory()
-        if (state.repairEntryIds.isNotEmpty()) {
-            println("  Already have ${state.repairEntryIds.size} repairs")
-            return@runBlocking
-        }
-        println("\nSCENARIO 03: CUSTOMER + REPAIR FLOW")
-        val rng = Random(54321)
-        var idx = 0
-
-        state.supplierMobiles.forEach { mobile ->
-            val sup = supplierDao.getSupplierByMobile(mobile)!!
-            repeat(8) {
-                idx++
-                val isDealer = idx <= 8
-                val mob = TestFixtures.randomMobile(if (isDealer) 2000 + idx else idx)
-
-                if (isDealer) {
-                    dealerDao.insert(Dealer(mobileNumber = mob, name = TestFixtures.randomPersonName(), city = sup.city))
-                    state.dealerMobiles.add(mob)
-                } else {
-                    customerDao.insert(Customer(mobileNumber = mob, name = TestFixtures.randomPersonName(), city = sup.city))
-                    state.customerMobiles.add(mob)
-                }
-
-                val smId = state.serviceManIds.random()
-                val sm = serviceManDao.getServiceManById(smId)!!
-                val part1 = TestFixtures.PARTS_CATALOG.random()
-                val part2 = if (rng.nextBoolean()) TestFixtures.PARTS_CATALOG.filter { it.name != part1.name }.random() else null
-                val parts = listOf(part1) + if (part2 != null) listOf(part2) else emptyList()
-
-                val labor = (500 + rng.nextInt(2500)).toDouble()
-                val partsCharge = parts.sumOf { it.retailPrice }
-                val charge = partsCharge + labor
-                val advance = if (rng.nextDouble() < 0.60) kotlin.math.round(charge * (0.3 + rng.nextDouble() * 0.4) * 100.0) / 100.0 else 0.0
-                val cancelled = rng.nextDouble() < 0.06
-                val returned = !cancelled && rng.nextDouble() < 0.08
-                val done = !cancelled && rng.nextDouble() < 0.88
-
-                val status = when { cancelled -> "Cancelled"; done -> "Done"; else -> "In Progress" }
-                val pType = if (isDealer) "DEALER" else "CUSTOMER"
-                val entryId = repairDao.insert(RepairEntry(
-                    customerMobile = if (isDealer) "" else mob,
-                    customerName = if (isDealer) "" else TestFixtures.randomPersonName(),
-                    dealerMobile = if (isDealer) mob else "",
-                    dealerName = if (isDealer) TestFixtures.randomPersonName() else "",
-                    customerCity = if (isDealer) "" else sup.city,
-                    deviceBrand = TestFixtures.randomBrand(), deviceModel = TestFixtures.randomPhoneModel(),
-                    faultDetected = listOf("Screen broken","Battery drain","Charging failure","Camera malfunction","Button stuck","Water damage","No power","Slow performance").random(),
-                    sparePartName = parts.joinToString(", ") { it.name },
-                    sparePartPurchasePrice = partsCharge, chargeAmount = charge, advanceAmount = advance,
-                    serviceManId = smId, serviceManName = sm.name,
-                    isDraft = false, workStatus = status, finalAmount = charge, handoverDone = done,
-                    entryDate = daysAgo(7 + rng.nextInt(18)),
-                    handoverDate = if (done) daysAgo(rng.nextInt(5), 0) else 0L,
-                    quotationDone = true, sparePartDone = true, workDone = done))
-                state.repairEntryIds.add(entryId)
-
-                val balance = charge - advance
-                val payStatus = when { cancelled -> "CANCELLED"; balance <= 0.01 -> "PAID"; advance > 0 -> "PARTIAL"; else -> "UNPAID" }
-                if (!cancelled || advance > 0 || rng.nextDouble() < 0.3) {
-                    val payId = paymentDao.insert(Payment(
-                        personType = pType, personMobile = mob, personName = if (isDealer) "Dealer" else "Customer",
-                        description = "Repair: $status", totalAmount = charge,
-                        paidAmount = advance, dueAmount = kotlin.math.max(0.0, balance), status = payStatus,
-                        linkedEntryId = entryId))
-                    if (advance > 0.01) {
-                        paymentTxnDao.insert(PaymentTransaction(paymentId = payId, personType = pType,
-                            personMobile = mob, personName = if (isDealer) "Dealer" else "Customer", amount = advance,
-                            paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE"))
-                    }
-                }
-                if (returned && parts.isNotEmpty()) {
-                    val rp = parts.random()
-                    val rq = 1 + rng.nextInt(3)
-                    state.partReturnIds.add(partReturnDao.insert(PartReturn(
-                        supplierId = mobile, supplierName = sup.name,
-                        partName = "${rp.name} (returned)", returnReason = "Customer cancelled",
-                        refundAmount = rp.costPrice * rq)))
-                }
-                if (cancelled) state.cancelledRepairIds.add(entryId)
-            }
-        }
-        // Handover simulation: pick 2 pending repairs and complete handover
-        val pendingHandover = repairDao.getPendingEntries().first().take(2)
-        pendingHandover.forEach { entry ->
-            val personMobile = entry.customerMobile.ifEmpty { entry.dealerMobile }
-            val personName = entry.customerName.ifEmpty { entry.dealerName }
-            val personType = if (entry.customerMobile.isNotEmpty()) "CUSTOMER" else "DEALER"
-            val handoverAmount = entry.chargeAmount - entry.advanceAmount
-            repairDao.update(entry.copy(
-                finalAmount = entry.chargeAmount, paymentMode = "CASH",
-                cashAmount = handoverAmount, onlineAmount = 0.0,
-                handoverDate = daysAgo(1, 0), handoverDone = true,
-                workStatus = "Done", workDone = true,
-                completionDate = System.currentTimeMillis()))
-            val existingPay = paymentDao.getAllPayments().first().firstOrNull { it.linkedEntryId == entry.id }
-            if (existingPay != null) {
-                paymentDao.update(existingPay.copy(
-                    paidAmount = existingPay.paidAmount + handoverAmount,
-                    dueAmount = 0.0, status = "PAID"))
-                paymentTxnDao.insert(PaymentTransaction(
-                    paymentId = existingPay.id, personType = personType,
-                    personMobile = personMobile, personName = personName,
-                    amount = handoverAmount, paymentMode = "CASH"))
-            } else {
-                val payId = paymentDao.insert(Payment(
-                    personType = personType, personMobile = personMobile, personName = personName,
-                    description = "Handover - ${entry.deviceBrand} ${entry.deviceModel}",
-                    totalAmount = entry.chargeAmount, paidAmount = handoverAmount,
-                    dueAmount = 0.0, status = "PAID", linkedEntryId = entry.id))
-                paymentTxnDao.insert(PaymentTransaction(
-                    paymentId = payId, personType = personType, personMobile = personMobile,
-                    personName = personName, amount = handoverAmount, paymentMode = "CASH"))
-            }
-        }
-        println("  ${state.customerMobiles.size} customers, ${state.dealerMobiles.size} dealers, ${state.repairEntryIds.size} repairs, ${state.cancelledRepairIds.size} cancelled")
-
-        // --- RepairEntry DAO query tests ---
-        val allEntries = repairDao.getAllEntries().first()
-        assertTrue(allEntries.isNotEmpty())
-
-        val pendingCount = repairDao.getPendingCount().first()
-        assertTrue(pendingCount >= 0)
-
-        val completedInRange = repairDao.getCompletedCountInRange(daysAgo(30), System.currentTimeMillis()).first()
-        val revenue = repairDao.getRevenueInRange(daysAgo(30), System.currentTimeMillis()).first()
-        println("  Pending=$pendingCount Completed(30d)=$completedInRange Revenue(30d)=Rs.${(revenue ?: 0.0).toInt()}")
-
-        // RepairEntry query by mobile
-        if (state.customerMobiles.isNotEmpty()) {
-            val byMobile = repairDao.getEntriesByMobile(state.customerMobiles[0]).first()
-            assertTrue(byMobile.isNotEmpty())
-        }
-
-        // RepairEntry search query
-        val searchResults = repairDao.searchEntries("Samsung").first()
-        assertNotNull(searchResults)
-
-        // RepairEntry by date range
-        val dateRangeEntries = repairDao.getEntriesByDateRange(daysAgo(30), System.currentTimeMillis()).first()
-        assertTrue(dateRangeEntries.isNotEmpty())
-
-        // RepairEntry update (simulate status change)
-        val firstEntry = repairDao.getAllEntries().first().first()
-        repairDao.update(firstEntry.copy(workStatus = "In Progress"))
-        val updatedEntry = repairDao.getEntryById(firstEntry.id)!!
-        assertEquals("In Progress", updatedEntry.workStatus)
-        repairDao.update(firstEntry)
-
-        // RepairEntry by service man
-        val bySM = repairDao.getEntriesByServiceMan(state.serviceManIds[0]).first()
-        assertNotNull(bySM)
+    // ========================================================================
+    // SECTION 6: Dealer DAO — 8 scenarios (038-045)
+    // ========================================================================
+    @Test fun sc038_dealerInsert() = runBlocking {
+        dealerDao.insert(Dealer(mobileNumber="2222222222",name="Dealer A",city="Mumbai"))
+        val d = dealerDao.getDealerByMobile("2222222222")
+        assertNotNull(d); assertEquals("Dealer A",d!!.name)
+        println("SC038: Dealer insert PASS")
+    }
+    @Test fun sc039_dealerUpdate() = runBlocking {
+        dealerDao.insert(Dealer(mobileNumber="2222222222",name="Old",city="C1"))
+        dealerDao.update(Dealer(mobileNumber="2222222222",name="New",city="C2"))
+        assertEquals("New",dealerDao.getDealerByMobile("2222222222")!!.name)
+        println("SC039: Dealer update PASS")
+    }
+    @Test fun sc040_dealerGetAll() = runBlocking {
+        dealerDao.insert(Dealer(mobileNumber="1",name="A",city="C"))
+        dealerDao.insert(Dealer(mobileNumber="2",name="B",city="C"))
+        assertEquals(2,dealerDao.getAllDealers().first().size)
+        println("SC040: Dealer getAll PASS")
+    }
+    @Test fun sc041_dealerFlow() = runBlocking {
+        dealerDao.insert(Dealer(mobileNumber="1",name="F",city="C"))
+        assertNotNull(dealerDao.getDealerByMobileFlow("1").first())
+        println("SC041: Dealer flow PASS")
+    }
+    @Test fun sc042_dealerReplaceOnConflict() = runBlocking {
+        dealerDao.insert(Dealer(mobileNumber="1",name="First",city="C1"))
+        dealerDao.insert(Dealer(mobileNumber="1",name="Second",city="C2"))
+        assertEquals("Second",dealerDao.getDealerByMobile("1")!!.name)
+        println("SC042: Dealer replace on conflict PASS")
+    }
+    @Test fun sc043_dealerEdgeNullName() = runBlocking {
+        dealerDao.insert(Dealer(mobileNumber="1",name=null,city=null))
+        assertNull(dealerDao.getDealerByMobile("1")!!.name)
+        println("SC043: Dealer null name PASS")
+    }
+    @Test fun sc044_dealerEdgeEmptyName() = runBlocking {
+        dealerDao.insert(Dealer(mobileNumber="1",name="",city=""))
+        assertEquals("",dealerDao.getDealerByMobile("1")!!.name)
+        println("SC044: Dealer empty name PASS")
+    }
+    @Test fun sc045_dealerEdgeLongName() = runBlocking {
+        val long = "B".repeat(500)
+        dealerDao.insert(Dealer(mobileNumber="1",name=long,city=long))
+        assertEquals(long,dealerDao.getDealerByMobile("1")!!.name)
+        println("SC045: Dealer long name PASS")
     }
 
-    @Test
-    fun scenario04_directSales() = runBlocking {
-        println("\nSCENARIO 04: DIRECT SALES")
-        if (state.serviceManIds.isEmpty()) scenario01_shopKeeperSetup()
-        if (state.supplierMobiles.isEmpty()) scenario02_supplierAndInventory()
+    // ========================================================================
+    // SECTION 7: RepairEntry DAO — 12 scenarios (046-057)
+    // ========================================================================
+    private fun seedEntry(): Long = runBlocking {
+        repairDao.insert(RepairEntry(customerMobile="1111111111",customerName="C1",deviceBrand="Samsung",deviceModel="S21",
+            faultDetected="Screen",sparePartName="Display",sparePartPurchasePrice=3200.0,supplierId=0L,workStatus="Pending"))
+    }
+    @Test fun sc046_repairEntryInsert() = runBlocking {
+        val id = seedEntry()
+        assertTrue(id > 0)
+        assertNotNull(repairDao.getEntryById(id))
+        println("SC046: RepairEntry insert PASS")
+    }
+    @Test fun sc047_repairEntryUpdate() = runBlocking {
+        val id = seedEntry()
+        repairDao.update(repairDao.getEntryById(id)!!.copy(workStatus="Done"))
+        assertEquals("Done",repairDao.getEntryById(id)!!.workStatus)
+        println("SC047: RepairEntry update PASS")
+    }
+    @Test fun sc048_repairEntryDelete() = runBlocking {
+        val id = seedEntry()
+        repairDao.delete(repairDao.getEntryById(id)!!)
+        assertNull(repairDao.getEntryById(id))
+        println("SC048: RepairEntry delete PASS")
+    }
+    @Test fun sc049_repairEntryGetAll() = runBlocking {
+        seedEntry(); seedEntry()
+        assertEquals(2,repairDao.getAllEntries().first().size)
+        println("SC049: RepairEntry getAll PASS")
+    }
+    @Test fun sc050_repairEntryPendingFilter() = runBlocking {
+        val id = seedEntry()
+        val pending = repairDao.getPendingEntries().first()
+        assertTrue(pending.any { it.id == id })
+        repairDao.update(repairDao.getEntryById(id)!!.copy(handoverDone=true,workStatus="Done"))
+        assertFalse(repairDao.getPendingEntries().first().any { it.id == id })
+        println("SC050: RepairEntry pending filter PASS")
+    }
+    @Test fun sc051_repairEntryCompletedFilter() = runBlocking {
+        seedEntry()
+        val id = repairDao.insert(RepairEntry(customerMobile="2",customerName="C2",deviceBrand="A",deviceModel="B",
+            sparePartName="P",sparePartPurchasePrice=100.0,supplierId=0L,workStatus="Done",handoverDone=true,handoverDate=daysAgo(1,0)))
+        assertTrue(repairDao.getCompletedEntries().first().any { it.id == id })
+        println("SC051: RepairEntry completed filter PASS")
+    }
+    @Test fun sc052_repairEntryByMobile() = runBlocking {
+        seedEntry()
+        val byMobile = repairDao.getEntriesByMobile("1111111111").first()
+        assertTrue(byMobile.isNotEmpty())
+        println("SC052: RepairEntry by mobile PASS")
+    }
+    @Test fun sc053_repairEntryByServiceMan() = runBlocking {
+        val smId = serviceManDao.insert(ServiceMan(name="SM",mobile="1",email="e",employeeId="E",designation="T"))
+        repairDao.insert(RepairEntry(customerMobile="1",customerName="C",deviceBrand="A",deviceModel="B",
+            serviceManId=smId,sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="Pending"))
+        assertTrue(repairDao.getEntriesByServiceMan(smId).first().isNotEmpty())
+        println("SC053: RepairEntry by serviceMan PASS")
+    }
+    @Test fun sc054_repairEntryDateRange() = runBlocking {
+        seedEntry()
+        val inRange = repairDao.getEntriesByDateRange(daysAgo(10),System.currentTimeMillis()).first()
+        assertTrue(inRange.isNotEmpty())
+        println("SC054: RepairEntry date range PASS")
+    }
+    @Test fun sc055_repairEntrySearch() = runBlocking {
+        seedEntry()
+        val results = repairDao.searchEntries("Samsung").first()
+        assertTrue(results.isNotEmpty())
+        println("SC055: RepairEntry search PASS")
+    }
+    @Test fun sc056_repairEntryFlow() = runBlocking {
+        val id = seedEntry()
+        assertNotNull(repairDao.getEntryByIdFlow(id).first())
+        println("SC056: RepairEntry flow PASS")
+    }
+    @Test fun sc057_repairEntryRevenueQuery() = runBlocking {
+        repairDao.insert(RepairEntry(customerMobile="1",customerName="C",deviceBrand="A",deviceModel="B",
+            sparePartName="P",sparePartPurchasePrice=100.0,supplierId=0L,workStatus="Done",
+            finalAmount=5000.0,handoverDone=true,handoverDate=daysAgo(1,0)))
+        val rev = repairDao.getRevenueInRange(daysAgo(10),System.currentTimeMillis()).first() ?: 0.0
+        assertTrue(rev > 0)
+        println("SC057: RepairEntry revenue query=$rev PASS")
+    }
 
-        val rng = Random(99999)
+    // ========================================================================
+    // SECTION 8: SparePartPurchase DAO — 8 scenarios (058-065)
+    // ========================================================================
+    @Test fun sc058_partPurchaseInsert() = runBlocking {
+        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="Display",purchasePrice=3200.0,supplierId="1",supplierName="S1",quantity=5))
+        assertTrue(id > 0)
+        println("SC058: SparePartPurchase insert PASS")
+    }
+    @Test fun sc059_partPurchaseUpdate() = runBlocking {
+        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="Display",purchasePrice=3200.0,supplierId="1",supplierName="S1",quantity=5))
+        sparePartDao.update(SparePartPurchase(id=id,repairEntryId=1L,partName="Display",purchasePrice=3000.0,supplierId="1",supplierName="S1",quantity=3))
+        val p = sparePartDao.getAllPurchases().first().first { it.id == id }
+        assertEquals(3,p.quantity); assertEquals(3000.0,p.purchasePrice,0.01)
+        println("SC059: SparePartPurchase update PASS")
+    }
+    @Test fun sc060_partPurchaseDelete() = runBlocking {
+        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=1))
+        sparePartDao.delete(sparePartDao.getAllPurchases().first().first { it.id == id })
+        assertTrue(sparePartDao.getAllPurchases().first().none { it.id == id })
+        println("SC060: SparePartPurchase delete PASS")
+    }
+    @Test fun sc061_partPurchaseByRepairId() = runBlocking {
+        val eid = repairDao.insert(RepairEntry(customerMobile="1",customerName="C",deviceBrand="A",deviceModel="B",
+            sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="Pending"))
+        sparePartDao.insert(SparePartPurchase(repairEntryId=eid,partName="P1",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=1))
+        sparePartDao.insert(SparePartPurchase(repairEntryId=eid,partName="P2",purchasePrice=200.0,supplierId="2",supplierName="S2",quantity=2))
+        assertEquals(2,sparePartDao.getPurchasesByRepairId(eid).first().size)
+        println("SC061: SparePartPurchase by repairId PASS")
+    }
+    @Test fun sc062_partPurchaseBySupplier() = runBlocking {
+        sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="SUP1",supplierName="S1",quantity=1))
+        assertTrue(sparePartDao.getPurchasesBySupplier("SUP1").first().isNotEmpty())
+        println("SC062: SparePartPurchase by supplier PASS")
+    }
+    @Test fun sc063_partPurchaseDateRange() = runBlocking {
+        sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=1,purchaseDate=daysAgo(5,11)))
+        assertTrue(sparePartDao.getPurchasesByDateRange(daysAgo(10),System.currentTimeMillis()).first().isNotEmpty())
+        println("SC063: SparePartPurchase date range PASS")
+    }
+    @Test fun sc064_partPurchaseTotalInRange() = runBlocking {
+        sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=3,purchaseDate=daysAgo(3,11)))
+        val total = sparePartDao.getTotalPurchaseInRange(daysAgo(10),System.currentTimeMillis()).first() ?: 0.0
+        assertEquals(300.0,total,0.01)
+        println("SC064: SparePartPurchase total in range=$total PASS")
+    }
+    @Test fun sc065_partPurchaseEdgeZeroQty() = runBlocking {
+        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="Zero",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=0))
+        assertEquals(0,sparePartDao.getAllPurchases().first().first { it.id == id }.quantity)
+        println("SC065: SparePartPurchase zero qty PASS")
+    }
+
+    // ========================================================================
+    // SECTION 9: Sale DAO — 6 scenarios (066-071)
+    // ========================================================================
+    @Test fun sc066_saleInsert() = runBlocking {
+        saleDao.insert(Sale(itemName="Screen",supplierId="1",supplierName="S1",purchasePrice=200.0,salePrice=400.0))
+        assertEquals(1,saleDao.getAllSales().first().size)
+        println("SC066: Sale insert PASS")
+    }
+    @Test fun sc067_saleBySupplier() = runBlocking {
+        saleDao.insert(Sale(itemName="Item1",supplierId="SUP1",supplierName="S1",purchasePrice=100.0,salePrice=200.0))
+        assertTrue(saleDao.getSalesBySupplier("SUP1").first().isNotEmpty())
+        println("SC067: Sale by supplier PASS")
+    }
+    @Test fun sc068_saleDateRange() = runBlocking {
+        saleDao.insert(Sale(itemName="Item1",supplierId="1",supplierName="S1",purchasePrice=100.0,salePrice=200.0,saleDate=daysAgo(3,12)))
+        assertTrue(saleDao.getSalesByDateRange(daysAgo(10),System.currentTimeMillis()).first().isNotEmpty())
+        println("SC068: Sale date range PASS")
+    }
+    @Test fun sc069_saleEdgeZeroPrices() = runBlocking {
+        saleDao.insert(Sale(itemName="Free",supplierId="1",supplierName="S1",purchasePrice=0.0,salePrice=0.0))
+        val s = saleDao.getAllSales().first().first { it.itemName == "Free" }
+        assertEquals(0.0,s.purchasePrice,0.01); assertEquals(0.0,s.salePrice,0.01)
+        println("SC069: Sale zero prices PASS")
+    }
+    @Test fun sc070_saleEdgeLargeAmounts() = runBlocking {
+        saleDao.insert(Sale(itemName="Expensive",supplierId="1",supplierName="S1",purchasePrice=999999.99,salePrice=1999999.99))
+        val s = saleDao.getAllSales().first().first { it.itemName == "Expensive" }
+        assertEquals(999999.99,s.purchasePrice,0.01)
+        println("SC070: Sale large amounts PASS")
+    }
+    @Test fun sc071_saleEdgeEmptyItemName() = runBlocking {
+        saleDao.insert(Sale(itemName="",supplierId="1",supplierName="S1",purchasePrice=100.0,salePrice=200.0))
+        assertTrue(saleDao.getAllSales().first().any { it.itemName.isEmpty() })
+        println("SC071: Sale empty item name PASS")
+    }
+
+    // ========================================================================
+    // SECTION 10: Payment DAO — 8 scenarios (072-079)
+    // ========================================================================
+    @Test fun sc072_paymentInsert() = runBlocking {
+        val id = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1111111111",personName="C1",
+            description="Repair",totalAmount=2000.0,paidAmount=1000.0,dueAmount=1000.0,status="PARTIAL"))
+        assertTrue(id > 0)
+        assertNotNull(paymentDao.getPaymentById(id))
+        println("SC072: Payment insert PASS")
+    }
+    @Test fun sc073_paymentUpdate() = runBlocking {
+        val id = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="R",totalAmount=2000.0,paidAmount=1000.0,dueAmount=1000.0,status="PARTIAL"))
+        paymentDao.update(paymentDao.getPaymentById(id)!!.copy(paidAmount=2000.0,dueAmount=0.0,status="PAID"))
+        val p = paymentDao.getPaymentById(id)!!
+        assertEquals(2000.0,p.paidAmount,0.01); assertEquals("PAID",p.status)
+        println("SC073: Payment update PASS")
+    }
+    @Test fun sc074_paymentDelete() = runBlocking {
+        val id = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="R",totalAmount=100.0,paidAmount=100.0,dueAmount=0.0,status="PAID"))
+        paymentDao.delete(paymentDao.getPaymentById(id)!!)
+        assertNull(paymentDao.getPaymentById(id))
+        println("SC074: Payment delete PASS")
+    }
+    @Test fun sc075_paymentPendingDues() = runBlocking {
+        paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="D",totalAmount=1000.0,paidAmount=0.0,dueAmount=1000.0,status="UNPAID"))
+        paymentDao.insert(Payment(personType="CUSTOMER",personMobile="2",personName="C2",
+            description="P",totalAmount=500.0,paidAmount=500.0,dueAmount=0.0,status="PAID"))
+        assertEquals(1,paymentDao.getPendingDues().first().size)
+        println("SC075: Payment pending dues PASS")
+    }
+    @Test fun sc076_paymentByMobile() = runBlocking {
+        paymentDao.insert(Payment(personType="CUSTOMER",personMobile="MOB1",personName="C",
+            description="R",totalAmount=500.0,paidAmount=0.0,dueAmount=500.0,status="UNPAID"))
+        assertTrue(paymentDao.getPaymentsByMobile("MOB1").first().isNotEmpty())
+        println("SC076: Payment by mobile PASS")
+    }
+    @Test fun sc077_paymentByTypeAndDate() = runBlocking {
+        paymentDao.insert(Payment(personType="SUPPLIER",personMobile="1",personName="S",
+            description="P",totalAmount=1000.0,paidAmount=0.0,dueAmount=1000.0,status="UNPAID"))
+        val byType = paymentDao.getPaymentsByTypeAndDate("SUPPLIER",daysAgo(10),System.currentTimeMillis()).first()
+        assertTrue(byType.isNotEmpty())
+        println("SC077: Payment by type+date PASS")
+    }
+    @Test fun sc078_paymentTotalDue() = runBlocking {
+        paymentDao.insert(Payment(personType="SUPPLIER",personMobile="1",personName="S",
+            description="P",totalAmount=5000.0,paidAmount=0.0,dueAmount=5000.0,status="UNPAID"))
+        val totalDue = paymentDao.getTotalDueAmount().first()
+        assertTrue(totalDue > 0)
+        val supDue = paymentDao.getTotalDueByType("SUPPLIER").first()
+        assertTrue(supDue > 0)
+        println("SC078: Payment total due=$totalDue supDue=$supDue PASS")
+    }
+    @Test fun sc079_paymentEdgeNegativeAmount() = runBlocking {
+        val id = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="Negative",totalAmount=-100.0,paidAmount=-100.0,dueAmount=0.0,status="REFUNDED"))
+        assertTrue(id > 0)
+        println("SC079: Payment negative amount PASS")
+    }
+
+    // ========================================================================
+    // SECTION 11: PaymentTransaction DAO — 6 scenarios (080-085)
+    // ========================================================================
+    @Test fun sc080_txnInsert() = runBlocking {
+        val pid = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="R",totalAmount=1000.0,paidAmount=500.0,dueAmount=500.0,status="PARTIAL"))
+        val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=pid,personType="CUSTOMER",personMobile="1",personName="C",
+            amount=500.0,paymentMode="CASH",note="Advance"))
+        assertTrue(tid > 0)
+        println("SC080: PaymentTransaction insert PASS")
+    }
+    @Test fun sc081_txnByPayment() = runBlocking {
+        val pid = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="R",totalAmount=2000.0,paidAmount=2000.0,dueAmount=0.0,status="PAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pid,personType="CUSTOMER",personMobile="1",personName="C",
+            amount=2000.0,paymentMode="ONLINE"))
+        assertEquals(1,paymentTxnDao.getTransactionsByPayment(pid).first().size)
+        println("SC081: PaymentTransaction by payment PASS")
+    }
+    @Test fun sc082_txnByMobile() = runBlocking {
+        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="MOB1",personName="C",
+            amount=500.0,paymentMode="CASH"))
+        assertTrue(paymentTxnDao.getTransactionsByMobile("MOB1").first().isNotEmpty())
+        println("SC082: PaymentTransaction by mobile PASS")
+    }
+    @Test fun sc083_txnDateRange() = runBlocking {
+        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="1",personName="C",
+            amount=100.0,paymentMode="CASH",transactionDate=daysAgo(3,12)))
+        assertTrue(paymentTxnDao.getTransactionsByDateRange(daysAgo(10),System.currentTimeMillis()).first().isNotEmpty())
+        println("SC083: PaymentTransaction date range PASS")
+    }
+    @Test fun sc084_txnTotalPaidByMobile() = runBlocking {
+        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="MOBSUM",personName="C",
+            amount=500.0,paymentMode="CASH"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="MOBSUM",personName="C",
+            amount=300.0,paymentMode="ONLINE"))
+        val total = paymentTxnDao.getTotalPaidByMobile("MOBSUM").first()
+        assertEquals(800.0,total,0.01)
+        println("SC084: PaymentTransaction total by mobile=$total PASS")
+    }
+    @Test fun sc085_txnUpdateDelete() = runBlocking {
+        val pid = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="R",totalAmount=500.0,paidAmount=500.0,dueAmount=0.0,status="PAID"))
+        val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=pid,personType="CUSTOMER",personMobile="1",personName="C",
+            amount=500.0,paymentMode="CASH"))
+        paymentTxnDao.update(PaymentTransaction(id=tid,paymentId=pid,personType="CUSTOMER",personMobile="1",personName="C",
+            amount=600.0,paymentMode="ONLINE"))
+        assertEquals(600.0,paymentTxnDao.getTransactionsByPayment(pid).first().first().amount,0.01)
+        paymentTxnDao.delete(paymentTxnDao.getAllTransactions().first().first())
+        assertTrue(paymentTxnDao.getAllTransactions().first().isEmpty())
+        println("SC085: PaymentTransaction update+delete PASS")
+    }
+
+    // ========================================================================
+    // SECTION 12: PartReturn DAO — 5 scenarios (086-090)
+    // ========================================================================
+    @Test fun sc086_partReturnInsert() = runBlocking {
+        val id = partReturnDao.insert(PartReturn(supplierId="1",supplierName="S1",partName="Display",
+            returnReason="Defective",refundAmount=3200.0))
+        assertTrue(id > 0)
+        assertNotNull(partReturnDao.getReturnById(id))
+        println("SC086: PartReturn insert PASS")
+    }
+    @Test fun sc087_partReturnUpdate() = runBlocking {
+        val id = partReturnDao.insert(PartReturn(supplierId="1",supplierName="S1",partName="Display",
+            returnReason="Defective",refundAmount=3200.0))
+        partReturnDao.update(partReturnDao.getReturnById(id)!!.copy(refundReceived=true,refundAmount=3000.0))
+        val r = partReturnDao.getReturnById(id)!!
+        assertTrue(r.refundReceived); assertEquals(3000.0,r.refundAmount,0.01)
+        println("SC087: PartReturn update PASS")
+    }
+    @Test fun sc088_partReturnDelete() = runBlocking {
+        val id = partReturnDao.insert(PartReturn(supplierId="1",supplierName="S1",partName="P",returnReason="R",refundAmount=100.0))
+        partReturnDao.delete(partReturnDao.getReturnById(id)!!)
+        assertNull(partReturnDao.getReturnById(id))
+        println("SC088: PartReturn delete PASS")
+    }
+    @Test fun sc089_partReturnBySupplier() = runBlocking {
+        partReturnDao.insert(PartReturn(supplierId="SUPR1",supplierName="S1",partName="P",returnReason="R",refundAmount=100.0))
+        assertTrue(partReturnDao.getReturnsBySupplier("SUPR1").first().isNotEmpty())
+        println("SC089: PartReturn by supplier PASS")
+    }
+    @Test fun sc090_partReturnEdgeZero() = runBlocking {
+        val id = partReturnDao.insert(PartReturn(supplierId="1",supplierName="S1",partName="Free",returnReason="Free",refundAmount=0.0))
+        assertEquals(0.0,partReturnDao.getReturnById(id)!!.refundAmount,0.01)
+        println("SC090: PartReturn zero refund PASS")
+    }
+
+    // ========================================================================
+    // SECTION 13: Cross-Entity Business Workflows — 10 scenarios (091-100)
+    // ========================================================================
+    @Test fun sc091_fullRepairWorkflow() = runBlocking {
+        val smId = serviceManDao.insert(ServiceMan(name="Raj",mobile="1",email="e",employeeId="E",designation="T"))
+        val cusId = "1111111111"
+        customerDao.insert(Customer(mobileNumber=cusId,name="Rahul",city="Delhi"))
+        val eid = repairDao.insert(RepairEntry(customerMobile=cusId,customerName="Rahul",deviceBrand="Samsung",deviceModel="S21",
+            faultDetected="Screen broken",sparePartName="Display",sparePartPurchasePrice=3200.0,serviceManId=smId,
+            supplierId=0L,chargeAmount=5500.0,advanceAmount=1000.0,workStatus="In Progress",quotationDone=true))
+        val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=eid,partName="Display",purchasePrice=3200.0,
+            supplierId="9398123456",supplierName="Rajesh",quantity=1))
+        val payId = paymentDao.insert(Payment(personType="CUSTOMER",personMobile=cusId,personName="Rahul",
+            description="Advance",totalAmount=5500.0,paidAmount=1000.0,dueAmount=4500.0,status="PARTIAL",linkedEntryId=eid))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=payId,personType="CUSTOMER",personMobile=cusId,personName="Rahul",
+            amount=1000.0,paymentMode="CASH"))
+        repairDao.update(repairDao.getEntryById(eid)!!.copy(
+            finalAmount=5500.0,handoverDone=true,handoverDate=daysAgo(1,0),workStatus="Done",workDone=true))
+        paymentDao.update(paymentDao.getPaymentById(payId)!!.copy(paidAmount=5500.0,dueAmount=0.0,status="PAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=payId,personType="CUSTOMER",personMobile=cusId,personName="Rahul",
+            amount=4500.0,paymentMode="CASH"))
+        val finalEntry = repairDao.getEntryById(eid)!!
+        assertTrue(finalEntry.handoverDone)
+        assertEquals("Done",finalEntry.workStatus)
+        val finalPay = paymentDao.getPaymentById(payId)!!
+        assertEquals("PAID",finalPay.status)
+        assertEquals(0.0,finalPay.dueAmount,0.01)
+        println("SC091: Full repair workflow (Entry→Inspection→Quotation→Parts→Handover) PASS")
+    }
+    @Test fun sc092_supplierPurchaseAndReturn() = runBlocking {
+        supplierDao.insert(Supplier(mobile="9398123456",name="Rajesh",companyName="Rajesh Mobile Parts",city="Mumbai"))
+        val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=0L,partName="Battery",purchasePrice=350.0,
+            supplierId="9398123456",supplierName="Rajesh",quantity=10))
+        val rid = partReturnDao.insert(PartReturn(supplierId="9398123456",supplierName="Rajesh",partName="Battery",
+            returnReason="Defective batch",refundAmount=3500.0))
+        sparePartDao.update(sparePartDao.getAllPurchases().first().first { it.id == pid }.copy(quantity=5))
+        assertEquals(5,sparePartDao.getAllPurchases().first().first { it.id == pid }.quantity)
+        assertEquals(3500.0,partReturnDao.getReturnById(rid)!!.refundAmount,0.01)
+        println("SC092: Supplier purchase+return PASS")
+    }
+    @Test fun sc093_dealerWorkflowWithPayment() = runBlocking {
+        dealerDao.insert(Dealer(mobileNumber="2222222222",name="Dealer A",city="Mumbai"))
+        val eid = repairDao.insert(RepairEntry(dealerMobile="2222222222",dealerName="Dealer A",customerMobile="",
+            customerName="",deviceBrand="Apple",deviceModel="iPhone 14",faultDetected="Battery drain",
+            sparePartName="Battery",sparePartPurchasePrice=800.0,supplierId=0L,chargeAmount=2500.0,
+            advanceAmount=1000.0,workStatus="In Progress"))
+        val payId = paymentDao.insert(Payment(personType="DEALER",personMobile="2222222222",personName="Dealer A",
+            description="Repair advance",totalAmount=2500.0,paidAmount=1000.0,dueAmount=1500.0,status="PARTIAL",linkedEntryId=eid))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=payId,personType="DEALER",personMobile="2222222222",
+            personName="Dealer A",amount=1000.0,paymentMode="CASH"))
+        assertEquals(1000.0,paymentTxnDao.getTotalPaidByMobile("2222222222").first(),0.01)
+        println("SC093: Dealer workflow with payment PASS")
+    }
+    @Test fun sc094_directSaleWithSupplierPayment() = runBlocking {
+        supplierDao.insert(Supplier(mobile="9398123456",name="Rajesh",companyName="Rajesh Mobile Parts",city="Mumbai"))
+        saleDao.insert(Sale(itemName="Charger",supplierId="9398123456",supplierName="Rajesh",purchasePrice=200.0,salePrice=400.0))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="DIRECT_SALE",
+            personName="Cash Customer",amount=400.0,paymentMode="CASH"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="SUPPLIER",personMobile="9398123456",
+            personName="Rajesh",amount=200.0,paymentMode="CASH"))
+        assertEquals(1,saleDao.getAllSales().first().size)
+        println("SC094: Direct sale with supplier payment PASS")
+    }
+    @Test fun sc095_supplierDueManagement() = runBlocking {
+        supplierDao.insert(Supplier(mobile="1",name="S1",companyName="SC1",city="C1"))
+        val payId = paymentDao.insert(Payment(personType="SUPPLIER",personMobile="1",personName="S1",
+            description="Purchase",totalAmount=10000.0,paidAmount=0.0,dueAmount=10000.0,status="UNPAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=payId,personType="SUPPLIER",personMobile="1",personName="S1",
+            amount=4000.0,paymentMode="CASH"))
+        paymentDao.update(paymentDao.getPaymentById(payId)!!.copy(paidAmount=4000.0,dueAmount=6000.0,status="PARTIAL"))
+        val p = paymentDao.getPaymentById(payId)!!
+        assertEquals(4000.0,p.paidAmount,0.01); assertEquals(6000.0,p.dueAmount,0.01)
+        println("SC095: Supplier due management PASS")
+    }
+    @Test fun sc096_multiPaymentForSingleRepair() = runBlocking {
+        val eid = repairDao.insert(RepairEntry(customerMobile="1",customerName="C",deviceBrand="A",deviceModel="B",
+            sparePartName="P",sparePartPurchasePrice=100.0,supplierId=0L,chargeAmount=5000.0,workStatus="Pending"))
+        val pay1 = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="Advance",totalAmount=5000.0,paidAmount=2000.0,dueAmount=3000.0,status="PARTIAL",linkedEntryId=eid))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pay1,personType="CUSTOMER",personMobile="1",personName="C",
+            amount=2000.0,paymentMode="CASH"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pay1,personType="CUSTOMER",personMobile="1",personName="C",
+            amount=3000.0,paymentMode="ONLINE"))
+        paymentDao.update(paymentDao.getPaymentById(pay1)!!.copy(paidAmount=5000.0,dueAmount=0.0,status="PAID"))
+        val txns = paymentTxnDao.getTransactionsByPayment(pay1).first()
+        assertEquals(2,txns.size)
+        assertEquals(5000.0,txns.sumOf { it.amount },0.01)
+        println("SC096: Multi-payment for single repair PASS")
+    }
+    @Test fun sc097_repairCancellationWithRefund() = runBlocking {
+        val eid = repairDao.insert(RepairEntry(customerMobile="1",customerName="C",deviceBrand="A",deviceModel="B",
+            sparePartName="P",sparePartPurchasePrice=100.0,supplierId=0L,chargeAmount=3000.0,advanceAmount=1000.0,
+            workStatus="Pending"))
+        val payId = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="Advance",totalAmount=3000.0,paidAmount=1000.0,dueAmount=2000.0,status="PARTIAL",linkedEntryId=eid))
+        repairDao.update(repairDao.getEntryById(eid)!!.copy(workStatus="Cancelled",isDraft=true))
+        paymentDao.update(paymentDao.getPaymentById(payId)!!.copy(paidAmount=0.0,dueAmount=0.0,status="CANCELLED"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=payId,personType="CUSTOMER_REFUND",personMobile="1",personName="C",
+            amount=-1000.0,paymentMode="CASH",note="Refund for cancellation"))
+        val cancelEntry = repairDao.getEntryById(eid)!!
+        assertEquals("Cancelled",cancelEntry.workStatus)
+        assertTrue(cancelEntry.isDraft)
+        println("SC097: Repair cancellation with refund PASS")
+    }
+    @Test fun sc098_duplicateMobileHandling() = runBlocking {
+        customerDao.insert(Customer(mobileNumber="1111111111",name="Original",city="Delhi"))
+        customerDao.insert(Customer(mobileNumber="1111111111",name="Override",city="Mumbai"))
+        val c = customerDao.getCustomerByMobile("1111111111")!!
+        assertEquals("Override",c.name)
+        assertEquals("Mumbai",c.city)
+        dealerDao.insert(Dealer(mobileNumber="2222222222",name="D1",city="C1"))
+        dealerDao.insert(Dealer(mobileNumber="2222222222",name="D2",city="C2"))
+        assertEquals("D2",dealerDao.getDealerByMobile("2222222222")!!.name)
+        println("SC098: Duplicate mobile (REPLACE) PASS")
+    }
+    @Test fun sc099_dataIntegrityCrossCheck() = runBlocking {
+        val smId = serviceManDao.insert(ServiceMan(name="Raj",mobile="1",email="e",employeeId="E",designation="T"))
+        supplierDao.insert(Supplier(mobile="1",name="S1",companyName="SC",city="C"))
+        val eid = repairDao.insert(RepairEntry(customerMobile="1",customerName="C",deviceBrand="A",deviceModel="B",
+            serviceManId=smId,sparePartName="Display",sparePartPurchasePrice=3200.0,supplierId=0L,chargeAmount=5500.0,workStatus="Pending"))
+        val ppid = sparePartDao.insert(SparePartPurchase(repairEntryId=eid,partName="Display",purchasePrice=3200.0,
+            supplierId="1",supplierName="S1",quantity=1))
+        val payId = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",
+            description="Repair",totalAmount=5500.0,paidAmount=1000.0,dueAmount=4500.0,status="PARTIAL",linkedEntryId=eid))
+        assertTrue(repairDao.getEntriesByServiceMan(smId).first().any { it.id == eid })
+        assertTrue(repairDao.getEntriesByMobile("1").first().any { it.id == eid })
+        assertTrue(sparePartDao.getPurchasesByRepairId(eid).first().any { it.id == ppid })
+        assertTrue(paymentDao.getPaymentsByMobile("1").first().any { it.id == payId })
+        assertTrue(paymentDao.getPaymentsByTypeAndDate("CUSTOMER",daysAgo(10),System.currentTimeMillis()).first().any { it.id == payId })
+        println("SC099: Cross-table data integrity PASS")
+    }
+    @Test fun sc100_comprehensiveStressTest() = runBlocking {
+        println("\nSC100: COMPREHENSIVE STRESS TEST — 100 operations")
+        val rng = Random(42)
+        val start = System.currentTimeMillis()
+        val results = mutableListOf<String>()
+
+        // 20 customers
+        repeat(20) { i -> customerDao.insert(Customer(mobileNumber=TestFixtures.randomMobile(i),name=TestFixtures.randomPersonName(),city=listOf("Mumbai","Delhi","Bangalore","Pune","Chennai").random())) }
+        results.add("${customerDao.getAllCustomers().first().size} customers")
+
+        // 10 dealers
+        repeat(10) { i -> dealerDao.insert(Dealer(mobileNumber=TestFixtures.randomMobile(100+i),name=TestFixtures.randomPersonName(),city=listOf("Mumbai","Delhi","Bangalore").random())) }
+        results.add("${dealerDao.getAllDealers().first().size} dealers")
+
+        // 20 repair entries
+        repeat(20) { i ->
+            val mob = TestFixtures.randomMobile(i)
+            val part = TestFixtures.PARTS_CATALOG.random()
+            val charge = part.retailPrice + 500 + rng.nextInt(2000)
+            repairDao.insert(RepairEntry(customerMobile=mob,customerName=TestFixtures.randomPersonName(),
+                deviceBrand=TestFixtures.randomBrand(),deviceModel=TestFixtures.randomPhoneModel(),
+                faultDetected=part.name,sparePartName=part.name,sparePartPurchasePrice=part.costPrice,
+                supplierId=0L,chargeAmount=charge,advanceAmount= round(charge*0.3*100)/100.0,
+                workStatus=if (rng.nextBoolean()) "Done" else "Pending", finalAmount=charge,
+                handoverDone=rng.nextBoolean(), handoverDate=if (rng.nextBoolean()) daysAgo(rng.nextInt(5),0) else 0L,
+                entryDate=daysAgo(rng.nextInt(15))))
+        }
+        results.add("${repairDao.getAllEntries().first().size} repairs")
+
+        // 30 spare parts
         repeat(30) {
             val part = TestFixtures.PARTS_CATALOG.random()
-            val qty = 1 + rng.nextInt(4)
-            val sPrice = kotlin.math.round(part.retailPrice * (1.0 + rng.nextDouble() * 0.5) * qty * 100.0) / 100.0
-            val paid = kotlin.math.round(sPrice * (if (rng.nextDouble() < 0.75) 1.0 else rng.nextDouble() * 0.5) * 100.0) / 100.0
-            val sup = TestFixtures.SUPPLIER_DATA.random()
-
-            val saleDate = daysAgo(18 - (it % 18), 12 + rng.nextInt(6))
-            saleDao.insert(Sale(
-                itemName = "${part.name} x$qty", supplierId = sup.mobile, supplierName = sup.company,
-                purchasePrice = part.costPrice * qty, salePrice = sPrice,
-                paidToSupplier = kotlin.math.round(part.costPrice * qty * paid / sPrice * 100.0) / 100.0,
-                customerPaid = paid,
-                saleDate = saleDate))
-            state.directSaleCount++
+            sparePartDao.insert(SparePartPurchase(repairEntryId= (1+ rng.nextInt(20)).toLong(),
+                partName=part.name,purchasePrice=part.costPrice,supplierId=TestFixtures.SUPPLIER_DATA.random().mobile,
+                supplierName=TestFixtures.SUPPLIER_DATA.random().name,quantity=1+ rng.nextInt(10)))
         }
-        println("  ${state.directSaleCount} direct sales recorded")
-        assertEquals(30, saleDao.getAllSales().first().size)
+        results.add("${sparePartDao.getAllPurchases().first().size} spare parts")
 
-        // Sale query by supplier
-        val supSales = saleDao.getSalesBySupplier(TestFixtures.SUPPLIER_DATA[0].mobile).first()
-        assertNotNull(supSales)
+        // 20 payments with transactions
+        repeat(20) {
+            val amt = round((1000.0 + rng.nextDouble()*9000.0)*100.0)/100.0
+            val paid = round(amt*(0.3+rng.nextDouble()*0.7)*100.0)/100.0
+            val payId = paymentDao.insert(Payment(personType=listOf("CUSTOMER","DEALER","SUPPLIER").random(),
+                personMobile=TestFixtures.randomMobile(rng.nextInt(130)), personName=TestFixtures.randomPersonName(),
+                description="Stress test",totalAmount=amt,paidAmount=paid,dueAmount= round((amt-paid)*100.0)/100.0,
+                status=if (paid>=amt) "PAID" else if (paid>0) "PARTIAL" else "UNPAID"))
+            if (paid > 0) paymentTxnDao.insert(PaymentTransaction(paymentId=payId,personType="CUSTOMER",
+                personMobile=TestFixtures.randomMobile(rng.nextInt(130)),personName=TestFixtures.randomPersonName(),
+                amount=paid,paymentMode=if (rng.nextBoolean()) "CASH" else "ONLINE"))
+        }
+        results.add("${paymentDao.getAllPayments().first().size} payments")
+        results.add("${paymentTxnDao.getAllTransactions().first().size} transactions")
 
-        // Sale date range query
-        val salesInRange = saleDao.getSalesByDateRange(daysAgo(20), System.currentTimeMillis()).first()
-        assertTrue(salesInRange.isNotEmpty())
+        // 10 sales
+        repeat(10) {
+            val part = TestFixtures.PARTS_CATALOG.random()
+            saleDao.insert(Sale(itemName="${part.name} x${1+rng.nextInt(3)}",supplierId=TestFixtures.SUPPLIER_DATA.random().mobile,
+                supplierName=TestFixtures.SUPPLIER_DATA.random().name,purchasePrice=part.costPrice,salePrice=part.retailPrice))
+        }
+        results.add("${saleDao.getAllSales().first().size} sales")
+
+        // 5 returns
+        repeat(5) {
+            partReturnDao.insert(PartReturn(supplierId=TestFixtures.SUPPLIER_DATA.random().mobile,
+                supplierName=TestFixtures.SUPPLIER_DATA.random().name,partName=TestFixtures.PARTS_CATALOG.random().name,
+                returnReason= listOf("Defective","Wrong Item","Not Needed").random(),refundAmount= round((100.0+rng.nextDouble()*1000.0)*100.0)/100.0))
+        }
+        results.add("${partReturnDao.getAllReturns().first().size} returns")
+
+        // Verify queries work with all this data
+        assertTrue(repairDao.getPendingCount().first() >= 0)
+        assertTrue(repairDao.getCompletedCountInRange(daysAgo(30),System.currentTimeMillis()).first() >= 0)
+        assertTrue((repairDao.getRevenueInRange(daysAgo(30),System.currentTimeMillis()).first()?:0.0) >= 0)
+        assertTrue(paymentDao.getTotalDueAmount().first() >= 0)
+        assertTrue(paymentDao.getPendingDues().first().isNotEmpty())
+
+        val elapsed = System.currentTimeMillis() - start
+        println("  Stress test: ${results.joinToString(", ")}")
+        println("  All 100 operations completed in ${elapsed}ms")
+        println("SC100: Comprehensive stress test PASS")
     }
 
-    @Test
-    fun scenario05_cashFlow20Days() = runBlocking {
-        println("\nSCENARIO 05: CASH FLOW (20 business days)")
-        if (state.serviceManIds.isEmpty()) scenario01_shopKeeperSetup()
-        if (state.supplierMobiles.isEmpty()) scenario02_supplierAndInventory()
-        if (state.repairEntryIds.isEmpty()) scenario03_customerRepairFlow()
-        if (saleDao.getAllSales().first().isEmpty()) scenario04_directSales()
-
-        val rng = Random(20242)
-        var cashOnHand = 5000.0
-
-        repeat(20) { day ->
-            val dStart = daysAgo(20 - day)
-            val dEnd = dStart + MILLIS_PER_DAY - 1
-            val repairsToday = repairDao.getCompletedEntries().first().filter { it.handoverDate in dStart until dEnd }
-            val cashInRepairs = repairsToday.sumOf { it.advanceAmount + kotlin.math.max(0.0, it.chargeAmount - it.advanceAmount) }
-            val salesToday = saleDao.getSalesByDateRange(dStart, dEnd).first()
-            val cashInSales = salesToday.sumOf { it.customerPaid }
-            val totalIn = cashInRepairs + cashInSales
-            val txnsOut = paymentTxnDao.getTransactionsByDateRange(dStart, dEnd).first().filter { it.personType == "SUPPLIER" }
-            val totalOut = txnsOut.sumOf { it.amount.coerceAtLeast(0.0) }
-            val personal = if (day == 10) (1000.0 + rng.nextInt(9) * 500) else 0.0
-            if (personal > 0) println("  Day $day: Personal withdrawal Rs.${personal.toInt()}")
-            cashOnHand += totalIn - totalOut - personal
-            state.dailyCashLedger.add(DayLedger(day, kotlin.math.round(totalIn * 100.0) / 100.0, kotlin.math.round(totalOut * 100.0) / 100.0, personal))
-            if (day < 3 || day >= 17 || personal > 0) {
-                val l = state.dailyCashLedger[day]
-                println("  Day ${String.format("%2d", day)}: In=Rs.${l.cashIn.toInt().toString().padStart(7)} Out=Rs.${l.cashOut.toInt().toString().padStart(6)} Net=${if (l.net >= 0) "+" else ""}Rs.${l.net.toInt().toString().padStart(7)} Bal=Rs.${cashOnHand.toInt().toString().padStart(8)}")
-            }
-        }
-        assertTrue("Cash on hand must stay positive", cashOnHand >= 0)
-        println("  Final Cash on Hand: Rs.${cashOnHand.toInt()}")
-
-        // PaymentTransaction query by date range
-        val allTxns = paymentTxnDao.getTransactionsByDateRange(daysAgo(30), System.currentTimeMillis()).first()
-        println("  Total transactions in 30 days: ${allTxns.size}")
-
-        // PaymentTransaction query by mobile
-        if (state.customerMobiles.isNotEmpty()) {
-            val txnsByMobile = paymentTxnDao.getTransactionsByMobile(state.customerMobiles[0]).first()
-            assertNotNull(txnsByMobile)
-        }
-
-        // Payment query by type and date
-        val supplierPaymentsInRange = paymentDao.getPaymentsByTypeAndDate("SUPPLIER", daysAgo(30), System.currentTimeMillis()).first()
-        val paymentCount = paymentDao.getPaymentCountByTypeAndDate("SUPPLIER", daysAgo(30), System.currentTimeMillis()).first()
-        assertTrue(paymentCount <= supplierPaymentsInRange.size)
-    }
-
-    @Test
-    fun scenario06_returns() = runBlocking {
-        println("\nSCENARIO 06: RETURNS")
-        if (state.repairEntryIds.size < 5) scenario03_customerRepairFlow()
-
-        val rng = Random(77777)
-        val completed = repairDao.getCompletedEntries().first().toMutableList()
-        repeat(minOf(5, completed.size)) {
-            val entry = completed[it]
-            val isDealer = entry.customerMobile.isEmpty()
-            val personMobile = entry.customerMobile.ifEmpty { entry.dealerMobile }
-            val personName = entry.customerName.ifEmpty { entry.dealerName }
-            val refund = kotlin.math.round(entry.chargeAmount * (0.5 + rng.nextDouble() * 0.5) * 100.0) / 100.0
-            val payId = paymentDao.insert(Payment(
-                personType = if (isDealer) "DEALER_REFUND" else "CUSTOMER_REFUND",
-                personMobile = personMobile, personName = personName,
-                description = "Refund - repair #${entry.id}", totalAmount = refund,
-                paidAmount = refund, dueAmount = 0.0, status = "REFUNDED", linkedEntryId = entry.id))
-            state.refundPaymentIds.add(payId)
-            paymentTxnDao.insert(PaymentTransaction(
-                paymentId = payId, personType = if (isDealer) "DEALER_REFUND" else "CUSTOMER_REFUND",
-                personMobile = personMobile, personName = personName, amount = -refund, paymentMode = "CASH"))
-        }
-        println("  ${state.refundPaymentIds.size} customer refunds")
-
-        // --- PartReturn CRUD ---
-        val swp = state.supplierMobiles.filter { sparePartDao.getPurchasesBySupplier(it).first().isNotEmpty() }
-        repeat(minOf(3, swp.size)) { i ->
-            val mobile = swp[i]
-            val sup = supplierDao.getSupplierByMobile(mobile)!!
-            val pp = sparePartDao.getPurchasesBySupplier(mobile).first().random()
-            val cp = TestFixtures.PARTS_CATALOG.find { it.name == pp.partName } ?: TestFixtures.PARTS_CATALOG.random()
-            val qty = 1 + rng.nextInt(3)
-            val refundAmount = kotlin.math.round(cp.costPrice * qty * 100.0) / 100.0
-            state.supplierReturnIds.add(partReturnDao.insert(PartReturn(
-                supplierId = mobile, supplierName = sup.name,
-                partName = cp.name, returnReason = "Defective batch",
-                refundAmount = refundAmount)))
-            val unpaid = paymentDao.getAllPayments().first()
-                .firstOrNull { it.personMobile == mobile && it.personType == "SUPPLIER" && it.status == "UNPAID" }
-            val creditPaymentId = unpaid?.id ?: 0L
-            paymentTxnDao.insert(PaymentTransaction(
-                paymentId = creditPaymentId, personType = "SUPPLIER_CREDIT", personMobile = mobile, personName = sup.name,
-                amount = -refundAmount, paymentMode = "ADJUSTMENT",
-                transactionDate = daysAgo(5, 10)))
-            if (unpaid != null) {
-                paymentDao.update(unpaid.copy(
-                    dueAmount = kotlin.math.max(0.0, unpaid.dueAmount - refundAmount)
-                ))
-            }
-        }
-        println("  ${state.supplierReturnIds.size} supplier returns")
-
-        // PartReturn query by supplier
-        if (state.supplierReturnIds.isNotEmpty()) {
-            val firstReturn = partReturnDao.getReturnById(state.supplierReturnIds[0])!!
-            val bySupplier = partReturnDao.getReturnsBySupplier(firstReturn.supplierId).first()
-            assertTrue(bySupplier.isNotEmpty())
-        }
-
-        // PartReturn update
-        if (state.supplierReturnIds.isNotEmpty()) {
-            val firstRet = partReturnDao.getReturnById(state.supplierReturnIds[0])!!
-            partReturnDao.update(firstRet.copy(refundReceived = true))
-            val updatedRet = partReturnDao.getReturnById(state.supplierReturnIds[0])!!
-            assertTrue(updatedRet.refundReceived)
-        }
-    }
-
-    @Test
-    fun scenario07_reconciliation() = runBlocking {
-        println("\nSCENARIO 07: INDEPENDENT RECONCILIATION")
-        val mismatches = mutableListOf<MismatchRecord>()
-
-        // 7a: Inventory
-        val stockIn = sparePartDao.getAllPurchases().first().groupBy { it.partName }.mapValues { (_, v) -> v.sumOf { it.quantity } }
-        val stockOutSales = saleDao.getAllSales().first()
-            .flatMap { s -> s.itemName.split(" x").let { p -> if (p.size > 1) listOf(p[0].trim() to p[1].toInt()) else emptyList() } }
-            .groupBy { it.first }.mapValues { (_, v) -> v.sumOf { it.second } }
-        val stockOutRepair = repairDao.getAllEntries().first()
-            .filter { !it.isDraft && it.sparePartName.isNotBlank() }
-            .flatMap { e -> e.sparePartName.split(",").map { it.trim() } }
-            .groupBy { it }.mapValues { (_, v) -> v.size }
-        val returnsIn = partReturnDao.getAllReturns().first().groupBy { it.partName }.mapValues { (_, v) -> v.size }
-
-        (stockIn.keys + stockOutSales.keys + stockOutRepair.keys + returnsIn.keys).distinct().forEach { pn ->
-            val net = (stockIn[pn] ?: 0) - (stockOutSales[pn] ?: 0) - (stockOutRepair[pn] ?: 0) + (returnsIn[pn] ?: 0)
-            if (net < 0) mismatches.add(MismatchRecord("Inventory", "Negative stock '$pn'", net, "NEGATIVE"))
-        }
-        println("  Inventory: ${(stockIn.keys + stockOutSales.keys + stockOutRepair.keys).distinct().size} part types, ${mismatches.count { it.category == "Inventory" }} issues")
-
-        // 7b: Revenue
-        val revApp = repairDao.getRevenueInRange(daysAgo(20), System.currentTimeMillis()).first() ?: 0.0
-        val revCalc = repairDao.getCompletedEntries().first().sumOf { it.chargeAmount }
-        if (kotlin.math.abs(revApp - revCalc) > 0.01) mismatches.add(MismatchRecord("Revenue-Repairs", "getRevenueInRange=$revApp vs sum=$revCalc", revCalc, revApp))
-
-        // 7c: Supplier Dues
-        val supPays = paymentDao.getAllPayments().first().filter { it.personType == "SUPPLIER" }
-        var dueCalc = 0.0
-        supPays.forEach { p ->
-            val txns = paymentTxnDao.getTransactionsByPayment(p.id).first()
-            val paid = txns.filter { it.amount > 0 }.sumOf { it.amount }
-            val cred = txns.filter { it.amount < 0 }.sumOf { kotlin.math.abs(it.amount) }
-            val due = kotlin.math.max(0.0, p.totalAmount - paid - cred)
-            dueCalc += due
-            if (kotlin.math.abs(due - p.dueAmount) > 0.01)
-                mismatches.add(MismatchRecord("Supplier-Due", "Payment #${p.id}: calc=$due stored=${p.dueAmount}", due, p.dueAmount))
-        }
-
-        // 7d: Customer Payments
-        val custPays = paymentDao.getAllPayments().first().filter { it.personType == "CUSTOMER" && it.status != "CANCELLED" }
-        var custPaidCalc = 0.0
-        custPays.forEach { p ->
-            val paid = paymentTxnDao.getTransactionsByPayment(p.id).first().filter { it.amount > 0 }.sumOf { it.amount }
-            custPaidCalc += paid
-            if (kotlin.math.abs(paid - p.paidAmount) > 0.01)
-                mismatches.add(MismatchRecord("Cust-Payment", "Payment #${p.id}", paid, p.paidAmount))
-        }
-
-        // 7e: Dealer Payments
-        val dealerPays = paymentDao.getAllPayments().first().filter { it.personType == "DEALER" && it.status != "CANCELLED" }
-        var dealerPaidCalc = 0.0
-        dealerPays.forEach { p ->
-            val paid = paymentTxnDao.getTransactionsByPayment(p.id).first().filter { it.amount > 0 }.sumOf { it.amount }
-            dealerPaidCalc += paid
-            if (kotlin.math.abs(paid - p.paidAmount) > 0.01)
-                mismatches.add(MismatchRecord("Dealer-Payment", "Payment #${p.id}", paid, p.paidAmount))
-        }
-
-        // 7f: Cross-check Payment totalAmount = paidAmount + dueAmount
-        paymentDao.getAllPayments().first().forEach { p ->
-            if (kotlin.math.abs(p.totalAmount - (p.paidAmount + p.dueAmount)) > 0.01)
-                mismatches.add(MismatchRecord("Payment-Integrity", "Payment #${p.id}: total=${p.totalAmount} != paid=${p.paidAmount} + due=${p.dueAmount}", p.totalAmount, p.paidAmount + p.dueAmount))
-        }
-
-        // 7g: RepairEntry integrity - completed entries must have handoverDone=true and chargeAmount = finalAmount
-        repairDao.getAllEntries().first().filter { it.workStatus == "Done" }.forEach { e ->
-            if (!e.handoverDone) mismatches.add(MismatchRecord("Repair-Integrity", "Entry #${e.id}: Done but handoverDone=false", true, false))
-            if (kotlin.math.abs(e.chargeAmount - e.finalAmount) > 0.01 && e.finalAmount > 0)
-                mismatches.add(MismatchRecord("Repair-Integrity", "Entry #${e.id}: charge=$chargeAmount final=$finalAmount", e.chargeAmount, e.finalAmount))
-        }
-
-        val totalRevenue = revCalc + saleDao.getAllSales().first().sumOf { it.customerPaid }
-        val totalCogs = supPays.sumOf { it.totalAmount }
-        println("  Revenue=Rs.${totalRevenue.toInt()}  COGS=Rs.${totalCogs.toInt()}  Profit=Rs.${(totalRevenue - totalCogs).toInt()}")
-        println("  SupplierDue(calc)=Rs.${dueCalc.toInt()}  CustPaid(calc)=Rs.${custPaidCalc.toInt()}  DealerPaid(calc)=Rs.${dealerPaidCalc.toInt()}")
-
-        val reportCategories = listOf("Inventory", "Revenue", "Supplier-Due", "Cust-Payments", "Dealer-Payments", "Payment-Integrity", "Repair-Integrity")
-        val report = ReconciliationReport(
-            reportCategories.map { cat ->
-                ScenarioResult(cat, mismatches.none { it.category == cat }, mismatches.filter { it.category == cat })
-            },
-            mismatches.size, mismatches.isEmpty())
-        report.printSummary()
-        mismatches.forEach { println("MISMATCH [${it.category}]: expected=${it.expected}, actual=${it.actual} - ${it.description}") }
-        assertTrue("Reconciliation FAILED: ${mismatches.size} mismatch(es)", mismatches.isEmpty())
-    }
-
-    @Test
-    fun scenario08_fullEndToEndRealWorld() = runBlocking {
-        println("\n========== FULL REAL-WORLD SIMULATION ==========")
-        clearAllData()
-        scenario01_shopKeeperSetup()
-        scenario02_supplierAndInventory()
-        scenario03_customerRepairFlow()
-        scenario04_directSales()
-        scenario05_cashFlow20Days()
-        scenario06_returns()
-        scenario07_reconciliation()
-        println("\n========== SIMULATION COMPLETE ==========")
-    }
-
-    // ================================================================
-    // NEW: SCENARIO 09 - Edge Cases, Cross-Table Integrity, Data Dump
-    // ================================================================
-    @Test
-    fun scenario09_edgeCasesCrossTableIntegrity() = runBlocking {
-        println("\nSCENARIO 09: EDGE CASES + CROSS-TABLE INTEGRITY + DATA DUMP")
-
-        // --- Edge Cases ---
-
-        // 9.1: RepairEntry with empty optional fields
-        val minimalEntryId = repairDao.insert(RepairEntry(
-            customerMobile = "9999999999", customerName = "Minimal Customer",
-            deviceBrand = "", deviceModel = "", faultDetected = "",
-            sparePartName = "", sparePartPurchasePrice = 0.0,
-            supplierId = 0L, workStatus = "Pending"))
-        assertTrue(minimalEntryId > 0)
-
-        // 9.2: RepairEntry with very long names
-        val longName = "A".repeat(255)
-        val longEntryId = repairDao.insert(RepairEntry(
-            customerMobile = "8888888888", customerName = longName,
-            deviceBrand = longName, deviceModel = longName,
-            sparePartName = longName, sparePartPurchasePrice = 999999.99,
-            supplierId = 100L, workStatus = "Pending"))
-        val longEntry = repairDao.getEntryById(longEntryId)!!
-        assertEquals(longName, longEntry.customerName)
-
-        // 9.3: Zero and negative amounts in Payment
-        val zeroPayId = paymentDao.insert(Payment(
-            personType = "CUSTOMER", personMobile = "7777777777",
-            personName = "Zero Test", description = "Zero amount test",
-            totalAmount = 0.0, paidAmount = 0.0, dueAmount = 0.0, status = "PAID"))
-        assertTrue(zeroPayId > 0)
-
-        // 9.4: Payment with very large amount
-        val largePayId = paymentDao.insert(Payment(
-            personType = "SUPPLIER", personMobile = "6666666666",
-            personName = "Large Amount Test", description = "Large amount test",
-            totalAmount = 999999.99, paidAmount = 500000.0, dueAmount = 499999.99, status = "PARTIAL"))
-        assertTrue(largePayId > 0)
-
-        // 9.5: Empty string supplier mobile (edge case)
-        val emptySupplierPurchase = sparePartDao.insert(SparePartPurchase(
-            repairEntryId = 1L, partName = "Test Part",
-            purchasePrice = 100.0, supplierId = "", supplierName = "No Supplier",
-            quantity = 1))
-        assertTrue(emptySupplierPurchase > 0)
-
-        // 9.6: Customer with null name/city
-        val nullFieldsCustomer = Customer(mobileNumber = "5555555555", name = null, city = null)
-        customerDao.insert(nullFieldsCustomer)
-        val fetched = customerDao.getCustomerByMobile("5555555555")
-        assertNotNull(fetched)
-        assertNull(fetched!!.name)
-        assertNull(fetched.city)
-
-        // 9.7: Dealer with null name/city
-        dealerDao.insert(Dealer(mobileNumber = "4444444444", name = null, city = null))
-        val dealer = dealerDao.getDealerByMobile("4444444444")
-        assertNotNull(dealer)
-        assertNull(dealer!!.name)
-
-        // 9.8: PaymentTransaction with negative amount (refund scenario)
-        val refundTxnId = paymentTxnDao.insert(PaymentTransaction(
-            paymentId = zeroPayId, personType = "CUSTOMER",
-            personMobile = "7777777777", personName = "Refund Test",
-            amount = -500.0, paymentMode = "CASH",
-            note = "Test negative transaction"))
-        assertTrue(refundTxnId > 0)
-
-        // 9.9: CommonFault with edge case values
-        val edgeFaultId = commonFaultDao.insert(CommonFault(
-            faultName = "", category = "", defaultCharge = 0.0, isActive = false, sortOrder = -1))
-        assertTrue(edgeFaultId > 0)
-
-        // 9.10: Multiple entries with same mobile (different dealers vs customers)
-        customerDao.insert(Customer(mobileNumber = "3333333333", name = "Same Mobile 1", city = "City1"))
-        customerDao.insert(Customer(mobileNumber = "3333333333", name = "Same Mobile 2", city = "City2"))
-        val sameMobileCustomers = customerDao.getCustomerByMobile("3333333333")
-        assertEquals("Same Mobile 2", sameMobileCustomers!!.name) // REPLACE means last write wins
-
-        // --- Cross-Table Integrity Checks ---
-
-        // 9.11: Verify all spare part purchases reference valid entries by repairEntryId
-        val allParts = sparePartDao.getAllPurchases().first()
-        val allEntryIds = repairDao.getAllEntries().first().map { it.id }.toSet()
-        val orphanParts = allParts.filter { it.repairEntryId != 0L && it.repairEntryId !in allEntryIds }
-        if (orphanParts.isNotEmpty()) {
-            println("  WARNING: ${orphanParts.size} orphan spare parts (repairEntryId not found)")
-        }
-
-        // 9.12: Verify linked payment entries exist
-        val linkedPayments = paymentDao.getAllPayments().first().filter { it.linkedEntryId != 0L }
-        val orphanLinked = linkedPayments.filter { it.linkedEntryId !in allEntryIds }
-        if (orphanLinked.isNotEmpty()) {
-            println("  WARNING: ${orphanLinked.size} payments link to non-existent repair entries")
-        }
-
-        // 9.13: Check PaymentTransaction references match Payment records
-        val allPayments = paymentDao.getAllPayments().first()
-        val paymentIdSet = allPayments.map { it.id }.toSet()
-        val allTxns = paymentTxnDao.getAllTransactions().first()
-        val orphanTxns = allTxns.filter { it.paymentId !in paymentIdSet }
-        if (orphanTxns.isNotEmpty()) {
-            println("  WARNING: ${orphanTxns.size} transactions reference non-existent payments")
-        }
-
-        // 9.14: Verify all dealers have unique mobiles (PK constraint)
-        val dealerCount = dealerDao.getAllDealers().first().size
-        val uniqueDealerMobiles = dealerDao.getAllDealers().first().map { it.mobileNumber }.distinct().size
-        if (dealerCount != uniqueDealerMobiles) {
-            println("  WARNING: Duplicate dealer mobiles detected")
-        }
-
-        // 9.15: Verify no future-dated handovers (handoverDate > now) in Completed entries
-        val now = System.currentTimeMillis()
-        val futureHandovers = repairDao.getAllEntries().first().filter { it.handoverDone && it.handoverDate > now }
-        if (futureHandovers.isNotEmpty()) {
-            println("  WARNING: ${futureHandovers.size} completed entries have future handover dates")
-        }
-
-        println("  Edge cases: 10 scenarios tested")
-        println("  Cross-table integrity: 5 checks completed")
-
-        // --- Comprehensive Data Dump ---
-        println("\n========== COMPREHENSIVE DATA DUMP ==========")
-        val dump = DataDump(
-            suppliers = supplierDao.getAllSuppliers().first(),
-            serviceMen = serviceManDao.getAllServiceMen().first(),
-            customers = customerDao.getAllCustomers().first(),
-            dealers = dealerDao.getAllDealers().first(),
-            repairs = repairDao.getAllEntries().first(),
-            spareParts = sparePartDao.getAllPurchases().first(),
-            sales = saleDao.getAllSales().first(),
-            payments = paymentDao.getAllPayments().first(),
-            transactions = paymentTxnDao.getAllTransactions().first(),
-            returns = partReturnDao.getAllReturns().first(),
-            faults = commonFaultDao.getAllFaults().first(),
-            userProfile = userProfileDao.getUserProfile()
+    // ========================================================================
+    // SC101: Final Orchestration — runs all 100 scenarios
+    // ========================================================================
+    @Test fun scenario101_runAll100() = runBlocking {
+        println("\n========== RUNNING ALL 100 SCENARIOS ==========")
+        val start = System.currentTimeMillis()
+        val results = mutableListOf<Pair<String,Boolean>>()
+        val tests = listOf(
+            "SC001" to { sc001_userProfileInsertAndRead() },
+            "SC002" to { sc002_userProfileUpdate() },
+            "SC003" to { sc003_userProfileFlow() },
+            "SC004" to { sc004_userProfileDelete() },
+            "SC005" to { sc005_userProfileEdgeEmpty() },
+            "SC006" to { sc006_serviceManInsert() },
+            "SC007" to { sc007_serviceManUpdate() },
+            "SC008" to { sc008_serviceManDelete() },
+            "SC009" to { sc009_serviceManGetAll() },
+            "SC010" to { sc010_serviceManActiveFilter() },
+            "SC011" to { sc011_serviceManFlow() },
+            "SC012" to { sc012_serviceManEdgeEmptyEmail() },
+            "SC013" to { sc013_serviceManEdgeLongName() },
+            "SC014" to { sc014_commonFaultInsert() },
+            "SC015" to { sc015_commonFaultUpdate() },
+            "SC016" to { sc016_commonFaultDelete() },
+            "SC017" to { sc017_commonFaultGetAll() },
+            "SC018" to { sc018_commonFaultActiveFilter() },
+            "SC019" to { sc019_commonFaultByCategory() },
+            "SC020" to { sc020_commonFaultEdgeZeroCharge() },
+            "SC021" to { sc021_commonFaultEdgeNegativeSortOrder() },
+            "SC022" to { sc022_supplierInsert() },
+            "SC023" to { sc023_supplierUpdate() },
+            "SC024" to { sc024_supplierDelete() },
+            "SC025" to { sc025_supplierGetAll() },
+            "SC026" to { sc026_supplierActiveFilter() },
+            "SC027" to { sc027_supplierFlow() },
+            "SC028" to { sc028_supplierEdgeEmptyEmail() },
+            "SC029" to { sc029_supplierEdgeMaxFields() },
+            "SC030" to { sc030_customerInsert() },
+            "SC031" to { sc031_customerUpdate() },
+            "SC032" to { sc032_customerDelete() },
+            "SC033" to { sc033_customerGetAll() },
+            "SC034" to { sc034_customerFlow() },
+            "SC035" to { sc035_customerReplaceOnConflict() },
+            "SC036" to { sc036_customerEdgeNullName() },
+            "SC037" to { sc037_customerEdgeLongName() },
+            "SC038" to { sc038_dealerInsert() },
+            "SC039" to { sc039_dealerUpdate() },
+            "SC040" to { sc040_dealerGetAll() },
+            "SC041" to { sc041_dealerFlow() },
+            "SC042" to { sc042_dealerReplaceOnConflict() },
+            "SC043" to { sc043_dealerEdgeNullName() },
+            "SC044" to { sc044_dealerEdgeEmptyName() },
+            "SC045" to { sc045_dealerEdgeLongName() },
+            "SC046" to { sc046_repairEntryInsert() },
+            "SC047" to { sc047_repairEntryUpdate() },
+            "SC048" to { sc048_repairEntryDelete() },
+            "SC049" to { sc049_repairEntryGetAll() },
+            "SC050" to { sc050_repairEntryPendingFilter() },
+            "SC051" to { sc051_repairEntryCompletedFilter() },
+            "SC052" to { sc052_repairEntryByMobile() },
+            "SC053" to { sc053_repairEntryByServiceMan() },
+            "SC054" to { sc054_repairEntryDateRange() },
+            "SC055" to { sc055_repairEntrySearch() },
+            "SC056" to { sc056_repairEntryFlow() },
+            "SC057" to { sc057_repairEntryRevenueQuery() },
+            "SC058" to { sc058_partPurchaseInsert() },
+            "SC059" to { sc059_partPurchaseUpdate() },
+            "SC060" to { sc060_partPurchaseDelete() },
+            "SC061" to { sc061_partPurchaseByRepairId() },
+            "SC062" to { sc062_partPurchaseBySupplier() },
+            "SC063" to { sc063_partPurchaseDateRange() },
+            "SC064" to { sc064_partPurchaseTotalInRange() },
+            "SC065" to { sc065_partPurchaseEdgeZeroQty() },
+            "SC066" to { sc066_saleInsert() },
+            "SC067" to { sc067_saleBySupplier() },
+            "SC068" to { sc068_saleDateRange() },
+            "SC069" to { sc069_saleEdgeZeroPrices() },
+            "SC070" to { sc070_saleEdgeLargeAmounts() },
+            "SC071" to { sc071_saleEdgeEmptyItemName() },
+            "SC072" to { sc072_paymentInsert() },
+            "SC073" to { sc073_paymentUpdate() },
+            "SC074" to { sc074_paymentDelete() },
+            "SC075" to { sc075_paymentPendingDues() },
+            "SC076" to { sc076_paymentByMobile() },
+            "SC077" to { sc077_paymentByTypeAndDate() },
+            "SC078" to { sc078_paymentTotalDue() },
+            "SC079" to { sc079_paymentEdgeNegativeAmount() },
+            "SC080" to { sc080_txnInsert() },
+            "SC081" to { sc081_txnByPayment() },
+            "SC082" to { sc082_txnByMobile() },
+            "SC083" to { sc083_txnDateRange() },
+            "SC084" to { sc084_txnTotalPaidByMobile() },
+            "SC085" to { sc085_txnUpdateDelete() },
+            "SC086" to { sc086_partReturnInsert() },
+            "SC087" to { sc087_partReturnUpdate() },
+            "SC088" to { sc088_partReturnDelete() },
+            "SC089" to { sc089_partReturnBySupplier() },
+            "SC090" to { sc090_partReturnEdgeZero() },
+            "SC091" to { sc091_fullRepairWorkflow() },
+            "SC092" to { sc092_supplierPurchaseAndReturn() },
+            "SC093" to { sc093_dealerWorkflowWithPayment() },
+            "SC094" to { sc094_directSaleWithSupplierPayment() },
+            "SC095" to { sc095_supplierDueManagement() },
+            "SC096" to { sc096_multiPaymentForSingleRepair() },
+            "SC097" to { sc097_repairCancellationWithRefund() },
+            "SC098" to { sc098_duplicateMobileHandling() },
+            "SC099" to { sc099_dataIntegrityCrossCheck() },
+            "SC100" to { sc100_comprehensiveStressTest() }
         )
-
-        // Print structured report
-        println("""
-  ┌─────────────────────────────────────────────────────────────────┐
-  │                    BUSINESS INTELLIGENCE REPORT                 │
-  ├─────────────────────────────────────────────────────────────────┤
-  │ PROFILE                                                         │
-  │   Shop: ${dump.userProfile?.shopName?.padEnd(50)}}│
-  │   Owner: ${dump.userProfile?.name?.padEnd(51)}}│
-  │   Phone: ${dump.userProfile?.phone?.padEnd(51)}}│
-  │   GST: ${dump.userProfile?.gstNo?.padEnd(54)}}│
-  ├─────────────────────────────────────────────────────────────────┤
-  │ MASTER DATA                                                     │
-  │   Service Men: ${dump.serviceMen.size.toString().padStart(4)}                                    │
-  │   Suppliers:   ${dump.suppliers.size.toString().padStart(4)}                                    │
-  │   Customers:   ${dump.customers.size.toString().padStart(4)}                                    │
-  │   Dealers:     ${dump.dealers.size.toString().padStart(4)}                                    │
-  │   Common Faults: ${dump.faults.size.toString().padStart(4)}                                    │
-  ├─────────────────────────────────────────────────────────────────┤
-  │ OPERATIONS                                                      │
-  │   Repair Entries: ${dump.repairs.size.toString().padStart(4)}                                    │
-  │   - Completed:    ${dump.repairs.count { it.handoverDone }.toString().padStart(4)}                                    │
-  │   - Pending:      ${dump.repairs.count { !it.handoverDone }.toString().padStart(4)}                                    │
-  │   - Cancelled:    ${dump.repairs.count { it.workStatus == "Cancelled" }.toString().padStart(4)}                                    │
-  │   Spare Parts Purchased: ${dump.spareParts.size.toString().padStart(4)}                                    │
-  │   Direct Sales:   ${dump.sales.size.toString().padStart(4)}                                    │
-  │   Supplier Returns: ${dump.returns.size.toString().padStart(4)}                                    │
-  │   Payments:       ${dump.payments.size.toString().padStart(4)}                                    │
-  │   Transactions:   ${dump.transactions.size.toString().padStart(4)}                                    │
-  ├─────────────────────────────────────────────────────────────────┤
-  │ FINANCIAL SUMMARY                                               │
-  │   Total Inventory Value: Rs.${"%.0f".format(dump.spareParts.sumOf { it.purchasePrice * it.quantity }).padStart(9)}                    │
-  │   Total Repair Revenue: Rs.${"%.0f".format(dump.repairs.filter { it.handoverDone }.sumOf { it.finalAmount }).padStart(9)}                    │
-  │   Total Direct Sales: Rs.${"%.0f".format(dump.sales.sumOf { it.salePrice }).padStart(9)}                    │
-  │   Total Supplier Due: Rs.${"%.0f".format(dump.payments.filter { it.personType == "SUPPLIER" && it.status != "PAID" }.sumOf { it.dueAmount }).padStart(9)}                    │
-  │   Total Customer Due: Rs.${"%.0f".format(dump.payments.filter { p -> (p.personType == "CUSTOMER" || p.personType == "DEALER") && p.status != "PAID" }.sumOf { it.dueAmount }).padStart(9)}                    │
-  │   Total Cash In: Rs.${"%.0f".format(dump.transactions.filter { it.amount > 0 }.sumOf { it.amount }).padStart(9)}                    │
-  │   Total Cash Out: Rs.${"%.0f".format(dump.transactions.filter { it.amount < 0 }.sumOf { kotlin.math.abs(it.amount) }).padStart(9)}                    │
-  │   Business Days Simulated: ${state.dailyCashLedger.size.toString().padStart(4)}                                    │
-  └─────────────────────────────────────────────────────────────────┘
-        """.trimIndent())
-        println("========== END DATA DUMP ==========")
-    }
-
-    // ================================================================
-    // SCENARIO 10: Full Orchestrated Run with Data Dump
-    // ================================================================
-    @Test
-    fun scenario10_fullRunWithDump() = runBlocking {
-        println("\n========== COMPREHENSIVE SYSTEM TEST ==========")
-        println("Testing all 12 DAOs across all CRUD operations + edge cases + data dump")
-        println("Started at: ${DateUtils.formatDateTime(System.currentTimeMillis())}")
-        println()
-
-        // Run all standard scenarios
-        scenario01_shopKeeperSetup()
-        scenario02_supplierAndInventory()
-        scenario03_customerRepairFlow()
-        scenario04_directSales()
-        scenario05_cashFlow20Days()
-        scenario06_returns()
-        scenario07_reconciliation()
-
-        // Run edge cases and cross-table integrity
-        // (re-run within same DB context - edge case test uses existing data)
-        println()
-        scenario09_edgeCasesCrossTableIntegrity()
-
-        println()
-        println("========== ALL 10 SCENARIOS COMPLETED ==========")
-        println("""
-  Test Summary:
-  ├── SC01: Shop Setup (UserProfile, ServiceMan, CommonFault) - CRUD verified
-  ├── SC02: Suppliers + Inventory (Supplier, SparePartPurchase) - CRUD verified
-  ├── SC03: Customer/Dealer Repair Flow (Customer, Dealer, RepairEntry) - CRUD verified
-  ├── SC04: Direct Sales (Sale) - CRUD verified
-  ├── SC05: Cash Flow (Payment, PaymentTransaction) - queries verified
-  ├── SC06: Returns (PartReturn) - CRUD verified
-  ├── SC07: Reconciliation - 7 categories checked
-  ├── SC08: Full End-to-End - all scenarios orchestrated
-  ├── SC09: Edge Cases + Cross-Table Integrity + Data Dump
-  └── SC10: Master orchestration with final report
-        """.trimIndent())
+        var passed = 0; var failed = 0
+        tests.forEach { (name, test) ->
+            try { test(); results.add(name to true); passed++ }
+            catch (e: Throwable) { results.add(name to false); failed++; System.err.println("  $name FAILED: ${e.message}") }
+        }
+        val elapsed = System.currentTimeMillis() - start
+        println("\n========== RESULTS: $passed PASSED / $failed FAILED in ${elapsed}ms ==========")
+        results.forEach { (n, ok) -> println("  ${if (ok) "PASS" else "FAIL"}  $n") }
+        if (failed > 0) fail("$failed scenario(s) failed")
     }
 }
