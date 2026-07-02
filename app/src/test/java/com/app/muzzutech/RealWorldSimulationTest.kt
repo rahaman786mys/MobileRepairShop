@@ -398,8 +398,8 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                 itemName = "${part.name} x$qty", supplierId = sup.mobile, supplierName = sup.company,
                 purchasePrice = part.costPrice * qty, salePrice = sPrice,
                 paidToSupplier = kotlin.math.round(part.costPrice * qty * paid / sPrice * 100.0) / 100.0,
-customerPaid = paid,
-		saleDate = saleDate))
+                customerPaid = paid,
+                saleDate = saleDate))
             state.directSaleCount++
         }
         println("  ${state.directSaleCount} direct sales recorded")
@@ -413,7 +413,7 @@ customerPaid = paid,
         if (state.serviceManIds.isEmpty()) scenario01_shopKeeperSetup()
         if (state.supplierMobiles.isEmpty()) scenario02_supplierAndInventory()
         if (state.repairEntryIds.isEmpty()) scenario03_customerRepairFlow()
-        if (state.directSaleCount == 0) scenario04_directSales()
+        if (saleDao.getAllSales().first().isEmpty()) scenario04_directSales()
 
         val rng = Random(20242)
         var cashOnHand = 5000.0
