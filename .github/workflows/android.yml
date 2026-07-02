@@ -35,6 +35,10 @@ jobs:
     - name: Check gradlew line endings
       run: file gradlew
 
+    - name: Run Unit Tests
+      run: ./gradlew test --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+      shell: bash
+
     - name: Build with Gradle
       run: ./gradlew clean assembleRelease --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
       shell: bash
