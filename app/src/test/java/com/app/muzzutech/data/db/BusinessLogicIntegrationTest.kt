@@ -6,7 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.app.muzzutech.data.db.dao.*
 import com.app.muzzutech.data.model.*
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -225,7 +224,7 @@ class BusinessLogicIntegrationTest {
         sparePartPurchaseDao.insert(partPurchase)
 
         // If crash after sale insert, sale should still be there
-        var sales = saleDao.getAllSales().toList().first()
+        var sales = saleDao.getAllSales().first()
         val saleCountAfterFirst = sales.count { it.itemName == "Partial Part" }
         assertEquals("Sale should persist", 1, saleCountAfterFirst)
     }
@@ -257,14 +256,14 @@ class BusinessLogicIntegrationTest {
         val updatedEntry = entry.copy(id = entryId, serviceManName = serviceMan.name)
         repairEntryDao.update(updatedEntry)
 
-        var entries = repairEntryDao.getAllEntries().toList().first()
+        var entries = repairEntryDao.getAllEntries().first()
         assertTrue("Entry should exist", entries.any { it.serviceManName == serviceMan.name })
 
         serviceManDao.delete(serviceMan)
         val deleted = serviceManDao.getServiceManById(serviceMan.id)
         assertNull("ServiceMan should be deleted", deleted)
 
-        entries = repairEntryDao.getAllEntries().toList().first()
+        entries = repairEntryDao.getAllEntries().first()
         assertTrue(
             "RepairEntry should persist after serviceMan delete (no FK cascade)",
             entries.any { it.serviceManName == serviceMan.name }
@@ -291,7 +290,7 @@ class BusinessLogicIntegrationTest {
         )
         val purchaseId = sparePartPurchaseDao.insert(partPurchase)
 
-        val parts = sparePartPurchaseDao.getAllPurchases().toList().first()
+        val parts = sparePartPurchaseDao.getAllPurchases().first()
         val qty = parts.first { it.id == purchaseId }.quantity
         assertEquals("Initial qty should be 2", 2, qty)
 
@@ -299,7 +298,7 @@ class BusinessLogicIntegrationTest {
         val corrected = partPurchase.copy(id = purchaseId, quantity = 1)
         sparePartPurchaseDao.update(corrected)
 
-        val finalParts = sparePartPurchaseDao.getAllPurchases().toList().first()
+        val finalParts = sparePartPurchaseDao.getAllPurchases().first()
         val finalQty = finalParts.first { it.id == purchaseId }.quantity
         assertTrue("Stock should be 1", finalQty == 1)
     }
