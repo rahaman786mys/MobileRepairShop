@@ -247,7 +247,7 @@ class RealWorldSimulationTest {
             repeat(orders) {
                 orderCounter++
                 val part = TestFixtures.PARTS_CATALOG.random()
-                val qty = 1 + rng.nextInt(20)
+                val qty = 3 + rng.nextInt(20)
                 val cost = kotlin.math.round(part.costPrice * (0.9 + rng.nextDouble() * 0.2) * 100.0) / 100.0
                 // Force last 3 orders to be unpaid regardless of random, to ensure reconciliation always has something to verify
                 val forceUnpaid = forcedUnpaidCount < targetUnpaid && (orderCounter >= state.supplierMobiles.size * 7 - (targetUnpaid - 1))
@@ -328,7 +328,7 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                     sparePartName = parts.joinToString(", ") { it.name },
                     sparePartPurchasePrice = partsCharge, chargeAmount = charge, advanceAmount = advance,
                     serviceManId = smId, serviceManName = sm.name,
-                    isDraft = false, workStatus = status, handoverDone = done,
+                    isDraft = false, workStatus = status,                     finalAmount = charge, handoverDone = done,
                     entryDate = daysAgo(7 + rng.nextInt(18)),
                     handoverDate = if (done) daysAgo(rng.nextInt(5)) else 0L,
                     quotationDone = true, sparePartDone = true, workDone = done))
