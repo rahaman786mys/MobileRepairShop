@@ -57,7 +57,7 @@ jobs:
         keytool -list -keystore app/debug.keystore -storepass android -alias androiddebugkey -keypass android -v | grep SHA1
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+      run: ./gradlew assembleRelease --no-daemon --stacktrace -Dorg.gradle.jvmargs="-Xmx2g -XX:MaxMetaspaceSize=512m"
       shell: bash
 
     - name: Upload APK Artifact
