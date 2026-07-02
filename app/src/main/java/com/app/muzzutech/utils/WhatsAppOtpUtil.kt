@@ -7,6 +7,7 @@ import android.widget.Toast
 
 object WhatsAppOtpUtil {
 
+    @Volatile
     private var generatedOtp: String? = null
 
     fun generateOtp(): String {

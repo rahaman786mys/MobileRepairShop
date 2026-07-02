@@ -2,6 +2,7 @@ package com.app.muzzutech.ui.spareparts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.data.model.Payment
 import com.app.muzzutech.data.model.SparePartPurchase
@@ -47,44 +48,46 @@ class SparePartsViewModel : ViewModel() {
         payLater: Boolean
     ) {
         viewModelScope.launch {
-            val part = SparePartPurchase(
-                repairEntryId = repairEntryId,
-                partName = partName,
-                partPhotoPath = photoPath,
-                purchasePrice = price,
-                quantity = quantity,
-                supplierId = supplierId,
-                supplierName = supplierName
-            )
-            val partId = purchaseDao.insert(part)
-            val totalCost = price * quantity
-
-            if (totalCost > 0 && supplierId.isNotEmpty()) {
-                val payment = Payment(
-                    personType = "SUPPLIER",
-                    personMobile = supplierId,
-                    personName = supplierName,
-                    description = "Parts: $partName x $quantity (Repair #$repairEntryId)",
-                    totalAmount = totalCost,
-                    paidAmount = if (payLater) 0.0 else totalCost,
-                    dueAmount = if (payLater) totalCost else 0.0,
-                    status = if (payLater) "UNPAID" else "PAID",
-                    linkedPartId = partId
+            database.withTransaction {
+                val part = SparePartPurchase(
+                    repairEntryId = repairEntryId,
+                    partName = partName,
+                    partPhotoPath = photoPath,
+                    purchasePrice = price,
+                    quantity = quantity,
+                    supplierId = supplierId,
+                    supplierName = supplierName
                 )
-                val paymentId = paymentDao.insert(payment)
+                val partId = purchaseDao.insert(part)
+                val totalCost = price * quantity
 
-                // If paid immediately, create a transaction record
-                if (!payLater) {
-                    val transaction = com.app.muzzutech.data.model.PaymentTransaction(
-                        paymentId = paymentId,
+                if (totalCost > 0 && supplierId.isNotEmpty()) {
+                    val payment = Payment(
                         personType = "SUPPLIER",
                         personMobile = supplierId,
                         personName = supplierName,
-                        amount = totalCost,
-                        paymentMode = "CASH",
-                        note = "Immediate payment for $partName x $quantity"
+                        description = "Parts: $partName x $quantity (Repair #$repairEntryId)",
+                        totalAmount = totalCost,
+                        paidAmount = if (payLater) 0.0 else totalCost,
+                        dueAmount = if (payLater) totalCost else 0.0,
+                        status = if (payLater) "UNPAID" else "PAID",
+                        linkedPartId = partId
                     )
-                    database.paymentTransactionDao().insert(transaction)
+                    val paymentId = paymentDao.insert(payment)
+
+                    // If paid immediately, create a transaction record
+                    if (!payLater) {
+                        val transaction = com.app.muzzutech.data.model.PaymentTransaction(
+                            paymentId = paymentId,
+                            personType = "SUPPLIER",
+                            personMobile = supplierId,
+                            personName = supplierName,
+                            amount = totalCost,
+                            paymentMode = "CASH",
+                            note = "Immediate payment for $partName x $quantity"
+                        )
+                        database.paymentTransactionDao().insert(transaction)
+                    }
                 }
             }
         }

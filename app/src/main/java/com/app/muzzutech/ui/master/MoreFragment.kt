@@ -122,10 +122,12 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         AlertDialog.Builder(requireContext())
             .setTitle("Export Data Backup")
             .setItems(options) { _, which ->
-                if (which == 0) {
-                    BackupManager.exportLocally(requireContext())
-                } else {
-                    BackupManager.shareBackup(requireContext())
+                viewLifecycleOwner.lifecycleScope.launch {
+                    if (which == 0) {
+                        BackupManager.exportLocally(requireContext())
+                    } else {
+                        BackupManager.shareBackup(requireContext())
+                    }
                 }
             }
             .show()
@@ -136,16 +138,18 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             .setTitle("Restore Data?")
             .setMessage("This will replace ALL current data with the backup. Current data will be lost. Continue?")
             .setPositiveButton("Restore") { _, _ ->
-                try {
-                    val success = BackupManager.importDatabase(requireContext(), uri)
-                    if (success) {
-                        Toast.makeText(requireContext(), "Restore successful! Restarting app...", Toast.LENGTH_LONG).show()
-                        findNavController().navigate(R.id.loginFragment)
-                    } else {
-                        Toast.makeText(requireContext(), "Restore failed. Invalid backup file.", Toast.LENGTH_LONG).show()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        val success = BackupManager.importDatabase(requireContext(), uri)
+                        if (success) {
+                            Toast.makeText(requireContext(), "Restore successful! Restarting app...", Toast.LENGTH_LONG).show()
+                            findNavController().navigate(R.id.loginFragment)
+                        } else {
+                            Toast.makeText(requireContext(), "Restore failed. Invalid backup file.", Toast.LENGTH_LONG).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), "Restore failed: ${e.message}", Toast.LENGTH_LONG).show()
                     }
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Restore failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
             .setNegativeButton("Cancel", null)

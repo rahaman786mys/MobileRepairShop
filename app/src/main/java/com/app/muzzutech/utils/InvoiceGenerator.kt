@@ -92,7 +92,9 @@ object InvoiceGenerator {
         val file = File(invoicesDir, "Invoice_${entry.id}_${System.currentTimeMillis()}.pdf")
 
         try {
-            pdfDocument.writeTo(FileOutputStream(file))
+            FileOutputStream(file).use { fos ->
+                pdfDocument.writeTo(fos)
+            }
             pdfDocument.close()
             return file
         } catch (e: Exception) {

@@ -11,14 +11,15 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 
 class SplashActivity : AppCompatActivity() {
+
+    private val handler = Handler(Looper.getMainLooper())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        // Hide action bar if present
         supportActionBar?.hide()
 
-        // Check Biometric support and prompt
         checkBiometrics()
     }
 
@@ -33,10 +34,10 @@ class SplashActivity : AppCompatActivity() {
 
         val biometricManager = BiometricManager.from(this)
         val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-        
+
         when (biometricManager.canAuthenticate(authenticators)) {
             BiometricManager.BIOMETRIC_SUCCESS -> showBiometricPrompt()
-            else -> proceedToMain() // No biometrics or disabled, proceed directly
+            else -> proceedToMain()
         }
     }
 
@@ -46,12 +47,12 @@ class SplashActivity : AppCompatActivity() {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
-                    // If error is "CANCELED" or "USER_CANCELED", don't close, just allow retry or fallback
                     if (errorCode == BiometricPrompt.ERROR_USER_CANCELED || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-                         Toast.makeText(applicationContext, "Authentication required", Toast.LENGTH_SHORT).show()
-                         // Optionally show a button to retry
+                        Toast.makeText(applicationContext, "Authentication required", Toast.LENGTH_SHORT).show()
+                        finish()
                     } else {
-                         proceedToMain() // Fallback to main if biometric hardware fails weirdly
+                        Toast.makeText(applicationContext, "Biometric authentication failed: $errString", Toast.LENGTH_LONG).show()
+                        finish()
                     }
                 }
 
@@ -62,7 +63,6 @@ class SplashActivity : AppCompatActivity() {
 
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
-                    // Just a vibration/hint, usually we don't finish() here
                 }
             })
 
@@ -76,9 +76,14 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun proceedToMain() {
-        Handler(Looper.getMainLooper()).postDelayed({
+        handler.postDelayed({
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }, 300)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
     }
 }

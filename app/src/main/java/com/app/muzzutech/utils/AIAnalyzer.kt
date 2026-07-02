@@ -148,11 +148,14 @@ object AIAnalyzer {
             .sortedByDescending { it.value }
             .take(5)
 
-        val avgRepairTimeMs = entries
+        val completedWithDates = entries
             .filter { it.handoverDone && it.handoverDate > it.createdAt }
-            .map { it.handoverDate - it.createdAt }
-            .average()
-            .toLong()
+        val avgRepairTimeMs = if (completedWithDates.isNotEmpty()) {
+            completedWithDates
+                .map { it.handoverDate - it.createdAt }
+                .average()
+                .toLong()
+        } else 0L
 
         val avgRepairTimeDays = avgRepairTimeMs / (1000 * 60 * 60 * 24)
 

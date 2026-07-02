@@ -7,6 +7,7 @@ import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class DashboardViewModel : ViewModel() {
@@ -99,13 +100,16 @@ class DashboardViewModel : ViewModel() {
             } catch (e: Exception) { e.printStackTrace() }
         }
 
-        // Customer Dues Total (Accounts Receivable)
+        // Customer Dues Total (Accounts Receivable) — combine instead of nested collectLatest
         viewModelScope.launch {
             try {
-                database.paymentDao().getTotalDueByType("CUSTOMER").collectLatest { total ->
-                    database.paymentDao().getTotalDueByType("DEALER").collectLatest { dTotal ->
-                        _totalCustomerDue.value = total + dTotal
-                    }
+                combine(
+                    database.paymentDao().getTotalDueByType("CUSTOMER"),
+                    database.paymentDao().getTotalDueByType("DEALER")
+                ) { customerDue, dealerDue ->
+                    customerDue + dealerDue
+                }.collect { total ->
+                    _totalCustomerDue.value = total
                 }
             } catch (e: Exception) { e.printStackTrace() }
         }

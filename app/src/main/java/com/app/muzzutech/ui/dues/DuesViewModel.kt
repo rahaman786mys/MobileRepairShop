@@ -2,6 +2,7 @@ package com.app.muzzutech.ui.dues
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.data.model.Payment
 import com.app.muzzutech.data.model.PaymentTransaction
@@ -99,32 +100,37 @@ class DuesViewModel : ViewModel() {
 
     fun recordPayment(payment: Payment, amount: Double, mode: String, note: String) {
         viewModelScope.launch {
-            val newPaidAmount = payment.paidAmount + amount
-            val newDueAmount = payment.totalAmount - newPaidAmount
-            val newStatus = when {
-                newDueAmount <= 0.0 -> "PAID"
-                newPaidAmount > 0.0 -> "PARTIAL"
-                else -> "UNPAID"
+            val db = MobileRepairApp.instance.database
+            db.withTransaction {
+                // Re-read the payment inside the transaction to avoid lost-update race
+                val current = paymentDao.getPaymentById(payment.id) ?: return@withTransaction
+                val newPaidAmount = current.paidAmount + amount
+                val newDueAmount = current.totalAmount - newPaidAmount
+                val newStatus = when {
+                    newDueAmount <= 0.0 -> "PAID"
+                    newPaidAmount > 0.0 -> "PARTIAL"
+                    else -> "UNPAID"
+                }
+
+                val updatedPayment = current.copy(
+                    paidAmount = newPaidAmount,
+                    dueAmount = newDueAmount.coerceAtLeast(0.0),
+                    status = newStatus,
+                    updatedAt = System.currentTimeMillis()
+                )
+                paymentDao.update(updatedPayment)
+
+                val transaction = PaymentTransaction(
+                    paymentId = current.id,
+                    personType = current.personType,
+                    personMobile = current.personMobile,
+                    personName = current.personName,
+                    amount = amount,
+                    paymentMode = mode,
+                    note = note
+                )
+                transactionDao.insert(transaction)
             }
-
-            val updatedPayment = payment.copy(
-                paidAmount = newPaidAmount,
-                dueAmount = newDueAmount.coerceAtLeast(0.0),
-                status = newStatus,
-                updatedAt = System.currentTimeMillis()
-            )
-            paymentDao.update(updatedPayment)
-
-            val transaction = PaymentTransaction(
-                paymentId = payment.id,
-                personType = payment.personType,
-                personMobile = payment.personMobile,
-                personName = payment.personName,
-                amount = amount,
-                paymentMode = mode,
-                note = note
-            )
-            transactionDao.insert(transaction)
         }
     }
 }

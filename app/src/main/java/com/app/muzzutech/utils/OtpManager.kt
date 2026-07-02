@@ -1,6 +1,7 @@
 package com.app.muzzutech.utils
 
 import android.util.Log
+import com.app.muzzutech.BuildConfig
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import okhttp3.*
@@ -13,16 +14,16 @@ import java.io.IOException
  */
 object OtpManager {
 
-    private const val API_KEY = "5ecc5d768b7399b9f83f06b0d9af8482"
-    private const val SENDER_ID = "846c8485-0170-475e-b296-4ceff50eb9fb"
-    private const val TEMPLATE_ID = "4663fd51-9287-4179-a46c-495cb395f5aa"
+    private const val API_KEY = BuildConfig.OTP_API_KEY
+    private const val SENDER_ID = BuildConfig.OTP_SENDER_ID
+    private const val TEMPLATE_ID = BuildConfig.OTP_TEMPLATE_ID
     private const val BASE_URL = "https://api.otp.dev/v1"
 
     private val client = OkHttpClient()
     private val JSON = "application/json; charset=utf-8".toMediaType()
     private val gson = Gson()
 
-    // Store current verification ID to verify later
+    @Volatile
     private var currentVerificationId: String? = null
 
     fun sendOtp(phone: String, callback: (Boolean, String?) -> Unit) {

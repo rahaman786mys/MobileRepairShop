@@ -8,22 +8,21 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.app.muzzutech.MobileRepairApp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.nio.channels.FileChannel
 
 /**
  * Manages database backup and restore locally and providing Share options.
+ * All file IO is suspended and must be called from a coroutine scope (e.g. lifecycleScope).
  */
 object BackupManager {
 
     private const val DB_NAME = "mobile_repair_shop_db"
 
-    /**
-     * Exports the current Room database to the Downloads folder
-     */
-    fun exportLocally(context: Context) {
+    suspend fun exportLocally(context: Context): Boolean = withContext(Dispatchers.IO) {
         try {
             val dbFile = context.getDatabasePath(DB_NAME)
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -35,20 +34,26 @@ object BackupManager {
                         input.channel.transferTo(0, input.channel.size(), output.channel)
                     }
                 }
-                Toast.makeText(context, "Backup saved to Downloads!", Toast.LENGTH_LONG).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Backup saved to Downloads!", Toast.LENGTH_LONG).show()
+                }
+                true
             } else {
-                Toast.makeText(context, "Database not found", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Database not found", Toast.LENGTH_SHORT).show()
+                }
+                false
             }
         } catch (e: Exception) {
             Log.e("BackupManager", "Local export failed", e)
-            Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+            false
         }
     }
 
-    /**
-     * Exports the database and opens the Share sheet (for other apps)
-     */
-    fun shareBackup(context: Context) {
+    suspend fun shareBackup(context: Context): Boolean = withContext(Dispatchers.IO) {
         try {
             val dbFile = context.getDatabasePath(DB_NAME)
             val tempFile = File(context.cacheDir, "MuZZu_Backup.db")
@@ -66,19 +71,25 @@ object BackupManager {
                     putExtra(Intent.EXTRA_STREAM, uri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                context.startActivity(Intent.createChooser(intent, "Share Backup via"))
+                withContext(Dispatchers.Main) {
+                    context.startActivity(Intent.createChooser(intent, "Share Backup via"))
+                }
+                true
+            } else {
+                false
             }
         } catch (e: Exception) {
             Log.e("BackupManager", "Share failed", e)
-            Toast.makeText(context, "Share failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Share failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+            false
         }
     }
 
-    /**
-     * Restores the database from a backup file
-     */
-    fun importDatabase(context: Context, backupUri: Uri): Boolean {
-        return try {
+    suspend fun importDatabase(context: Context, backupUri: Uri): Boolean = withContext(Dispatchers.IO) {
+        try {
+            // Close the DB first — all active Flow collectors will stop receiving updates
             MobileRepairApp.instance.database.close()
             val dbFile = context.getDatabasePath(DB_NAME)
             context.contentResolver.openInputStream(backupUri)?.use { input ->
@@ -86,9 +97,12 @@ object BackupManager {
                     input.copyTo(output)
                 }
             }
+            // Reset the singleton so next access creates a fresh DB instance
+            MobileRepairApp.resetDatabaseInstance()
             true
         } catch (e: Exception) {
             Log.e("BackupManager", "Import failed", e)
+            MobileRepairApp.resetDatabaseInstance()
             false
         }
     }

@@ -6,7 +6,13 @@ import com.app.muzzutech.data.repository.RepairRepository
 
 class MobileRepairApp : Application() {
 
-    val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
+    @Volatile
+    private var _database: AppDatabase? = null
+
+    val database: AppDatabase
+        get() = _database ?: synchronized(this) {
+            _database ?: AppDatabase.getDatabase(this).also { _database = it }
+        }
 
     val repairRepository: RepairRepository by lazy {
         RepairRepository(database.repairEntryDao())
@@ -18,7 +24,12 @@ class MobileRepairApp : Application() {
     }
 
     companion object {
+        @Volatile
         lateinit var instance: MobileRepairApp
             private set
+
+        fun resetDatabaseInstance() {
+            instance._database = null
+        }
     }
 }

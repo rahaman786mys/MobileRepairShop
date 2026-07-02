@@ -30,7 +30,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val account = task.getResult(ApiException::class.java)
             val email = account?.email ?: ""
             if (email.isNotEmpty()) {
-                Log.d("LoginFragment", "Google Sign-In success: $email")
                 loginSuccess(email)
             } else {
                 Snackbar.make(binding.root, "No email returned", Snackbar.LENGTH_LONG).show()

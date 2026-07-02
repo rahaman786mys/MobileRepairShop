@@ -18,6 +18,22 @@ android {
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // OTP credentials injected from local.properties (never hardcoded in source)
+        def localProps = rootProject.file('local.properties')
+        def otpApiKey = "PLACEHOLDER_KEY"
+        def otpSenderId = "PLACEHOLDER_SENDER"
+        def otpTemplateId = "PLACEHOLDER_TEMPLATE"
+        if (localProps.exists()) {
+            def props = new Properties()
+            props.load(localProps.newDataInputStream())
+            otpApiKey = props.getProperty('otp.api.key', otpApiKey)
+            otpSenderId = props.getProperty('otp.sender.id', otpSenderId)
+            otpTemplateId = props.getProperty('otp.template.id', otpTemplateId)
+        }
+        buildConfigField "String", "OTP_API_KEY", "\"$otpApiKey\""
+        buildConfigField "String", "OTP_SENDER_ID", "\"$otpSenderId\""
+        buildConfigField "String", "OTP_TEMPLATE_ID", "\"$otpTemplateId\""
     }
 
     signingConfigs {
@@ -61,6 +77,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
     kotlinOptions {

@@ -33,6 +33,7 @@ object UpdateManager {
         .cache(null)
         .build()
         
+    @Volatile
     private var skippedVersionCode: Int = -1
 
     fun checkForUpdates(context: Context, onNoUpdate: (() -> Unit)? = null) {
@@ -135,38 +136,39 @@ object UpdateManager {
                         progressDialog.dismiss()
                         Toast.makeText(context, R.string.empty_response, Toast.LENGTH_SHORT).show()
                     }
+                    response.close()
                     return
                 }
-                
+
                 val totalBytes = body.contentLength()
                 var downloadedBytes = 0L
 
                 try {
-                    val fos = FileOutputStream(apkFile)
-                    val inputStream = body.byteStream()
-                    val buffer = ByteArray(8192)
-                    var bytesRead: Int
+                    body.byteStream().use { inputStream ->
+                        FileOutputStream(apkFile).use { fos ->
+                            val buffer = ByteArray(8192)
+                            var bytesRead: Int
 
-                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                        fos.write(buffer, 0, bytesRead)
-                        downloadedBytes += bytesRead
-                        if (totalBytes > 0) {
-                            val progress = ((downloadedBytes * 100) / totalBytes).toInt()
-                            context.runOnUiThread {
-                                progressBar.progress = progress
-                                tvPercent.text = String.format(Locale.getDefault(), "%d%%", progress)
-                                tvBytes.text = String.format(
-                                    Locale.getDefault(),
-                                    "%.1fMB / %.1fMB",
-                                    downloadedBytes / (1024.0 * 1024.0),
-                                    totalBytes / (1024.0 * 1024.0)
-                                )
+                            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                                fos.write(buffer, 0, bytesRead)
+                                downloadedBytes += bytesRead
+                                if (totalBytes > 0) {
+                                    val progress = ((downloadedBytes * 100) / totalBytes).toInt()
+                                    context.runOnUiThread {
+                                        progressBar.progress = progress
+                                        tvPercent.text = String.format(Locale.getDefault(), "%d%%", progress)
+                                        tvBytes.text = String.format(
+                                            Locale.getDefault(),
+                                            "%.1fMB / %.1fMB",
+                                            downloadedBytes / (1024.0 * 1024.0),
+                                            totalBytes / (1024.0 * 1024.0)
+                                        )
+                                    }
+                                }
                             }
+                            fos.flush()
                         }
                     }
-                    fos.flush()
-                    fos.close()
-                    inputStream.close()
 
                     context.runOnUiThread {
                         progressDialog.dismiss()
@@ -177,6 +179,8 @@ object UpdateManager {
                         progressDialog.dismiss()
                         Toast.makeText(context, context.getString(R.string.download_failed, e.message), Toast.LENGTH_LONG).show()
                     }
+                } finally {
+                    response.close()
                 }
             }
         })

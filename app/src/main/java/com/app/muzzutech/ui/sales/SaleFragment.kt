@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.room.withTransaction
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.data.model.Sale
@@ -83,41 +84,43 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             val db = MobileRepairApp.instance.database
-            
-            // 1. Record the Sale
-            val sale = Sale(
-                itemName = itemName,
-                supplierId = supplier.mobile,
-                supplierName = supplier.name,
-                purchasePrice = purchasePrice,
-                salePrice = salePrice,
-                customerPaid = salePrice, // Assuming full payment for Direct Sale for now
-                customerDue = 0.0
-            )
-            db.saleDao().insert(sale)
-            
-            // 2. Record the Cash Inflow (Revenue)
-            val transactionIn = com.app.muzzutech.data.model.PaymentTransaction(
-                personType = "CUSTOMER",
-                personMobile = "DIRECT_SALE", // Special tag for direct sales
-                personName = "Cash Customer",
-                amount = salePrice,
-                paymentMode = "CASH",
-                note = "Direct Sale: $itemName"
-            )
-            db.paymentTransactionDao().insert(transactionIn)
-            
-            // 3. Record the Cash Outflow (Supplier Payment)
-            if (purchasePrice > 0) {
-                val transactionOut = com.app.muzzutech.data.model.PaymentTransaction(
-                    personType = "SUPPLIER",
-                    personMobile = supplier.mobile,
-                    personName = supplier.name,
-                    amount = purchasePrice,
-                    paymentMode = "CASH",
-                    note = "Purchase for Direct Sale: $itemName"
+
+            db.withTransaction {
+                // 1. Record the Sale
+                val sale = Sale(
+                    itemName = itemName,
+                    supplierId = supplier.mobile,
+                    supplierName = supplier.name,
+                    purchasePrice = purchasePrice,
+                    salePrice = salePrice,
+                    customerPaid = salePrice,
+                    customerDue = 0.0
                 )
-                db.paymentTransactionDao().insert(transactionOut)
+                db.saleDao().insert(sale)
+
+                // 2. Record the Cash Inflow (Revenue)
+                val transactionIn = com.app.muzzutech.data.model.PaymentTransaction(
+                    personType = "CUSTOMER",
+                    personMobile = "DIRECT_SALE",
+                    personName = "Cash Customer",
+                    amount = salePrice,
+                    paymentMode = "CASH",
+                    note = "Direct Sale: $itemName"
+                )
+                db.paymentTransactionDao().insert(transactionIn)
+
+                // 3. Record the Cash Outflow (Supplier Payment)
+                if (purchasePrice > 0) {
+                    val transactionOut = com.app.muzzutech.data.model.PaymentTransaction(
+                        personType = "SUPPLIER",
+                        personMobile = supplier.mobile,
+                        personName = supplier.name,
+                        amount = purchasePrice,
+                        paymentMode = "CASH",
+                        note = "Purchase for Direct Sale: $itemName"
+                    )
+                    db.paymentTransactionDao().insert(transactionOut)
+                }
             }
 
             Toast.makeText(requireContext(), R.string.sale_recorded, Toast.LENGTH_SHORT).show()
