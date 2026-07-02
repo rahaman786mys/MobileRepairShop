@@ -337,7 +337,7 @@ paymentMode = if (rng.nextBoolean()) "CASH" else "ONLINE",
                     val payId = paymentDao.insert(Payment(
                         personType = "CUSTOMER", personMobile = mob, personName = "Customer",
                         description = "Repair: $status", totalAmount = charge,
-                        dueAmount = kotlin.math.max(0.0, balance), status = payStatus))
+                        paidAmount = advance, dueAmount = kotlin.math.max(0.0, balance), status = payStatus))
                     if (advance > 0.01) {
                         paymentTxnDao.insert(PaymentTransaction(paymentId = payId, personType = "CUSTOMER",
                             personMobile = mob, personName = "Customer", amount = advance,
