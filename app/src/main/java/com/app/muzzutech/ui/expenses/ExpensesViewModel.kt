@@ -2,6 +2,7 @@ package com.app.muzzutech.ui.expenses
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.data.model.Expense
 import com.app.muzzutech.utils.DateUtils
@@ -58,25 +59,13 @@ class ExpensesViewModel : ViewModel() {
     }
 
     fun selectMonth(monthStart: Long) { _monthStart.value = monthStart }
+
     fun previousMonth() {
-        val cal = java.util.Calendar.getInstance().apply {
-            timeInMillis = _monthStart.value
-            add(java.util.Calendar.MONTH, -1)
-            set(java.util.Calendar.DAY_OF_MONTH, 1)
-            set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
-        }
-        _monthStart.value = cal.timeInMillis
+        _monthStart.value = DateUtils.addMonths(_monthStart.value, -1)
     }
+
     fun nextMonth() {
-        val cal = java.util.Calendar.getInstance().apply {
-            timeInMillis = _monthStart.value
-            add(java.util.Calendar.MONTH, 1)
-            set(java.util.Calendar.DAY_OF_MONTH, 1)
-            set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
-        }
-        _monthStart.value = cal.timeInMillis
+        _monthStart.value = DateUtils.addMonths(_monthStart.value, 1)
     }
 
     fun addExpense(
@@ -91,17 +80,35 @@ class ExpensesViewModel : ViewModel() {
     ) {
         if (title.isBlank() || amount <= 0.0) return
         viewModelScope.launch {
-            dao.insert(
-                Expense(
-                    title = title,
-                    amount = amount,
-                    category = category,
-                    date = date,
-                    isRecurring = recurring,
-                    paid = paid,
-                    note = note
+            val db = MobileRepairApp.instance.database
+            db.withTransaction {
+                dao.insert(
+                    Expense(
+                        title = title,
+                        amount = amount,
+                        category = category,
+                        date = date,
+                        isRecurring = recurring,
+                        paid = paid,
+                        note = note
+                    )
                 )
-            )
+
+                // If paid, record a cash transaction for accounting/tally matching
+                if (paid) {
+                    db.paymentTransactionDao().insert(
+                        com.app.muzzutech.data.model.PaymentTransaction(
+                            paymentId = 0L,
+                            personType = "EXPENSE",
+                            personMobile = "SHOP",
+                            personName = category,
+                            amount = amount,
+                            paymentMode = "CASH",
+                            note = "Paid: $title"
+                        )
+                    )
+                }
+            }
             onDone()
         }
     }

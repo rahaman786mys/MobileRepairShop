@@ -354,14 +354,26 @@
                         android:layout_height="24dp"
                         android:src="@android:drawable/stat_notify_sync"
                         app:tint="@color/muzzu_accent" />
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="16dp"
-                        android:text="Google Cloud Sync"
-                        style="@style/TextAppearance.MuZZu.Body"
-                        android:textColor="@color/muzzu_text_main" />
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Google Cloud Sync"
+                            style="@style/TextAppearance.MuZZu.Body"
+                            android:textColor="@color/muzzu_text_main" />
+                        <TextView
+                            android:id="@+id/tvSyncStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Never synced"
+                            style="@style/TextAppearance.MuZZu.Label"
+                            android:textSize="11sp" />
+                    </LinearLayout>
                     <ImageButton
                         android:id="@+id/btnDoSync"
                         android:layout_width="32dp"

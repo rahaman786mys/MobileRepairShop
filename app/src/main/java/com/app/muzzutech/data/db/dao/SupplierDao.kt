@@ -27,4 +27,7 @@ interface SupplierDao {
 
     @Query("SELECT * FROM suppliers WHERE mobile = :mobile")
     fun getSupplierByMobileFlow(mobile: String): Flow<Supplier?>
+
+    @Query("SELECT COUNT(*) FROM suppliers")
+    suspend fun getCount(): Int
 }

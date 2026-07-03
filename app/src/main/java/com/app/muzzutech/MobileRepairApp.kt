@@ -4,6 +4,10 @@ import android.app.Application
 import com.app.muzzutech.data.db.AppDatabase
 import com.app.muzzutech.data.repository.RepairRepository
 import com.app.muzzutech.work.AppScheduler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MobileRepairApp : Application() {
 
@@ -27,6 +31,44 @@ class MobileRepairApp : Application() {
         } catch (e: Throwable) {
             // WorkManager may not be available in test/instrumentation contexts.
             android.util.Log.w("MobileRepairApp", "WorkManager init skipped: ${e.message}")
+        }
+        initializeStaticData()
+    }
+
+    private fun initializeStaticData() {
+        val db = database
+        // Using a controlled scope instead of GlobalScope
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // 1. Common Faults
+                val faultDao = db.commonFaultDao()
+                val existingFaults = faultDao.getAllFaults().first()
+                if (existingFaults.isEmpty()) {
+                    val defaults = listOf(
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Display Replacement", category = "Display", defaultCharge = 2500.0, sortOrder = 1),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Battery Replacement", category = "Battery", defaultCharge = 1200.0, sortOrder = 2),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Charging Port Fix", category = "Charging", defaultCharge = 800.0, sortOrder = 3),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Mic/Speaker Problem", category = "Audio", defaultCharge = 600.0, sortOrder = 4),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Software/Flashing", category = "Software", defaultCharge = 500.0, sortOrder = 5),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Dead/Water Damage", category = "Motherboard", defaultCharge = 3500.0, sortOrder = 6)
+                    )
+                    faultDao.insertAll(defaults)
+                }
+
+                // 2. Demo data for easier testing in debug builds if DB is empty
+                if (com.app.muzzutech.BuildConfig.DEBUG) {
+                    if (db.supplierDao().getCount() == 0) {
+                        db.supplierDao().insert(com.app.muzzutech.data.model.Supplier(mobile = "9999911111", name = "Global Spare Parts", companyName = "GSP Wholesalers", city = "Mumbai"))
+                        db.supplierDao().insert(com.app.muzzutech.data.model.Supplier(mobile = "9999922222", name = "Modern Electronics", companyName = "ME Ltd", city = "Delhi"))
+                    }
+                    if (db.serviceManDao().getCount() == 0) {
+                        db.serviceManDao().insert(com.app.muzzutech.data.model.ServiceMan(name = "Senior Technician", mobile = "9000000001", designation = "Lead Specialist", monthlySalary = 45000.0))
+                        db.serviceManDao().insert(com.app.muzzutech.data.model.ServiceMan(name = "Junior Helper", mobile = "9000000002", designation = "Trainee", monthlySalary = 15000.0))
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("MobileRepairApp", "Static data init failed", e)
+            }
         }
     }
 

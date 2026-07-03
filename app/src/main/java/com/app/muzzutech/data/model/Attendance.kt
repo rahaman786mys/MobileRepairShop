@@ -1,6 +1,7 @@
 package com.app.muzzutech.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 
 /**
@@ -15,7 +16,15 @@ import androidx.room.Index
 @Entity(
     tableName = "attendance",
     primaryKeys = ["servicemanId", "date"],
-    indices = [Index("date"), Index("servicemanId")]
+    indices = [Index("date"), Index("servicemanId")],
+    foreignKeys = [
+        ForeignKey(
+            entity = ServiceMan::class,
+            parentColumns = ["id"],
+            childColumns = ["servicemanId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
 )
 data class Attendance(
     val servicemanId: Long = 0,

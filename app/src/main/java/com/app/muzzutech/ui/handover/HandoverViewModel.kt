@@ -72,8 +72,8 @@ class HandoverViewModel : ViewModel() {
                         description = "Repair - ${entry.deviceBrand} ${entry.deviceModel}",
                         totalAmount = finalAmount,
                         paidAmount = paidTotal,
-                        dueAmount = finalAmount - paidTotal,
-                        status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount) "PAID" else "PARTIAL",
+                        dueAmount = (finalAmount - paidTotal).coerceAtLeast(0.0),
+                        status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount - 0.01) "PAID" else "PARTIAL",
                         linkedEntryId = entry.id
                     )
                     val paymentId = db.paymentDao().insert(payment)

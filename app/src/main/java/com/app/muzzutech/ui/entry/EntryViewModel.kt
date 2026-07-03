@@ -2,6 +2,7 @@ package com.app.muzzutech.ui.entry
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.withTransaction
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.data.model.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,9 @@ class EntryViewModel : ViewModel() {
     private val _saveSuccess = MutableStateFlow<Long?>(null)
     val saveSuccess: StateFlow<Long?> = _saveSuccess
 
+    private val _saveError = MutableStateFlow<String?>(null)
+    val saveError: StateFlow<String?> = _saveError
+
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving
 
@@ -30,6 +34,7 @@ class EntryViewModel : ViewModel() {
 
     fun resetSaveState() {
         _saveSuccess.value = null
+        _saveError.value = null
     }
 
     /** Call when leaving the entry screen completely to clear draft tracking */
@@ -65,65 +70,82 @@ class EntryViewModel : ViewModel() {
         extraItems: String = "",
         isDraft: Boolean = false
     ) {
+        if (mobile.isBlank()) {
+            _saveError.value = "Mobile number is required"
+            return
+        }
+
         viewModelScope.launch {
             _isSaving.value = true
+            _saveError.value = null
+            var savedId: Long? = null
+            try {
+                db.withTransaction {
+                    // Save/Update contact info
+                    if (isDealer) {
+                        dealerDao.insert(Dealer(mobile, name, city))
+                    } else {
+                        customerDao.insert(Customer(mobile, name, city))
+                    }
 
-            // Save/Update contact info
-            if (isDealer) {
-                dealerDao.insert(Dealer(mobile, name, city))
-            } else {
-                customerDao.insert(Customer(mobile, name, city))
-            }
+                    // If we already have a draft for this mobile, update it instead of creating duplicate
+                    val existingDraftId = if (isDraft) draftEntryIds[mobile] else null
 
-            // If we already have a draft for this mobile, update it instead of creating duplicate
-            val existingDraftId = if (isDraft) draftEntryIds[mobile] else null
+                    if (existingDraftId != null) {
+                        val existing = repository.getEntryById(existingDraftId)
+                        if (existing != null) {
+                            repository.update(existing.copy(
+                                entryPhotoPath = photoPath.ifEmpty { existing.entryPhotoPath },
+                                entryPhotoPath2 = photoPath2.ifEmpty { existing.entryPhotoPath2 },
+                                customerName = if (!isDealer) name else existing.customerName,
+                                customerMobile = if (!isDealer) mobile else existing.customerMobile,
+                                customerCity = city,
+                                dealerName = if (isDealer) name else existing.dealerName,
+                                dealerMobile = if (isDealer) mobile else existing.dealerMobile,
+                                serviceManId = serviceManId,
+                                deviceBrand = brand.ifEmpty { existing.deviceBrand },
+                                deviceModel = model.ifEmpty { existing.deviceModel },
+                                faultDescription = extraItems,
+                                isDraft = true
+                            ))
+                            return@withTransaction
+                        }
+                    }
 
-            if (existingDraftId != null) {
-                val existing = repository.getEntryById(existingDraftId)
-                if (existing != null) {
-                    repository.update(existing.copy(
-                        entryPhotoPath = photoPath.ifEmpty { existing.entryPhotoPath },
-                        entryPhotoPath2 = photoPath2.ifEmpty { existing.entryPhotoPath2 },
-                        customerName = if (!isDealer) name else existing.customerName,
-                        customerMobile = if (!isDealer) mobile else existing.customerMobile,
+                    val entry = RepairEntry(
+                        entryPhotoPath = photoPath,
+                        entryPhotoPath2 = photoPath2,
+                        customerName = if (!isDealer) name else "",
+                        customerMobile = if (!isDealer) mobile else "",
                         customerCity = city,
-                        dealerName = if (isDealer) name else existing.dealerName,
-                        dealerMobile = if (isDealer) mobile else existing.dealerMobile,
+                        dealerName = if (isDealer) name else "",
+                        dealerMobile = if (isDealer) mobile else "",
                         serviceManId = serviceManId,
-                        deviceBrand = brand.ifEmpty { existing.deviceBrand },
-                        deviceModel = model.ifEmpty { existing.deviceModel },
-                        faultDescription = extraItems,
-                        isDraft = true
-                    ))
-                    _isSaving.value = false
-                    return@launch
+                        deviceBrand = brand,
+                        deviceModel = model,
+                        entryDate = System.currentTimeMillis(),
+                        faultDescription = extraItems, // Storing extra items here for now
+                        isDraft = isDraft
+                    )
+                    val id = repository.insert(entry)
+
+                    if (isDraft) {
+                        draftEntryIds[mobile] = id
+                    } else {
+                        draftEntryIds.remove(mobile)
+                        savedId = id
+                    }
                 }
+                // Update UI state outside the transaction (after commit)
+                if (!isDraft && savedId != null) {
+                    _saveSuccess.value = savedId
+                }
+            } catch (e: Exception) {
+                _saveError.value = e.message ?: "Failed to save entry"
+                android.util.Log.e("EntryViewModel", "saveEntry failed", e)
+            } finally {
+                _isSaving.value = false
             }
-
-            val entry = RepairEntry(
-                entryPhotoPath = photoPath,
-                entryPhotoPath2 = photoPath2,
-                customerName = if (!isDealer) name else "",
-                customerMobile = if (!isDealer) mobile else "",
-                customerCity = city,
-                dealerName = if (isDealer) name else "",
-                dealerMobile = if (isDealer) mobile else "",
-                serviceManId = serviceManId,
-                deviceBrand = brand,
-                deviceModel = model,
-                entryDate = System.currentTimeMillis(),
-                faultDescription = extraItems, // Storing extra items here for now
-                isDraft = isDraft
-            )
-            val id = repository.insert(entry)
-
-            if (isDraft) {
-                draftEntryIds[mobile] = id
-            } else {
-                draftEntryIds.remove(mobile)
-                _saveSuccess.value = id
-            }
-            _isSaving.value = false
         }
     }
 }

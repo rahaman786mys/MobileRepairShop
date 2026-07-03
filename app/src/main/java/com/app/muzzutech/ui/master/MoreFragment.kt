@@ -69,7 +69,9 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         binding.cardCloudSync.setOnClickListener {
             val account = GoogleSignIn.getLastSignedInAccount(requireContext())
             if (account != null) {
-                BackupManager.syncWithGoogleDrive(requireContext(), account.email ?: "Backup")
+                viewLifecycleOwner.lifecycleScope.launch {
+                    BackupManager.syncWithGoogleDrive(requireContext(), account.email ?: "Backup")
+                }
             } else {
                 Toast.makeText(requireContext(), "Please sign in with Google in Profile first", Toast.LENGTH_LONG).show()
                 findNavController().navigate(R.id.profileFragment)
@@ -87,6 +89,14 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
                 if (profile != null) {
                     binding.tvProfileName.text = profile.name.ifEmpty { "Your Account" }
                     binding.tvProfileEmail.text = profile.email.ifEmpty { "Manage your shop details" }
+                    
+                    // Update sync status
+                    val statusText = when (profile.lastSyncStatus) {
+                        "SUCCESS" -> "Last synced: ${com.app.muzzutech.utils.DateUtils.formatDateTime(profile.lastSyncTimestamp)}"
+                        "FAILED" -> "Last sync failed"
+                        else -> "Never synced"
+                    }
+                    binding.tvSyncStatus.text = statusText
                 }
             }
         }

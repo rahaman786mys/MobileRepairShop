@@ -16,5 +16,6 @@ data class UserProfile(
   val shopAddress: String = "",
   val gstNo: String = "", // Optional GST number
   val profilePhotoPath: String = "", // Local path to profile photo
-  val lastSyncTimestamp: Long = 0
+  val lastSyncTimestamp: Long = 0,
+  val lastSyncStatus: String = "" // SUCCESS, FAILED, or empty
 )

@@ -201,9 +201,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 return@setOnClickListener
             }
             
-            BackupManager.syncWithGoogleDrive(requireContext(), email)
-            viewModel.updateSyncTimestamp()
-            Snackbar.make(binding.root, "Cloud backup initiated!", Snackbar.LENGTH_SHORT).show()
+            viewLifecycleOwner.lifecycleScope.launch {
+                BackupManager.syncWithGoogleDrive(requireContext(), email)
+                Snackbar.make(binding.root, "Cloud backup initiated!", Snackbar.LENGTH_SHORT).show()
+            }
         }
 
         binding.switchBiometric.setOnCheckedChangeListener { _, isChecked ->

@@ -117,4 +117,21 @@ object DateUtils {
     fun getCustomDateRange(startTimestamp: Long, endTimestamp: Long): Pair<Long, Long> {
         return Pair(getStartOfDay(startTimestamp), getEndOfDay(endTimestamp))
     }
+
+    /**
+     * Move a month start forward or backward by [delta] months.
+     * Returns the first millisecond of the resulting month.
+     */
+    fun addMonths(monthStart: Long, delta: Int): Long {
+        val cal = java.util.Calendar.getInstance().apply {
+            timeInMillis = monthStart
+            add(java.util.Calendar.MONTH, delta)
+            set(java.util.Calendar.DAY_OF_MONTH, 1)
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
+        return cal.timeInMillis
+    }
 }

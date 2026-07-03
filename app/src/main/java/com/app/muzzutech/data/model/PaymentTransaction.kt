@@ -1,9 +1,25 @@
 package com.app.muzzutech.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "payment_transactions")
+@Entity(
+    tableName = "payment_transactions",
+    indices = [
+        Index("paymentId"),
+        Index("personMobile")
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = Payment::class,
+            parentColumns = ["id"],
+            childColumns = ["paymentId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class PaymentTransaction(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

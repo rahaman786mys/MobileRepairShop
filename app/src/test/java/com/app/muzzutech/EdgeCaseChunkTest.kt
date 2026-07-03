@@ -109,7 +109,7 @@ class EdgeCaseChunkTest {
             addCase("Brand='${valx.take(20)}'") { val id = repairDao.insert(RepairEntry(customerMobile=M(500000,ctr),customerName="C",deviceBrand=valx,deviceModel="M",sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="P")); assertNotNull(repairDao.getEntryById(id)) }
             addCase("Model='${valx.take(20)}'") { val id = repairDao.insert(RepairEntry(customerMobile=M(600000,ctr),customerName="C",deviceBrand="B",deviceModel=valx,sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="P")); assertNotNull(repairDao.getEntryById(id)) }
             addCase("Fault='${valx.take(20)}'") { val id = repairDao.insert(RepairEntry(customerMobile=M(700000,ctr),customerName="C",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="P",faultDetected=valx)); assertNotNull(repairDao.getEntryById(id)) }
-            addCase("Part='${valx.take(20)}'") { val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName=valx,purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1)); assertTrue(id > 0) }
+            addCase("Part='${valx.take(20)}'") { val id = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName=valx,purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1)); assertTrue(id > 0) }
             addCase("Sale='${valx.take(20)}'") { saleDao.insert(Sale(itemName=valx,supplierId="1",supplierName="S1",purchasePrice=100.0,salePrice=200.0)); assertTrue(saleDao.getAllSales().first().any { it.itemName == valx }) }
             addCase("Pay='${valx.take(20)}'") { val id = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",description=valx,totalAmount=100.0,paidAmount=100.0,dueAmount=0.0,status="PAID")); assertNotNull(paymentDao.getPaymentById(id)) }
         }
@@ -121,7 +121,7 @@ class EdgeCaseChunkTest {
             0.99, 1.01, Double.MIN_VALUE, Double.MAX_VALUE, Math.PI, Math.E, 1.0/3.0, 1.0/7.0,
             0.1+0.2, 1e-10, 1e10, -1e10, 1e-5, 1e5) + (1..58).map { it * 100.0 }
         numericEdgeValues.forEach { valx ->
-            addCase("Purchase=$valx") { sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=valx,supplierId="1",supplierName="S",quantity=1)); assertTrue(sparePartDao.getAllPurchases().first().any { kotlin.math.abs(it.purchasePrice - valx) < 0.01 }) }
+            addCase("Purchase=$valx") { sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P",purchasePrice=valx,supplierId="1",supplierName="S",quantity=1)); assertTrue(sparePartDao.getAllPurchases().first().any { kotlin.math.abs(it.purchasePrice - valx) < 0.01 }) }
             addCase("Sale=$valx") { saleDao.insert(Sale(itemName="I",supplierId="1",supplierName="S1",purchasePrice=100.0,salePrice=valx)); assertTrue(saleDao.getAllSales().first().any { kotlin.math.abs(it.salePrice - valx) < 0.01 }) }
             addCase("Charge=$valx") { val id = repairDao.insert(RepairEntry(customerMobile=M(800000,ctr),customerName="C",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="P",chargeAmount=valx)); assertEquals(valx,repairDao.getEntryById(id)!!.chargeAmount,0.01) }
             addCase("PayTotal=$valx") { val id = paymentDao.insert(Payment(personType="CUSTOMER",personMobile=M(900000,ctr),personName="C",description="T",totalAmount=valx,paidAmount=0.0,dueAmount=valx,status="UNPAID")); assertEquals(valx,paymentDao.getPaymentById(id)!!.totalAmount,0.01) }
@@ -130,7 +130,7 @@ class EdgeCaseChunkTest {
 
         // --- QUANTITY EDGE CASES (100 cases: 25 values × 4) ---
         (listOf(0, -1, 1, Int.MAX_VALUE, Int.MIN_VALUE, 2, -2, 10, -10, 100, -100, 1000, -1000, 10000, -10000, 999999, -999999) + (1..8).map { it*1000 }).forEach { valx ->
-            addCase("Qty=$valx") { sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=valx)); assertTrue(sparePartDao.getAllPurchases().first().any { it.quantity == valx }) }
+            addCase("Qty=$valx") { sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=valx)); assertTrue(sparePartDao.getAllPurchases().first().any { it.quantity == valx }) }
             addCase("Sort=$valx") { val id = commonFaultDao.insert(CommonFault(faultName="EC$ctr",category="T",sortOrder=valx)); assertEquals(valx,commonFaultDao.getFaultById(id)!!.sortOrder) }
             addCase("CustOK") { assertTrue(customerDao.getAllCustomers().first().size >= 0) }
             addCase("DealOK") { assertTrue(dealerDao.getAllDealers().first().size >= 0) }
@@ -151,7 +151,7 @@ class EdgeCaseChunkTest {
         timestampValues.forEach { valx ->
             addCase("SaleDate=$valx") { saleDao.insert(Sale(itemName="TS",supplierId="1",supplierName="S",purchasePrice=100.0,salePrice=200.0,saleDate=valx)); assertTrue(saleDao.getAllSales().first().any { it.saleDate == valx }) }
             addCase("EntryDt=$valx") { val id = repairDao.insert(RepairEntry(customerMobile=M(1000000,ctr),customerName="C",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="P",entryDate=valx)); assertEquals(valx,repairDao.getEntryById(id)!!.entryDate) }
-            addCase("TxnDt=$valx") { val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="C",personMobile="1",personName="C",amount=10.0,paymentMode="C",transactionDate=valx)); assertTrue(paymentTxnDao.getAllTransactions().first().any { it.transactionDate == valx }) }
+            addCase("TxnDt=$valx") { val pid = paymentDao.insert(Payment(personType="C",personMobile="1",personName="C",description="D",totalAmount=100.0,paidAmount=0.0,dueAmount=100.0,status="UNPAID")); val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=pid,personType="C",personMobile="1",personName="C",amount=10.0,paymentMode="C",transactionDate=valx)); assertTrue(paymentTxnDao.getAllTransactions().first().any { it.transactionDate == valx }) }
             addCase("RetDt=$valx") { val id = partReturnDao.insert(PartReturn(supplierId="1",supplierName="S1",partName="P",returnReason="R",refundAmount=10.0,returnDate=valx)); assertEquals(valx,partReturnDao.getReturnById(id)!!.returnDate) }
         }
 
@@ -173,7 +173,7 @@ class EdgeCaseChunkTest {
         addCase("Repair min") { val id = repairDao.insert(RepairEntry(customerMobile=M(1900000,ctr),customerName="M",deviceBrand="B",deviceModel="M",sparePartName="",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="")); assertNotNull(repairDao.getEntryById(id)) }
         addCase("Sale min") { saleDao.insert(Sale(itemName="Min",supplierId="",supplierName="",purchasePrice=0.0,salePrice=0.0)); assertTrue(saleDao.getAllSales().first().any { it.itemName == "Min" }) }
         addCase("Pay zero") { val id = paymentDao.insert(Payment(personType="C",personMobile=M(2000000,ctr),personName="Z",description="Z",totalAmount=0.0,paidAmount=0.0,dueAmount=0.0,status="PAID")); assertNotNull(paymentDao.getPaymentById(id)) }
-        addCase("Txn min") { val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="C",personMobile="",personName="",amount=0.0,paymentMode="")); assertTrue(tid > 0) }
+        addCase("Txn min") { val pid = paymentDao.insert(Payment(personType="C",personMobile="",personName="",description="",totalAmount=0.0,paidAmount=0.0,dueAmount=0.0,status="PAID")); val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=pid,personType="C",personMobile="",personName="",amount=0.0,paymentMode="")); assertTrue(tid > 0) }
         addCase("Ret min") { val id = partReturnDao.insert(PartReturn(supplierId="",supplierName="",partName="",returnReason="",refundAmount=0.0)); assertNotNull(partReturnDao.getReturnById(id)) }
         addCase("Fault min") { val id = commonFaultDao.insert(CommonFault(faultName="",category="",sortOrder=0)); assertNotNull(commonFaultDao.getFaultById(id)) }
 
@@ -182,7 +182,7 @@ class EdgeCaseChunkTest {
             addCase("Xref r->p") { val eid = repairDao.insert(RepairEntry(customerMobile=M(2100000,ctr),customerName="C",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=100.0,supplierId=0L,workStatus="P")); val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=eid,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1)); assertTrue(sparePartDao.getPurchasesByRepairId(eid).first().any { it.id == pid }) }
             addCase("Xref p->e") { val eid = repairDao.insert(RepairEntry(customerMobile=M(2200000,ctr),customerName="C",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="P")); val payId = paymentDao.insert(Payment(personType="CUSTOMER",personMobile=M(2300000,ctr),personName="C",description="R",totalAmount=100.0,paidAmount=100.0,dueAmount=0.0,status="PAID",linkedEntryId=eid)); assertTrue(paymentDao.getPaymentsByMobile(M(2300000,ctr)).first().any { it.id == payId }) }
             addCase("Xref t->p") { val payId = paymentDao.insert(Payment(personType="CUSTOMER",personMobile=M(2400000,ctr),personName="C",description="R",totalAmount=500.0,paidAmount=500.0,dueAmount=0.0,status="PAID")); val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=payId,personType="CUSTOMER",personMobile=M(2400000,ctr),personName="C",amount=500.0,paymentMode="C")); assertTrue(paymentTxnDao.getTransactionsByPayment(payId).first().any { it.id == tid }) }
-            addCase("Xref p->s") { val sm = M(2500000,ctr); supplierDao.insert(Supplier(mobile=sm,name="S",companyName="C",city="C")); val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId=sm,supplierName="S",quantity=1)); assertTrue(sparePartDao.getPurchasesBySupplier(sm).first().any { it.id == pid }) }
+            addCase("Xref p->s") { val sm = M(2500000,ctr); supplierDao.insert(Supplier(mobile=sm,name="S",companyName="C",city="C")); val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P",purchasePrice=100.0,supplierId=sm,supplierName="S",quantity=1)); assertTrue(sparePartDao.getPurchasesBySupplier(sm).first().any { it.id == pid }) }
             addCase("Xref s->s") { val sm = M(2600000,ctr); supplierDao.insert(Supplier(mobile=sm,name="S",companyName="C",city="C")); saleDao.insert(Sale(itemName="I",supplierId=sm,supplierName="S",purchasePrice=100.0,salePrice=200.0)); assertTrue(saleDao.getSalesBySupplier(sm).first().isNotEmpty()) }
         }
 
@@ -214,7 +214,7 @@ class EdgeCaseChunkTest {
             addCase("BRepair") { val n = 3 + rng.nextInt(10); repeat(n) { repairDao.insert(RepairEntry(customerMobile=M(4100000,ctr),customerName="B",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=100.0,supplierId=0L,workStatus="P")) }; assertTrue(repairDao.getAllEntries().first().size >= n) }
             addCase("BPay") { val n = 3 + rng.nextInt(8); repeat(n) { paymentDao.insert(Payment(personType="CUSTOMER",personMobile=M(4200000,ctr),personName="B",description="B",totalAmount=100.0,paidAmount=100.0,dueAmount=0.0,status="PAID")) }; assertTrue(paymentDao.getAllPayments().first().size >= n) }
             addCase("BSale") { val n = 2 + rng.nextInt(6); repeat(n) { saleDao.insert(Sale(itemName="BS${it}",supplierId="1",supplierName="S",purchasePrice=50.0,salePrice=100.0)) }; assertTrue(saleDao.getAllSales().first().size >= n) }
-            addCase("BPur") { val n = 2 + rng.nextInt(5); repeat(n) { sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="BP$it",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1+rng.nextInt(5))) }; assertTrue(sparePartDao.getAllPurchases().first().size >= n) }
+            addCase("BPur") { val n = 2 + rng.nextInt(5); repeat(n) { sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="BP$it",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1+rng.nextInt(5))) }; assertTrue(sparePartDao.getAllPurchases().first().size >= n) }
             addCase("BRet") { val n = 1 + rng.nextInt(4); repeat(n) { partReturnDao.insert(PartReturn(supplierId="1",supplierName="S",partName="R$it",returnReason="T",refundAmount=rng.nextDouble()*1000.0)) }; assertTrue(partReturnDao.getAllReturns().first().size >= n) }
         }
 
@@ -241,7 +241,7 @@ class EdgeCaseChunkTest {
 
         addCase("EntryPres") { repairDao.insert(RepairEntry(customerMobile="1",customerName="C",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="P") ); assertTrue(repairDao.getAllEntries().first().isNotEmpty()) }
 
-        addCase("PurPres") { sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1) ); assertTrue(sparePartDao.getAllPurchases().first().isNotEmpty()) }
+        addCase("PurPres") { sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1) ); assertTrue(sparePartDao.getAllPurchases().first().isNotEmpty()) }
 
         addCase("SalePres") { saleDao.insert(Sale(itemName="I",supplierId="1",supplierName="S",purchasePrice=100.0,salePrice=200.0) ); assertTrue(saleDao.getAllSales().first().isNotEmpty()) }
 
@@ -261,10 +261,10 @@ class EdgeCaseChunkTest {
             addCase("PairDeal") { dealerDao.insert(Dealer(mobileNumber=M(5200000,ctr),name="P$ctr",city="C")); assertEquals("P$ctr",dealerDao.getDealerByMobile(M(5200000,ctr))!!.name) }
             addCase("PairSM") { val id = serviceManDao.insert(ServiceMan(name="P$ctr",mobile=M(5300000,ctr),email="e",employeeId="E$ctr",designation="T")); assertEquals("P$ctr",serviceManDao.getServiceManById(id)!!.name) }
             addCase("PairRep") { val id = repairDao.insert(RepairEntry(customerMobile=M(5400000,ctr),customerName="P$ctr",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=0.0,supplierId=0L,workStatus="P")); assertEquals("P$ctr",repairDao.getEntryById(id)!!.customerName) }
-            addCase("PairPur") { val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P$ctr",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1)); assertTrue(id > 0) }
+            addCase("PairPur") { val id = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P$ctr",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1)); assertTrue(id > 0) }
             addCase("PairSale") { saleDao.insert(Sale(itemName="P$ctr",supplierId="1",supplierName="S1",purchasePrice=100.0,salePrice=200.0)); assertTrue(saleDao.getAllSales().first().any { it.itemName == "P$ctr" }) }
             addCase("PairPay") { val id = paymentDao.insert(Payment(personType="C",personMobile=M(5500000,ctr),personName="P$ctr",description="T",totalAmount=100.0,paidAmount=100.0,dueAmount=0.0,status="PAID")); assertEquals("P$ctr",paymentDao.getPaymentById(id)!!.personName) }
-            addCase("PairTxn") { val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="C",personMobile="1",personName="P$ctr",amount=10.0,paymentMode="C")); assertTrue(tid > 0) }
+            addCase("PairTxn") { val pid = paymentDao.insert(Payment(personType="C",personMobile="1",personName="P$ctr",description="T",totalAmount=100.0,paidAmount=100.0,dueAmount=0.0,status="PAID")); val tid = paymentTxnDao.insert(PaymentTransaction(paymentId=pid,personType="C",personMobile="1",personName="P$ctr",amount=10.0,paymentMode="C")); assertTrue(tid > 0) }
             addCase("PairRet") { val id = partReturnDao.insert(PartReturn(supplierId="1",supplierName="S1",partName="P$ctr",returnReason="R",refundAmount=10.0)); assertEquals("P$ctr",partReturnDao.getReturnById(id)!!.partName) }
             addCase("PairFault") { val id = commonFaultDao.insert(CommonFault(faultName="P$ctr",category="T",sortOrder=1)); assertEquals("P$ctr",commonFaultDao.getFaultById(id)!!.faultName) }
             addCase("PairProf") { userProfileDao.insertOrUpdate(UserProfile(id=1,shopName="P$ctr",email="e",name="u$ctr",phone="1")); assertEquals("P$ctr",userProfileDao.getUserProfile()!!.shopName) }
@@ -273,7 +273,7 @@ class EdgeCaseChunkTest {
         // --- MULTI-TABLE WORKFLOW (1500 cases: 300 × 5) ---
         repeat(300) {
             addCase("MCustPay") { val cm = M(6000000,ctr); customerDao.insert(Customer(mobileNumber=cm,name="MC",city="C")); val pid = paymentDao.insert(Payment(personType="CUSTOMER",personMobile=cm,personName="MC",description="R",totalAmount=100.0,paidAmount=100.0,dueAmount=0.0,status="PAID")); assertEquals("CUSTOMER",paymentDao.getPaymentById(pid)!!.personType) }
-            addCase("MSuppPur") { val sm = M(6100000,ctr); supplierDao.insert(Supplier(mobile=sm,name="MS",companyName="C",city="C")); val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="MP",purchasePrice=100.0,supplierId=sm,supplierName="MS",quantity=1)); assertTrue(sparePartDao.getPurchasesBySupplier(sm).first().any { it.id == pid }) }
+            addCase("MSuppPur") { val sm = M(6100000,ctr); supplierDao.insert(Supplier(mobile=sm,name="MS",companyName="C",city="C")); val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="MP",purchasePrice=100.0,supplierId=sm,supplierName="MS",quantity=1)); assertTrue(sparePartDao.getPurchasesBySupplier(sm).first().any { it.id == pid }) }
             addCase("MDealSale") { val dm = M(6200000,ctr); dealerDao.insert(Dealer(mobileNumber=dm,name="MD",city="C")); saleDao.insert(Sale(itemName="MS",supplierId=dm,supplierName="MD",purchasePrice=100.0,salePrice=200.0)); assertTrue(saleDao.getAllSales().first().any { it.itemName == "MS" }) }
             addCase("MRepPart") { val eid = repairDao.insert(RepairEntry(customerMobile=M(6300000,ctr),customerName="MR",deviceBrand="B",deviceModel="M",sparePartName="P",sparePartPurchasePrice=100.0,supplierId=0L,workStatus="P")); val rpid = sparePartDao.insert(SparePartPurchase(repairEntryId=eid,partName="MP",purchasePrice=100.0,supplierId="1",supplierName="S",quantity=1)); assertTrue(sparePartDao.getPurchasesByRepairId(eid).first().any { it.id == rpid }) }
             addCase("MPayTxn") { val payId = paymentDao.insert(Payment(personType="C",personMobile=M(6400000,ctr),personName="MP",description="R",totalAmount=500.0,paidAmount=500.0,dueAmount=0.0,status="PAID")); val txId = paymentTxnDao.insert(PaymentTransaction(paymentId=payId,personType="C",personMobile=M(6400000,ctr),personName="MP",amount=500.0,paymentMode="C")); assertTrue(paymentTxnDao.getTransactionsByPayment(payId).first().any { it.id == txId }) }

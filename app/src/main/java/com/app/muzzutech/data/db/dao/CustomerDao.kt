@@ -24,4 +24,7 @@ interface CustomerDao {
 
 	@Query("SELECT * FROM customers ORDER BY createdAt DESC")
 	fun getAllCustomers(): Flow<List<Customer>>
+
+	@Query("SELECT COUNT(*) FROM customers")
+	suspend fun getCount(): Int
 }

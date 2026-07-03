@@ -20,4 +20,7 @@ interface DealerDao {
 
     @Query("SELECT * FROM dealers ORDER BY createdAt DESC")
     fun getAllDealers(): Flow<List<Dealer>>
+
+    @Query("SELECT COUNT(*) FROM dealers")
+    suspend fun getCount(): Int
 }

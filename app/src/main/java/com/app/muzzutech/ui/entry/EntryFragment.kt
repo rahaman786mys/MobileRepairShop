@@ -343,6 +343,16 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
                 }
             }
         }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.saveError.collectLatest { error ->
+                    if (error != null && isAdded) {
+                        viewModel.resetSaveState()
+                        Snackbar.make(binding.root, "Save failed: $error", Snackbar.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

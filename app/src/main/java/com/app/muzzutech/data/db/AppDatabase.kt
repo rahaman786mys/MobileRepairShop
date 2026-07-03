@@ -27,7 +27,7 @@ import com.app.muzzutech.data.model.*
         SalaryPayment::class,
         Expense::class
     ],
-    version = 9, // Bumped from 8 for Payroll + Expenses feature
+    version = 10, // Bumped from 9 for Data Integrity (Foreign Keys)
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -116,6 +116,46 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration 9 -> 10: adds Foreign Key constraints for data integrity.
+         * Note: SQLite doesn't support ALTER TABLE ADD FOREIGN KEY, so we must
+         * recreate the tables. 
+         */
+        val MIGRATION_9_10: Migration = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Recreating attendance with FK
+                db.execSQL("CREATE TABLE attendance_new (servicemanId INTEGER NOT NULL, date INTEGER NOT NULL, present INTEGER NOT NULL, halfDay INTEGER NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL, PRIMARY KEY(servicemanId, date), FOREIGN KEY(servicemanId) REFERENCES service_men(id) ON DELETE CASCADE)")
+                db.execSQL("INSERT INTO attendance_new (servicemanId, date, present, halfDay, note, createdAt) SELECT servicemanId, date, present, halfDay, note, createdAt FROM attendance")
+                db.execSQL("DROP TABLE attendance")
+                db.execSQL("ALTER TABLE attendance_new RENAME TO attendance")
+                db.execSQL("CREATE INDEX index_attendance_date ON attendance(date)")
+                db.execSQL("CREATE INDEX index_attendance_servicemanId ON attendance(servicemanId)")
+
+                // Recreating salary_payments with FK
+                db.execSQL("CREATE TABLE salary_payments_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, servicemanId INTEGER NOT NULL, servicemanName TEXT NOT NULL, monthStart INTEGER NOT NULL, daysWorked REAL NOT NULL, perDaySalary REAL NOT NULL, fixedMonthlySalary REAL NOT NULL, computedAmount REAL NOT NULL, paidAmount REAL NOT NULL, dueAmount REAL NOT NULL, status TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL, FOREIGN KEY(servicemanId) REFERENCES service_men(id) ON DELETE CASCADE)")
+                db.execSQL("INSERT INTO salary_payments_new (id, servicemanId, servicemanName, monthStart, daysWorked, perDaySalary, fixedMonthlySalary, computedAmount, paidAmount, dueAmount, status, note, createdAt) SELECT id, servicemanId, servicemanName, monthStart, daysWorked, perDaySalary, fixedMonthlySalary, computedAmount, paidAmount, dueAmount, status, note, createdAt FROM salary_payments")
+                db.execSQL("DROP TABLE salary_payments")
+                db.execSQL("ALTER TABLE salary_payments_new RENAME TO salary_payments")
+                db.execSQL("CREATE INDEX index_salary_payments_servicemanId ON salary_payments(servicemanId)")
+                db.execSQL("CREATE INDEX index_salary_payments_monthStart ON salary_payments(monthStart)")
+                
+                // Recreating payment_transactions with FK
+                db.execSQL("CREATE TABLE payment_transactions_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, paymentId INTEGER NOT NULL, personType TEXT NOT NULL, personMobile TEXT NOT NULL, personName TEXT NOT NULL, amount REAL NOT NULL, paymentMode TEXT NOT NULL, note TEXT NOT NULL, transactionDate INTEGER NOT NULL, FOREIGN KEY(paymentId) REFERENCES payments(id) ON DELETE CASCADE)")
+                db.execSQL("INSERT INTO payment_transactions_new (id, paymentId, personType, personMobile, personName, amount, paymentMode, note, transactionDate) SELECT id, paymentId, personType, personMobile, personName, amount, paymentMode, note, transactionDate FROM payment_transactions")
+                db.execSQL("DROP TABLE payment_transactions")
+                db.execSQL("ALTER TABLE payment_transactions_new RENAME TO payment_transactions")
+                db.execSQL("CREATE INDEX index_payment_transactions_paymentId ON payment_transactions(paymentId)")
+
+                // Recreating spare_part_purchases with FK
+                db.execSQL("CREATE TABLE spare_part_purchases_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, repairEntryId INTEGER, partName TEXT NOT NULL, partPhotoPath TEXT NOT NULL, purchasePrice REAL NOT NULL, supplierId TEXT NOT NULL, supplierName TEXT NOT NULL, quantity INTEGER NOT NULL, purchaseDate INTEGER NOT NULL, createdAt INTEGER NOT NULL, FOREIGN KEY(repairEntryId) REFERENCES repair_entries(id) ON DELETE CASCADE)")
+                db.execSQL("INSERT INTO spare_part_purchases_new (id, repairEntryId, partName, partPhotoPath, purchasePrice, supplierId, supplierName, quantity, purchaseDate, createdAt) SELECT id, CASE WHEN repairEntryId \u003d 0 THEN NULL ELSE repairEntryId END, partName, partPhotoPath, purchasePrice, supplierId, supplierName, quantity, purchaseDate, createdAt FROM spare_part_purchases")
+                db.execSQL("DROP TABLE spare_part_purchases")
+                db.execSQL("ALTER TABLE spare_part_purchases_new RENAME TO spare_part_purchases")
+                db.execSQL("CREATE INDEX index_spare_part_purchases_supplierId ON spare_part_purchases(supplierId)")
+                db.execSQL("CREATE INDEX index_spare_part_purchases_repairEntryId ON spare_part_purchases(repairEntryId)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -123,7 +163,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "mobile_repair_shop_db"
                 )
-                    .addMigrations(MIGRATION_8_9)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10)
                     .build()
                 INSTANCE = instance
                 instance

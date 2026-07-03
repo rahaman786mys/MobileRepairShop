@@ -501,19 +501,19 @@ class RealWorldSimulationTest {
     // SECTION 8: SparePartPurchase DAO — 8 scenarios (058-065)
     // ========================================================================
     @Test fun sc058_partPurchaseInsert() = runBlocking {
-        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="Display",purchasePrice=3200.0,supplierId="1",supplierName="S1",quantity=5))
+        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="Display",purchasePrice=3200.0,supplierId="1",supplierName="S1",quantity=5))
         assertTrue(id > 0)
         println("SC058: SparePartPurchase insert PASS")
     }
     @Test fun sc059_partPurchaseUpdate() = runBlocking {
-        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="Display",purchasePrice=3200.0,supplierId="1",supplierName="S1",quantity=5))
-        sparePartDao.update(SparePartPurchase(id=id,repairEntryId=1L,partName="Display",purchasePrice=3000.0,supplierId="1",supplierName="S1",quantity=3))
+        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="Display",purchasePrice=3200.0,supplierId="1",supplierName="S1",quantity=5))
+        sparePartDao.update(SparePartPurchase(id=id,repairEntryId=null,partName="Display",purchasePrice=3000.0,supplierId="1",supplierName="S1",quantity=3))
         val p = sparePartDao.getAllPurchases().first().first { it.id == id }
         assertEquals(3,p.quantity); assertEquals(3000.0,p.purchasePrice,0.01)
         println("SC059: SparePartPurchase update PASS")
     }
     @Test fun sc060_partPurchaseDelete() = runBlocking {
-        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=1))
+        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=1))
         sparePartDao.delete(sparePartDao.getAllPurchases().first().first { it.id == id })
         assertTrue(sparePartDao.getAllPurchases().first().none { it.id == id })
         println("SC060: SparePartPurchase delete PASS")
@@ -527,23 +527,23 @@ class RealWorldSimulationTest {
         println("SC061: SparePartPurchase by repairId PASS")
     }
     @Test fun sc062_partPurchaseBySupplier() = runBlocking {
-        sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="SUP1",supplierName="S1",quantity=1))
+        sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P",purchasePrice=100.0,supplierId="SUP1",supplierName="S1",quantity=1))
         assertTrue(sparePartDao.getPurchasesBySupplier("SUP1").first().isNotEmpty())
         println("SC062: SparePartPurchase by supplier PASS")
     }
     @Test fun sc063_partPurchaseDateRange() = runBlocking {
-        sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=1,purchaseDate=daysAgo(5,11)))
+        sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=1,purchaseDate=daysAgo(5,11)))
         assertTrue(sparePartDao.getPurchasesByDateRange(daysAgo(10),System.currentTimeMillis()).first().isNotEmpty())
         println("SC063: SparePartPurchase date range PASS")
     }
     @Test fun sc064_partPurchaseTotalInRange() = runBlocking {
-        sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=3,purchaseDate=daysAgo(3,11)))
+        sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="P",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=3,purchaseDate=daysAgo(3,11)))
         val total = sparePartDao.getTotalPurchaseInRange(daysAgo(10),System.currentTimeMillis()).first() ?: 0.0
         assertTrue(total >= 300.0)
         println("SC064: SparePartPurchase total in range=$total (>=300) PASS")
     }
     @Test fun sc065_partPurchaseEdgeZeroQty() = runBlocking {
-        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=1L,partName="Zero",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=0))
+        val id = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="Zero",purchasePrice=100.0,supplierId="1",supplierName="S1",quantity=0))
         assertEquals(0,sparePartDao.getAllPurchases().first().first { it.id == id }.quantity)
         println("SC065: SparePartPurchase zero qty PASS")
     }
@@ -668,21 +668,25 @@ class RealWorldSimulationTest {
         println("SC081: PaymentTransaction by payment PASS")
     }
     @Test fun sc082_txnByMobile() = runBlocking {
-        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="MOB1",personName="C",
+        val pid = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="MOB1",personName="C",description="D",totalAmount=500.0,paidAmount=0.0,dueAmount=500.0,status="UNPAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pid,personType="CUSTOMER",personMobile="MOB1",personName="C",
             amount=500.0,paymentMode="CASH"))
         assertTrue(paymentTxnDao.getTransactionsByMobile("MOB1").first().isNotEmpty())
         println("SC082: PaymentTransaction by mobile PASS")
     }
     @Test fun sc083_txnDateRange() = runBlocking {
-        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="1",personName="C",
+        val pid = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="1",personName="C",description="D",totalAmount=100.0,paidAmount=0.0,dueAmount=100.0,status="UNPAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pid,personType="CUSTOMER",personMobile="1",personName="C",
             amount=100.0,paymentMode="CASH",transactionDate=daysAgo(3,12)))
         assertTrue(paymentTxnDao.getTransactionsByDateRange(daysAgo(10),System.currentTimeMillis()).first().isNotEmpty())
         println("SC083: PaymentTransaction date range PASS")
     }
     @Test fun sc084_txnTotalPaidByMobile() = runBlocking {
-        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="MOBSUM",personName="C",
+        val pid1 = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="MOBSUM",personName="C",description="D",totalAmount=500.0,paidAmount=0.0,dueAmount=500.0,status="UNPAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pid1,personType="CUSTOMER",personMobile="MOBSUM",personName="C",
             amount=500.0,paymentMode="CASH"))
-        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="MOBSUM",personName="C",
+        val pid2 = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="MOBSUM",personName="C",description="D",totalAmount=300.0,paidAmount=0.0,dueAmount=300.0,status="UNPAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pid2,personType="CUSTOMER",personMobile="MOBSUM",personName="C",
             amount=300.0,paymentMode="ONLINE"))
         val total = paymentTxnDao.getTotalPaidByMobile("MOBSUM").first()
         assertEquals(800.0,total,0.01)
@@ -767,7 +771,7 @@ class RealWorldSimulationTest {
     }
     @Test fun sc092_supplierPurchaseAndReturn() = runBlocking {
         supplierDao.insert(Supplier(mobile="9398123456",name="Rajesh",companyName="Rajesh Mobile Parts",city="Mumbai"))
-        val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=0L,partName="Battery",purchasePrice=350.0,
+        val pid = sparePartDao.insert(SparePartPurchase(repairEntryId=null,partName="Battery",purchasePrice=350.0,
             supplierId="9398123456",supplierName="Rajesh",quantity=10))
         val rid = partReturnDao.insert(PartReturn(supplierId="9398123456",supplierName="Rajesh",partName="Battery",
             returnReason="Defective batch",refundAmount=3500.0))
@@ -792,9 +796,11 @@ class RealWorldSimulationTest {
     @Test fun sc094_directSaleWithSupplierPayment() = runBlocking {
         supplierDao.insert(Supplier(mobile="9398123456",name="Rajesh",companyName="Rajesh Mobile Parts",city="Mumbai"))
         saleDao.insert(Sale(itemName="Charger",supplierId="9398123456",supplierName="Rajesh",purchasePrice=200.0,salePrice=400.0))
-        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="CUSTOMER",personMobile="DIRECT_SALE",
+        val pid1 = paymentDao.insert(Payment(personType="CUSTOMER",personMobile="DIRECT_SALE",personName="Cash Customer",description="Direct Sale",totalAmount=400.0,paidAmount=400.0,dueAmount=0.0,status="PAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pid1,personType="CUSTOMER",personMobile="DIRECT_SALE",
             personName="Cash Customer",amount=400.0,paymentMode="CASH"))
-        paymentTxnDao.insert(PaymentTransaction(paymentId=0,personType="SUPPLIER",personMobile="9398123456",
+        val pid2 = paymentDao.insert(Payment(personType="SUPPLIER",personMobile="9398123456",personName="Rajesh",description="Payment for stock",totalAmount=200.0,paidAmount=200.0,dueAmount=0.0,status="PAID"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId=pid2,personType="SUPPLIER",personMobile="9398123456",
             personName="Rajesh",amount=200.0,paymentMode="CASH"))
         assertTrue(saleDao.getAllSales().first().any { it.itemName == "Charger" })
         println("SC094: Direct sale with supplier payment PASS")
@@ -882,24 +888,26 @@ class RealWorldSimulationTest {
         results.add("${dealerDao.getAllDealers().first().size} dealers")
 
         // 20 repair entries
+        val repairIds = mutableListOf<Long>()
         repeat(20) { i ->
             val mob = TestFixtures.randomMobile(i)
             val part = TestFixtures.PARTS_CATALOG.random()
             val charge = part.retailPrice + 500 + rng.nextInt(2000)
-            repairDao.insert(RepairEntry(customerMobile=mob,customerName=TestFixtures.randomPersonName(),
+            val rid = repairDao.insert(RepairEntry(customerMobile=mob,customerName=TestFixtures.randomPersonName(),
                 deviceBrand=TestFixtures.randomBrand(),deviceModel=TestFixtures.randomPhoneModel(),
                 faultDetected=part.name,sparePartName=part.name,sparePartPurchasePrice=part.costPrice,
                 supplierId=0L,chargeAmount=charge,advanceAmount= round(charge*0.3*100)/100.0,
                 workStatus=if (rng.nextBoolean()) "Done" else "Pending", finalAmount=charge,
                 handoverDone=rng.nextBoolean(), handoverDate=if (rng.nextBoolean()) daysAgo(rng.nextInt(5),0) else 0L,
                 entryDate=daysAgo(rng.nextInt(15))))
+            repairIds.add(rid)
         }
         results.add("${repairDao.getAllEntries().first().size} repairs")
 
         // 30 spare parts
         repeat(30) {
             val part = TestFixtures.PARTS_CATALOG.random()
-            sparePartDao.insert(SparePartPurchase(repairEntryId= (1+ rng.nextInt(20)).toLong(),
+            sparePartDao.insert(SparePartPurchase(repairEntryId= if (rng.nextBoolean()) repairIds.random(rng) else null,
                 partName=part.name,purchasePrice=part.costPrice,supplierId=TestFixtures.SUPPLIER_DATA.random().mobile,
                 supplierName=TestFixtures.SUPPLIER_DATA.random().name,quantity=1+ rng.nextInt(10)))
         }

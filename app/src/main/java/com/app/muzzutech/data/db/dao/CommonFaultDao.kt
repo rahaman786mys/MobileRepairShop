@@ -10,6 +10,9 @@ interface CommonFaultDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(fault: CommonFault): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(faults: List<CommonFault>)
+
     @Update
     suspend fun update(fault: CommonFault)
 

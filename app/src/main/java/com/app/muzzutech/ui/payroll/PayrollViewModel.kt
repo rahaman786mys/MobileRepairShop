@@ -131,31 +131,20 @@ class PayrollViewModel : ViewModel() {
     }
 
     fun previousMonth() {
-        val cal = java.util.Calendar.getInstance().apply {
-            timeInMillis = _monthStart.value
-            add(java.util.Calendar.MONTH, -1)
-            set(java.util.Calendar.DAY_OF_MONTH, 1)
-            set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
-        }
-        _monthStart.value = cal.timeInMillis
+        _monthStart.value = DateUtils.addMonths(_monthStart.value, -1)
     }
 
     fun nextMonth() {
-        val cal = java.util.Calendar.getInstance().apply {
-            timeInMillis = _monthStart.value
-            add(java.util.Calendar.MONTH, 1)
-            set(java.util.Calendar.DAY_OF_MONTH, 1)
-            set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
-        }
-        _monthStart.value = cal.timeInMillis
+        _monthStart.value = DateUtils.addMonths(_monthStart.value, 1)
     }
 
     private fun loadServicemen() {
         viewModelScope.launch {
             smDao.getAllServiceMen().collect { list ->
                 _servicemen.value = list.filter { it.isActive || list.all { !it.isActive } }
+                // Kick off month refresh now that servicemen data is available
+                val ms = _monthStart.value
+                refreshMonthStats(ms, DateUtils.getEndOfMonth(ms))
             }
         }
     }
@@ -164,7 +153,10 @@ class PayrollViewModel : ViewModel() {
         viewModelScope.launch {
             _monthStart.collect { monthStart ->
                 val monthEnd = DateUtils.getEndOfMonth(monthStart)
-                refreshMonthStats(monthStart, monthEnd)
+                // Only refresh if servicemen list is already loaded (guard against race)
+                if (_servicemen.value.isNotEmpty()) {
+                    refreshMonthStats(monthStart, monthEnd)
+                }
                 refreshSalaryPayments(monthStart)
             }
         }
@@ -245,10 +237,22 @@ class PayrollViewModel : ViewModel() {
                         note = note
                     )
                     val existing = salaryDao.getByServiceManAndMonth(smId, monthStart)
-                    if (existing != null) {
-                        salaryDao.insert(slip.copy(id = existing.id))
-                    } else {
-                        salaryDao.insert(slip)
+                    val slipToSave = if (existing != null) slip.copy(id = existing.id) else slip
+                    salaryDao.insert(slipToSave)
+
+                    // Create transaction record for audit trail if money was paid
+                    if (paidAmount > 0) {
+                        db.paymentTransactionDao().insert(
+                            com.app.muzzutech.data.model.PaymentTransaction(
+                                paymentId = 0L, // Salary slips aren't 'Payment' entities yet
+                                personType = "SALARY",
+                                personMobile = sm.mobile,
+                                personName = sm.name,
+                                amount = paidAmount,
+                                paymentMode = "CASH",
+                                note = "Salary: ${DateUtils.formatDateTime(monthStart)}"
+                            )
+                        )
                     }
                 }
             } finally {

@@ -1,6 +1,7 @@
 package com.app.muzzutech.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
@@ -18,7 +19,15 @@ import androidx.room.PrimaryKey
  */
 @Entity(
     tableName = "salary_payments",
-    indices = [Index("servicemanId"), Index("monthStart")]
+    indices = [Index("servicemanId"), Index("monthStart")],
+    foreignKeys = [
+        ForeignKey(
+            entity = ServiceMan::class,
+            parentColumns = ["id"],
+            childColumns = ["servicemanId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
 )
 data class SalaryPayment(
     @PrimaryKey(autoGenerate = true)

@@ -73,6 +73,7 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
                         is SaleViewModel.SaveResult.Error -> {
                             Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
                             viewModel.consumeResult()
+                            binding.btnSaveSale.isEnabled = true // Re-enable on error
                         }
                         null -> Unit
                     }
@@ -97,6 +98,12 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
             return
         }
 
+        if (purchasePrice < 0 || salePrice < 0) {
+            Toast.makeText(requireContext(), "Prices cannot be negative", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        binding.btnSaveSale.isEnabled = false // Prevent double tap
         val supplier = suppliersList[selectedPos - 1]
         viewModel.saveSale(itemName, purchasePrice, salePrice, supplier)
     }

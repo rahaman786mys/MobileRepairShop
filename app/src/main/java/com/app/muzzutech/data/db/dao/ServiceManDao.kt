@@ -27,4 +27,7 @@ interface ServiceManDao {
 
     @Query("SELECT * FROM service_men WHERE id = :id")
     fun getServiceManByIdFlow(id: Long): Flow<ServiceMan?>
+
+    @Query("SELECT COUNT(*) FROM service_men")
+    suspend fun getCount(): Int
 }

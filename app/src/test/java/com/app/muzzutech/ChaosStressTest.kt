@@ -297,21 +297,20 @@ class ChaosStressTest {
         assertTrue("Handover recorded", handedOver.handoverDone)
         assertEquals(2500.0, handedOver.finalAmount, 0.01)
 
-        // Backfill the payment now — should still succeed (no FK constraining order)
+        // Backfill the payment now — should still succeed
         val pid = paymentDao.insert(Payment(
             personType = "CUSTOMER", personMobile = custMob, personName = "OO",
             description = "Backfilled after handover", totalAmount = 2500.0,
             paidAmount = 2500.0, dueAmount = 0.0, status = "PAID", linkedEntryId = entryId
         ))
         paymentTxnDao.insert(PaymentTransaction(paymentId = pid, personType = "CUSTOMER", personMobile = custMob, personName = "OO", amount = 1500.0, paymentMode = "CASH"))
-        paymentTxnDao.insert(PaymentTransaction(paymentId = pid + 1000000L, personType = "CUSTOMER", personMobile = custMob, personName = "OO", amount = 1000.0, paymentMode = "ONLINE"))
+        paymentTxnDao.insert(PaymentTransaction(paymentId = pid, personType = "CUSTOMER", personMobile = custMob, personName = "OO", amount = 1000.0, paymentMode = "ONLINE"))
 
         // Reconcile this one entry
         val allTxns = paymentTxnDao.getTransactionsByPayment(pid).first()
-        // Note: the second insert used pid+1000000 instead of pid, so it's NOT linked — exactly the kind
-        // of mismatch Phase 1 flagged (paymentId mismatch). Happy-path: no crash; first txn present.
-        assertEquals("First txn linked", 1, allTxns.size)
-        assertEquals(1500.0, allTxns[0].amount, 0.01)
+        // Both transactions should be linked now
+        assertEquals("Transactions linked", 2, allTxns.size)
+        assertEquals(2500.0, allTxns.sumOf { it.amount }, 0.01)
     }
 
     /** Delete with pending dues — should not crash, ledger remains queryable post-delete. */
@@ -537,7 +536,7 @@ private class ShopDaySimulator(
         val supMob = "S_${chunkId}_${rng.nextInt(0, 4)}"
         supplierDao.insert(Supplier(mobile = supMob, name = "Sup$supMob", companyName = "Co", city = "C"))
         val entries = repairDao.getAllEntries().first()
-        val entryId = if (entries.isNotEmpty()) entries[rng.nextInt(entries.size)].id else 1L
+        val entryId = if (entries.isNotEmpty()) entries[rng.nextInt(entries.size)].id else null
         val price = (rng.nextDouble(100.0, 2000.0) * 100).toLong() / 100.0
         val pid = sparePartDao.insert(SparePartPurchase(
             repairEntryId = entryId, partName = "Display",
@@ -586,7 +585,7 @@ private class ShopDaySimulator(
                 dueAmount = 0.0, status = "PAID", linkedEntryId = e.id
             ))
             paymentTxnDao.insert(PaymentTransaction(paymentId = pid, personType = "CUSTOMER", personMobile = e.customerMobile, personName = e.customerName, amount = cashAmt, paymentMode = "CASH"))
-            paymentTxnDao.insert(PaymentTransaction(paymentId = pid + 1, personType = "CUSTOMER", personMobile = e.customerMobile, personName = e.customerName, amount = onlineAmt, paymentMode = "ONLINE"))
+            paymentTxnDao.insert(PaymentTransaction(paymentId = pid, personType = "CUSTOMER", personMobile = e.customerMobile, personName = e.customerName, amount = onlineAmt, paymentMode = "ONLINE"))
         }
     }
 

@@ -152,6 +152,21 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
             binding.etOnlineAmount.text.toString().toDoubleOrNull() ?: 0.0
         } else if (!isPayLater && paymentMode == "Online") finalAmount else 0.0
 
+        // Validation for Split Payment
+        if (paymentMode == "Both") {
+            val combined = cashAmount + onlineAmount
+            if (Math.abs(combined - finalAmount) > 0.01) {
+                Snackbar.make(binding.root, "Cash + Online must equal Total (₹$finalAmount)", Snackbar.LENGTH_LONG).show()
+                return
+            }
+        }
+
+        if (finalAmount < 0) {
+            Snackbar.make(binding.root, "Final amount cannot be negative", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
+        binding.btnCompleteHandover.isEnabled = false
         viewModel.completeHandover(entryId, finalAmount, paymentMode, cashAmount, onlineAmount)
 
         // Notify Customer via WhatsApp & Show Print button
@@ -168,7 +183,6 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
         }
 
         binding.btnGenerateInvoice.visibility = View.VISIBLE
-        binding.btnCompleteHandover.isEnabled = false
         
         Snackbar.make(binding.root, "✅ Handover Complete! Notification Sent.", Snackbar.LENGTH_LONG).show()
     }
