@@ -16,14 +16,15 @@ import androidx.room.PrimaryKey
             entity = Payment::class,
             parentColumns = ["id"],
             childColumns = ["paymentId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.SET_NULL
         )
     ]
 )
 data class PaymentTransaction(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val paymentId: Long = 0,        // Links to Payment
+    val paymentId: Long? = null,     // Links to Payment (nullable: salary/expense/sale txs have no parent Payment)
+    val personType: String,          // "DEALER", "SUPPLIER", "CUSTOMER", "EXPENSE", "SALARY"
     val personType: String,         // "DEALER", "SUPPLIER", "CUSTOMER"
     val personMobile: String,
     val personName: String = "",

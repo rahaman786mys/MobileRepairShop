@@ -27,7 +27,7 @@ import com.app.muzzutech.data.model.*
         SalaryPayment::class,
         Expense::class
     ],
-    version = 10, // Bumped from 9 for Data Integrity (Foreign Keys)
+    version = 11, // Bumped from 10: paymentId nullable + SET NULL FK
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -161,6 +161,25 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration 10 -> 11: paymentId becomes nullable, FK changes from CASCADE to SET NULL.
+         * This fixes the crash where Expenses/Payroll/Sale ViewModels inserted
+         * PaymentTransaction rows with paymentId=0 (no parent Payment), violating the FK.
+         * Existing rows with paymentId=0 are set to NULL during the migration.
+         */
+        val MIGRATION_10_11: Migration = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Recreate payment_transactions with nullable paymentId + SET NULL FK
+                db.execSQL("CREATE TABLE payment_transactions_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, paymentId INTEGER, personType TEXT NOT NULL, personMobile TEXT NOT NULL, personName TEXT NOT NULL, amount REAL NOT NULL, paymentMode TEXT NOT NULL, note TEXT NOT NULL, transactionDate INTEGER NOT NULL, FOREIGN KEY(paymentId) REFERENCES payments(id) ON DELETE SET NULL)")
+                // Clean dangling rows: paymentId=0 means no parent Payment existed
+                db.execSQL("INSERT INTO payment_transactions_new (id, paymentId, personType, personMobile, personName, amount, paymentMode, note, transactionDate) SELECT id, CASE WHEN paymentId \u003d 0 THEN NULL ELSE paymentId END, personType, personMobile, personName, amount, paymentMode, note, transactionDate FROM payment_transactions")
+                db.execSQL("DROP TABLE payment_transactions")
+                db.execSQL("ALTER TABLE payment_transactions_new RENAME TO payment_transactions")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_transactions_paymentId ON payment_transactions(paymentId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_transactions_personMobile ON payment_transactions(personMobile)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -168,7 +187,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "mobile_repair_shop_db"
                 )
-                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
                     .build()
                 INSTANCE = instance
                 instance

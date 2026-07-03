@@ -98,7 +98,7 @@ class ExpensesViewModel : ViewModel() {
                 if (paid) {
                     db.paymentTransactionDao().insert(
                         com.app.muzzutech.data.model.PaymentTransaction(
-                            paymentId = 0L,
+                            paymentId = null,
                             personType = "EXPENSE",
                             personMobile = "SHOP",
                             personName = category,

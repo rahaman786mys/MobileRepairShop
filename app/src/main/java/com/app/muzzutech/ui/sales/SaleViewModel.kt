@@ -110,7 +110,7 @@ class SaleViewModel : ViewModel() {
                     // 3. Cash inflow (revenue from cash customer)
                     paymentTransactionDao.insert(
                         PaymentTransaction(
-                            paymentId = 0L,
+                            paymentId = null,
                             personType = "CUSTOMER",
                             personMobile = "DIRECT_SALE",
                             personName = "Cash Customer",
@@ -124,7 +124,7 @@ class SaleViewModel : ViewModel() {
                     if (purchasePrice > 0) {
                         paymentTransactionDao.insert(
                             PaymentTransaction(
-                                paymentId = 0L,
+                                paymentId = null,
                                 personType = "SUPPLIER",
                                 personMobile = supplier.mobile,
                                 personName = supplier.name,

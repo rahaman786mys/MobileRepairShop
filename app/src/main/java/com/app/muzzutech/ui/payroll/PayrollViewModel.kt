@@ -244,7 +244,7 @@ class PayrollViewModel : ViewModel() {
                     if (paidAmount > 0) {
                         db.paymentTransactionDao().insert(
                             com.app.muzzutech.data.model.PaymentTransaction(
-                                paymentId = 0L, // Salary slips aren't 'Payment' entities yet
+                                paymentId = null, // Salary slips aren't linked to a Payment entity
                                 personType = "SALARY",
                                 personMobile = sm.mobile,
                                 personName = sm.name,
