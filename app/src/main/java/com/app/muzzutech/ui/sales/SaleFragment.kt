@@ -7,24 +7,22 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.room.withTransaction
-import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
-import com.app.muzzutech.data.model.Sale
 import com.app.muzzutech.data.model.Supplier
 import com.app.muzzutech.databinding.FragmentSaleBinding
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class SaleFragment : Fragment(R.layout.fragment_sale) {
 
     private var _binding: FragmentSaleBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: SaleViewModel by viewModels()
     private var suppliersList = listOf<Supplier>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -34,7 +32,8 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadSuppliers()
+        observeSuppliers()
+        observeSaveResult()
 
         binding.btnSaveSale.setOnClickListener { saveSale() }
         binding.btnAddSupplierQuick.setOnClickListener {
@@ -42,13 +41,10 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
         }
     }
 
-    // Removed onResume() override that was triggering loadSuppliers() repeatedly
-    // The coroutine inside loadSuppliers() (using repeatOnLifecycle) handles lifecycles correctly.
-
-    private fun loadSuppliers() {
+    private fun observeSuppliers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                MobileRepairApp.instance.database.supplierDao().getAllSuppliers().collectLatest { suppliers ->
+                viewModel.suppliers.collectLatest { suppliers ->
                     suppliersList = suppliers
                     val names = suppliers.map { "${it.name} (${it.mobile})" }.toMutableList()
                     names.add(0, "Select Supplier *")
@@ -59,6 +55,27 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
                     )
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     binding.spinnerSupplier.adapter = adapter
+                }
+            }
+        }
+    }
+
+    private fun observeSaveResult() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.saveResult.collectLatest { result ->
+                    when (result) {
+                        is SaleViewModel.SaveResult.Success -> {
+                            Toast.makeText(requireContext(), R.string.sale_recorded, Toast.LENGTH_SHORT).show()
+                            viewModel.consumeResult()
+                            findNavController().popBackStack()
+                        }
+                        is SaleViewModel.SaveResult.Error -> {
+                            Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
+                            viewModel.consumeResult()
+                        }
+                        null -> Unit
+                    }
                 }
             }
         }
@@ -81,51 +98,7 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
         }
 
         val supplier = suppliersList[selectedPos - 1]
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            val db = MobileRepairApp.instance.database
-
-            db.withTransaction {
-                // 1. Record the Sale
-                val sale = Sale(
-                    itemName = itemName,
-                    supplierId = supplier.mobile,
-                    supplierName = supplier.name,
-                    purchasePrice = purchasePrice,
-                    salePrice = salePrice,
-                    customerPaid = salePrice,
-                    customerDue = 0.0
-                )
-                db.saleDao().insert(sale)
-
-                // 2. Record the Cash Inflow (Revenue)
-                val transactionIn = com.app.muzzutech.data.model.PaymentTransaction(
-                    personType = "CUSTOMER",
-                    personMobile = "DIRECT_SALE",
-                    personName = "Cash Customer",
-                    amount = salePrice,
-                    paymentMode = "CASH",
-                    note = "Direct Sale: $itemName"
-                )
-                db.paymentTransactionDao().insert(transactionIn)
-
-                // 3. Record the Cash Outflow (Supplier Payment)
-                if (purchasePrice > 0) {
-                    val transactionOut = com.app.muzzutech.data.model.PaymentTransaction(
-                        personType = "SUPPLIER",
-                        personMobile = supplier.mobile,
-                        personName = supplier.name,
-                        amount = purchasePrice,
-                        paymentMode = "CASH",
-                        note = "Purchase for Direct Sale: $itemName"
-                    )
-                    db.paymentTransactionDao().insert(transactionOut)
-                }
-            }
-
-            Toast.makeText(requireContext(), R.string.sale_recorded, Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack()
-        }
+        viewModel.saveSale(itemName, purchasePrice, salePrice, supplier)
     }
 
     override fun onDestroyView() {

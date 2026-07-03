@@ -53,6 +53,12 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         binding.cardInventory.setOnClickListener {
             findNavController().navigate(R.id.inventoryFragment)
         }
+        binding.cardPayroll.setOnClickListener {
+            findNavController().navigate(R.id.payrollFragment)
+        }
+        binding.cardExpenses.setOnClickListener {
+            findNavController().navigate(R.id.expensesFragment)
+        }
         binding.cardAccountProfile.setOnClickListener {
             findNavController().navigate(R.id.profileFragment)
         }

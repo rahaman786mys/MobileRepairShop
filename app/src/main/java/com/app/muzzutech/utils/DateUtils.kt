@@ -63,7 +63,7 @@ object DateUtils {
     }
 
     /**
-     * Get start of the month
+     * Get start of the month for "now".
      */
     fun getStartOfMonth(): Long {
         val cal = Calendar.getInstance()
@@ -73,6 +73,42 @@ object DateUtils {
         cal.set(Calendar.SECOND, 0)
         cal.set(Calendar.MILLISECOND, 0)
         return cal.timeInMillis
+    }
+
+    /**
+     * Get start of the month that contains [timestamp].
+     */
+    fun getStartOfMonth(timestamp: Long): Long {
+        val cal = Calendar.getInstance().apply { timeInMillis = timestamp }
+        cal.set(Calendar.DAY_OF_MONTH, 1)
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
+    }
+
+    /**
+     * Get end of the month that contains [timestamp] (last millisecond of the month).
+     */
+    fun getEndOfMonth(timestamp: Long): Long {
+        val cal = Calendar.getInstance().apply { timeInMillis = timestamp }
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+        cal.set(Calendar.HOUR_OF_DAY, 23)
+        cal.set(Calendar.MINUTE, 59)
+        cal.set(Calendar.SECOND, 59)
+        cal.set(Calendar.MILLISECOND, 999)
+        return cal.timeInMillis
+    }
+
+    /** Format a month for display (e.g. "Jul 2026"). */
+    fun formatMonth(timestamp: Long): String {
+        return SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date(timestamp))
+    }
+
+    /** Format a date for display (e.g. "03 Jul"). */
+    fun formatDayMonth(timestamp: Long): String {
+        return SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(timestamp))
     }
 
     /**

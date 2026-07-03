@@ -43,25 +43,45 @@
         android:id="@+id/inspectionFragment"
         android:name="com.app.muzzutech.ui.inspection.InspectionFragment"
         android:label="Inspection"
-        tools:layout="@layout/fragment_inspection" />
+        tools:layout="@layout/fragment_inspection">
+        <argument
+            android:name="entryId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
 
     <fragment
         android:id="@+id/quotationFragment"
         android:name="com.app.muzzutech.ui.quotation.QuotationFragment"
         android:label="Quotation"
-        tools:layout="@layout/fragment_quotation" />
+        tools:layout="@layout/fragment_quotation">
+        <argument
+            android:name="entryId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
 
     <fragment
         android:id="@+id/sparePartsFragment"
         android:name="com.app.muzzutech.ui.spareparts.SparePartsFragment"
         android:label="Spare Parts"
-        tools:layout="@layout/fragment_spare_parts" />
+        tools:layout="@layout/fragment_spare_parts">
+        <argument
+            android:name="entryId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
 
     <fragment
         android:id="@+id/handoverFragment"
         android:name="com.app.muzzutech.ui.handover.HandoverFragment"
         android:label="Handover"
-        tools:layout="@layout/fragment_handover" />
+        tools:layout="@layout/fragment_handover">
+        <argument
+            android:name="entryId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
 
     <!-- Entries List -->
     <fragment
@@ -159,7 +179,12 @@
         android:id="@+id/entryDetailFragment"
         android:name="com.app.muzzutech.ui.entry.EntryDetailFragment"
         android:label="Entry Details"
-        tools:layout="@layout/fragment_entry_detail" />
+        tools:layout="@layout/fragment_entry_detail">
+        <argument
+            android:name="entryId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
 
     <fragment
         android:id="@+id/profileFragment"
@@ -191,5 +216,17 @@
         android:name="com.app.muzzutech.ui.master.inventory.InventoryFragment"
         android:label="Inventory Ledger"
         tools:layout="@layout/fragment_inventory" />
+
+    <!-- Payroll (Compose) -->
+    <fragment
+        android:id="@+id/payrollFragment"
+        android:name="com.app.muzzutech.ui.payroll.PayrollFragment"
+        android:label="Payroll" />
+
+    <!-- Expenses (Compose) -->
+    <fragment
+        android:id="@+id/expensesFragment"
+        android:name="com.app.muzzutech.ui.expenses.ExpensesFragment"
+        android:label="Expenses" />
 
 </navigation>
