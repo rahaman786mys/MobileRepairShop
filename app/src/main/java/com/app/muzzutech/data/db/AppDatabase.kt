@@ -128,31 +128,36 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("INSERT INTO attendance_new (servicemanId, date, present, halfDay, note, createdAt) SELECT servicemanId, date, present, halfDay, note, createdAt FROM attendance")
                 db.execSQL("DROP TABLE attendance")
                 db.execSQL("ALTER TABLE attendance_new RENAME TO attendance")
-                db.execSQL("CREATE INDEX index_attendance_date ON attendance(date)")
-                db.execSQL("CREATE INDEX index_attendance_servicemanId ON attendance(servicemanId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_attendance_date ON attendance(date)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_attendance_servicemanId ON attendance(servicemanId)")
 
                 // Recreating salary_payments with FK
                 db.execSQL("CREATE TABLE salary_payments_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, servicemanId INTEGER NOT NULL, servicemanName TEXT NOT NULL, monthStart INTEGER NOT NULL, daysWorked REAL NOT NULL, perDaySalary REAL NOT NULL, fixedMonthlySalary REAL NOT NULL, computedAmount REAL NOT NULL, paidAmount REAL NOT NULL, dueAmount REAL NOT NULL, status TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL, FOREIGN KEY(servicemanId) REFERENCES service_men(id) ON DELETE CASCADE)")
                 db.execSQL("INSERT INTO salary_payments_new (id, servicemanId, servicemanName, monthStart, daysWorked, perDaySalary, fixedMonthlySalary, computedAmount, paidAmount, dueAmount, status, note, createdAt) SELECT id, servicemanId, servicemanName, monthStart, daysWorked, perDaySalary, fixedMonthlySalary, computedAmount, paidAmount, dueAmount, status, note, createdAt FROM salary_payments")
                 db.execSQL("DROP TABLE salary_payments")
                 db.execSQL("ALTER TABLE salary_payments_new RENAME TO salary_payments")
-                db.execSQL("CREATE INDEX index_salary_payments_servicemanId ON salary_payments(servicemanId)")
-                db.execSQL("CREATE INDEX index_salary_payments_monthStart ON salary_payments(monthStart)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_salary_payments_servicemanId ON salary_payments(servicemanId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_salary_payments_monthStart ON salary_payments(monthStart)")
                 
                 // Recreating payment_transactions with FK
                 db.execSQL("CREATE TABLE payment_transactions_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, paymentId INTEGER NOT NULL, personType TEXT NOT NULL, personMobile TEXT NOT NULL, personName TEXT NOT NULL, amount REAL NOT NULL, paymentMode TEXT NOT NULL, note TEXT NOT NULL, transactionDate INTEGER NOT NULL, FOREIGN KEY(paymentId) REFERENCES payments(id) ON DELETE CASCADE)")
                 db.execSQL("INSERT INTO payment_transactions_new (id, paymentId, personType, personMobile, personName, amount, paymentMode, note, transactionDate) SELECT id, paymentId, personType, personMobile, personName, amount, paymentMode, note, transactionDate FROM payment_transactions")
                 db.execSQL("DROP TABLE payment_transactions")
                 db.execSQL("ALTER TABLE payment_transactions_new RENAME TO payment_transactions")
-                db.execSQL("CREATE INDEX index_payment_transactions_paymentId ON payment_transactions(paymentId)")
+                // RoomOpenHelper compares the live schema to the @Entity declaration; both
+                // indices declared on PaymentTransaction (paymentId + personMobile) must
+                // exist post-migration, otherwise Room throws
+                // "Migration didn't properly handle... expected index ..._personMobile".
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_transactions_paymentId ON payment_transactions(paymentId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_transactions_personMobile ON payment_transactions(personMobile)")
 
                 // Recreating spare_part_purchases with FK
                 db.execSQL("CREATE TABLE spare_part_purchases_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, repairEntryId INTEGER, partName TEXT NOT NULL, partPhotoPath TEXT NOT NULL, purchasePrice REAL NOT NULL, supplierId TEXT NOT NULL, supplierName TEXT NOT NULL, quantity INTEGER NOT NULL, purchaseDate INTEGER NOT NULL, createdAt INTEGER NOT NULL, FOREIGN KEY(repairEntryId) REFERENCES repair_entries(id) ON DELETE CASCADE)")
                 db.execSQL("INSERT INTO spare_part_purchases_new (id, repairEntryId, partName, partPhotoPath, purchasePrice, supplierId, supplierName, quantity, purchaseDate, createdAt) SELECT id, CASE WHEN repairEntryId \u003d 0 THEN NULL ELSE repairEntryId END, partName, partPhotoPath, purchasePrice, supplierId, supplierName, quantity, purchaseDate, createdAt FROM spare_part_purchases")
                 db.execSQL("DROP TABLE spare_part_purchases")
                 db.execSQL("ALTER TABLE spare_part_purchases_new RENAME TO spare_part_purchases")
-                db.execSQL("CREATE INDEX index_spare_part_purchases_supplierId ON spare_part_purchases(supplierId)")
-                db.execSQL("CREATE INDEX index_spare_part_purchases_repairEntryId ON spare_part_purchases(repairEntryId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_spare_part_purchases_supplierId ON spare_part_purchases(supplierId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_spare_part_purchases_repairEntryId ON spare_part_purchases(repairEntryId)")
             }
         }
 
