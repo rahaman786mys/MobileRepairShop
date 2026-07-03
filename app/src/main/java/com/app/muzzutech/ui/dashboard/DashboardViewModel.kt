@@ -68,14 +68,15 @@ class DashboardViewModel : ViewModel() {
         }
         
         // Revenue (Cash In) = Sum of actual PAID amounts from CUSTOMER/DEALER today
+        // Expense (Cash Out) = Sum of SUPPLIER + SALARY + EXPENSE payments today
         viewModelScope.launch {
             try {
                 database.paymentTransactionDao().getTransactionsByDateRange(todayStart, todayEnd).collect { transactions ->
-                    val revenue = transactions.filter { it.personType != "SUPPLIER" }.sumOf { it.amount }
-                    val expense = transactions.filter { it.personType == "SUPPLIER" }.sumOf { it.amount }
+                    val revenue = transactions.filter { it.personType == "CUSTOMER" || it.personType == "DEALER" }.sumOf { it.amount }
+                    val expense = transactions.filter { it.personType == "SUPPLIER" || it.personType == "SALARY" || it.personType == "EXPENSE" }.sumOf { it.amount }
                     
                     _dailyRevenue.value = revenue
-                    // Net Cash Flow = Revenue - Actual Cash paid out to suppliers today
+                    // Net Cash Flow = Revenue - Actual Cash paid out today
                     _dailyProfit.value = revenue - expense
                 }
             } catch (e: Exception) { e.printStackTrace() }
