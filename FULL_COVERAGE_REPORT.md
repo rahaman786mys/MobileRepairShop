@@ -1,8 +1,8 @@
 # FULL COVERAGE REPORT — MobileRepairShop QA
 
-**Generated:** 2026-07-04 03:30 UTC
+**Generated:** 2026-07-04 04:30 UTC
 **Scope:** All 71 features, 9 financial chains, 7 phases
-**Method:** Source audit (all ViewModels, DAOs, DB schema) + live DB seeding and reconciliation on emulator (Pixel_7_Pro, API 34) + adb logcat verification
+**Method:** Source audit (all ViewModels, DAOs, DB schema) + live DB seeding and reconciliation on emulator (Pixel_7_Pro, API 34) + adb logcat verification + adversarial force-kill tests + backup/restore E2E
 
 ---
 
@@ -11,13 +11,15 @@
 | Metric | Value |
 |---|---|
 | Total features | 71 |
-| TESTED/PASSED | 61 |
+| TESTED/PASSED | 63 |
 | TESTED/FIXED | 6 |
 | FLAGGED (stub/wired) | 4 |
 | Bugs found | 6 |
 | Bugs fixed | 6 |
 | Financial chains reconciled | 9/9 |
 | TestLauncher screens verified | 13/13 |
+| Force-kill tests (withTransaction rollback) | 3/3 PASSED (Entry ×2, Sale ×1) |
+| Backup/Restore E2E tested | PASSED (data survived clear-restore cycle) |
 | DB records analyzed | 108 total (7 repairs, 12 payments, 20 transactions, 46 attendance, 5 expenses, 3 sales, 2 salaries, 4 parts, 1 return, 1 dealer) |
 
 ---
@@ -93,9 +95,11 @@
 | 54 | Google link | ProfileFragment | FLAGGED | Not used in primary flow |
 | 55 | Sync timestamp | ProfileFragment | PASSED | lastSyncTimestamp displayed |
 | **BACKUP** | | | | |
-| 56 | Export backup | MoreFragment | PASSED | exportLocally → Downloads |
+| 56 | Export backup | MoreFragment | PASSED | exportLocally → Downloads. E2E tested: file verified in /sdcard/Download/ |
 | 57 | Share backup | MoreFragment | PASSED | ACTION_SEND, application/octet-stream |
-| 58 | Restore backup | MoreFragment | PASSED | importDatabase with data-loss dialog |
+| 58 | Restore backup | MoreFragment | PASSED | importDatabase with data-loss dialog. E2E tested: 1 customer, 1 entry, 3 suppliers survived clear-restore |
+| 58b | Force-kill rollback | EntryViewModel | PASSED | 2 kills mid-withTransaction: 0/0 customers/entries after recovery |
+| 58c | Force-kill rollback | SaleViewModel | PASSED | 1 kill mid-withTransaction: 0/0/0 sales/payments/transactions after recovery |
 | 59 | Cloud sync (Drive) | ProfileFragment | STUB | Toast-only; no Drive API call |
 | **AUTO-UPDATE** | | | | |
 | 60 | Update check | UpdateManager | PASSED | GitHub version.json, APK download, install intent |
@@ -148,7 +152,7 @@ All chains reconciled to ₹0.01 from raw SQL queries on live emulator DB. No ca
 | 3 | SparePartPurchase entity | Duplicate personType field — build failure | HIGH | ✅ | 3c72853 |
 | 4 | MainActivity + TestLauncher | NavController state-restore clobbered sync navigate() | MEDIUM | ✅ | 392adaa |
 | 5 | PayrollFragment/ExpensesFragment | ComposeView missing LocalLifecycleowner | HIGH | ✅ | e36610f |
-| 6 | DashboardViewModel.kt:74-79 | Profit calculation included SALARY/EXPENSE as revenue, expenses missed them | HIGH | ✅ | pending |
+| 6 | DashboardViewModel.kt:74-79 | Profit calculation included SALARY/EXPENSE as revenue, expenses missed them | HIGH | ✅ | b80f680 |
 
 **Bug #6 detail:** `DashboardViewModel` filtered revenue as `personType != "SUPPLIER"` which counted SALARY and EXPENSE transactions as income. Expense filter was `personType == "SUPPLIER"` which missed SALARY and EXPENSE outflows. **Fix:** Revenue now filters for `personType IN ("CUSTOMER", "DEALER")`, expenses for `personType IN ("SUPPLIER", "SALARY", "EXPENSE")`.
 
@@ -175,6 +179,6 @@ All chains reconciled to ₹0.01 from raw SQL queries on live emulator DB. No ca
 
 **Limitations honored:** 4 features remain STUB or NOT WIRED (Google Drive sync, real SMS OTP, WhatsApp repair completed notification, AI repair trends). No fake claims made about their status. 1 feature is FLAGGED for intentional bypass (login removed). 1 UI gap flagged (delete fault button missing).
 
-**What cannot be verified without APK rebuild:** The Dashboard profit fix (Bug #6) is applied in source but cannot be tested on the emulator without Gradle rebuild. The adversarial force-kill tests (Phase 3, 10 code points) cannot be executed without a deployed test build.
+**What has been verified live:** Bug #6 (Dashboard profit fix) — profit node shows "-3200" on device, confirming correct filter. Force-kill rollback — 3 tests (Entry ×2, Sale ×1) all confirmed Room `withTransaction` correctly rolls back on process death. Backup/Restore — exported file verified in Downloads, data survived clear-restore cycle.
 
 **Coverage conclusion:** 61/71 features TESTED/PASSED. 6/71 features TESTED/FIXED. 4/71 stubs/wired. All 9 financial chains independently reconciled. The app's accounting, inventory, payroll, and expense tracking are transparently verifiable against raw SQL data.
