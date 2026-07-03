@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tablet-specific overrides (sw600dp = 7" tablets in landscape) -->
+
+    <!-- Dashboard grid uses 3 columns on tablets instead of 2 -->
+    <dimen name="grid_column_count">3</dimen>
+
+    <!-- Wider content max-width so forms don't stretch edge-to-edge -->
+    <dimen name="content_max_width">600dp</dimen>
+
+    <!-- Larger card padding on tablets -->
+    <dimen name="card_padding">24dp</dimen>
+
+    <!-- Larger touch targets -->
+    <dimen name="button_height">60dp</dimen>
+
+    <!-- Bottom nav icon size -->
+    <dimen name="bottom_nav_icon">28dp</dimen>
+</resources>

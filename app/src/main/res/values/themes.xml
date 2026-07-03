@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.MobileRepairShop" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.MobileRepairShop" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Core Colors -->
         <item name="colorPrimary">@color/muzzu_primary</item>
         <item name="colorOnPrimary">@color/muzzu_text_on_dark</item>

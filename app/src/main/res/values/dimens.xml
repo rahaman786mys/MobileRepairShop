@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default phone dimensions -->
+    <dimen name="grid_column_count">2</dimen>
+    <dimen name="content_max_width">0dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="button_height">56dp</dimen>
+    <dimen name="bottom_nav_icon">24dp</dimen>
+</resources>
