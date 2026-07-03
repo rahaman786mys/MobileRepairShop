@@ -1,339 +1,333 @@
 # MobileRepairShop — Complete Feature Inventory
 
-**Last updated:** 2026-07-04 | **Total features:** 71 | **Total screens:** 28 | **Database entities:** 15 | **DAOs:** 15 | **Background jobs:** 2
-
----
-
-## COUNT SUMMARY
+## Summary Counts
 
 | Category | Count |
 |---|---|
-| User-facing screens | 28 |
-| User-facing features | 71 |
-| Database entities (tables) | 15 |
-| DAO classes (with methods) | 15 |
-| Background/automated jobs | 2 |
-| Activities | 3 |
-| Fragments | 28 |
-| ViewModels | 15 |
-| TestLauncher destinations | 13 |
+| Total user-facing features | 22 |
+| Total screens (fragment classes) | 28 |
+| Total activities | 3 |
+| Total database entities (tables) | 15 |
+| Total DAO interfaces | 15 |
+| Total WorkManager jobs | 2 |
+| Bottom-nav tabs | 5 |
+| Total source files (main) | 97 |
 
 ---
 
-## 1. AUTHENTICATION
+## 1. AUTHENTICATION & SECURITY
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 1 | Splash + Biometric lock | SplashActivity | FULLY WORKING | Checks `app_settings` prefs; if biometric is enabled shows BiometricPrompt; on success launches app after 300ms |
-| 2 | Biometric toggle | ProfileFragment | FULLY WORKING | Reads/writes `biometric_enabled` in `app_settings` shared prefs |
-| 3 | WhatsApp OTP login | LoginFragment | PARTIALLY WORKING | Enters 10-digit mobile -> opens WhatsApp via Intent with prefilled OTP message; OTP validation via `WhatsAppOtpUtil.validateOtp()` |
-| 4 | Google Sign-In | LoginFragment, ProfileFragment | PARTIALLY WORKING | GoogleSignInClient for login onboarding and profile linking; currently login screen is bypassed in normal flow |
-| 5 | Auth state persistence | MoreFragment, MainActivity | FULLY WORKING | `auth_prefs` stores `is_logged_in`; logout clears it; auto-set on launch |
+**1.1 Biometric App Lock**
+- Screen: `SplashActivity`
+- On first launch, checks shared preference for biometric_enabled. If enabled, shows BiometricPrompt (fingerprint / PIN / face). Exits app if user cancels authentication. Falls through to MainActivity if biometric is disabled or hardware unavailable.
+- Status: **Fully working**
 
----
-
-## 2. DASHBOARD (Home)
-
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 6 | Stat cards — Pending/Completed/Profit/Investment/Dues | DashboardFragment | FULLY WORKING | 6 stat cards driven by parallel Flow queries in DashboardViewModel |
-| 7 | Quick-action navigation cards | DashboardFragment | FULLY WORKING | 6 cards -> Entry, Entries, Quick Sale, Dues, Suppliers, Reports, More |
-| 8 | Missing profile prompt | DashboardFragment | FULLY WORKING | Shows "Update" button (`btnFixMissingInfo`) when shop phone is empty |
-| 9 | AI Business Health Advisor | DashboardFragment | FULLY WORKING | `AIAdvisor.analyzeDailyHealth()` — shows score (0-100), smart move, revenue/margin stats, recommendation |
-| 10 | Investment breakdown dialog | DashboardFragment | FULLY WORKING | `cardInvest` tap -> AlertDialog with paid/due/total investment for today |
-| 11 | Search entries shortcut | DashboardFragment | FULLY WORKING | `ivSearch` navigates to EntriesListFragment |
+**1.2 Login — Google Sign-In + WhatsApp OTP**
+- Screen: `LoginFragment`
+- Two auth methods: (a) Google Sign-In button — signs in via GoogleSignInClient, stores email/name in shared prefs, handles SHA-1 mismatch error. (b) WhatsApp OTP — opens WhatsApp with pre-filled message to shop owner's number, user sends OTP, then verifies on the Verify OTP screen. Sets loggedIn flag, navigates to dashboard.
+- Status: **Fully working**
 
 ---
 
-## 3. REPAIR WORKFLOW — 5-Step Pipeline
+## 2. DASHBOARD
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 12 | New repair entry (Step 1) | EntryFragment | FULLY WORKING | Customer/Dealer toggle, 10-digit mobile (auto-lookup existing), 2 inspection photos (camera + FileProvider), brand spinner (17 brands), model name, extra-item multi-select, service-man spinner |
-| 13 | Auto-save draft | EntryFragment | FULLY WORKING | On `onPause()`: if mobile >= 4 chars, saves draft; deduplication via `draftEntryIds` map |
-| 14 | Mobile auto-lookup | EntryFragment | FULLY WORKING | On 10-digit entry -> queries CustomerDao/DealerDao -> pre-fills name + city |
-| 15 | Inspection + fault detection (Step 2) | InspectionFragment | FULLY WORKING | Inspection photo (camera), CommonFaults RecyclerView (tap to pre-fill), save -> updates entry + sends WhatsApp notification |
-| 16 | AI photo fault analysis | InspectionFragment | FULLY WORKING | `AIAnalyzer.suggestFaultsFromPhoto()` — ML Kit Object Detection + Image Labeling + pixel-brightness heuristic |
-| 17 | Quotation (Step 3) | QuotationFragment | FULLY WORKING | Charge amount + advance amount fields; save -> updates entry + sends "Repair Started" WhatsApp |
-| 18 | Spare parts selection (Step 4) | SparePartsFragment | FULLY WORKING | Part photo (camera), name, purchase price, quantity, supplier spinner; add-to-transaction engine; quick-add supplier |
-| 19 | Part purchase accounting | SparePartsViewModel | FULLY WORKING | `addPart()` within `db.withTransaction{}`: inserts SparePartPurchase + Payment (SUPPLIER) + PaymentTransaction (cash-out) when not pay-later |
-| 20 | Handover / completion (Step 5) | HandoverFragment | FULLY WORKING | Payment mode: Cash / Online / Both (split must equal total) / Pay Later; save -> `completeHandover()` updates entry + creates Payment + 1-2 PaymentTransactions |
-| 21 | PDF invoice generation | HandoverFragment | FULLY WORKING | `InvoiceGenerator.generateInvoice()` -> shares PDF via ACTION_SEND |
-| 22 | Cancel work | HandoverFragment | FULLY WORKING | Confirmation dialog -> sets `isDraft=true`, `workStatus="Cancelled"` |
-| 23 | WhatsApp handover notification | HandoverFragment | FULLY WORKING | `NotificationUtils.sendHandoverSummaryWhatsApp()` — parts list + amount to customer |
-| 24 | Entry detail view + workflow nav | EntryDetailFragment | FULLY WORKING | Full entry details (3 photos, fault, charge, status); buttons -> Inspection / Quotation / Spare Parts / Handover |
+**2.1 Business KPI Dashboard**
+- Screen: `DashboardFragment`
+- Shows live metrics: pending repairs count, completed today, daily revenue, daily expense (parts + supplier payments + salary payments + cash expenses), daily net profit, daily investment (parts purchased today), paid vs due portion of investment, total customer dues (A/R), total supplier dues (A/P).
+- Data loads via DashboardViewModel, which queries all seven DAOs and combines the flows. Error-resilient (each metric catches exceptions independently).
+- Status: **Fully working**
+
+**2.2 AI Business Health Advisor**
+- Screen: Dashboard (inline card)
+- Analyzes daily profit margin, displays a health score (0–100), a "smart move" label (e.g. "Expense Alert!", "Premium Performance"), and a plain-text recommendation. Powered by `AIAdvisor.kt` — pure computation, no external API calls.
+- Status: **Fully working**
 
 ---
 
-## 4. QUICK SALE
+## 3. REPAIR WORKFLOW (CORE PIPELINE)
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 25 | Record direct sale | SaleFragment | FULLY WORKING | Item name, purchase price, sale price, supplier; double-tap guard |
-| 26 | Sale accounting | SaleViewModel | FULLY WORKING | `saveSale()` within transaction: Sale row + Supplier Payment + CUSTOMER cash-in + SUPPLIER cash-out |
+**3.1 New Repair Entry**
+- Screen: `EntryFragment` (bottom-nav tab "New Entry")
+- Create a repair ticket: enter customer name/mobile (auto-lookup with customer vs dealer ambiguitiy resolution), city, brand (spinner: 18 brands), model, service man assignment (spinner from DB), extra items checklist (multi-select with custom "Other" option), take two entry photos (camera via FileProvider, permission-managed). Validates mobile, photos, brand, model, specialist. Saves to `repair_entries` table. Two save modes: **Save** (triggers navigation to Inspection) and **Save Draft** (auto-triggered on pause/rotation, dedup by mobile). Both guarded by `isSaving` flag to prevent double-tap. Edge case validation: `.take(100)` on name/city, `.take(50)` on brand/model, `.take(200)` on extraItems.
+- Status: **Fully working**
+
+**3.2 Device Inspection**
+- Screen: `InspectionFragment`
+- Load existing entry (displays previously taken inspection photo). Loads common faults list from DB. Camera button for inspection photo (permission-managed). **AI Analyze** button runs `AIAnalyzer.suggestFaultsFromPhoto()` using ML Kit object detection + image labeling + pixel heuristics to suggest possible faults. Tap a common fault to populate the fault text field, or type custom fault. Saves: updates RepairEntry with fault detected, inspection photo path, inspection timestamp. Sends WhatsApp "repair started" notification to customer. Navigates to Quotation.
+- Status: **Fully working**
+
+**3.3 Quotation**
+- Screen: `QuotationFragment`
+- Shows the selected fault. Enter charge amount (repair labor) and advance amount paid. On save: updates RepairEntry.chargeAmount and marks quotationDone timestamp. Navigates to Spare Parts.
+- Status: **Fully working**
+
+**3.4 Spare Parts Management**
+- Screen: `SparePartsFragment`
+- For a given repair entry, shows add-part form: select supplier (spinner of active suppliers), enter part name, purchase price, quantity, optional part photo, and "pay later" toggle. Adding a part creates SparePartPurchase + Supplier Payment + PaymentTransaction records atomically. Delete parts from the purchase list. **Guard**: blocks adding parts if repair is already in "Done" or handed-over state (shows Snackbar error). Edge case validation: `.take(100)` on partName, `.take(20)` on supplierId.
+- Status: **Fully working**
+
+**3.5 Repair Handover & Payment**
+- Screen: `HandoverFragment`
+- Final step: shows entry summary + parts list + total cost. Enter final amount, select payment mode (Cash / Online / Both / Pay Later). For split payment, Cash + Online must equal the total (validated). On complete: updates RepairEntry (workDone, handoverDone, handoverDate), creates Payment record + PaymentTransaction record(s). Generates a PDF invoice via `InvoiceGenerator` and offers Share intent. Sends WhatsApp handover notification to customer. Also supports Cancel (moves entry to drafts).
+- Status: **Fully working**
+
+**3.6 Entries List**
+- Screen: `EntriesListFragment` (bottom-nav tab "Entries")
+- Lists all repairs sorted by date (newest first). Each row shows customer name, device, brand, status (Pending/In Progress/Done/Handed Over). Tapping opens EntryDetailFragment. Supports swipe-to-delete with confirmation dialog.
+- Status: **Fully working**
+
+**3.7 Entry Detail**
+- Screen: `EntryDetailFragment`
+- Shows full details of a single repair: all fields, photos (via Glide), fault, assigned service man, parts used, payment info. Read-only view.
+- Status: **Fully working**
+
+---
+
+## 4. SALES
+
+**4.1 Quick Sale (Direct Supplier Sale)**
+- Screen: `SaleFragment`
+- Record a non-repair direct sale: select supplier from list (or quick-add new supplier inline), enter item name, purchase price, sale price. On save: inserts Sale record, creates Supplier Payment + two PaymentTransaction records (cash-out to supplier + cash-in from sale) in a single Room transaction. Edge case validation: `.take(100)` on itemName. Button guarded by `isSaving` to prevent double-tap.
+- Status: **Fully working**
 
 ---
 
 ## 5. DUES & PAYMENTS
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 27 | Dues dashboard (4 tabs) | DuesFragment | FULLY WORKING | Tabs: ALL / DEALER / SUPPLIER / CUSTOMER; total due amounts in header; color-coded status badges |
-| 28 | Record payment | PayDuesFragment | FULLY WORKING | Payment mode spinner (Cash, Online UPI, Bank); `recordPayment()` within transaction -> updates Payment + inserts PaymentTransaction |
-| 29 | Payment history view | PayDuesFragment | FULLY WORKING | Shows all PaymentTransactions for the personMobile |
-| 30 | Return parts to supplier | PartReturnFragment | FULLY WORKING | Select part from purchases, reason, refund amount -> inserts PartReturn record |
+**5.1 Dues Overview**
+- Screen: `DuesFragment`
+- Shows all pending payments grouped by person type (tab filter: All / Dealer / Supplier / Customer). Displays total due amount for the selected filter. Each due row shows person name, type, amount due. Tapping navigates to PayDuesFragment.
+- Status: **Fully working**
+
+**5.2 Pay Dues**
+- Screen: `PayDuesFragment`
+- For a selected due: shows person details, total/paid/due amounts, payment history list. Enter payment amount, select payment mode (Cash / Online-UPI / Online-Bank), optional note. Recording a payment atomically re-reads the current Payment record inside the transaction to avoid lost-update race, then inserts PaymentTransaction.
+- Status: **Fully working**
+
+**5.3 Part Return**
+- Screen: `PartReturnFragment`
+- Record a part returned to a supplier: select purchased part from spinner (live-loaded from SparePartPurchaseDao), enter part name, refund amount, select reason (Defective / Wrong Item / Not Needed / Damaged / Other). Saves PartReturn record.
+- Status: **Fully working**
 
 ---
 
-## 6. REPORTS
+## 6. FINANCIAL REPORTS
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 31 | Revenue reports | ReportsFragment | FULLY WORKING | Period selector: Daily / Weekly / Monthly / Custom (date-range picker); revenue = SUM(finalAmount) for completed handovers |
-| 32 | Bar chart — daily revenue | ReportsFragment | FULLY WORKING | MPAndroidChart bar chart: daily breakdown in date range |
-| 33 | Direct sales list | ReportsFragment | FULLY WORKING | itemName, supplier ref, salePrice, profit |
+**6.1 Period-Based Financial Reports**
+- Screen: `ReportsFragment`
+- Generate reports filtered by Daily / Weekly / Monthly / Custom date range. Shows: total revenue in range, completed jobs count, daily breakdown rows, supplier purchases, direct sales. All data is read-only. Caches the job handle to cancel stale async loads.
+- Status: **Fully working** (missing PDF/CSV export — not a gap, just not implemented)
 
 ---
 
-## 7. MASTER DATA
+## 7. MASTER DATA MANAGEMENT
 
-### Service Men
+**7.1 Customer & Dealer Management**
+- Screens: `CustomerListFragment`, `CustomerAddFragment`, `CustomerDetailFragment`
+- Combined list of customers + dealers. Add new (name, mobile, type picker, email, city, address). Tap to view detail (name, mobile, total jobs, balance due, work history, payment history). Edit by re-using the add screen (pre-filled). **Missing: delete** — no delete button on list or detail, and no delete() method wired in UI.
+- Status: **Partially working** (C-R-U but no delete)
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 34 | Service men list | ServiceManListFragment | FULLY WORKING | List all technicians |
-| 35 | Add service man | ServiceManAddFragment | FULLY WORKING | Name, mobile, email, employeeId, designation, monthlySalary, perDaySalary; validates name required, mobile 10 digits |
+**7.2 Supplier Management**
+- Screens: `SupplierListFragment`, `SupplierAddFragment`, `SupplierDetailFragment`
+- Full CRUD for suppliers (name, company, mobile, email, city, address, GST). List shows name + company. Detail shows purchases, sales, payment history with balance. Edit re-uses add screen. **Missing: delete** — no delete button on list or detail.
+- Status: **Partially working** (C-R-U but no delete)
 
-### Suppliers
+**7.3 Service Men Management**
+- Screens: `ServiceManListFragment`, `ServiceManAddFragment`
+- Add service men (name, mobile, email, employeeId, designation, monthlySalary, perDaySalary). List shows all active service men. **Missing: detail/edit screen** — clicking a list item does nothing. **Missing: delete UI** — `delete()` method exists in ViewModel but no button in UI.
+- Status: **Partially working** (C-R, no update, no delete UI)
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 36 | Supplier list | SupplierListFragment | FULLY WORKING | Name, company, mobile; tap -> detail; "Add" -> SupplierAddFragment |
-| 37 | Supplier ledger (detail) | SupplierDetailFragment | FULLY WORKING | Total bought, total paid, balance due, payment history, sales history, purchases list; Edit button |
-| 38 | Add / edit supplier | SupplierAddFragment | FULLY WORKING | Name, company, mobile, email, address, city, GST; mobile locked in edit mode |
+**7.4 Common Faults**
+- Screen: `CommonFaultsFragment`
+- Manage the master list of common device faults used during Inspection. Shows all faults with name, category, default charge. Add new fault (name, category, default charge). Delete fault with confirmation dialog. **Missing: edit/update** — no way to modify an existing fault.
+- Status: **Partially working** (C-R-D, no update)
 
-### Customers + Dealers
-
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 39 | Unified customers + dealers list | CustomerListFragment | FULLY WORKING | Aggregates both tables; dealers tagged "(Dealer)"; tap -> CustomerDetailFragment |
-| 40 | Customer/Dealer ledger | CustomerDetailFragment | FULLY WORKING | Total jobs, balance due, payment history, work history |
-| 41 | Add / edit customer or dealer | CustomerAddFragment | FULLY WORKING | Name, mobile, city; `isDealer` arg determines mode; validates mobile 10 digits |
-
-### Common Faults
-
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 42 | Add common fault | CommonFaultsFragment | PARTIALLY WORKING | Name, default charge, category; RecyclerView lists all; `deleteFault()` exists in ViewModel but no UI button wired |
-
-### Inventory
-
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 43 | Inventory transaction ledger | InventoryFragment | FULLY WORKING | 3 types: PURCHASE (SparePartPurchase qty * price), SALE (Sale salePrice), RETURN (-refundAmount); sorted most recent first; summary totals |
+**7.5 Inventory Ledger**
+- Screen: `InventoryFragment`
+- Read-only aggregate view combining all purchases, sales, and part returns in a single chronological list. Shows total inventory value and item count. Mutations happen through SpareParts (purchases) and Sales (sales) screens.
+- Status: **Fully working** (read-only aggregate)
 
 ---
 
 ## 8. PAYROLL
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 44 | Payroll overview (Compose) | PayrollFragment | FULLY WORKING | Month prev/next nav; summary card; per-technician: worked days (full + half), per-day rate, computed salary, PAID/UNPAID/PARTIAL status |
-| 45 | Mark attendance | PayrollViewModel | FULLY WORKING | `setAttendance(smId, day, present, halfDay, note)` — upserts Attendance record; refreshes month stats |
-| 46 | Generate / update salary slip | PayrollFragment | FULLY WORKING | `generateOrUpdateSalary(smId, paidAmount, note)` -> creates/updates SalaryPayment; if paid, inserts PaymentTransaction (SALARY) |
-| 47 | Salary math engine | PayrollViewModel / PayrollMath | FULLY WORKING | `computeWorkedDays()`, `computePayable()` (perDaySalary priority, falls back to monthlySalary/30), `buildSalaryPayment()` |
+**8.1 Attendance Tracking + Salary Generation**
+- Screen: `PayrollFragment` (Jetpack Compose)
+- Month navigation (prev/next). Loads active service men. For each, a calendar grid with tap-to-toggle: Present / Half-Day / Absent. Shows per-serviceman stats (full days, half days, absent, worked days) for the month. Generate salary slip: computes payable based on attendance + perDaySalary or monthlySalary, creates SalaryPayment record with status UNPAID/PAID/PARTIAL. Paying a salary creates PaymentTransaction audit trail. Pure math extracted to `PayrollMath.kt` (unit tested: 11/11).
+- Status: **Fully working**
 
 ---
 
 ## 9. EXPENSES
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 48 | Record expense | ExpensesFragment (Compose) | FULLY WORKING | Month nav; FAB adds dialog; categories: Rent, Electricity, Internet, Supplies, Other; recurring flag; paid checkbox; delete |
-| 49 | Expense accounting | ExpensesViewModel | FULLY WORKING | `addExpense()` within transaction: inserts Expense; if paid=true, inserts PaymentTransaction (EXPENSE, SHOP) |
+**9.1 Shop Expense Tracking**
+- Screen: `ExpensesFragment` (Jetpack Compose)
+- Month navigation (prev/next, jump to month). Lists all expenses for the selected month. Shows monthly total and category-grouped totals. Add expense: title, amount, category (dropdown), date, recurring toggle, paid toggle, note. Creates PaymentTransaction record if marked paid. Delete expense. Toggle paid/unpaid.
+- Status: **Fully working**
 
 ---
 
-## 10. ENTRIES LIST
+## 10. SHOP PROFILE
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 50 | Search all entries | EntriesListFragment | FULLY WORKING | TextWatcher on search ET -> `loadEntries(query)` -> full-text search on customerName/mobile/dealerName |
-| 51 | View all entries | EntriesListFragment | FULLY WORKING | `getAllEntries()` Flow; navigate to EntryDetailFragment on tap |
-
----
-
-## 11. PROFILE / SETTINGS
-
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 52 | Shop profile CRUD | ProfileFragment | FULLY WORKING | Name, email, phone, shop name, address, GST, profile photo |
-| 53 | Profile photo — camera or gallery | ProfileFragment | FULLY WORKING | `btnTakeProfilePhoto` opens chooser (camera or gallery) |
-| 54 | Link Google Account | ProfileFragment | PARTIALLY WORKING | Google Sign-In fills email/name into profile fields |
-| 55 | Last sync timestamp | ProfileFragment | FULLY WORKING | `lastSyncTimestamp` displayed from UserProfile |
+**10.1 Shop Profile Management**
+- Screen: `ProfileFragment`
+- View and edit shop info: name, phone, shop name, address, email, GST number, profile photo. Save persists to user_profile table. Displays current profile data on load.
+- Status: **Fully working**
 
 ---
 
-## 12. BACKUP & RESTORE
+## 11. BACKUP & RESTORE
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 56 | Export local backup | MoreFragment | FULLY WORKING | `BackupManager.exportLocally()` -> copies DB to Downloads as `MuZZu_Tech_Backup_{timestamp}.db` |
-| 57 | Share backup file | MoreFragment | FULLY WORKING | `BackupManager.shareBackup()` -> copies to cache, shares via `ACTION_SEND` with `application/octet-stream` |
-| 58 | Restore local backup | MoreFragment | FULLY WORKING | File picker -> `BackupManager.importDatabase()`: closes DB, streams backup over, resets singleton; confirmation dialog with data-loss warning |
-| 59 | Cloud sync (Google Drive) | ProfileFragment, MoreFragment | STUB | `BackupManager.syncWithGoogleDrive()` — shows Toast "Google Drive Sync initiated", updates `lastSyncTimestamp/Status` to SUCCESS; does NOT actually upload |
+**11.1 Local Database Backup**
+- Screen: MoreFragment (Backup button)
+- Export: copies the live SQLite database to `/sdcard/Download/MuZZu_Tech_Backup_<timestamp>.db` with Toast confirmation. Share: copies to cache dir, shares via FileProvider intent chooser.
+- Status: **Fully working**
 
----
+**11.2 Local Database Restore**
+- Screen: MoreFragment (Restore button)
+- Opens file picker (ACTION_OPEN_DOCUMENT). On file selected: closes the database, overwrites with the selected file, resets the database singleton. Shows confirmation dialog before restoring.
+- Status: **Fully working**
 
-## 13. AUTO-UPDATE
-
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 60 | GitHub version check + APK download | UpdateManager | FULLY WORKING | On startup (MainActivity + DashboardFragment), fetches `version.json` from GitHub raw URL; if newer -> shows dialog; Download -> OkHttp progress -> opens installer intent |
-
----
-
-## 14. NOTIFICATIONS
-
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 61 | WhatsApp — repair started | NotificationUtils | FULLY WORKING | After InspectionFragment save: sends "Repair Started" via `wa.me` URL |
-| 62 | WhatsApp — repair completed | NotificationUtils | NOT WIRED | Function exists (`sendRepairCompletedWhatsApp`) but not called from any code path |
-| 63 | WhatsApp — device collected | NotificationUtils | FULLY WORKING | After HandoverFragment complete: sends "Device Collected" with parts list + amount |
-| 64 | Reorder alert notification | ReorderAlertWorker | FULLY WORKING | Reads last 30 days of SparePartPurchases; `AIAnalyzer.predictReorder()` per part; posts notification if any should reorder |
-| 65 | Salary reminder notification | SalaryReminderWorker | FULLY WORKING | Queries last month's SalaryPayments; filters unpaid; posts notification listing technicians + dues |
+**11.3 Cloud Sync (Google Drive)**
+- Screen: MoreFragment -> Profile (Cloud Sync)
+- Deprecated stub: throws `NotImplementedError("Google Drive API not integrated. Tracked at TODO-123")`. Method annotated `@Deprecated`. Google Sign-In still works for login but the sync function itself is not implemented.
+- Status: **Stub** — throws NotImplementedError at runtime
 
 ---
 
-## 15. AI FEATURES
+## 12. MORE MENU (NAVIGATION HUB)
 
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 66 | AI photo fault detection | InspectionFragment | FULLY WORKING | `AIAnalyzer.suggestFaultsFromPhoto()` — ML Kit Object Detection + Image Labeling + brightness heuristic |
-| 67 | AI repair cost estimator | AIAnalyzer | FULLY WORKING | `estimateRepairCost()` — matches fault name against CommonFault list -> returns defaultCharge |
-| 68 | AI repair time estimator | AIAnalyzer | FULLY WORKING | `estimateRepairTime()` — Display=2, Battery=1, Charging=1, Motherboard=5, Body=3, default=2 days |
-| 69 | AI business health advisor | DashboardFragment | FULLY WORKING | `AIAdvisor.analyzeDailyHealth()` — score (0-100), smart move rule engine, revenue/margin computed from today's jobs |
-| 70 | AI repair trends analysis | AIAnalyzer | NOT WIRED | `analyzeRepairTrends()` — defined; returns totalRepairs, topFaults, averageDays; not called from any UI |
+**12.1 More Hub**
+- Screen: `MoreFragment` (bottom-nav tab "More")
+- Central menu with card buttons: Service Men, Customers, Suppliers, Common Faults, Inventory, Payroll, Expenses, Profile. Also Cloud Sync, Backup Local, Share Backup, Restore, Logout. Shows live counts for service men, customers, suppliers, and faults on their cards. Shows current profile name/email and sync timestamp. Displays app version from BuildConfig.
+- Status: **Fully working**
 
 ---
 
-## 16. BACKGROUND / AUTOMATED JOBS
+## 13. BACKGROUND AUTOMATION
 
-| # | Job | Worker Class | Trigger / Schedule | What It Does | Status |
-|---|---|---|---|---|---|
-| 71 | Reorder alert | ReorderAlertWorker | Every 24 h (PeriodicWorkRequest, 1 day), initial delay 15 min, constraint battery-not-low, KEEP policy | Reads last 30 days of SparePartPurchases; groups by partName; `predictReorder()` for each; posts notification on channel `reorder_alerts` if any parts should reorder | FULLY WORKING |
-| 72 | Salary reminder | SalaryReminderWorker | Every ~30 days; initial delay = minutes until next 1st of month 9:00 AM; KEEP policy | Queries last month's SalaryPayments; filters `status != "PAID"`; posts notification on channel `salary_reminders` with technician names + due amounts | FULLY WORKING |
+**13.1 Low-Stock Reorder Alert (Daily)**
+- Worker: `ReorderAlertWorker` — extends `CoroutineWorker`
+- Scheduled by `AppScheduler.enqueueDailyJobs()` on app startup with `ExistingPeriodicWorkPolicy.KEEP`. Runs daily with `setRequiresBatteryNotLow(true)`. Scans spare part usage to detect low stock, posts a notification (channel `reorder_alerts`, ID 4201).
+- Status: **Fully working** (but stock levels are inferred from usage — no explicit min-stock field per part)
 
----
-
-## 17. ADDITIONAL APP FUNCTIONS
-
-| # | Feature | Screen | Status | Description |
-|---|---|---|---|---|
-| 73 | TestLauncherActivity (debug ADB nav) | TestLauncherActivity | FULLY WORKING | Deep-link activity accepting `extra_dest` EXTRA_NAV_DEST` for direct ADB launch to any of 13 main screens; debug-only |
-| 74 | UpdateManager version check | Background / MainActivity | FULLY WORKING | On startup calls `checkForUpdates()` fetching `version.json` from GitHub; if newer version exists shows dialog with download option; downloads APK and opens installer intent |
-| 75 | Invoice generation | HandoverFragment | FULLY WORKING | `InvoiceGenerator.generateInvoice()` produces PDF and shares via ACTION_SEND |
+**13.2 Monthly Salary Reminder**
+- Worker: `SalaryReminderWorker` — extends `CoroutineWorker`
+- Scheduled by `AppScheduler` with an initial delay to the 1st of next month at 9 AM, then runs every ~30 days. Queries salary_payments for pending slips and posts a notification with per-technician breakdown and total due (channel `salary_reminders`, ID 4202).
+- Status: **Fully working**
 
 ---
 
-## 18. ADDITIONAL UI WORKFLOWS (Non-Feature)
+## 14. AI & SMART FEATURES
 
-| # | Workflow | Screens | Status | Description |
-|---|---|---|---|---|
-| 76 | Entries list navigation | DashboardFragment -> EntriesListFragment -> EntryDetailFragment | FULLY WORKING | Dashboard card "All Entries" or search icon navigates to full list; tap any entry -> detail view |
-| 77 | More hub navigation cards | MoreFragment | FULLY WORKING | 8 cards: Service Men, Customers, Suppliers, Common Faults, Inventory, Payroll, Expenses, Account Profile |
-| 78 | Supplier quick-add flow | SparePartsFragment, SaleFragment | FULLY WORKING | "Add Supplier Quick" button navigates to SupplierAddFragment; on save returns to parent |
-| 79 | Handover -> invoice flow | HandoverFragment | FULLY WORKING | "Complete Handover" button -> ViewModel transaction + WhatsApp notification; "Generate Invoice" -> PDF share |
-| 80 | Profile photo chooser | ProfileFragment | FULLY WORKING | Camera or gallery picker for profile photo; saved to UserProfile |
+**14.1 Photo-Based Fault Suggestion (ML Kit)**
+- Screen: InspectionFragment (AI Analyze button)
+- Uses Google ML Kit: (a) Object Detection — detects if a phone is present in the photo. (b) Image Labeling — scans for screen/display/crack/water/liquid labels with confidence threshold. (c) Pixel heuristics — samples pixels across the image for average brightness (backlight / power-on indicators). Returns a list of text suggestions shown to the technician.
+- Status: **Fully working**
 
----
+**14.2 Business Health Analysis**
+- Screen: Dashboard (inline card)
+- See 2.2 above. Pure algorithmic analysis of daily margin, pending jobs, and expense vs revenue ratio.
+- Status: **Fully working**
 
-## 19. DAO METHODS SUMMARY
+**14.3 Repair Trend Analysis**
+- Utility: `AIAnalyzer.analyzeRepairTrends()` — computes total/completed/pending repairs, total/average revenue, top 5 faults by frequency, average repair time in days. Not currently rendered on any screen; available for future use.
+- Status: **Implemented but not wired to UI** (available in AIAnalyzer object, no screen consumes it)
 
-| DAO | Key Methods |
-|---|---|
-| RepairEntryDao | insert, update, delete, getAllEntries, getEntryById, getPendingEntries, getCompletedEntries, getEntriesByServiceMan, getEntriesByDateRange, getPendingCount, getCompletedCountInRange, getRevenueInRange, getDailyReport, searchEntries, getEntriesByMobile |
-| ServiceManDao | insert, update, delete, getAllServiceMen, getActiveServiceMen, getServiceManById, getServiceManByIdFlow, getCount |
-| SupplierDao | insert, update, delete, getAllSuppliers, getActiveSuppliers, getSupplierByMobile, getSupplierByMobileFlow, getCount |
-| CustomerDao | insert, deleteByMobile, update, getCustomerByMobile, getCustomerByMobileFlow, getAllCustomers, getCount |
-| DealerDao | insert, update, getDealerByMobile, getDealerByMobileFlow, getAllDealers, getCount |
-| CommonFaultDao | insert, insertAll, update, delete, getAllFaults, getActiveFaults, getFaultsByCategory, getFaultById |
-| SparePartPurchaseDao | insert, update, delete, getPurchasesByRepairId, getAllPurchases, getPurchasesBySupplier, getPurchasesByDateRange, getTotalPurchaseInRange, getTotalPurchasesCount |
-| SaleDao | insert, getAllSales, getSalesBySupplier, getSalesByDateRange, getSaleById |
-| PaymentDao | insert, update, delete, getAllPayments, getPendingDues, getDuesByType, getPaymentsByMobile, getPaymentById, getTotalDueAmount, getTotalDueByType, getTotalDueByMobile, getPaymentsByTypeAndDate, getPaymentCountByTypeAndDate |
-| PaymentTransactionDao | insert, update, delete, getTransactionsByPayment, getTransactionsByMobile, getAllTransactions, getTotalPaidByMobile, getTransactionsByDateRange |
-| AttendanceDao | upsert, update, delete, getByServiceMan, getByDateRange, getByServiceManInRange, getByServiceManInRangeList, getEntry, getPresentDays, getFullPresentDays, getHalfPresentDays |
-| SalaryDao | insert, update, getByServiceMan, getByMonth, getByServiceManAndMonth, getPendingPayments, getTotalPaidInRange, getTotalDueInRange |
-| ExpenseDao | insert, update, getAll, getByDateRange, getByCategory, getRecurring, getTotalInRange, getTotalForCategoryInRange, deleteById |
-| PartReturnDao | insert, update, delete, getAllReturns, getReturnsBySupplier, getReturnById |
-| UserProfileDao | getUserProfileFlow, getUserProfile, insertOrUpdate, delete |
+**14.4 Reorder Prediction**
+- Utility: `AIAnalyzer.predictReorder()` — given a part name, usage count, current stock, and lead time, computes days until stockout and suggested reorder quantity. Not currently wired to any screen.
+- Status: **Implemented but not wired to UI** (available in AIAnalyzer object, not consumed by any screen)
 
 ---
 
-## 20. DATABASE ENTITIES (15 Tables)
+## 15. WHATSAPP & NOTIFICATIONS
 
-| # | Table | Entity Class | Real-World Thing |
-|---|---|---|---|
-| 1 | `repair_entries` | RepairEntry | A phone repair job / work order, from intake to handover |
-| 2 | `service_men` | ServiceMan | A technician/employee at the shop |
-| 3 | `suppliers` | Supplier | A parts vendor (phone is primary key) |
-| 4 | `common_faults` | CommonFault | A predefined fault type with suggested charge (e.g., "Display Replacement") |
-| 5 | `spare_part_purchases` | SparePartPurchase | A part bought for a repair job, optionally linked to a supplier |
-| 6 | `customers` | Customer | A customer contact record (mobile is primary key) |
-| 7 | `dealers` | Dealer | A dealer contact record (mobile is primary key) |
-| 8 | `sales` | Sale | A direct sale (accessory/item sold to walk-in) |
-| 9 | `user_profile` | UserProfile | Shop owner's profile/branding data (singleton, id=1) |
-| 10 | `payments` | Payment | A payment obligation/record (customer, dealer, supplier, salary, expense) |
-| 11 | `part_returns` | PartReturn | A return of a faulty/wrong spare part to a supplier |
-| 12 | `payment_transactions` | PaymentTransaction | An individual cash-flow event (cash in or out) |
-| 13 | `attendance` | Attendance | Daily attendance record per technician (composite PK: servicemanId + date) |
-| 14 | `salary_payments` | SalaryPayment | A monthly salary slip for one technician |
-| 15 | `expenses` | Expense | A shop expense (rent, electricity, internet, supplies, other) |
+**15.1 WhatsApp Repair Notification**
+- Triggered from: InspectionFragment (on inspection save), HandoverFragment (on handover)
+- Opens WhatsApp with pre-filled message to the customer's mobile number: "Your device repair has started / been completed at MuZZu Tech..."
+- Status: **Fully working**
 
-**Database version:** 11 — migrations: v8->v9 (attendance/salary/expenses), v9->v10 (FK constraints), v10->v11 (nullable `paymentId` + SET NULL)
+**15.2 WhatsApp OTP Login**
+- See 1.2 above.
+- Status: **Fully working**
 
 ---
 
-## 21. PERMISSIONS
+## Database Schema (15 Tables)
 
-| Permission | Used For | Scope |
-|---|---|---|
-| `android.permission.CAMERA` | Entry, Inspection, SpareParts, Profile — all camera-photo buttons | Runtime requested per screen |
-| `WRITE_EXTERNAL_STORAGE` (maxSdk 28) | Backup export to Downloads, UpdateManager APK save | Declared |
-| `READ_EXTERNAL_STORAGE` (maxSdk 32) | Backup restore file picker | Declared |
-| `READ_MEDIA_IMAGES` | Android 13+ scoped-storage images access | Declared |
-| `android.permission.INTERNET` | UpdateManager, otp.dev API, Google Sign-In, WhatsApp URLs | Declared |
-| `REQUEST_INSTALL_PACKAGES` | UpdateManager APK installer intent | Declared |
-| `POST_NOTIFICATIONS` | ReorderAlertWorker, SalaryReminderWorker | Android 13+ runtime |
+| # | Table | Real-World Thing | Key Fields |
+|---|-------|------------------|-----------|
+| 1 | `repair_entries` | A repair ticket/job for a customer's device | id, customerName, mobile, brand, model, fault, chargeAmount, workDone, handoverDone, photos, assignedServiceMan |
+| 2 | `customers` | A customer who brings devices for repair | mobile (PK), name, email, city, address, type (CUSTOMER/DEALER) |
+| 3 | `dealers` | A dealer/business customer | mobile (PK), name, email, city, address, type |
+| 4 | `suppliers` | A parts supplier/vendor | mobile (PK), name, companyName, email, city, address, gstNo |
+| 5 | `service_men` | A technician/employee | id, name, mobile, email, employeeId, designation, monthlySalary, perDaySalary |
+| 6 | `common_faults` | Pre-defined device faults for quick selection | id, faultName, defaultCharge, category, sortOrder |
+| 7 | `spare_part_purchases` | A spare part bought for a repair | id, repairEntryId (FK), partName, purchasePrice, quantity, supplierId, supplierName |
+| 8 | `sales` | A direct (non-repair) sale | id, itemName, purchasePrice, salePrice, supplierMobile, date |
+| 9 | `payments` | A payment record (A/R or A/P) | id, personType, personMobile, personName, totalAmount, paidAmount, dueAmount, type (CREDIT/DEBIT) |
+| 10 | `payment_transactions` | An individual payment transaction | id, paymentId (FK nullable), amount, paymentMode, personType, personMobile, note, date |
+| 11 | `part_returns` | A spare part returned to supplier | id, partName, refundAmount, reason, sparePartPurchaseId, supplierId |
+| 12 | `attendance` | Daily attendance for a service man | servicemanId (PK), date (PK), present, halfDay, note |
+| 13 | `salary_payments` | A generated monthly salary slip | id, servicemanId (FK), monthStart, daysWorked, computedAmount, paidAmount, dueAmount, status (UNPAID/PAID/PARTIAL) |
+| 14 | `expenses` | A shop expense entry | id, title, amount, category, date, isRecurring, paid, note |
+| 15 | `user_profile` | Shop owner's profile | id, name, phone, shopName, shopAddress, email, gstNo, profilePhotoPath |
 
----
-
-## 22. STATUS SUMMARY
-
-| Feature Count | Status |
-|---|---|
-| FULLY WORKING | 58 |
-| PARTIALLY WORKING | 3 |
-| STUB | 1 |
-| NOT WIRED | 2 |
-| BYPASSED | 1 |
-| **TOTAL** | **71** |
+**DAO count: 15** (one per table, all in `data/db/dao/`)
 
 ---
 
-## 23. KNOWN GAPS / NEEDS DECISION
+## Complete Screen List (28 Fragments + 3 Activities)
 
-| # | Item | Details |
-|---|---|---|
-| 1 | Attendance entry UI | `PayrollViewModel.setAttendance()` exists but there is no screen to batch-mark attendance; currently set programmatically only |
-| 2 | Delete Common Fault UI button | `CommonFaultsViewModel.deleteFault()` is defined but no UI button triggers it |
-| 3 | AI Repair Trends screen | `AIAnalyzer.analyzeRepairTrends()` is fully implemented but not exposed in any UI |
-| 4 | WhatsApp "Repair Completed" notification | Function exists (`sendRepairCompletedWhatsApp`) but not called; only handover-summary notification is used |
-| 5 | Real SMS OTP | `OtpManager` exists with `otp.dev` API wiring but LoginFragment only uses WhatsApp OTP |
-| 6 | Google Drive sync | `BackupManager.syncWithGoogleDrive()` is a stub (mock timestamp only) |
-| 7 | Stock-level inventory | InventoryFragment shows a transaction ledger (purchases/sales/returns), not actual quantity-on-hand stock tracking |
-| 8 | Login screen | Complete and functional but bypassed in normal flow (app goes straight to Dashboard) |
+### Activities
+| # | Class | Purpose |
+|---|-------|---------|
+| 1 | `SplashActivity` | Biometric gate → MainActivity |
+| 2 | `MainActivity` | Single-activity host with bottom nav |
+| 3 | `TestLauncherActivity` | Debug deep-link launcher |
+
+### Navigation Fragments (28)
+| # | Fragment | Module | Access |
+|---|----------|--------|--------|
+| 1 | LoginFragment | Auth | First launch |
+| 2 | DashboardFragment | Dashboard | Bottom-nav tab |
+| 3 | EntryFragment | Repair Workflow | Bottom-nav tab |
+| 4 | InspectionFragment | Repair Workflow | From Entry save |
+| 5 | QuotationFragment | Repair Workflow | From Inspection save |
+| 6 | SparePartsFragment | Repair Workflow | From Quotation save |
+| 7 | HandoverFragment | Repair Workflow | From SpareParts save |
+| 8 | SaleFragment | Sales | Quick action |
+| 9 | EntriesListFragment | Repair Workflow | Bottom-nav tab |
+| 10 | EntryDetailFragment | Repair Workflow | Tap entry in list |
+| 11 | DuesFragment | Dues | Quick action |
+| 12 | PayDuesFragment | Dues | Tap due item |
+| 13 | PartReturnFragment | Dues | From PayDues |
+| 14 | ReportsFragment | Reports | Bottom-nav tab |
+| 15 | MoreFragment | More Hub | Bottom-nav tab |
+| 16 | ServiceManListFragment | Master Data | More menu |
+| 17 | ServiceManAddFragment | Master Data | More menu |
+| 18 | SupplierListFragment | Master Data | More menu |
+| 19 | SupplierDetailFragment | Master Data | Tap supplier |
+| 20 | SupplierAddFragment | Master Data | More menu |
+| 21 | CommonFaultsFragment | Master Data | More menu |
+| 22 | CustomerListFragment | Master Data | More menu |
+| 23 | CustomerDetailFragment | Master Data | Tap customer |
+| 24 | CustomerAddFragment | Master Data | More menu |
+| 25 | ProfileFragment | Profile | More menu |
+| 26 | InventoryFragment | Master Data | More menu |
+| 27 | PayrollFragment | Payroll | More menu |
+| 28 | ExpensesFragment | Expenses | More menu |
 
 ---
 
-*End of inventory.*
+## Known Gaps
+
+1. **Customer/Dealer: no delete** — no way to remove a customer or dealer from the system
+2. **Supplier: no delete** — no way to remove a supplier
+3. **Service Men: no detail/edit screen** — list items are not clickable; no way to edit existing service man
+4. **Service Men: no delete UI** — `delete()` method exists in ViewModel but has no UI button
+5. **Common Faults: no update** — can add and delete, but cannot edit an existing fault
+6. **Google Drive Cloud Sync** — `@Deprecated` stub, throws NotImplementedError at runtime
+7. **Trend Analysis + Reorder Prediction** — pure functions exist in `AIAnalyzer` but no screen consumes them yet
+8. **Reports: no PDF/CSV export** — reports are view-only on screen
+9. **Invoice PDF test** — blocked by Robolectric not shadowing `PdfDocument` (unit test uses file-naming validation instead)
