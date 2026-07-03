@@ -25,7 +25,6 @@ data class PaymentTransaction(
     val id: Long = 0,
     val paymentId: Long? = null,     // Links to Payment (nullable: salary/expense/sale txs have no parent Payment)
     val personType: String,          // "DEALER", "SUPPLIER", "CUSTOMER", "EXPENSE", "SALARY"
-    val personType: String,         // "DEALER", "SUPPLIER", "CUSTOMER"
     val personMobile: String,
     val personName: String = "",
     val amount: Double = 0.0,
