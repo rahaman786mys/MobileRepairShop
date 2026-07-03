@@ -45,6 +45,18 @@
         </activity>
 
         <activity
+            android:name=".TestLauncherActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MobileRepairShop">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="${applicationId}" android:host="test-launcher" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize">

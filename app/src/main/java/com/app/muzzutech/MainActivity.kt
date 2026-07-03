@@ -11,6 +11,10 @@ import com.app.muzzutech.utils.UpdateManager
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_NAV_DEST = "extra_nav_dest"
+    }
+
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +36,36 @@ class MainActivity : AppCompatActivity() {
         // Login removed — go straight to dashboard. Keep auth_prefs write for compatibility.
         val prefs = getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
         prefs.edit().putBoolean("is_logged_in", true).apply()
+
+        // Handle test-launcher navigation (debug scenarios)
+        val navDest = intent.getStringExtra(EXTRA_NAV_DEST)
+        if (navDest != null) {
+            intent.removeExtra(EXTRA_NAV_DEST)
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                if (destination.id != navController.graph.startDestinationId) {
+                    binding.bottomNavigation.visibility = View.VISIBLE
+                    binding.toolbar.visibility = View.VISIBLE
+                }
+            }
+            val destId = when (navDest) {
+                TestLauncherActivity.DEST_ENTRY -> R.id.entryFragment
+                TestLauncherActivity.DEST_SALE -> R.id.saleFragment
+                TestLauncherActivity.DEST_DUES -> R.id.duesFragment
+                TestLauncherActivity.DEST_REPORTS -> R.id.reportsFragment
+                TestLauncherActivity.DEST_MORE -> R.id.moreFragment
+                TestLauncherActivity.DEST_PAYROLL -> R.id.payrollFragment
+                TestLauncherActivity.DEST_EXPENSES -> R.id.expensesFragment
+                TestLauncherActivity.DEST_SUPPLIERS -> R.id.supplierListFragment
+                TestLauncherActivity.DEST_CUSTOMERS -> R.id.customerListFragment
+                TestLauncherActivity.DEST_FAULTS -> R.id.commonFaultsFragment
+                TestLauncherActivity.DEST_INVENTORY -> R.id.inventoryFragment
+                TestLauncherActivity.DEST_PROFILE -> R.id.profileFragment
+                else -> null
+            }
+            if (destId != null) {
+                navController.navigate(destId)
+            }
+        }
 
         // Update toolbar title and visibility of bottom nav based on current destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
