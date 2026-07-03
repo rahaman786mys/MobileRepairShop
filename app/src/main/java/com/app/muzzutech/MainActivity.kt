@@ -2,8 +2,11 @@ package com.app.muzzutech
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -17,34 +20,56 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMainBinding
+    @Volatile private var pendingNavDestId: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Check for updates from GitHub
         UpdateManager.checkForUpdates(this)
 
-        // Set up navigation
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as? NavHostFragment ?: return
         val navController = navHostFragment.navController
 
-        // Set up bottom navigation
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // Login removed — go straight to dashboard. Keep auth_prefs write for compatibility.
         val prefs = getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
         prefs.edit().putBoolean("is_logged_in", true).apply()
 
-        // Handle test-launcher navigation (debug scenarios)
-        handleTestLauncherNav(intent.getStringExtra(EXTRA_NAV_DEST))
+        val navDest = intent.getStringExtra(EXTRA_NAV_DEST)
+        if (navDest != null) {
+            val destId = navDest.toDestId()
+            Log.d("TestLauncher", "Main.onCreate: navDest=$navDest destId=$destId")
+            if (destId != null) {
+                pendingNavDestId = destId
+                supportFragmentManager.registerFragmentLifecycleCallbacks(
+                    object : FragmentManager.FragmentLifecycleCallbacks() {
+                        override fun onFragmentViewCreated(
+                            fm: FragmentManager,
+                            fragment: Fragment,
+                            view: View,
+                            savedInstanceState: Bundle?
+                        ) {
+                            super.onFragmentViewCreated(fm, fragment, view, savedInstanceState)
+                            Log.d("TestLauncher", "onFragmentViewCreated: fragment=$fragment navHost=$navHostFragment match=${fragment === navHostFragment}")
+                            if (fragment === navHostFragment) {
+                                fm.unregisterFragmentLifecycleCallbacks(this)
+                                Log.d("TestLauncher", "Matched NavHostFragment, posting commitPendingNav")
+                                view.post {
+                                    Log.d("TestLauncher", "post callback running, destId=$pendingNavDestId")
+                                    commitPendingNav(navController)
+                                }
+                            }
+                        }
+                    }, false
+                )
+            }
+        }
 
-        // Update toolbar title and visibility of bottom nav based on current destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.toolbar.title = destination.label ?: "Repair Shop"
-
             when (destination.id) {
                 R.id.loginFragment -> {
                     binding.bottomNavigation.visibility = View.GONE
@@ -52,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.dashboardFragment -> {
                     binding.bottomNavigation.visibility = View.VISIBLE
-                    binding.toolbar.visibility = View.GONE // Hide toolbar for dashboard
+                    binding.toolbar.visibility = View.GONE
                 }
                 else -> {
                     binding.bottomNavigation.visibility = View.VISIBLE
@@ -62,45 +87,66 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun commitPendingNav(navController: androidx.navigation.NavController) {
+        val destId = pendingNavDestId ?: return
+        pendingNavDestId = null
+        val currentId = navController.currentDestination?.id
+        Log.d("TestLauncher", "commitPendingNav: current=$currentId start=${navController.graph.startDestinationId} dest=$destId")
+        if (currentId != null && currentId != navController.graph.startDestinationId) {
+            navController.popBackStack(navController.graph.startDestinationId, false)
+        }
+        navController.navigate(destId)
+        Log.d("TestLauncher", "navigate($destId) done, now at ${navController.currentDestination?.id}")
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         return findNavController(R.id.nav_host_fragment).navigateUp()
     }
 
-    private fun handleTestLauncherNav(navDest: String?) {
-         if (navDest == null) return
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as? NavHostFragment ?: return
-        val navController = navHostFragment.navController
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id != navController.graph.startDestinationId) {
-                binding.bottomNavigation.visibility = View.VISIBLE
-                binding.toolbar.visibility = View.VISIBLE
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val navDest = intent.getStringExtra(EXTRA_NAV_DEST)
+        if (navDest != null) {
+            val navHostFragment = supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment) as? NavHostFragment ?: return
+            val destId = navDest.toDestId()
+            if (destId != null) {
+                pendingNavDestId = destId
+                supportFragmentManager.registerFragmentLifecycleCallbacks(
+                    object : FragmentManager.FragmentLifecycleCallbacks() {
+                        override fun onFragmentViewCreated(
+                            fm: FragmentManager,
+                            fragment: Fragment,
+                            view: View,
+                            savedInstanceState: Bundle?
+                        ) {
+                            super.onFragmentViewCreated(fm, fragment, view, savedInstanceState)
+                            if (fragment === navHostFragment) {
+                                fm.unregisterFragmentLifecycleCallbacks(this)
+                                view.post { commitPendingNav(navHostFragment.navController) }
+                            }
+                        }
+                    }, false
+                )
             }
         }
-         val destId = when (navDest) {
-            TestLauncherActivity.DEST_ENTRY -> R.id.entryFragment
-            TestLauncherActivity.DEST_SALE -> R.id.saleFragment
-            TestLauncherActivity.DEST_DUES -> R.id.duesFragment
-            TestLauncherActivity.DEST_REPORTS -> R.id.reportsFragment
-            TestLauncherActivity.DEST_MORE -> R.id.moreFragment
-            TestLauncherActivity.DEST_PAYROLL -> R.id.payrollFragment
-            TestLauncherActivity.DEST_EXPENSES -> R.id.expensesFragment
-            TestLauncherActivity.DEST_SUPPLIERS -> R.id.supplierListFragment
-            TestLauncherActivity.DEST_CUSTOMERS -> R.id.customerListFragment
-            TestLauncherActivity.DEST_FAULTS -> R.id.commonFaultsFragment
-            TestLauncherActivity.DEST_INVENTORY -> R.id.inventoryFragment
-            TestLauncherActivity.DEST_PROFILE -> R.id.profileFragment
-            else -> null
-        }
-        if (destId != null) {
-            navController.navigate(destId) 
-        }
     }
+}
 
-    override fun onNewIntent(intent: Intent) {
-         super.onNewIntent(intent)
-        setIntent(intent)
-        handleTestLauncherNav(intent.getStringExtra(EXTRA_NAV_DEST))
-    }
+private fun String.toDestId(): Int? = when (this) {
+    TestLauncherActivity.DEST_ENTRY -> R.id.entryFragment
+    TestLauncherActivity.DEST_SALE -> R.id.saleFragment
+    TestLauncherActivity.DEST_DUES -> R.id.duesFragment
+    TestLauncherActivity.DEST_REPORTS -> R.id.reportsFragment
+    TestLauncherActivity.DEST_MORE -> R.id.moreFragment
+    TestLauncherActivity.DEST_PAYROLL -> R.id.payrollFragment
+    TestLauncherActivity.DEST_EXPENSES -> R.id.expensesFragment
+    TestLauncherActivity.DEST_SUPPLIERS -> R.id.supplierListFragment
+    TestLauncherActivity.DEST_CUSTOMERS -> R.id.customerListFragment
+    TestLauncherActivity.DEST_FAULTS -> R.id.commonFaultsFragment
+    TestLauncherActivity.DEST_INVENTORY -> R.id.inventoryFragment
+    TestLauncherActivity.DEST_PROFILE -> R.id.profileFragment
+    else -> null
 }
 
