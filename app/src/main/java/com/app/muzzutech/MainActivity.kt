@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleTestLauncherNav(navDest: String?) {
-        if (navDest == null) return
+         if (navDest == null) return
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as? NavHostFragment ?: return
         val navController = navHostFragment.navController
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                 binding.toolbar.visibility = View.VISIBLE
             }
         }
-        val destId = when (navDest) {
+         val destId = when (navDest) {
             TestLauncherActivity.DEST_ENTRY -> R.id.entryFragment
             TestLauncherActivity.DEST_SALE -> R.id.saleFragment
             TestLauncherActivity.DEST_DUES -> R.id.duesFragment
@@ -93,13 +93,14 @@ class MainActivity : AppCompatActivity() {
             else -> null
         }
         if (destId != null) {
-            navController.navigate(destId)
+            navController.navigate(destId) 
         }
     }
 
     override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
+         super.onNewIntent(intent)
         setIntent(intent)
         handleTestLauncherNav(intent.getStringExtra(EXTRA_NAV_DEST))
     }
 }
+
