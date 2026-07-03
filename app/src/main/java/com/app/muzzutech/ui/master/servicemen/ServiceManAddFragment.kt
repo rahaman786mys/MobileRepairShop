@@ -25,25 +25,27 @@ class ServiceManAddFragment : Fragment(R.layout.fragment_service_man_add) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-binding.btnSave.setOnClickListener {
-  val name = binding.etName.text.toString().trim()
-  val mobile = binding.etMobile.text.toString().trim()
-  val email = binding.etEmail.text.toString().trim()
-  val empId = binding.etEmployeeId.text.toString().trim()
-  val designation = binding.etDesignation.text.toString().trim()
+        binding.btnSave.setOnClickListener {
+            val name = binding.etName.text.toString().trim()
+            val mobile = binding.etMobile.text.toString().trim()
+            val email = binding.etEmail.text.toString().trim()
+            val empId = binding.etEmployeeId.text.toString().trim()
+            val designation = binding.etDesignation.text.toString().trim()
+            val monthly = binding.etMonthlySalary.text.toString().toDoubleOrNull() ?: 0.0
+            val perDay = binding.etPerDaySalary.text.toString().toDoubleOrNull() ?: 0.0
 
-  if (name.isEmpty()) {
-    Snackbar.make(binding.root, "Name is required", Snackbar.LENGTH_LONG).show()
-    return@setOnClickListener
-  }
-  if (mobile.isNotEmpty() && !ValidationUtils.validatePhoneNumber(binding.tilServiceManMobile)) {
-    return@setOnClickListener
-  }
+            if (name.isEmpty()) {
+                Snackbar.make(binding.root, "Name is required", Snackbar.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+            if (mobile.isNotEmpty() && !ValidationUtils.validatePhoneNumber(binding.tilServiceManMobile)) {
+                return@setOnClickListener
+            }
 
-  viewModel.save(name, mobile, email, empId, designation)
-  Snackbar.make(binding.root, "Service Man added!", Snackbar.LENGTH_SHORT).show()
-  parentFragmentManager.popBackStack()
-}
+            viewModel.save(name, mobile, email, empId, designation, monthly, perDay)
+            Snackbar.make(binding.root, "Service Man added!", Snackbar.LENGTH_SHORT).show()
+            parentFragmentManager.popBackStack()
+        }
     }
 
     override fun onDestroyView() {

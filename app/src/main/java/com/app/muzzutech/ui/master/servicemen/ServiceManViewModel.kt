@@ -23,14 +23,24 @@ class ServiceManViewModel : ViewModel() {
         }
     }
 
-    fun save(name: String, mobile: String, email: String, empId: String, designation: String) {
+    fun save(
+        name: String,
+        mobile: String,
+        email: String,
+        empId: String,
+        designation: String,
+        monthlySalary: Double = 0.0,
+        perDaySalary: Double = 0.0
+    ) {
         viewModelScope.launch {
             dao.insert(ServiceMan(
                 name = name,
                 mobile = mobile,
                 email = email,
                 employeeId = empId,
-                designation = designation
+                designation = designation,
+                monthlySalary = monthlySalary,
+                perDaySalary = perDaySalary
             ))
         }
     }
