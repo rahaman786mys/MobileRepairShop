@@ -13,14 +13,6 @@ import androidx.room.PrimaryKey
     indices = [
         Index("supplierId"),
         Index("repairEntryId")
-    ],
-    foreignKeys = [
-        ForeignKey(
-            entity = RepairEntry::class,
-            parentColumns = ["id"],
-            childColumns = ["repairEntryId"],
-            onDelete = ForeignKey.CASCADE
-        )
     ]
 )
 data class SparePartPurchase(

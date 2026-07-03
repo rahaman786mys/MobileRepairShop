@@ -29,22 +29,14 @@ class MainActivity : AppCompatActivity() {
         // Set up bottom navigation
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // Check login state
+        // Login removed — go straight to dashboard. Keep auth_prefs write for compatibility.
         val prefs = getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
-        val isLoggedIn = prefs.getBoolean("is_logged_in", false)
-        
-        if (isLoggedIn && navController.currentDestination?.id == R.id.loginFragment) {
-            try {
-                navController.navigate(R.id.dashboardFragment)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        prefs.edit().putBoolean("is_logged_in", true).apply()
 
         // Update toolbar title and visibility of bottom nav based on current destination
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.toolbar.title = destination.label ?: "Repair Shop"
-            
+
             when (destination.id) {
                 R.id.loginFragment -> {
                     binding.bottomNavigation.visibility = View.GONE

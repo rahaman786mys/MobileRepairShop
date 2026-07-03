@@ -159,7 +159,7 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
                         val success = BackupManager.importDatabase(requireContext(), uri)
                         if (success) {
                             Toast.makeText(requireContext(), "Restore successful! Restarting app...", Toast.LENGTH_LONG).show()
-                            findNavController().navigate(R.id.loginFragment)
+                            findNavController().navigate(R.id.dashboardFragment)
                         } else {
                             Toast.makeText(requireContext(), "Restore failed. Invalid backup file.", Toast.LENGTH_LONG).show()
                         }
@@ -175,7 +175,8 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
     private fun logout() {
         val prefs = requireContext().getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
         prefs.edit().putBoolean("is_logged_in", false).apply()
-        findNavController().navigate(R.id.loginFragment)
+        Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
+        findNavController().navigate(R.id.dashboardFragment)
     }
 
     override fun onDestroyView() {

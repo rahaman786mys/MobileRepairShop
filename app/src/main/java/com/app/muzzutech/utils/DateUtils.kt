@@ -1,28 +1,44 @@
 package com.app.muzzutech.utils
 
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * Utility for date formatting and calculations
+ * Thread-safe utility for date formatting and calculations.
+ *
+ * All [SimpleDateFormat] instances are created per-call to avoid
+ * concurrency issues (SimpleDateFormat is NOT thread-safe).
  */
 object DateUtils {
 
-    private val displayFormat = SimpleDateFormat("dd-MMM-yyyy hh:mm a", Locale.getDefault())
-    private val dateOnlyFormat = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
-    private val timeOnlyFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-    private val reportDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private const val DISPLAY_PATTERN = "dd-MMM-yyyy hh:mm a"
+    private const val DATE_ONLY_PATTERN = "dd-MMM-yyyy"
+    private const val TIME_ONLY_PATTERN = "hh:mm a"
+    private const val REPORT_DATE_PATTERN = "yyyy-MM-dd"
+    private const val MONTH_PATTERN = "MMM yyyy"
+    private const val DAY_MONTH_PATTERN = "dd MMM"
 
     fun formatDateTime(timestamp: Long): String {
-        return if (timestamp > 0) displayFormat.format(Date(timestamp)) else "-"
+        return if (timestamp > 0) {
+            java.text.SimpleDateFormat(DISPLAY_PATTERN, Locale.getDefault()).format(Date(timestamp))
+        } else {
+            "-"
+        }
     }
 
     fun formatDate(timestamp: Long): String {
-        return if (timestamp > 0) dateOnlyFormat.format(Date(timestamp)) else "-"
+        return if (timestamp > 0) {
+            java.text.SimpleDateFormat(DATE_ONLY_PATTERN, Locale.getDefault()).format(Date(timestamp))
+        } else {
+            "-"
+        }
     }
 
     fun formatTime(timestamp: Long): String {
-        return if (timestamp > 0) timeOnlyFormat.format(Date(timestamp)) else "-"
+        return if (timestamp > 0) {
+            java.text.SimpleDateFormat(TIME_ONLY_PATTERN, Locale.getDefault()).format(Date(timestamp))
+        } else {
+            "-"
+        }
     }
 
     /**
@@ -103,12 +119,12 @@ object DateUtils {
 
     /** Format a month for display (e.g. "Jul 2026"). */
     fun formatMonth(timestamp: Long): String {
-        return SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date(timestamp))
+        return java.text.SimpleDateFormat(MONTH_PATTERN, Locale.getDefault()).format(Date(timestamp))
     }
 
     /** Format a date for display (e.g. "03 Jul"). */
     fun formatDayMonth(timestamp: Long): String {
-        return SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(timestamp))
+        return java.text.SimpleDateFormat(DAY_MONTH_PATTERN, Locale.getDefault()).format(Date(timestamp))
     }
 
     /**
