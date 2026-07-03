@@ -39,6 +39,8 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
         binding.btnAddSupplierQuick.setOnClickListener {
             findNavController().navigate(R.id.supplierAddFragment)
         }
+
+
     }
 
     private fun observeSuppliers() {

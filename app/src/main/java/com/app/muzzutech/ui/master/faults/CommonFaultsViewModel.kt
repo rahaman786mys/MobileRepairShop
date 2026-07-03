@@ -26,9 +26,9 @@ class CommonFaultsViewModel : ViewModel() {
     fun addFault(name: String, defaultCharge: Double, category: String) {
         viewModelScope.launch {
             dao.insert(CommonFault(
-                faultName = name,
+                faultName = name.take(100),
                 defaultCharge = defaultCharge,
-                category = category
+                category = category.take(50)
             ))
         }
     }

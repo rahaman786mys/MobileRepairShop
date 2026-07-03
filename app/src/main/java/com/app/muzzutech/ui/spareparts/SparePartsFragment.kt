@@ -194,6 +194,16 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
                 }
             }
         }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.addError.collectLatest { error ->
+                    if (error != null) {
+                        Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
+                        viewModel.resetAddError()
+                    }
+                }
+            }
+        }
     }
 
     override fun onResume() {

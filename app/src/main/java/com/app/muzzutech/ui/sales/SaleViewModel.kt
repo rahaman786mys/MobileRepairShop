@@ -74,13 +74,14 @@ class SaleViewModel : ViewModel() {
             return
         }
 
+        val safeItemName = itemName.take(100)
         viewModelScope.launch {
             _isSaving.value = true
             try {
                 database.withTransaction {
                     // 1. Sale row
                     val sale = Sale(
-                        itemName = itemName,
+                        itemName = safeItemName,
                         supplierId = supplier.mobile,
                         supplierName = supplier.name,
                         purchasePrice = purchasePrice,
@@ -98,7 +99,7 @@ class SaleViewModel : ViewModel() {
                         personType = "SUPPLIER",
                         personMobile = supplier.mobile,
                         personName = supplier.name,
-                        description = "Direct Sale: $itemName",
+                        description = "Direct Sale: $safeItemName",
                         totalAmount = purchasePrice,
                         paidAmount = purchasePrice,
                         dueAmount = 0.0,
@@ -116,7 +117,7 @@ class SaleViewModel : ViewModel() {
                             personName = "Cash Customer",
                             amount = salePrice,
                             paymentMode = "CASH",
-                            note = "Direct Sale: $itemName"
+                            note = "Direct Sale: $safeItemName"
                         )
                     )
 

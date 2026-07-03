@@ -49,5 +49,14 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
+        <ImageButton
+            android:id="@+id/btnDeleteFault"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_menu_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Delete fault"
+            android:tint="@color/error" />
+
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

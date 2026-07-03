@@ -57,6 +57,24 @@ class EntryViewModel : ViewModel() {
     suspend fun getCustomerByMobile(mobile: String): Customer? = customerDao.getCustomerByMobile(mobile)
     suspend fun getDealerByMobile(mobile: String): Dealer? = dealerDao.getDealerByMobile(mobile)
 
+    sealed class ContactResult {
+        data class CustomerContact(val name: String?, val city: String?) : ContactResult()
+        data class DealerContact(val name: String?, val city: String?) : ContactResult()
+        object NotFound : ContactResult()
+        data class Ambiguous(val customerName: String?, val dealerName: String?) : ContactResult()
+    }
+
+    suspend fun lookupContact(mobile: String, preferDealer: Boolean): ContactResult {
+        val customer = customerDao.getCustomerByMobile(mobile)
+        val dealer = dealerDao.getDealerByMobile(mobile)
+        return when {
+            customer != null && dealer != null -> ContactResult.Ambiguous(customer.name, dealer.name)
+            dealer != null -> ContactResult.DealerContact(dealer.name, dealer.city)
+            customer != null -> ContactResult.CustomerContact(customer.name, customer.city)
+            else -> ContactResult.NotFound
+        }
+    }
+
     fun saveEntry(
         photoPath: String,
         photoPath2: String = "",
@@ -74,6 +92,11 @@ class EntryViewModel : ViewModel() {
             _saveError.value = "Mobile number is required"
             return
         }
+        val safeName = name.take(100)
+        val safeCity = city.take(100)
+        val safeBrand = brand.take(50)
+        val safeModel = model.take(50)
+        val safeExtraItems = extraItems.take(200)
 
         viewModelScope.launch {
             _isSaving.value = true
@@ -83,9 +106,9 @@ class EntryViewModel : ViewModel() {
                 db.withTransaction {
                     // Save/Update contact info
                     if (isDealer) {
-                        dealerDao.insert(Dealer(mobile, name, city))
+                        dealerDao.insert(Dealer(mobile, safeName, safeCity))
                     } else {
-                        customerDao.insert(Customer(mobile, name, city))
+                        customerDao.insert(Customer(mobile, safeName, safeCity))
                     }
 
                     // If we already have a draft for this mobile, update it instead of creating duplicate
@@ -97,15 +120,15 @@ class EntryViewModel : ViewModel() {
                             repository.update(existing.copy(
                                 entryPhotoPath = photoPath.ifEmpty { existing.entryPhotoPath },
                                 entryPhotoPath2 = photoPath2.ifEmpty { existing.entryPhotoPath2 },
-                                customerName = if (!isDealer) name else existing.customerName,
+                                customerName = if (!isDealer) safeName else existing.customerName,
                                 customerMobile = if (!isDealer) mobile else existing.customerMobile,
-                                customerCity = city,
-                                dealerName = if (isDealer) name else existing.dealerName,
+                                customerCity = safeCity,
+                                dealerName = if (isDealer) safeName else existing.dealerName,
                                 dealerMobile = if (isDealer) mobile else existing.dealerMobile,
                                 serviceManId = serviceManId,
-                                deviceBrand = brand.ifEmpty { existing.deviceBrand },
-                                deviceModel = model.ifEmpty { existing.deviceModel },
-                                faultDescription = extraItems,
+                                deviceBrand = safeBrand.ifEmpty { existing.deviceBrand },
+                                deviceModel = safeModel.ifEmpty { existing.deviceModel },
+                                faultDescription = safeExtraItems,
                                 isDraft = true
                             ))
                             return@withTransaction
@@ -115,16 +138,16 @@ class EntryViewModel : ViewModel() {
                     val entry = RepairEntry(
                         entryPhotoPath = photoPath,
                         entryPhotoPath2 = photoPath2,
-                        customerName = if (!isDealer) name else "",
+                        customerName = if (!isDealer) safeName else "",
                         customerMobile = if (!isDealer) mobile else "",
-                        customerCity = city,
-                        dealerName = if (isDealer) name else "",
+                        customerCity = safeCity,
+                        dealerName = if (isDealer) safeName else "",
                         dealerMobile = if (isDealer) mobile else "",
                         serviceManId = serviceManId,
-                        deviceBrand = brand,
-                        deviceModel = model,
+                        deviceBrand = safeBrand,
+                        deviceModel = safeModel,
                         entryDate = System.currentTimeMillis(),
-                        faultDescription = extraItems, // Storing extra items here for now
+                        faultDescription = safeExtraItems,
                         isDraft = isDraft
                     )
                     val id = repository.insert(entry)

@@ -107,26 +107,8 @@ object BackupManager {
         }
     }
 
-    suspend fun syncWithGoogleDrive(context: Context, email: String) = withContext(Dispatchers.IO) {
-        val userProfileDao = MobileRepairApp.instance.database.userProfileDao()
-        val currentProfile = userProfileDao.getUserProfile() ?: com.app.muzzutech.data.model.UserProfile(id = 1)
-        
-        try {
-            // Mocking sync logic
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, "Google Drive Sync initiated for $email", Toast.LENGTH_SHORT).show()
-            }
-            
-            // Update status to success
-            userProfileDao.insertOrUpdate(currentProfile.copy(
-                lastSyncTimestamp = System.currentTimeMillis(),
-                lastSyncStatus = "SUCCESS"
-            ))
-        } catch (e: Exception) {
-            Log.e("BackupManager", "Sync failed", e)
-            userProfileDao.insertOrUpdate(currentProfile.copy(
-                lastSyncStatus = "FAILED"
-            ))
-        }
+    @Deprecated("Google Drive API not integrated. Tracked at TODO-123")
+    suspend fun syncWithGoogleDrive(context: Context, email: String): Nothing = withContext(Dispatchers.IO) {
+        throw NotImplementedError("Google Drive API not integrated. Tracked at TODO-123")
     }
 }

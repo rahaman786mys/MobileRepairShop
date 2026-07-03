@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -13,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.app.muzzutech.R
+import com.app.muzzutech.adapter.CommonFaultAdapter
 import com.app.muzzutech.databinding.FragmentCommonFaultsBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -53,19 +53,26 @@ class CommonFaultsFragment : Fragment(R.layout.fragment_common_faults) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.faults.collectLatest { faults ->
-                    binding.rvFaults.adapter = object : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
-                        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                            object : androidx.recyclerview.widget.RecyclerView.ViewHolder(
-                                LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
-                            ) {}
-                        override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
-                            val f = faults[position]
-                            holder.itemView.findViewById<TextView>(android.R.id.text1).text = f.faultName
-                            holder.itemView.findViewById<TextView>(android.R.id.text2).text = 
-                                "${f.category} | ${com.app.muzzutech.utils.PriceUtils.formatPrice(f.defaultCharge)}"
+                    val adapter = CommonFaultAdapter(
+                        onFaultClick = { fault ->
+                            binding.etFaultName.setText(fault.faultName)
+                            binding.etCategory.setText(fault.category)
+                            binding.etDefaultCharge.setText(fault.defaultCharge.toBigDecimal().toPlainString())
+                        },
+                        onFaultDelete = { fault ->
+                            android.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Delete Fault")
+                                .setMessage("Delete \"${fault.faultName}\"?")
+                                .setPositiveButton("Delete") { _, _ ->
+                                    viewModel.deleteFault(fault)
+                                    Snackbar.make(binding.root, "Fault deleted", Snackbar.LENGTH_SHORT).show()
+                                }
+                                .setNegativeButton("Cancel", null)
+                                .show()
                         }
-                        override fun getItemCount() = faults.size
-                    }
+                    )
+                    binding.rvFaults.adapter = adapter
+                    adapter.submitList(faults)
                 }
             }
         }

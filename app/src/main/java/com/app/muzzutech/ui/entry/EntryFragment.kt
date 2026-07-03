@@ -30,6 +30,7 @@ import com.app.muzzutech.utils.PhotoUtils
 import com.app.muzzutech.utils.ValidationUtils
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import com.app.muzzutech.ui.entry.EntryViewModel.ContactResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
@@ -99,6 +100,8 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             setupBrandSpinner()
             setupExtraItemsDropdown()
             observeViewModel()
+
+
             
             savedInstanceState?.let { bundle ->
                 bundle.getString("photo1")?.let { 
@@ -165,11 +168,17 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         }
 
         binding.btnSaveEntry.setOnClickListener {
-            saveEntry(isDraft = false)
+            if (!viewModel.isSaving.value) {
+                binding.btnSaveEntry.isEnabled = false
+                saveEntry(isDraft = false)
+            }
         }
 
         binding.btnSaveDraft.setOnClickListener {
-            saveEntry(isDraft = true)
+            if (!viewModel.isSaving.value) {
+                binding.btnSaveDraft.isEnabled = false
+                saveEntry(isDraft = true)
+            }
         }
 
         binding.toggleGroupEntryType.addOnButtonCheckedListener { _, _, isChecked ->
@@ -184,11 +193,14 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     override fun onPause() {
         super.onPause()
-        autoSaveDraft()
+        if (!requireActivity().isChangingConfigurations) {
+            autoSaveDraft()
+        }
     }
 
     private fun autoSaveDraft() {
         if (!isAdded) return
+        if (viewModel.isSaving.value) return
         val mobile = binding.etMobileNumber.text.toString().trim()
         if (mobile.length >= 4) {
             saveEntry(isDraft = true)
@@ -210,17 +222,24 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun searchMobile(mobile: String) {
-        val isDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
+        val preferDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
         viewLifecycleOwner.lifecycleScope.launch {
-            if (isDealer) {
-                viewModel.getDealerByMobile(mobile)?.let { dealer ->
-                    binding.etName.setText(dealer.name)
-                    binding.etCity.setText(dealer.city)
+            when (val result = viewModel.lookupContact(mobile, preferDealer)) {
+                is EntryViewModel.ContactResult.CustomerContact -> {
+                    binding.etName.setText(result.name)
+                    binding.etCity.setText(result.city)
                 }
-            } else {
-                viewModel.getCustomerByMobile(mobile)?.let { customer ->
-                    binding.etName.setText(customer.name)
-                    binding.etCity.setText(customer.city)
+                is EntryViewModel.ContactResult.DealerContact -> {
+                    binding.etName.setText(result.name)
+                    binding.etCity.setText(result.city)
+                }
+                is EntryViewModel.ContactResult.Ambiguous -> {
+                    val chosenName = if (preferDealer) result.dealerName else result.customerName
+                    binding.etName.setText(chosenName)
+                    Snackbar.make(binding.root, "Mobile exists as both Customer and Dealer. Using ${if (preferDealer) "Dealer" else "Customer"} entry.", Snackbar.LENGTH_LONG).show()
+                }
+                is EntryViewModel.ContactResult.NotFound -> {
+                    // New contact, fields remain empty
                 }
             }
             binding.layoutRepairFields.isVisible = true
@@ -334,6 +353,8 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.saveSuccess.collectLatest { id ->
+                    binding.btnSaveEntry.isEnabled = true
+                    binding.btnSaveDraft.isEnabled = true
                     if (id != null && id > 0 && isAdded) {
                         viewModel.resetSaveState()
                         Snackbar.make(binding.root, "Entry Registered!", Snackbar.LENGTH_SHORT).show()
@@ -346,9 +367,21 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.saveError.collectLatest { error ->
+                    binding.btnSaveEntry.isEnabled = true
+                    binding.btnSaveDraft.isEnabled = true
                     if (error != null && isAdded) {
                         viewModel.resetSaveState()
                         Snackbar.make(binding.root, "Save failed: $error", Snackbar.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isSaving.collectLatest { saving ->
+                    if (saving) {
+                        binding.btnSaveEntry.isEnabled = false
+                        binding.btnSaveDraft.isEnabled = false
                     }
                 }
             }

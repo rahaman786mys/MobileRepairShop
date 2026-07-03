@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.muzzutech.data.model.CommonFault
 import com.app.muzzutech.databinding.ItemCommonFaultBinding
 
-class CommonFaultAdapter(private val onFaultClick: (CommonFault) -> Unit) :
-    ListAdapter<CommonFault, CommonFaultAdapter.FaultViewHolder>(FaultDiffCallback()) {
+class CommonFaultAdapter(
+    private val onFaultDelete: (CommonFault) -> Unit = {},
+    private val onFaultClick: (CommonFault) -> Unit = {}
+) : ListAdapter<CommonFault, CommonFaultAdapter.FaultViewHolder>(FaultDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FaultViewHolder {
         val binding = ItemCommonFaultBinding.inflate(
@@ -34,6 +36,9 @@ class CommonFaultAdapter(private val onFaultClick: (CommonFault) -> Unit) :
             
             binding.root.setOnClickListener {
                 onFaultClick(fault)
+            }
+            binding.btnDeleteFault.setOnClickListener {
+                onFaultDelete(fault)
             }
         }
     }

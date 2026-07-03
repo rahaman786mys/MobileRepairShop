@@ -18,12 +18,16 @@ class SparePartsViewModel : ViewModel() {
     private val purchaseDao = database.sparePartPurchaseDao()
     private val supplierDao = database.supplierDao()
     private val paymentDao = database.paymentDao()
+    private val repairRepository = MobileRepairApp.instance.repairRepository
 
     private val _suppliers = MutableStateFlow<List<Supplier>>(emptyList())
     val suppliers: StateFlow<List<Supplier>> = _suppliers
 
     private val _addedParts = MutableStateFlow<List<SparePartPurchase>>(emptyList())
     val addedParts: StateFlow<List<SparePartPurchase>> = _addedParts
+
+    private val _addError = MutableStateFlow<String?>(null)
+    val addError: StateFlow<String?> = _addError
 
     init {
         loadSuppliers()
@@ -48,15 +52,21 @@ class SparePartsViewModel : ViewModel() {
         payLater: Boolean
     ) {
         viewModelScope.launch {
+            val entry = repairRepository.getEntryById(repairEntryId)
+            if (entry != null && (entry.workStatus == "Done" || entry.handoverDone)) {
+                _addError.value = "Cannot add parts: repair already completed/handed over"
+                return@launch
+            }
             database.withTransaction {
+                val safePartName = partName.take(100)
                 val part = SparePartPurchase(
                     repairEntryId = repairEntryId,
-                    partName = partName,
+                    partName = safePartName,
                     partPhotoPath = photoPath,
                     purchasePrice = price,
                     quantity = quantity,
-                    supplierId = supplierId,
-                    supplierName = supplierName
+                    supplierId = supplierId.take(20),
+                    supplierName = supplierName.take(100)
                 )
                 val partId = purchaseDao.insert(part)
                 val totalCost = price * quantity
@@ -105,5 +115,9 @@ class SparePartsViewModel : ViewModel() {
                 _addedParts.value = list
             }
         }
+    }
+
+    fun resetAddError() {
+        _addError.value = null
     }
 }
