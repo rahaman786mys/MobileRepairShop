@@ -157,11 +157,23 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     private fun setupClickListeners() {
         binding.btnTakePhoto.setOnClickListener {
-            openCamera()
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                openCamera()
+            } else {
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
         }
 
         binding.btnTakePhoto2.setOnClickListener {
-            openCamera2()
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                openCamera2()
+            } else {
+                cameraPermissionLauncher2.launch(Manifest.permission.CAMERA)
+            }
         }
 
         binding.btnSaveEntry.setOnClickListener {
@@ -244,21 +256,31 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun openCamera() {
-        photoFile = PhotoUtils.createPhotoFile(requireContext(), "ENTRY1_")
-        if (skipCameraLaunch) return
-        photoUri = photoFile?.let {
-            FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+        try {
+            photoFile = PhotoUtils.createPhotoFile(requireContext(), "ENTRY1_")
+            if (skipCameraLaunch) return
+            photoUri = photoFile?.let {
+                FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+            }
+            photoUri?.let { cameraLauncher.launch(it) }
+        } catch (e: Exception) {
+            Log.e("EntryFragment", "Error opening camera", e)
+            if (isAdded) Toast.makeText(requireContext(), "Could not open camera: ${e.message}", Toast.LENGTH_LONG).show()
         }
-        photoUri?.let { cameraLauncher.launch(it) }
     }
 
     private fun openCamera2() {
-        photoFile2 = PhotoUtils.createPhotoFile(requireContext(), "ENTRY2_")
-        if (skipCameraLaunch) return
-        photoUri2 = photoFile2?.let {
-            FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+        try {
+            photoFile2 = PhotoUtils.createPhotoFile(requireContext(), "ENTRY2_")
+            if (skipCameraLaunch) return
+            photoUri2 = photoFile2?.let {
+                FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+            }
+            photoUri2?.let { cameraLauncher2.launch(it) }
+        } catch (e: Exception) {
+            Log.e("EntryFragment", "Error opening camera 2", e)
+            if (isAdded) Toast.makeText(requireContext(), "Could not open camera: ${e.message}", Toast.LENGTH_LONG).show()
         }
-        photoUri2?.let { cameraLauncher2.launch(it) }
     }
 
     private fun collectExtraItems(): String {
