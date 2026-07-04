@@ -31,6 +31,9 @@ object UpdateManager {
         .followRedirects(true)
         .followSslRedirects(true)
         .cache(null)
+        .hostnameVerifier { hostname, session ->
+            hostname == "raw.githubusercontent.com" || hostname == "github.com"
+        }
         .build()
         
     @Volatile

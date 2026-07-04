@@ -25,9 +25,10 @@ import com.app.muzzutech.data.model.*
         PaymentTransaction::class,
         Attendance::class,
         SalaryPayment::class,
-        Expense::class
+        Expense::class,
+        LedgerAlert::class
     ],
-    version = 11, // Bumped from 10: paymentId nullable + SET NULL FK
+    version = 14, // Bumped from 13: added LedgerAlert table, expenseId on payment_transactions
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -47,6 +48,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun attendanceDao(): AttendanceDao
     abstract fun salaryDao(): SalaryDao
     abstract fun expenseDao(): ExpenseDao
+    abstract fun ledgerAlertDao(): LedgerAlertDao
 
     companion object {
         @Volatile
@@ -180,6 +182,63 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration 11 -> 12: adds performance indices on commonly queried columns
+         * for repair_entries, payments, part_returns, and sales.
+         */
+        val MIGRATION_11_12: Migration = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_repair_entries_customerMobile ON repair_entries(customerMobile)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_repair_entries_serviceManId ON repair_entries(serviceManId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_repair_entries_entryDate ON repair_entries(entryDate)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_repair_entries_workStatus ON repair_entries(workStatus)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_repair_entries_handoverDone ON repair_entries(handoverDone)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_personMobile ON payments(personMobile)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_personType ON payments(personType)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_status ON payments(status)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_linkedEntryId ON payments(linkedEntryId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_linkedSaleId ON payments(linkedSaleId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_linkedPartId ON payments(linkedPartId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_part_returns_supplierId ON part_returns(supplierId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_part_returns_returnDate ON part_returns(returnDate)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_sales_supplierId ON sales(supplierId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_sales_saleDate ON sales(saleDate)")
+            }
+        }
+
+        /**
+         * Migration 12 -> 13: adds expenseId column + index on payment_transactions.
+         * This enables bidirectional cleanup: deleting an expense also removes its
+         * linked PaymentTransaction, and toggling paid/unpaid creates/removes the txn.
+         */
+        val MIGRATION_12_13: Migration = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE payment_transactions ADD COLUMN expenseId INTEGER DEFAULT NULL")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_transactions_expenseId ON payment_transactions(expenseId)")
+            }
+        }
+
+        /**
+         * Migration 13 -> 14: adds LedgerAlert table for Nightly Auditor results.
+         */
+        val MIGRATION_13_14: Migration = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""CREATE TABLE IF NOT EXISTS ledger_alerts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    alertDate INTEGER NOT NULL,
+                    type TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    expectedAmount REAL NOT NULL DEFAULT 0.0,
+                    actualAmount REAL NOT NULL DEFAULT 0.0,
+                    mismatchAmount REAL NOT NULL DEFAULT 0.0,
+                    resolved INTEGER NOT NULL DEFAULT 0,
+                    resolvedAt INTEGER
+                )""")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ledger_alerts_alertDate ON ledger_alerts(alertDate)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ledger_alerts_resolved ON ledger_alerts(resolved)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -187,7 +246,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "mobile_repair_shop_db"
                 )
-                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
                     .build()
                 INSTANCE = instance
                 instance

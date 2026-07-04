@@ -65,52 +65,116 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:baselineAligned="false">
+                android:orientation="vertical"
+                android:padding="16dp">
+
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Total Revenue"
-                        style="@style/TextAppearance.MuZZu.Label" />
-                    <TextView
-                        android:id="@+id/tvReportRevenue"
-                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Revenue"
+                            style="@style/TextAppearance.MuZZu.Label" />
+                        <TextView
+                            android:id="@+id/tvReportRevenue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹ 0"
+                            style="@style/TextAppearance.MuZZu.Heading"
+                            android:textColor="@color/muzzu_accent"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/muzzu_border"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp" />
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="₹ 0"
-                        style="@style/TextAppearance.MuZZu.Heading"
-                        android:textColor="@color/muzzu_accent"
-                        android:layout_marginTop="4dp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Completed"
+                            style="@style/TextAppearance.MuZZu.Label" />
+                        <TextView
+                            android:id="@+id/tvReportCompleted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            style="@style/TextAppearance.MuZZu.Heading"
+                            android:textColor="@color/muzzu_success"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
                 </LinearLayout>
+
                 <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
                     android:background="@color/muzzu_border"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp" />
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp" />
+
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Completed"
-                        style="@style/TextAppearance.MuZZu.Label" />
-                    <TextView
-                        android:id="@+id/tvReportCompleted"
-                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Expenses"
+                            style="@style/TextAppearance.MuZZu.Label" />
+                        <TextView
+                            android:id="@+id/tvReportExpenses"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹ 0"
+                            style="@style/TextAppearance.MuZZu.Heading"
+                            android:textColor="@color/muzzu_error"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/muzzu_border"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp" />
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="0"
-                        style="@style/TextAppearance.MuZZu.Heading"
-                        android:textColor="@color/muzzu_success"
-                        android:layout_marginTop="4dp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Net Profit"
+                            style="@style/TextAppearance.MuZZu.Label" />
+                        <TextView
+                            android:id="@+id/tvReportProfit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹ 0"
+                            style="@style/TextAppearance.MuZZu.Heading"
+                            android:textColor="@color/muzzu_success"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

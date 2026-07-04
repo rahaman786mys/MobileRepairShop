@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentCustomerDetailBinding
@@ -41,6 +42,21 @@ class CustomerDetailFragment : Fragment(R.layout.fragment_customer_detail) {
             }
             findNavController().navigate(R.id.customerAddFragment, bundle)
         }
+
+        binding.btnDeleteCustomer.setOnClickListener {
+            android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Customer")
+                .setMessage("Delete this customer? This action cannot be undone.")
+                .setPositiveButton("Delete") { _, _ ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        MobileRepairApp.instance.database.customerDao().deleteByMobile(mobile)
+                        Snackbar.make(binding.root, "Customer deleted", Snackbar.LENGTH_SHORT).show()
+                        findNavController().popBackStack()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
     }
 
     private fun loadCustomerData(mobile: String) {
@@ -48,7 +64,6 @@ class CustomerDetailFragment : Fragment(R.layout.fragment_customer_detail) {
         
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Combine Customer and Dealer checks
                 db.customerDao().getCustomerByMobileFlow(mobile).collectLatest { customer ->
                     if (customer != null) {
                         binding.tvCustomerName.text = customer.name

@@ -23,7 +23,6 @@ import com.app.muzzutech.R
 import com.app.muzzutech.adapter.CommonFaultAdapter
 import com.app.muzzutech.databinding.FragmentInspectionBinding
 import com.app.muzzutech.utils.AIAnalyzer
-import com.app.muzzutech.utils.NotificationUtils
 import com.app.muzzutech.utils.PhotoUtils
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -164,13 +163,6 @@ class InspectionFragment : Fragment(R.layout.fragment_inspection) {
                     inspectionDone = true
                 )
                 MobileRepairApp.instance.repairRepository.update(updated)
-
-                if (updated.customerMobile.isNotEmpty()) {
-                    try {
-                        NotificationUtils.sendRepairStartedWhatsApp(requireContext(), updated)
-                    } catch (_: Exception) {
-                    }
-                }
 
                 val bundle = Bundle().apply { putLong("entryId", entryId) }
                 findNavController().navigate(R.id.quotationFragment, bundle)

@@ -33,6 +33,12 @@ class CommonFaultsViewModel : ViewModel() {
         }
     }
 
+    fun updateFault(fault: CommonFault) {
+        viewModelScope.launch {
+            dao.update(fault)
+        }
+    }
+
     fun deleteFault(fault: CommonFault) {
         viewModelScope.launch {
             dao.delete(fault)

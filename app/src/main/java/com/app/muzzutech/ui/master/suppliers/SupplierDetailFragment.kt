@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentSupplierDetailBinding
@@ -39,6 +40,24 @@ class SupplierDetailFragment : Fragment(R.layout.fragment_supplier_detail) {
                 putString("supplierMobile", mobile)
             }
             findNavController().navigate(R.id.supplierAddFragment, bundle)
+        }
+
+        binding.btnDeleteSupplier.setOnClickListener {
+            android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Supplier")
+                .setMessage("Delete this supplier? This action cannot be undone.")
+                .setPositiveButton("Delete") { _, _ ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val supplier = MobileRepairApp.instance.database.supplierDao().getSupplierByMobile(mobile)
+                        if (supplier != null) {
+                            MobileRepairApp.instance.database.supplierDao().delete(supplier)
+                        }
+                        Snackbar.make(binding.root, "Supplier deleted", Snackbar.LENGTH_SHORT).show()
+                        findNavController().popBackStack()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 

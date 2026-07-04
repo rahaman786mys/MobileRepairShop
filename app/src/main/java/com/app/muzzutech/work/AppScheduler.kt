@@ -21,6 +21,7 @@ object AppScheduler {
 
     private const val WORK_REORDER_DAILY = "reorder_daily_alert"
     private const val WORK_SALARY_MONTHLY = "salary_monthly_reminder"
+    private const val WORK_LEDGER_AUDIT = "ledger_daily_audit"
 
     fun enqueueDailyJobs(context: Context) {
         val wm = WorkManager.getInstance(context)
@@ -56,6 +57,21 @@ object AppScheduler {
             WORK_SALARY_MONTHLY,
             ExistingPeriodicWorkPolicy.KEEP,
             salaryRequest
+        )
+
+        // Nightly ledger audit — runs once per day, reconciles books
+        val auditRequest = PeriodicWorkRequestBuilder<LedgerAuditWorker>(1, TimeUnit.DAYS)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+            .setInitialDelay(30, TimeUnit.MINUTES) // ample settling time after app install
+            .build()
+        wm.enqueueUniquePeriodicWork(
+            WORK_LEDGER_AUDIT,
+            ExistingPeriodicWorkPolicy.KEEP,
+            auditRequest
         )
     }
 

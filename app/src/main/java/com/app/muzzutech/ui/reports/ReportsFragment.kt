@@ -100,6 +100,23 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
                 }
             }
         }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.expenses.collectLatest { exp ->
+                    binding.tvReportExpenses.text = com.app.muzzutech.utils.PriceUtils.formatPrice(exp)
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.profit.collectLatest { p ->
+                    binding.tvReportProfit.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p)
+                    binding.tvReportProfit.setTextColor(
+                        resources.getColor(if (p >= 0) R.color.muzzu_success else R.color.muzzu_error, null)
+                    )
+                }
+            }
+        }
     }
 
     private fun setupSalesList(sales: List<Sale>) {

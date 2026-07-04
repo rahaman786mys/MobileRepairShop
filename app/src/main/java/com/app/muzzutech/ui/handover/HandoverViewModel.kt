@@ -32,80 +32,77 @@ class HandoverViewModel : ViewModel() {
         }
     }
 
-    fun completeHandover(
+    suspend fun completeHandover(
         entryId: Long,
         finalAmount: Double,
         paymentMode: String,
         cashAmount: Double,
         onlineAmount: Double
     ) {
-        viewModelScope.launch {
-            val db = MobileRepairApp.instance.database
-            db.withTransaction {
-                repository.getEntryById(entryId)?.let { entry ->
-                    // 1. Update Repair Entry
-                    val updated = entry.copy(
-                        finalAmount = finalAmount,
-                        paymentMode = paymentMode,
-                        cashAmount = cashAmount,
-                        onlineAmount = onlineAmount,
-                        handoverDate = System.currentTimeMillis(),
-                        handoverDone = true,
-                        workStatus = "Done",
-                        workDone = true,
-                        completionDate = System.currentTimeMillis()
-                    )
-                    repository.update(updated)
+        val db = MobileRepairApp.instance.database
+        db.withTransaction {
+            repository.getEntryById(entryId)?.let { entry ->
+                val updated = entry.copy(
+                    finalAmount = finalAmount,
+                    paymentMode = paymentMode,
+                    cashAmount = cashAmount,
+                    onlineAmount = onlineAmount,
+                    handoverDate = System.currentTimeMillis(),
+                    handoverDone = true,
+                    workStatus = "Done",
+                    workDone = true,
+                    completionDate = System.currentTimeMillis()
+                )
+                repository.update(updated)
+                _entry.value = updated
 
-                    // 2. Create Payment Record (Accounting)
-                    val isPayLater = paymentMode == "Pay Later"
-                    val paidTotal = if (isPayLater) 0.0 else (cashAmount + onlineAmount)
+                val isPayLater = paymentMode == "Pay Later"
+                val handoverPaid = if (isPayLater) 0.0 else (cashAmount + onlineAmount)
+                val paidTotal = entry.advanceAmount + handoverPaid
 
-                    val personMobile = entry.customerMobile.ifEmpty { entry.dealerMobile }
-                    val personName = entry.customerName.ifEmpty { entry.dealerName }
-                    val personType = if (entry.customerMobile.isNotEmpty()) "CUSTOMER" else "DEALER"
+                val personMobile = entry.customerMobile.ifEmpty { entry.dealerMobile }
+                val personName = entry.customerName.ifEmpty { entry.dealerName }
+                val personType = if (entry.customerMobile.isNotEmpty()) "CUSTOMER" else "DEALER"
 
-                    val payment = com.app.muzzutech.data.model.Payment(
-                        personType = personType,
-                        personMobile = personMobile,
-                        personName = personName,
-                        description = "Repair - ${entry.deviceBrand} ${entry.deviceModel}",
-                        totalAmount = finalAmount,
-                        paidAmount = paidTotal,
-                        dueAmount = (finalAmount - paidTotal).coerceAtLeast(0.0),
-                        status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount - 0.01) "PAID" else "PARTIAL",
-                        linkedEntryId = entry.id
-                    )
-                    val paymentId = db.paymentDao().insert(payment)
+                val payment = com.app.muzzutech.data.model.Payment(
+                    personType = personType,
+                    personMobile = personMobile,
+                    personName = personName,
+                    description = "Repair - ${entry.deviceBrand} ${entry.deviceModel}",
+                    totalAmount = finalAmount,
+                    paidAmount = paidTotal,
+                    dueAmount = (finalAmount - paidTotal).coerceAtLeast(0.0),
+                    status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount - 0.01) "PAID" else "PARTIAL",
+                    linkedEntryId = entry.id
+                )
+                val paymentId = db.paymentDao().insert(payment)
 
-                    // 3. Create Transaction Records (Cash Flow)
-                    if (!isPayLater) {
-                        if (cashAmount > 0) {
-                            db.paymentTransactionDao().insert(
-                                com.app.muzzutech.data.model.PaymentTransaction(
-                                    paymentId = paymentId,
-                                    personType = personType,
-                                    personMobile = personMobile,
-                                    personName = personName,
-                                    amount = cashAmount,
-                                    paymentMode = "CASH",
-                                    note = "Received during handover"
-                                )
+                if (!isPayLater) {
+                    if (cashAmount > 0) {
+                        db.paymentTransactionDao().insert(
+                            com.app.muzzutech.data.model.PaymentTransaction(
+                                paymentId = paymentId,
+                                personType = personType,
+                                personMobile = personMobile,
+                                personName = personName,
+                                amount = cashAmount,
+                                paymentMode = "CASH",
+                                note = "Received during handover"
                             )
-                        }
-                        if (onlineAmount > 0) {
-                            db.paymentTransactionDao().insert(
-                                com.app.muzzutech.data.model.PaymentTransaction(
-                                    paymentId = paymentId,
-                                    personType = personType,
-                                    personMobile = personMobile,
-                                    personName = personName,
-                                    amount = onlineAmount,
-                                    paymentMode = "ONLINE",
-                                    note = "Received during handover"
-                                )
+                        )
+                    }
+                    if (onlineAmount > 0) {
+                        db.paymentTransactionDao().insert(
+                            com.app.muzzutech.data.model.PaymentTransaction(
+                                paymentId = paymentId,
+                                personType = personType,
+                                personMobile = personMobile,
+                                personName = personName,
+                                amount = onlineAmount,
+                                paymentMode = "ONLINE",
+                                note = "Received during handover"
                             )
-                        }
+                        )
                     }
                 }
             }

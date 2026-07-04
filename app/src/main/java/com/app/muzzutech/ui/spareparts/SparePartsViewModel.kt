@@ -105,7 +105,13 @@ class SparePartsViewModel : ViewModel() {
 
     fun deletePart(part: SparePartPurchase) {
         viewModelScope.launch {
-            purchaseDao.delete(part)
+            database.withTransaction {
+                purchaseDao.delete(part)
+                val linkedPayment = paymentDao.getPaymentByLinkedPartId(part.id)
+                if (linkedPayment != null) {
+                    paymentDao.delete(linkedPayment)
+                }
+            }
         }
     }
 

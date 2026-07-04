@@ -45,6 +45,21 @@ class ServiceManViewModel : ViewModel() {
         }
     }
 
+    fun update(id: Long, name: String, mobile: String, email: String, empId: String, designation: String, monthlySalary: Double, perDaySalary: Double) {
+        viewModelScope.launch {
+            dao.update(ServiceMan(
+                id = id,
+                name = name,
+                mobile = mobile,
+                email = email,
+                employeeId = empId,
+                designation = designation,
+                monthlySalary = monthlySalary,
+                perDaySalary = perDaySalary
+            ))
+        }
+    }
+
     fun delete(serviceMan: ServiceMan) {
         viewModelScope.launch {
             dao.delete(serviceMan)

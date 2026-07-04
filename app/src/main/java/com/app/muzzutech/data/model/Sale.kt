@@ -3,7 +3,13 @@ package com.app.muzzutech.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "sales")
+@Entity(
+    tableName = "sales",
+    indices = [
+        androidx.room.Index("supplierId"),
+        androidx.room.Index("saleDate")
+    ]
+)
 data class Sale(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

@@ -26,7 +26,11 @@
 
     <!-- Semantic States (Subtle) -->
     <color name="muzzu_success">#10B981</color>
+    <color name="muzzu_success_light">#D1FAE5</color>
+    <color name="muzzu_success_dark">#065F46</color>
     <color name="muzzu_error">#EF4444</color>
+    <color name="muzzu_error_light">#FEE2E2</color>
+    <color name="muzzu_error_dark">#991B1B</color>
     <color name="muzzu_warning">#F59E0B</color>
 
     <!-- Legacy Mappings (Ensures app doesn't crash while migrating) -->

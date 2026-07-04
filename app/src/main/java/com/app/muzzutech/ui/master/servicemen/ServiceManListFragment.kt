@@ -40,7 +40,6 @@ class ServiceManListFragment : Fragment(R.layout.fragment_service_man_list) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.serviceMen.collectLatest { men ->
-                    // Simple adapter inline
                     binding.rvServiceMen.adapter = object : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
                         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
                             object : androidx.recyclerview.widget.RecyclerView.ViewHolder(
@@ -50,6 +49,31 @@ class ServiceManListFragment : Fragment(R.layout.fragment_service_man_list) {
                             val sm = men[position]
                             holder.itemView.findViewById<android.widget.TextView>(android.R.id.text1).text = sm.name
                             holder.itemView.findViewById<android.widget.TextView>(android.R.id.text2).text = "${sm.designation} | ${sm.mobile}"
+                            holder.itemView.setOnClickListener {
+                                val bundle = Bundle().apply {
+                                    putLong("serviceManId", sm.id)
+                                    putString("serviceManName", sm.name)
+                                    putString("serviceManMobile", sm.mobile)
+                                    putString("serviceManEmail", sm.email)
+                                    putString("serviceManEmpId", sm.employeeId)
+                                    putString("serviceManDesignation", sm.designation)
+                                    putDouble("monthlySalary", sm.monthlySalary)
+                                    putDouble("perDaySalary", sm.perDaySalary)
+                                }
+                                findNavController().navigate(R.id.serviceManAddFragment, bundle)
+                            }
+                            holder.itemView.setOnLongClickListener {
+                                android.app.AlertDialog.Builder(requireContext())
+                                    .setTitle("Delete Service Man")
+                                    .setMessage("Delete ${sm.name}?")
+                                    .setPositiveButton("Delete") { _, _ ->
+                                        viewModel.delete(sm)
+                                        com.google.android.material.snackbar.Snackbar.make(binding.root, "${sm.name} deleted", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+                                    }
+                                    .setNegativeButton("Cancel", null)
+                                    .show()
+                                true
+                            }
                         }
                         override fun getItemCount() = men.size
                     }

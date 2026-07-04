@@ -3,7 +3,17 @@ package com.app.muzzutech.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "payments")
+@Entity(
+    tableName = "payments",
+    indices = [
+        androidx.room.Index("personMobile"),
+        androidx.room.Index("personType"),
+        androidx.room.Index("status"),
+        androidx.room.Index("linkedEntryId"),
+        androidx.room.Index("linkedSaleId"),
+        androidx.room.Index("linkedPartId")
+    ]
+)
 data class Payment(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

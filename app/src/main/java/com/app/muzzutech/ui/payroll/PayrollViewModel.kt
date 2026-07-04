@@ -240,17 +240,27 @@ class PayrollViewModel : ViewModel() {
                     val slipToSave = if (existing != null) slip.copy(id = existing.id) else slip
                     salaryDao.insert(slipToSave)
 
-                    // Create transaction record for audit trail if money was paid
+                    // Create transaction record + expense entry for accounting
                     if (paidAmount > 0) {
                         db.paymentTransactionDao().insert(
                             com.app.muzzutech.data.model.PaymentTransaction(
-                                paymentId = null, // Salary slips aren't linked to a Payment entity
+                                paymentId = null,
                                 personType = "SALARY",
                                 personMobile = sm.mobile,
                                 personName = sm.name,
                                 amount = paidAmount,
                                 paymentMode = "CASH",
                                 note = "Salary: ${DateUtils.formatDateTime(monthStart)}"
+                            )
+                        )
+                        db.expenseDao().insert(
+                            com.app.muzzutech.data.model.Expense(
+                                title = "Salary: ${sm.name}",
+                                amount = paidAmount,
+                                category = com.app.muzzutech.data.model.Expense.CATEGORY_SALARY,
+                                date = System.currentTimeMillis(),
+                                paid = true,
+                                note = "Salary for ${DateUtils.formatDateTime(monthStart)}"
                             )
                         )
                     }

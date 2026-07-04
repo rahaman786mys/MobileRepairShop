@@ -44,6 +44,9 @@ class DashboardViewModel : ViewModel() {
     private val _businessHealth = MutableStateFlow<AIAdvisor.BusinessHealth?>(null)
     val businessHealth: StateFlow<AIAdvisor.BusinessHealth?> = _businessHealth
 
+    private val _unresolvedAlertsCount = MutableStateFlow(0)
+    val unresolvedAlertsCount: StateFlow<Int> = _unresolvedAlertsCount
+
     init {
         loadDashboardData()
     }
@@ -128,6 +131,15 @@ class DashboardViewModel : ViewModel() {
             } catch (e: Exception) { e.printStackTrace() }
         }
 
+        // Nightly Ledger Auditor alerts
+        viewModelScope.launch {
+            try {
+                database.ledgerAlertDao().getUnresolved().collectLatest { alerts ->
+                    _unresolvedAlertsCount.value = alerts.size
+                }
+            } catch (e: Exception) { e.printStackTrace() }
+        }
+
         // AI Advisor - Daily Business Health
         loadBusinessHealth()
     }
@@ -139,9 +151,10 @@ class DashboardViewModel : ViewModel() {
             try {
                 combine(
                     database.repairEntryDao().getEntriesByDateRange(todayStart, todayEnd),
-                    database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd)
-                ) { repairs, parts ->
-                    AIAdvisor.analyzeDailyHealth(repairs, parts)
+                    database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd),
+                    database.expenseDao().getByDateRange(todayStart, todayEnd)
+                ) { repairs, parts, expenses ->
+                    AIAdvisor.analyzeDailyHealth(repairs, parts, expenses)
                 }.collect { health ->
                     _businessHealth.value = health
                 }

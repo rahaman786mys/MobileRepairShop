@@ -31,6 +31,9 @@ interface PaymentDao {
     @Query("SELECT * FROM payments WHERE id = :id")
     suspend fun getPaymentById(id: Long): Payment?
 
+    @Query("SELECT * FROM payments WHERE linkedPartId = :partId LIMIT 1")
+    suspend fun getPaymentByLinkedPartId(partId: Long): Payment?
+
     @Query("SELECT COALESCE(SUM(dueAmount), 0) FROM payments WHERE status != 'PAID'")
     fun getTotalDueAmount(): Flow<Double>
 

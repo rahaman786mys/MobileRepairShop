@@ -153,6 +153,23 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.unresolvedAlertsCount.collectLatest { count ->
+                    _binding?.let { b ->
+                        b.cardLedgerAlert.isVisible = count > 0
+                        b.tvLedgerAlertText.text = if (count == 1)
+                            "1 ledger mismatch detected!"
+                        else
+                            "$count ledger mismatches detected!"
+                        b.btnViewLedgerAlerts.setOnClickListener {
+                            findNavController().navigate(R.id.reportsFragment)
+                        }
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.businessHealth.collectLatest { health ->
                     _binding?.let { b ->
                         if (health == null) {

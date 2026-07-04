@@ -13,6 +13,7 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.data.model.PartReturn
 import com.app.muzzutech.databinding.FragmentPartReturnBinding
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -86,8 +87,29 @@ class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
                         returnReason = reason,
                         refundAmount = refund
                     )
-                    db.partReturnDao().insert(partReturn)
-                    Snackbar.make(binding.root, "Part return recorded!", Snackbar.LENGTH_SHORT).show()
+
+                    db.withTransaction {
+                        db.partReturnDao().insert(partReturn)
+
+                        val linkedPayment = db.paymentDao().getPaymentByLinkedPartId(selectedPart.id)
+                        if (linkedPayment != null) {
+                            val reducedTotal = (linkedPayment.totalAmount - refund).coerceAtLeast(0.0)
+                            val reducedDue = (reducedTotal - linkedPayment.paidAmount).coerceAtLeast(0.0)
+                            val newStatus = when {
+                                reducedDue <= 0.0 -> "PAID"
+                                linkedPayment.paidAmount > 0 -> "PARTIAL"
+                                else -> "UNPAID"
+                            }
+                            db.paymentDao().update(linkedPayment.copy(
+                                totalAmount = reducedTotal,
+                                dueAmount = reducedDue,
+                                status = newStatus,
+                                updatedAt = System.currentTimeMillis()
+                            ))
+                        }
+                    }
+
+                    Snackbar.make(binding.root, "Part return recorded! Supplier due reduced.", Snackbar.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 }
             }

@@ -2,6 +2,7 @@ package com.app.muzzutech.utils
 
 import com.app.muzzutech.data.model.RepairEntry
 import com.app.muzzutech.data.model.SparePartPurchase
+import com.app.muzzutech.data.model.Expense
 
 /**
  * Advanced Business Intelligence & AI Advisor
@@ -24,7 +25,8 @@ object AIAdvisor {
      */
     fun analyzeDailyHealth(
         repairs: List<RepairEntry>,
-        partsPurchased: List<SparePartPurchase>
+        partsPurchased: List<SparePartPurchase>,
+        expenses: List<Expense> = emptyList()
     ): BusinessHealth {
         val today = DateUtils.getStartOfDay()
         
@@ -32,11 +34,14 @@ object AIAdvisor {
         val revenue = repairs.filter { it.handoverDone && it.handoverDate >= today }
             .sumOf { it.finalAmount }
 
-        // Expenses: Cost of spare parts purchased today
-        val expenses = partsPurchased.filter { it.purchaseDate >= today }
+        // Expenses: Part costs + all other expenses (salary, rent, etc.)
+        val partCost = partsPurchased.filter { it.purchaseDate >= today }
             .sumOf { it.purchasePrice * it.quantity }
+        val otherCost = expenses.filter { it.date >= today }
+            .sumOf { it.amount }
+        val totalExpenses = partCost + otherCost
 
-        val profit = revenue - expenses
+        val profit = revenue - totalExpenses
         val margin = if (revenue > 0) (profit / revenue) * 100 else 0.0
         
         // AI Logic for Health Score & Smart Move
@@ -48,9 +53,9 @@ object AIAdvisor {
         }
 
         val (move, rec) = when {
-            expenses > revenue -> Pair(
+            totalExpenses > revenue -> Pair(
                 "Expense Alert!",
-                "You've spent more on parts today than you've collected. Focus on completing high-margin repairs by evening."
+                "You've spent more today than you've collected. Focus on completing high-margin repairs by evening."
             )
             margin > 50 -> Pair(
                 "Premium Performance",
@@ -66,6 +71,6 @@ object AIAdvisor {
             )
         }
 
-        return BusinessHealth(profit, revenue, expenses, margin, healthScore, move, rec)
+        return BusinessHealth(profit, revenue, totalExpenses, margin, healthScore, move, rec)
     }
 }

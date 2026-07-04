@@ -6,7 +6,16 @@ import androidx.room.PrimaryKey
 /**
  * Main Repair Entry - Tracks a phone repair from entry to handover
  */
-@Entity(tableName = "repair_entries")
+@Entity(
+    tableName = "repair_entries",
+    indices = [
+        androidx.room.Index("customerMobile"),
+        androidx.room.Index("serviceManId"),
+        androidx.room.Index("entryDate"),
+        androidx.room.Index("workStatus"),
+        androidx.room.Index("handoverDone")
+    ]
+)
 data class RepairEntry(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

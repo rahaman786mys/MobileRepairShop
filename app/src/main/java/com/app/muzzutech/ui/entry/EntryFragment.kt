@@ -76,9 +76,11 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) openCamera()
+        else if (isAdded) Snackbar.make(binding.root, "Camera permission is needed to take photos", Snackbar.LENGTH_LONG).show()
     }
     private val cameraPermissionLauncher2 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) openCamera2()
+        else if (isAdded) Snackbar.make(binding.root, "Camera permission is needed to take photos", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -292,6 +294,11 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
         if (!isDraft) {
             if (!ValidationUtils.validatePhoneNumber(binding.tilMobile)) return
+
+            if (name.isEmpty()) {
+                Snackbar.make(binding.root, "Customer name is required", Snackbar.LENGTH_SHORT).show()
+                return
+            }
 
             if (photoFile == null || photoFile2 == null) {
                 Log.w("EntryFragment", "saveEntry: photoFile=$photoFile photoFile2=$photoFile2")

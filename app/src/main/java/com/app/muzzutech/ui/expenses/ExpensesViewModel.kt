@@ -82,7 +82,7 @@ class ExpensesViewModel : ViewModel() {
         viewModelScope.launch {
             val db = MobileRepairApp.instance.database
             db.withTransaction {
-                dao.insert(
+                val expenseId = dao.insert(
                     Expense(
                         title = title,
                         amount = amount,
@@ -99,6 +99,7 @@ class ExpensesViewModel : ViewModel() {
                     db.paymentTransactionDao().insert(
                         com.app.muzzutech.data.model.PaymentTransaction(
                             paymentId = null,
+                            expenseId = expenseId,
                             personType = "EXPENSE",
                             personMobile = "SHOP",
                             personName = category,
@@ -114,12 +115,42 @@ class ExpensesViewModel : ViewModel() {
     }
 
     fun deleteExpense(id: Long) {
-        viewModelScope.launch { dao.deleteById(id) }
+        viewModelScope.launch {
+            val db = MobileRepairApp.instance.database
+            db.withTransaction {
+                db.paymentTransactionDao().getTransactionByExpenseId(id)?.let { txn ->
+                    db.paymentTransactionDao().delete(txn)
+                }
+                dao.deleteById(id)
+            }
+        }
     }
 
     fun togglePaid(expense: Expense) {
         viewModelScope.launch {
-            dao.update(expense.copy(paid = !expense.paid))
+            val db = MobileRepairApp.instance.database
+            db.withTransaction {
+                val newPaid = !expense.paid
+                dao.update(expense.copy(paid = newPaid))
+                if (newPaid) {
+                    db.paymentTransactionDao().insert(
+                        com.app.muzzutech.data.model.PaymentTransaction(
+                            paymentId = null,
+                            expenseId = expense.id,
+                            personType = "EXPENSE",
+                            personMobile = "SHOP",
+                            personName = expense.category,
+                            amount = expense.amount,
+                            paymentMode = "CASH",
+                            note = "Paid: ${expense.title}"
+                        )
+                    )
+                } else {
+                    db.paymentTransactionDao().getTransactionByExpenseId(expense.id)?.let { txn ->
+                        db.paymentTransactionDao().delete(txn)
+                    }
+                }
+            }
         }
     }
 }

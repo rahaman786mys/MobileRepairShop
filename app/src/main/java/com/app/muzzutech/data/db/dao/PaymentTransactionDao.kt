@@ -30,4 +30,7 @@ interface PaymentTransactionDao {
 
     @Query("SELECT * FROM payment_transactions WHERE transactionDate BETWEEN :start AND :end")
     fun getTransactionsByDateRange(start: Long, end: Long): Flow<List<PaymentTransaction>>
+
+    @Query("SELECT * FROM payment_transactions WHERE expenseId = :expenseId LIMIT 1")
+    suspend fun getTransactionByExpenseId(expenseId: Long): PaymentTransaction?
 }

@@ -16,6 +16,7 @@ class ServiceManAddFragment : Fragment(R.layout.fragment_service_man_add) {
     private var _binding: FragmentServiceManAddBinding? = null
     private val binding get() = _binding!!
     private val viewModel: ServiceManViewModel by viewModels()
+    private var editingId: Long = 0L
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentServiceManAddBinding.inflate(inflater, container, false)
@@ -24,6 +25,20 @@ class ServiceManAddFragment : Fragment(R.layout.fragment_service_man_add) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        editingId = arguments?.getLong("serviceManId", 0L) ?: 0L
+        if (editingId > 0L) {
+            binding.btnSave.text = "Update"
+            arguments?.let { args ->
+                binding.etName.setText(args.getString("serviceManName", ""))
+                binding.etMobile.setText(args.getString("serviceManMobile", ""))
+                binding.etEmail.setText(args.getString("serviceManEmail", ""))
+                binding.etEmployeeId.setText(args.getString("serviceManEmpId", ""))
+                binding.etDesignation.setText(args.getString("serviceManDesignation", ""))
+                binding.etMonthlySalary.setText(args.getDouble("monthlySalary", 0.0).toString())
+                binding.etPerDaySalary.setText(args.getDouble("perDaySalary", 0.0).toString())
+            }
+        }
 
         binding.btnSave.setOnClickListener {
             val name = binding.etName.text.toString().trim()
@@ -42,8 +57,13 @@ class ServiceManAddFragment : Fragment(R.layout.fragment_service_man_add) {
                 return@setOnClickListener
             }
 
-            viewModel.save(name, mobile, email, empId, designation, monthly, perDay)
-            Snackbar.make(binding.root, "Service Man added!", Snackbar.LENGTH_SHORT).show()
+            if (editingId > 0L) {
+                viewModel.update(editingId, name, mobile, email, empId, designation, monthly, perDay)
+                Snackbar.make(binding.root, "Service Man updated!", Snackbar.LENGTH_SHORT).show()
+            } else {
+                viewModel.save(name, mobile, email, empId, designation, monthly, perDay)
+                Snackbar.make(binding.root, "Service Man added!", Snackbar.LENGTH_SHORT).show()
+            }
             parentFragmentManager.popBackStack()
         }
     }

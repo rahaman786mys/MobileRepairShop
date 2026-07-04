@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.data.model.SparePartPurchase
 import com.app.muzzutech.data.model.Sale
+import com.app.muzzutech.data.model.Expense
 import com.app.muzzutech.data.db.dao.DailyReportRow
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.Job
@@ -18,6 +19,8 @@ class ReportsViewModel : ViewModel() {
     private val db = MobileRepairApp.instance.database
     private val purchaseDao = db.sparePartPurchaseDao()
     private val saleDao = db.saleDao()
+    private val expenseDao = db.expenseDao()
+    private val transactionDao = db.paymentTransactionDao()
 
     private val _revenue = MutableStateFlow(0.0)
     val revenue: StateFlow<Double> = _revenue
@@ -33,6 +36,12 @@ class ReportsViewModel : ViewModel() {
 
     private val _directSales = MutableStateFlow<List<Sale>>(emptyList())
     val directSales: StateFlow<List<Sale>> = _directSales
+
+    private val _expenses = MutableStateFlow(0.0)
+    val expenses: StateFlow<Double> = _expenses
+
+    private val _profit = MutableStateFlow(0.0)
+    val profit: StateFlow<Double> = _profit
 
     private var reportJobs: List<Job> = emptyList()
 
@@ -50,12 +59,17 @@ class ReportsViewModel : ViewModel() {
         loadData(start, end)
     }
 
+    private fun updateProfit() {
+        _profit.value = _revenue.value - _expenses.value
+    }
+
     private fun loadData(start: Long, end: Long) {
         reportJobs.forEach { it.cancel() }
         reportJobs = listOf(
             viewModelScope.launch {
                 repository.getRevenueInRange(start, end).collect { rev ->
                     _revenue.value = rev ?: 0.0
+                    updateProfit()
                 }
             },
             viewModelScope.launch {
@@ -76,6 +90,12 @@ class ReportsViewModel : ViewModel() {
             viewModelScope.launch {
                 saleDao.getSalesByDateRange(start, end).collect { sales ->
                     _directSales.value = sales
+                }
+            },
+            viewModelScope.launch {
+                expenseDao.getByDateRange(start, end).collect { list ->
+                    _expenses.value = list.sumOf { it.amount }
+                    updateProfit()
                 }
             }
         )

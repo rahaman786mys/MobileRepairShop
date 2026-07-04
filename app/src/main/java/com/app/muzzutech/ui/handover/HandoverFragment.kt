@@ -33,6 +33,7 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
     private val viewModel: HandoverViewModel by viewModels()
 
     private var entryId: Long = 0
+    private var isCompleting = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHandoverBinding.inflate(inflater, container, false)
@@ -124,6 +125,7 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
     }
 
     private fun completeHandover() {
+        if (isCompleting) return
         val finalAmountText = binding.etFinalAmount.text.toString().trim()
         if (finalAmountText.isEmpty()) {
             Snackbar.make(binding.root, "Please enter final amount", Snackbar.LENGTH_LONG).show()
@@ -152,7 +154,6 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
             binding.etOnlineAmount.text.toString().toDoubleOrNull() ?: 0.0
         } else if (!isPayLater && paymentMode == "Online") finalAmount else 0.0
 
-        // Validation for Split Payment
         if (paymentMode == "Both") {
             val combined = cashAmount + onlineAmount
             if (Math.abs(combined - finalAmount) > 0.01) {
@@ -166,25 +167,15 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
             return
         }
 
+        isCompleting = true
         binding.btnCompleteHandover.isEnabled = false
-        viewModel.completeHandover(entryId, finalAmount, paymentMode, cashAmount, onlineAmount)
 
-        // Notify Customer via WhatsApp & Show Print button
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.entry.value?.let { entry ->
-                val updatedEntry = entry.copy(
-                    finalAmount = finalAmount,
-                    paymentMode = paymentMode,
-                    handoverDone = true
-                )
-                val partsText = viewModel.parts.value.joinToString(", ") { it.partName }
-                NotificationUtils.sendHandoverSummaryWhatsApp(requireContext(), updatedEntry, partsText)
-            }
+            viewModel.completeHandover(entryId, finalAmount, paymentMode, cashAmount, onlineAmount)
+            binding.btnGenerateInvoice.visibility = View.VISIBLE
+            Snackbar.make(binding.root, "✅ Handover Complete!", Snackbar.LENGTH_LONG).show()
+            findNavController().popBackStack(R.id.dashboardFragment, false)
         }
-
-        binding.btnGenerateInvoice.visibility = View.VISIBLE
-        
-        Snackbar.make(binding.root, "✅ Handover Complete! Notification Sent.", Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {

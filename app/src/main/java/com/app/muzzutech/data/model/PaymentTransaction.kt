@@ -9,7 +9,8 @@ import androidx.room.PrimaryKey
     tableName = "payment_transactions",
     indices = [
         Index("paymentId"),
-        Index("personMobile")
+        Index("personMobile"),
+        Index("expenseId")
     ],
     foreignKeys = [
         ForeignKey(
@@ -24,6 +25,7 @@ data class PaymentTransaction(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val paymentId: Long? = null,     // Links to Payment (nullable: salary/expense/sale txs have no parent Payment)
+    val expenseId: Long? = null,     // Links to Expense (nullable: most txs have no parent Expense)
     val personType: String,          // "DEALER", "SUPPLIER", "CUSTOMER", "EXPENSE", "SALARY"
     val personMobile: String,
     val personName: String = "",

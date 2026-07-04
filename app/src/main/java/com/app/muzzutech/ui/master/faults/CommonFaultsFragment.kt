@@ -31,6 +31,8 @@ class CommonFaultsFragment : Fragment(R.layout.fragment_common_faults) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        var editingFaultId: Long? = null
+
         binding.btnAddFault.setOnClickListener {
             val name = binding.etFaultName.text.toString().trim()
             val charge = binding.etDefaultCharge.text.toString().toDoubleOrNull() ?: 0.0
@@ -41,11 +43,23 @@ class CommonFaultsFragment : Fragment(R.layout.fragment_common_faults) {
                 return@setOnClickListener
             }
 
-            viewModel.addFault(name, charge, category)
+            if (editingFaultId != null) {
+                viewModel.updateFault(com.app.muzzutech.data.model.CommonFault(
+                    id = editingFaultId!!,
+                    faultName = name,
+                    defaultCharge = charge,
+                    category = category
+                ))
+                Snackbar.make(binding.root, "Fault updated!", Snackbar.LENGTH_SHORT).show()
+                editingFaultId = null
+                binding.btnAddFault.text = "Add"
+            } else {
+                viewModel.addFault(name, charge, category)
+                Snackbar.make(binding.root, "Fault added!", Snackbar.LENGTH_SHORT).show()
+            }
             binding.etFaultName.text?.clear()
             binding.etDefaultCharge.text?.clear()
             binding.etCategory.text?.clear()
-            Snackbar.make(binding.root, "Fault added!", Snackbar.LENGTH_SHORT).show()
         }
 
         binding.rvFaults.layoutManager = LinearLayoutManager(requireContext())
@@ -55,9 +69,11 @@ class CommonFaultsFragment : Fragment(R.layout.fragment_common_faults) {
                 viewModel.faults.collectLatest { faults ->
                     val adapter = CommonFaultAdapter(
                         onFaultClick = { fault ->
+                            editingFaultId = fault.id
                             binding.etFaultName.setText(fault.faultName)
                             binding.etCategory.setText(fault.category)
                             binding.etDefaultCharge.setText(fault.defaultCharge.toBigDecimal().toPlainString())
+                            binding.btnAddFault.text = "Update"
                         },
                         onFaultDelete = { fault ->
                             android.app.AlertDialog.Builder(requireContext())

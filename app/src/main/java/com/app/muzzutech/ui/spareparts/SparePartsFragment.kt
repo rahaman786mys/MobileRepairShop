@@ -38,6 +38,7 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
     private var photoFile: File? = null
     private var photoUri: Uri? = null
     private var suppliersList = listOf<Supplier>()
+    private var isAddingPart = false
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success && photoUri != null) {
@@ -117,6 +118,7 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
     }
 
     private fun addPart() {
+        if (isAddingPart) return
         val partName = binding.etPartName.text.toString().trim()
         val priceText = binding.etPurchasePrice.text.toString().trim()
         val quantity = binding.etQuantity.text.toString().trim().toIntOrNull() ?: 1
@@ -155,11 +157,12 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
 
         val payLater = binding.radioPayLater.isChecked
 
+        isAddingPart = true
         viewModel.addPart(
             repairEntryId = entryId,
             partName = partName,
             photoPath = photoFile?.absolutePath ?: "",
-            price = price, // Per unit price
+            price = price,
             quantity = quantity,
             supplierId = supplier?.mobile ?: "",
             supplierName = supplier?.name ?: "",
@@ -171,6 +174,7 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
         binding.etQuantity.text?.clear()
         binding.ivPartPhoto.setImageResource(R.drawable.ic_add)
         photoFile = null
+        isAddingPart = false
         Snackbar.make(
             binding.root,
             if (payLater) "Part added! Due recorded for supplier." else "Part added! Marked as paid.",

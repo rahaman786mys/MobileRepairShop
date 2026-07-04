@@ -255,6 +255,41 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Ledger Alert Banner (Nightly Auditor) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardLedgerAlert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/muzzu_error_light"
+            app:strokeColor="@color/muzzu_error"
+            style="@style/Widget.MuZZu.Card">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/tvLedgerAlertText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Ledger mismatch detected!"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_error_dark"
+                    android:textStyle="bold" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnViewLedgerAlerts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Review"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Profile Missing Banner -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardMissingInfo"
