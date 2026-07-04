@@ -16,10 +16,10 @@ class PayrollE2ETest {
 
     @Test
     fun launchPayrollViaTestLauncher() {
-        val ctx = InstrumentationRegistry.getInstrumentation().context
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
         val intent = Intent(ctx, TestLauncherActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            putExtra("extra_dest", "payroll")
+            putExtra("extra_nav_dest", "payroll")
         }
         ctx.startActivity(intent)
         device.waitForIdle(5000)
@@ -29,10 +29,10 @@ class PayrollE2ETest {
 
     @Test
     fun launchEntryAndVerifyDraftButton() {
-        val ctx = InstrumentationRegistry.getInstrumentation().context
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
         val intent = Intent(ctx, TestLauncherActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            putExtra("extra_dest", "entry")
+            putExtra("extra_nav_dest", "entry")
         }
         ctx.startActivity(intent)
         device.waitForIdle(5000)

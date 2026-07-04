@@ -37,6 +37,10 @@ import java.io.File
 
 class EntryFragment : Fragment(R.layout.fragment_entry) {
 
+    companion object {
+        var skipCameraLaunch = false
+    }
+
     private var _binding: FragmentEntryBinding? = null
     private val binding get() = _binding!!
     private val viewModel: EntryViewModel by viewModels()
@@ -72,6 +76,9 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) openCamera()
+    }
+    private val cameraPermissionLauncher2 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) openCamera2()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -148,23 +155,11 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     private fun setupClickListeners() {
         binding.btnTakePhoto.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED
-            ) {
-                openCamera()
-            } else {
-                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
+            openCamera()
         }
 
         binding.btnTakePhoto2.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED
-            ) {
-                openCamera2()
-            } else {
-                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
+            openCamera2()
         }
 
         binding.btnSaveEntry.setOnClickListener {
@@ -248,6 +243,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     private fun openCamera() {
         photoFile = PhotoUtils.createPhotoFile(requireContext(), "ENTRY1_")
+        if (skipCameraLaunch) return
         photoUri = photoFile?.let {
             FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
         }
@@ -256,6 +252,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     private fun openCamera2() {
         photoFile2 = PhotoUtils.createPhotoFile(requireContext(), "ENTRY2_")
+        if (skipCameraLaunch) return
         photoUri2 = photoFile2?.let {
             FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
         }
@@ -285,6 +282,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun saveEntry(isDraft: Boolean = false) {
+        android.util.Log.w("EntryFragment", "saveEntry called isAdded=$isAdded isDraft=$isDraft photoFile=$photoFile photoFile2=$photoFile2 brandPos=${binding.spinnerBrand.selectedItemPosition} model='${binding.etModelName.text}' servicePos=${binding.spinnerServiceMan.selectedItemPosition} phone='${binding.etMobileNumber.text}'")
         if (!isAdded) return
         val name = binding.etName.text.toString().trim()
         val mobile = binding.etMobileNumber.text.toString().trim()
@@ -296,21 +294,25 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             if (!ValidationUtils.validatePhoneNumber(binding.tilMobile)) return
 
             if (photoFile == null || photoFile2 == null) {
+                Log.w("EntryFragment", "saveEntry: photoFile=$photoFile photoFile2=$photoFile2")
                 Snackbar.make(binding.root, "Mandatory: 2 photos required", Snackbar.LENGTH_SHORT).show()
                 return
             }
 
             if (binding.spinnerBrand.selectedItemPosition <= 0) {
+                Log.w("EntryFragment", "saveEntry: brand not selected (pos=${binding.spinnerBrand.selectedItemPosition})")
                 Snackbar.make(binding.root, "Please select a brand", Snackbar.LENGTH_SHORT).show()
                 return
             }
 
             if (model.isEmpty()) {
+                Log.w("EntryFragment", "saveEntry: model empty")
                 binding.etModelName.error = "Model name required"
                 return
             }
 
             if (binding.spinnerServiceMan.selectedItemPosition <= 0) {
+                Log.w("EntryFragment", "saveEntry: serviceMan not selected (pos=${binding.spinnerServiceMan.selectedItemPosition})")
                 Snackbar.make(binding.root, "Mandatory: Assign a specialist", Snackbar.LENGTH_SHORT).show()
                 return
             }

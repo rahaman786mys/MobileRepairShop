@@ -17,7 +17,7 @@ class TestLauncherActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val EXTRA_DEST = "extra_dest"
+        const val EXTRA_DEST = "extra_nav_dest"
         const val DEST_DASHBOARD = "dashboard"
         const val DEST_ENTRY = "entry"
         const val DEST_SALE = "sale"
