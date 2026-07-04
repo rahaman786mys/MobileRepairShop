@@ -10,7 +10,8 @@ import androidx.room.PrimaryKey
     indices = [
         Index("paymentId"),
         Index("personMobile"),
-        Index("expenseId")
+        Index("expenseId"),
+        Index("salaryPaymentId")
     ],
     foreignKeys = [
         ForeignKey(
@@ -26,6 +27,7 @@ data class PaymentTransaction(
     val id: Long = 0,
     val paymentId: Long? = null,     // Links to Payment (nullable: salary/expense/sale txs have no parent Payment)
     val expenseId: Long? = null,     // Links to Expense (nullable: most txs have no parent Expense)
+    val salaryPaymentId: Long? = null, // Links to SalaryPayment (nullable: non-salary txs)
     val personType: String,          // "DEALER", "SUPPLIER", "CUSTOMER", "EXPENSE", "SALARY"
     val personMobile: String,
     val personName: String = "",

@@ -28,7 +28,7 @@ import com.app.muzzutech.data.model.*
         Expense::class,
         LedgerAlert::class
     ],
-    version = 14, // Bumped from 13: added LedgerAlert table, expenseId on payment_transactions
+    version = 15, // Bumped from 14: Payment FK, salaryPaymentId, refundTransactionId
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -239,6 +239,53 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration 14 -> 15:
+         *  - BUG #11: adds refundTransactionId to part_returns
+         *  - BUG #10: adds salaryPaymentId to expenses + payment_transactions
+         *  - BUG #9:  adds FK constraint on payments.linkedEntryId (SET NULL on delete)
+         */
+        val MIGRATION_14_15: Migration = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // BUG #11: refundTransactionId on part_returns
+                db.execSQL("ALTER TABLE part_returns ADD COLUMN refundTransactionId INTEGER DEFAULT NULL")
+
+                // BUG #10: salaryPaymentId on expenses + payment_transactions
+                db.execSQL("ALTER TABLE expenses ADD COLUMN salaryPaymentId INTEGER DEFAULT NULL")
+                db.execSQL("ALTER TABLE payment_transactions ADD COLUMN salaryPaymentId INTEGER DEFAULT NULL")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_transactions_salaryPaymentId ON payment_transactions(salaryPaymentId)")
+
+                // BUG #9: FK on payments.linkedEntryId — requires table recreation
+                db.execSQL("CREATE TABLE payments_new (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                        "personType TEXT NOT NULL," +
+                        "personMobile TEXT NOT NULL," +
+                        "personName TEXT NOT NULL," +
+                        "description TEXT NOT NULL," +
+                        "totalAmount REAL NOT NULL," +
+                        "paidAmount REAL NOT NULL," +
+                        "dueAmount REAL NOT NULL," +
+                        "status TEXT NOT NULL," +
+                        "linkedEntryId INTEGER," +
+                        "linkedSaleId INTEGER NOT NULL DEFAULT 0," +
+                        "linkedPartId INTEGER NOT NULL DEFAULT 0," +
+                        "createdAt INTEGER NOT NULL," +
+                        "updatedAt INTEGER NOT NULL," +
+                        "FOREIGN KEY (linkedEntryId) REFERENCES repair_entries(id) ON DELETE SET NULL" +
+                        ")")
+                db.execSQL("INSERT INTO payments_new (id, personType, personMobile, personName, description, totalAmount, paidAmount, dueAmount, status, linkedEntryId, linkedSaleId, linkedPartId, createdAt, updatedAt) " +
+                        "SELECT id, personType, personMobile, personName, description, totalAmount, paidAmount, dueAmount, status, linkedEntryId, linkedSaleId, linkedPartId, createdAt, updatedAt FROM payments")
+                db.execSQL("DROP TABLE payments")
+                db.execSQL("ALTER TABLE payments_new RENAME TO payments")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_personMobile ON payments(personMobile)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_personType ON payments(personType)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_status ON payments(status)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_linkedEntryId ON payments(linkedEntryId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_linkedSaleId ON payments(linkedSaleId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payments_linkedPartId ON payments(linkedPartId)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -246,7 +293,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "mobile_repair_shop_db"
                 )
-                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
                     .build()
                 INSTANCE = instance
                 instance

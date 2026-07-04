@@ -106,7 +106,7 @@ class SaleViewModel : ViewModel() {
                         status = "PAID",
                         linkedSaleId = saleId
                     )
-                    paymentDao.insert(supplierPayment)
+                    val supplierPaymentId = paymentDao.insert(supplierPayment)
 
                     // 3. Cash inflow (revenue from cash customer)
                     paymentTransactionDao.insert(
@@ -125,7 +125,7 @@ class SaleViewModel : ViewModel() {
                     if (purchasePrice > 0) {
                         paymentTransactionDao.insert(
                             PaymentTransaction(
-                                paymentId = null,
+                                paymentId = supplierPaymentId,
                                 personType = "SUPPLIER",
                                 personMobile = supplier.mobile,
                                 personName = supplier.name,

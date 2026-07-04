@@ -47,20 +47,35 @@ class LedgerAuditWorker(
             }
         }
 
-        // 2. Check every paid Expense has a linked transaction
+        // 2. Check every paid Expense: linked txn must exist AND sum(amount) must match expense.amount
         val allExpenses = expenseDao.getAll().first()
         for (expense in allExpenses.filter { it.paid }) {
-            val txn = txnDao.getTransactionByExpenseId(expense.id)
-            if (txn == null) {
-                alerts.add(
-                    LedgerAlert(
-                        type = "EXPENSE_MISMATCH",
-                        description = "Expense #${expense.id} '${expense.title}' (${expense.amount}) is PAID but has no PaymentTransaction",
-                        expectedAmount = expense.amount,
-                        actualAmount = 0.0,
-                        mismatchAmount = expense.amount
+            val allLinked = txnDao.getAllTransactions().first().filter { it.expenseId == expense.id }
+            val sumTxn = allLinked.sumOf { it.amount }
+            val diff = kotlin.math.abs(sumTxn - expense.amount)
+            when {
+                allLinked.isEmpty() -> {
+                    alerts.add(
+                        LedgerAlert(
+                            type = "EXPENSE_MISMATCH",
+                            description = "Expense #${expense.id} '${expense.title}' (${expense.amount}) is PAID but has no PaymentTransaction",
+                            expectedAmount = expense.amount,
+                            actualAmount = 0.0,
+                            mismatchAmount = expense.amount
+                        )
                     )
-                )
+                }
+                diff > 0.01 -> {
+                    alerts.add(
+                        LedgerAlert(
+                            type = "EXPENSE_MISMATCH",
+                            description = "Expense #${expense.id} '${expense.title}': amount=${expense.amount} but sum(linked txns)=$sumTxn (diff=$diff)",
+                            expectedAmount = expense.amount,
+                            actualAmount = sumTxn,
+                            mismatchAmount = diff
+                        )
+                    )
+                }
             }
         }
 
@@ -70,7 +85,7 @@ class LedgerAuditWorker(
         val allTxns = txnDao.getTransactionsByDateRange(todayStart, todayEnd).first()
         val orphans = allTxns.filter {
             (it.personType == "EXPENSE" && it.expenseId == null) ||
-            (it.personType == "SALARY" && it.paymentId == null)
+            (it.personType == "SALARY" && it.expenseId == null)
         }
         for (txn in orphans) {
             alerts.add(

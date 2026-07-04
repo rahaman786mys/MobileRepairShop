@@ -89,23 +89,43 @@ class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
                     )
 
                     db.withTransaction {
-                        db.partReturnDao().insert(partReturn)
+                        val partReturnId = db.partReturnDao().insert(partReturn)
 
                         val linkedPayment = db.paymentDao().getPaymentByLinkedPartId(selectedPart.id)
-                        if (linkedPayment != null) {
+                        if (linkedPayment != null && refund > 0) {
                             val reducedTotal = (linkedPayment.totalAmount - refund).coerceAtLeast(0.0)
-                            val reducedDue = (reducedTotal - linkedPayment.paidAmount).coerceAtLeast(0.0)
+                            val reducedPaid = (linkedPayment.paidAmount - refund).coerceAtLeast(0.0)
+                            val reducedDue = (reducedTotal - reducedPaid).coerceAtLeast(0.0)
                             val newStatus = when {
                                 reducedDue <= 0.0 -> "PAID"
-                                linkedPayment.paidAmount > 0 -> "PARTIAL"
+                                reducedPaid > 0.0 -> "PARTIAL"
                                 else -> "UNPAID"
                             }
-                            db.paymentDao().update(linkedPayment.copy(
+                            val updatedPayment = linkedPayment.copy(
                                 totalAmount = reducedTotal,
+                                paidAmount = reducedPaid,
                                 dueAmount = reducedDue,
                                 status = newStatus,
                                 updatedAt = System.currentTimeMillis()
-                            ))
+                            )
+                            db.paymentDao().update(updatedPayment)
+
+                            // Record the cash-in refund as a linked transaction so the
+                            // auditor and Reports screen reflect the true cash flow.
+                            val refundTxnId = db.paymentTransactionDao().insert(
+                                com.app.muzzutech.data.model.PaymentTransaction(
+                                    paymentId = linkedPayment.id,
+                                    personType = "SUPPLIER",
+                                    personMobile = linkedPayment.personMobile,
+                                    personName = "${linkedPayment.personName} (Refund)",
+                                    amount = refund,
+                                    paymentMode = "CASH",
+                                    note = "Part return refund: $partName (Return #$partReturnId)"
+                                )
+                            )
+                            db.partReturnDao().update(
+                                partReturn.copy(id = partReturnId, refundTransactionId = refundTxnId)
+                            )
                         }
                     }
 

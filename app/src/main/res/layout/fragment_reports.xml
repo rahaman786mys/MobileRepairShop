@@ -176,6 +176,29 @@
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <!-- BUG #7: accrual vs cash basis labels -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Revenue = Accrual (invoice value)"
+                        android:textSize="10sp"
+                        android:textColor="@color/muzzu_text_muted" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Profit = Cash (received)"
+                        android:textSize="10sp"
+                        android:textColor="@color/muzzu_text_muted"
+                        android:gravity="end" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

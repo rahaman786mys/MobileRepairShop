@@ -3,6 +3,8 @@ package com.app.muzzutech.utils
 import com.app.muzzutech.data.model.RepairEntry
 import com.app.muzzutech.data.model.SparePartPurchase
 import com.app.muzzutech.data.model.Expense
+import com.app.muzzutech.data.model.Sale
+import com.app.muzzutech.data.model.PartReturn
 
 /**
  * Advanced Business Intelligence & AI Advisor
@@ -21,25 +23,49 @@ object AIAdvisor {
     )
 
     /**
-     * Calculate Daily Profit/Loss with "Smart Move" AI Insight
+     * Calculate Daily Profit/Loss with "Smart Move" AI Insight.
+     *
+     * @param repairs completed repair entries (used for revenue + to identify which parts were consumed today)
+     * @param partsPurchased all spare-part purchases in range (will be filtered to today's handovers only)
+     * @param expenses all expenses in range (will be filtered to paid+dated-today only)
+     * @param directSales direct sales completed today (cash-basis revenue + cost)
+     * @param partReturns part returns processed today (reduces cost via refund amount)
      */
     fun analyzeDailyHealth(
         repairs: List<RepairEntry>,
         partsPurchased: List<SparePartPurchase>,
-        expenses: List<Expense> = emptyList()
+        expenses: List<Expense> = emptyList(),
+        directSales: List<Sale> = emptyList(),
+        partReturns: List<PartReturn> = emptyList()
     ): BusinessHealth {
         val today = DateUtils.getStartOfDay()
-        
-        // Revenue: Final amounts from handovers completed today
-        val revenue = repairs.filter { it.handoverDone && it.handoverDate >= today }
-            .sumOf { it.finalAmount }
 
-        // Expenses: Part costs + all other expenses (salary, rent, etc.)
-        val partCost = partsPurchased.filter { it.purchaseDate >= today }
+        // Revenue: Final amounts from handovers completed today (accrual basis)
+        val repairRevenue = repairs.filter { it.handoverDone && it.handoverDate >= today }
+            .sumOf { it.finalAmount }
+        // BUG #8: include direct sale revenue
+        val directSaleRevenue = directSales.filter { it.saleDate >= today }
+            .sumOf { it.salePrice }
+        val revenue = repairRevenue + directSaleRevenue
+
+        // BUG #5: only count parts actually consumed in today's handovers (not bulk restock)
+        val todayHandoverEntryIds = repairs
+            .filter { it.handoverDone && it.handoverDate >= today }
+            .map { it.id }
+            .toSet()
+        val partCost = partsPurchased
+            .filter { it.repairEntryId in todayHandoverEntryIds }
             .sumOf { it.purchasePrice * it.quantity }
-        val otherCost = expenses.filter { it.date >= today }
+
+        // BUG #6: only count PAID expenses dated today (cash-basis)
+        val otherCost = expenses.filter { it.date >= today && it.paid }
             .sumOf { it.amount }
-        val totalExpenses = partCost + otherCost
+
+        // BUG #8: part returns reduce costs (refund cash received)
+        val refundReceived = partReturns.filter { it.returnDate >= today }
+            .sumOf { it.refundAmount }
+
+        val totalExpenses = partCost + otherCost - refundReceived
 
         val profit = revenue - totalExpenses
         val margin = if (revenue > 0) (profit / revenue) * 100 else 0.0

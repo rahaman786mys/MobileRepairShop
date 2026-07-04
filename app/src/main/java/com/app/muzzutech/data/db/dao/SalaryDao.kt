@@ -26,6 +26,12 @@ interface SalaryDao {
     @Query("SELECT * FROM salary_payments WHERE servicemanId = :smId AND monthStart = :monthStart LIMIT 1")
     suspend fun getByServiceManAndMonth(smId: Long, monthStart: Long): SalaryPayment?
 
+    @Query("SELECT * FROM salary_payments WHERE id = :id")
+    suspend fun getById(id: Long): SalaryPayment?
+
+    @Query("DELETE FROM salary_payments WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
     @Query("SELECT * FROM salary_payments WHERE status != 'PAID' ORDER BY monthStart DESC")
     fun getPendingPayments(): Flow<List<SalaryPayment>>
 

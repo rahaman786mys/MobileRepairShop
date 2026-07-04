@@ -22,6 +22,9 @@ interface PartReturnDao {
     @Query("SELECT * FROM part_returns WHERE supplierId = :supplierId ORDER BY returnDate DESC")
     fun getReturnsBySupplier(supplierId: String): Flow<List<PartReturn>>
 
+    @Query("SELECT * FROM part_returns WHERE returnDate BETWEEN :start AND :end ORDER BY returnDate DESC")
+    fun getReturnsByDateRangeQuery(start: Long, end: Long): Flow<List<PartReturn>>
+
     @Query("SELECT * FROM part_returns WHERE id = :id")
     suspend fun getReturnById(id: Long): PartReturn?
 }

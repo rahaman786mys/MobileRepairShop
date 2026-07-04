@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -238,29 +239,45 @@ class PayrollViewModel : ViewModel() {
                     )
                     val existing = salaryDao.getByServiceManAndMonth(smId, monthStart)
                     val slipToSave = if (existing != null) slip.copy(id = existing.id) else slip
-                    salaryDao.insert(slipToSave)
+                    val salaryId = salaryDao.insert(slipToSave)
+
+                    // Remove old accounting rows for this service man in the same month (before insert).
+                    // Using category+month only (no title filter) so this survives title changes.
+                    val monthEnd = DateUtils.getEndOfMonth(monthStart)
+                    val oldExpenses = db.expenseDao().getByDateRange(monthStart, monthEnd).first().filter {
+                        it.category == com.app.muzzutech.data.model.Expense.CATEGORY_SALARY
+                    }
+                    for (oldExp in oldExpenses) {
+                        db.paymentTransactionDao().getTransactionByExpenseId(oldExp.id)?.let { txn ->
+                            db.paymentTransactionDao().delete(txn)
+                        }
+                        db.expenseDao().deleteById(oldExp.id)
+                    }
 
                     // Create transaction record + expense entry for accounting
                     if (paidAmount > 0) {
-                        db.paymentTransactionDao().insert(
-                            com.app.muzzutech.data.model.PaymentTransaction(
-                                paymentId = null,
-                                personType = "SALARY",
-                                personMobile = sm.mobile,
-                                personName = sm.name,
-                                amount = paidAmount,
-                                paymentMode = "CASH",
-                                note = "Salary: ${DateUtils.formatDateTime(monthStart)}"
-                            )
-                        )
-                        db.expenseDao().insert(
+                        val expenseId = db.expenseDao().insert(
                             com.app.muzzutech.data.model.Expense(
                                 title = "Salary: ${sm.name}",
                                 amount = paidAmount,
                                 category = com.app.muzzutech.data.model.Expense.CATEGORY_SALARY,
                                 date = System.currentTimeMillis(),
                                 paid = true,
-                                note = "Salary for ${DateUtils.formatDateTime(monthStart)}"
+                                note = "Salary for ${DateUtils.formatDateTime(monthStart)}",
+                                salaryPaymentId = salaryId
+                            )
+                        )
+                        db.paymentTransactionDao().insert(
+                            com.app.muzzutech.data.model.PaymentTransaction(
+                                paymentId = null,
+                                expenseId = expenseId,
+                                salaryPaymentId = salaryId,
+                                personType = "SALARY",
+                                personMobile = sm.mobile,
+                                personName = sm.name,
+                                amount = paidAmount,
+                                paymentMode = "CASH",
+                                note = "Salary: ${DateUtils.formatDateTime(monthStart)}"
                             )
                         )
                     }

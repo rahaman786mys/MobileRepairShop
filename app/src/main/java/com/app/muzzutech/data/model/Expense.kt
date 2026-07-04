@@ -25,6 +25,7 @@ data class Expense(
     val isRecurring: Boolean = false,
     val paid: Boolean = true,
     val note: String = "",
+    val salaryPaymentId: Long? = null,   // Links to SalaryPayment (null for non-salary expenses)
     val createdAt: Long = System.currentTimeMillis()
 ) {
     companion object {

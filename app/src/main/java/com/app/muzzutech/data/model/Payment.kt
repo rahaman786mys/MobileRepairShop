@@ -1,6 +1,8 @@
 package com.app.muzzutech.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -12,6 +14,14 @@ import androidx.room.PrimaryKey
         androidx.room.Index("linkedEntryId"),
         androidx.room.Index("linkedSaleId"),
         androidx.room.Index("linkedPartId")
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = RepairEntry::class,
+            parentColumns = ["id"],
+            childColumns = ["linkedEntryId"],
+            onDelete = ForeignKey.SET_NULL
+        )
     ]
 )
 data class Payment(
@@ -25,7 +35,7 @@ data class Payment(
     val paidAmount: Double = 0.0,
     val dueAmount: Double = 0.0,   // totalAmount - paidAmount
     val status: String = "UNPAID",  // "UNPAID", "PARTIAL", "PAID"
-    val linkedEntryId: Long = 0,   // Links to RepairEntry (if customer/dealer)
+    val linkedEntryId: Long? = null,   // Links to RepairEntry (nullable: FK SET NULL on delete)
     val linkedSaleId: Long = 0,    // Links to Sale (if supplier direct purchase)
     val linkedPartId: Long = 0,    // Links to SparePartPurchase (if supplier parts)
     val createdAt: Long = System.currentTimeMillis(),

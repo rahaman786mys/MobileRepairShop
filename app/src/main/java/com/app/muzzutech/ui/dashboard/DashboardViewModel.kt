@@ -152,9 +152,11 @@ class DashboardViewModel : ViewModel() {
                 combine(
                     database.repairEntryDao().getEntriesByDateRange(todayStart, todayEnd),
                     database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd),
-                    database.expenseDao().getByDateRange(todayStart, todayEnd)
-                ) { repairs, parts, expenses ->
-                    AIAdvisor.analyzeDailyHealth(repairs, parts, expenses)
+                    database.expenseDao().getByDateRange(todayStart, todayEnd),
+                    database.saleDao().getSalesByDateRange(todayStart, todayEnd),
+                    database.partReturnDao().getReturnsByDateRangeQuery(todayStart, todayEnd)
+                ) { repairs, parts, expenses, sales, returns ->
+                    AIAdvisor.analyzeDailyHealth(repairs, parts, expenses, sales, returns)
                 }.collect { health ->
                     _businessHealth.value = health
                 }

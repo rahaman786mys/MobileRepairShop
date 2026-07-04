@@ -90,6 +90,13 @@
                             android:textSize="22sp"
                             android:textStyle="bold"
                             android:textColor="@color/muzzu_success" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Cash Basis — cash received today"
+                            android:textSize="9sp"
+                            android:textColor="@color/muzzu_text_muted"
+                            android:layout_marginTop="2dp" />
                     </LinearLayout>
 
                     <View

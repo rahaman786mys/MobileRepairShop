@@ -77,6 +77,17 @@ class HandoverViewModel : ViewModel() {
                 )
                 val paymentId = db.paymentDao().insert(payment)
 
+                // Link the advance PaymentTransaction (created at quotation with paymentId=null)
+                // to this new Payment so the auditor sees paidAmount == sum(linked txns).
+                // Guard: only attempt linking when there was a real non-zero advance.
+                if (entry.advanceAmount > 0) {
+                    val advanceTxn = db.paymentTransactionDao()
+                        .findUnlinkedByMobileAndAmount(personMobile, entry.advanceAmount)
+                    if (advanceTxn != null && advanceTxn.amount == entry.advanceAmount) {
+                        db.paymentTransactionDao().update(advanceTxn.copy(paymentId = paymentId))
+                    }
+                }
+
                 if (!isPayLater) {
                     if (cashAmount > 0) {
                         db.paymentTransactionDao().insert(

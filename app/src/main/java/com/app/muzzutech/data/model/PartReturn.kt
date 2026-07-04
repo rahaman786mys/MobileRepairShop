@@ -20,5 +20,6 @@ data class PartReturn(
     val returnDate: Long = System.currentTimeMillis(),
     val refundAmount: Double = 0.0,
     val refundReceived: Boolean = false,
+    val refundTransactionId: Long? = null,   // Links to cash-in PaymentTransaction for the refund
     val createdAt: Long = System.currentTimeMillis()
 )
