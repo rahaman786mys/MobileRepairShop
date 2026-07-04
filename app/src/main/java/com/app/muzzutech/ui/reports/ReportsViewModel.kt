@@ -43,7 +43,38 @@ class ReportsViewModel : ViewModel() {
     private val _profit = MutableStateFlow(0.0)
     val profit: StateFlow<Double> = _profit
 
+    private val _unresolvedAlertsCount = MutableStateFlow(0)
+    val unresolvedAlertsCount: StateFlow<Int> = _unresolvedAlertsCount
+
     private var reportJobs: List<Job> = emptyList()
+
+    init {
+        observeLedgerAlerts()
+    }
+
+    private fun observeLedgerAlerts() {
+        viewModelScope.launch {
+            db.ledgerAlertDao().getUnresolved().collect { alerts ->
+                _unresolvedAlertsCount.value = alerts.size
+            }
+        }
+    }
+
+    fun runAuditNow(onComplete: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val ctx = com.app.muzzutech.MobileRepairApp.instance.applicationContext
+                val wm = androidx.work.WorkManager.getInstance(ctx)
+                val request = androidx.work.OneTimeWorkRequest.Builder(com.app.muzzutech.work.LedgerAuditWorker::class.java)
+                    .setBackoffCriteria(androidx.work.BackoffPolicy.LINEAR, 1, java.util.concurrent.TimeUnit.MINUTES)
+                    .build()
+                wm.enqueue(request)
+                onComplete("Audit started — check alerts below when complete")
+            } catch (e: Exception) {
+                onComplete("Failed: ${e.message}")
+            }
+        }
+    }
 
     fun loadReport(period: String) {
         val (start, end) = when (period) {

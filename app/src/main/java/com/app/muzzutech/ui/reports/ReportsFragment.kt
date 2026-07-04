@@ -52,6 +52,31 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
             }
         }
 
+        binding.btnRunAuditNow.setOnClickListener {
+            binding.btnRunAuditNow.isEnabled = false
+            binding.btnRunAuditNow.text = "Running..."
+            viewModel.runAuditNow { result ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    binding.btnRunAuditNow.isEnabled = true
+                    binding.btnRunAuditNow.text = "Run Audit Now"
+                    binding.tvAuditStatus.text = result
+                    // re-trigger load so new alerts appear immediately
+                    val checked = binding.chipGroupPeriod.checkedChipIds.firstOrNull()
+                    val period = when (checked) {
+                        R.id.chipWeekly -> "Weekly"
+                        R.id.chipMonthly -> "Monthly"
+                        R.id.chipCustom -> "Custom"
+                        else -> "Daily"
+                    }
+                    if (period == "Custom" && binding.chipCustom.text.toString().startsWith("Range:")) {
+                        // leave as-is; user already picked a custom range
+                    } else {
+                        viewModel.loadReport(period)
+                    }
+                }
+            }
+        }
+
         observeData()
     }
 
@@ -71,53 +96,34 @@ class ReportsFragment : Fragment(R.layout.fragment_reports) {
         }, year, month, day).show()
     }
 
-    private fun observeData() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.revenue.collectLatest { rev ->
-                    binding.tvReportRevenue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(rev)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.completedCount.collectLatest { count ->
-                    binding.tvReportCompleted.text = count.toString()
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dailyReport.collectLatest { report: List<DailyReportRow> ->
-                    updateChart(report)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.directSales.collectLatest { sales ->
-                    setupSalesList(sales)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.expenses.collectLatest { exp ->
-                    binding.tvReportExpenses.text = com.app.muzzutech.utils.PriceUtils.formatPrice(exp)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.profit.collectLatest { p ->
-                    binding.tvReportProfit.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p)
-                    binding.tvReportProfit.setTextColor(
-                        resources.getColor(if (p >= 0) R.color.muzzu_success else R.color.muzzu_error, null)
-                    )
-                }
-            }
+private fun observeData() {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            launch { viewModel.revenue.collectLatest { rev ->
+                binding.tvReportRevenue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(rev)
+            }}
+            launch { viewModel.completedCount.collectLatest { count ->
+                binding.tvReportCompleted.text = count.toString()
+            }}
+            launch { viewModel.dailyReport.collectLatest { report: List<DailyReportRow> ->
+                updateChart(report)
+            }}
+            launch { viewModel.directSales.collectLatest { sales ->
+                setupSalesList(sales)
+            }}
+            launch { viewModel.expenses.collectLatest { exp ->
+                binding.tvReportExpenses.text = com.app.muzzutech.utils.PriceUtils.formatPrice(exp)
+            }}
+            launch { viewModel.profit.collectLatest { p ->
+                binding.tvReportProfit.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p)
+                binding.tvReportProfit.setTextColor(
+                    resources.getColor(if (p >= 0) R.color.muzzu_success else R.color.muzzu_error, null)
+                )
+            }}
+
         }
     }
+}
 
     private fun setupSalesList(sales: List<Sale>) {
         binding.rvDirectSales.layoutManager = LinearLayoutManager(requireContext())
