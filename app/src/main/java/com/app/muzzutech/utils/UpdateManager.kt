@@ -34,10 +34,10 @@ object UpdateManager {
   fun checkForUpdates(activity: AppCompatActivity) {
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
-      val result = prefs.fetchLatestVersion()
+      val result = prefs.fetchReleaseFromGitHubApi()
       var info = result.getOrNull()
       if (info == null) {
-        info = prefs.fetchReleaseFromGitHubApi().getOrNull()
+        info = prefs.fetchLatestVersion().getOrNull()
       }
       prefs.setLastCheckTimestamp(System.currentTimeMillis())
 
@@ -66,10 +66,10 @@ object UpdateManager {
   fun handleNotificationIntent(activity: AppCompatActivity, intent: Intent) {
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
-      val result = prefs.fetchLatestVersion()
+      val result = prefs.fetchReleaseFromGitHubApi()
       var info = result.getOrNull()
       if (info == null) {
-        info = prefs.fetchReleaseFromGitHubApi().getOrNull()
+        info = prefs.fetchLatestVersion().getOrNull()
       }
       if (info != null && info.versionCode > prefs.getCurrentVersionCode()) {
         activity.runOnUiThread {
