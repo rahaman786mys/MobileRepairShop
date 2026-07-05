@@ -16,6 +16,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.app.muzzutech.R
 import com.app.muzzutech.utils.UpdateManager
@@ -157,6 +158,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         ).apply { bottomMargin = 24 })
 
         progressBar = ProgressBar(ctx, null, android.R.attr.progressBarStyleHorizontal).apply {
+            id = View.generateViewId()
             max = 100
             progress = 0
             visibility = View.GONE
@@ -164,10 +166,12 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         }
         root.addView(progressBar, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
-            12
-        ).apply { bottomMargin = 8 })
+            24 // Increased height
+        ).apply { bottomMargin = 16 })
 
         tvProgress = TextView(ctx).apply {
+            id = View.generateViewId()
+            text = "Starting download..."
             visibility = View.GONE
             textSize = 12f
             setTextColor(0xFFCBD5E1.toInt())
@@ -236,20 +240,38 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         val dialog = MaterialAlertDialogBuilder(ctx, R.style.ThemeOverlay_MuZZu_BottomSheet)
             .setView(root)
             .create()
-        Log.d(TAG, "onCreateDialog dialog created forceUpdate=$forceUpdate")
+        dialog.window?.setBackgroundDrawableResource(R.color.muzzu_surface)
+        dialog.window?.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        dialog.window?.setDimAmount(0.5f)
+        Log.d(TAG, "onCreateDialog dialog created forceUpdate=$forceUpdate window=${dialog.window}")
         dialog.setCanceledOnTouchOutside(!forceUpdate)
         dialog.setCancelable(!forceUpdate)
-        Log.d(TAG, "onCreateDialog dialog window=${dialog.window}")
+        Log.d(TAG, "onCreateDialog returning dialog")
         return dialog
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart dialog=${dialog}")
+        Log.d(TAG, "onStart dialog=${dialog?.window}")
         dialog?.window?.apply {
             setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
             setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume dialog=${dialog?.window}")
+    }
+
+    override fun onDismiss(dialogInterface: android.content.DialogInterface) {
+        super.onDismiss(dialogInterface)
+        Log.d(TAG, "onDismiss")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy")
     }
 
     private fun formatReleaseNotes(raw: String): String {
@@ -274,12 +296,13 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
                 progressBar.progress = pct
                 tvProgress.text = "$pct%\n$mb"
             },
-            onComplete = {
+            onComplete = { file ->
+                downloadFile = file
                 progressBar.visibility = View.GONE
                 tvProgress.visibility = View.GONE
                 tvFailed.visibility = View.GONE
                 Toast.makeText(ctx, R.string.download_complete, Toast.LENGTH_SHORT).show()
-                downloadFile?.let { UpdateManager.installApk(ctx, it) }
+                UpdateManager.installApk(ctx, file, installPermissionLauncher)
             },
             onFailed = { err ->
                 progressBar.visibility = View.GONE

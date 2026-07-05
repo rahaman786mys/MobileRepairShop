@@ -1,32 +1,17 @@
-# LIVE PROGRESS
-Last updated: 2026-07-05 06:00:00
-Overall: 95% complete
+# In-App Update System Verification Progress
 
-| Phase | Status | % | Notes |
-|---|---|---|---|
-| Emulator Setup | ✅ | 100% | Pixel_7_Pro AVD / API 34 |
-| All 12 Accounting Bugs | ✅ | 100% | Fixed, committed, 56 tests pass (35 unit + 21 instrumented) |
-| Nightly Ledger Auditor | ✅ | 100% | LedgerAuditWorker + Dashboard alert banner + Reports "Run Audit Now" |
-| DB Migration v15 | ✅ | 100% | refundTransactionId, salaryPaymentId, nullable linkedEntryId |
-| In-App Update System | ✅ | 100% | GitHub releases API, Material 3 dialog, WorkManager daily check, notification |
-| "What's New" Screen | ✅ | 100% | Post-update celebratory full-screen fragment with animations |
-| Version.json sync | ✅ | 100% | Mirrors GitHub release format, versionCode 24/1.5.6 |
+| Step | Description | Expected Result | Actual Result | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | Launch v24, check update | Update dialog shows v1.5.6 -> v1.5.7 | Dialog appeared with correct versions | **PASS** |
+| 2 | Tap "Update Now" | Progress bar appears and fills | | PENDING |
+| 3 | Download ~50% | Progress shows ~50% | | PENDING |
+| 4 | Download complete | Install prompt appears | | PENDING |
+| 5 | Install app | App relaunches | | PENDING |
+| 6 | Relaunch (v25) | What's New screen appears | | PENDING |
+| 7 | Tap "Let's Go!" | Dashboard loads | | PENDING |
+| 8 | Relaunch (v25) again | No update dialog | | PENDING |
+| 9 | Reinstall v24, tap "Later" | Dialog dismissed | | PENDING |
+| 10 | Background & relaunch | Dialog appears again | | PENDING |
 
-| Metric | Value |
-|---|---|
-| Bugs found | 0 (none in update system; pre-existing 12 bugs already resolved) |
-| DB version | 15 |
-| Reinstall cycles | 3 (smoke + update system verification) |
-| Unit tests pass | 35/35 |
-| Instrumented tests pass | 21/21 |
-
-## What's New in This Commit (a3a4c56 + 4709f46)
-- Complete in-app update system — `UpdateRepository`, `UpdateManager`, `UpdateBottomSheet`, `UpdateWorker`
-- Daily background WorkManager check with push notification
-- Update flow: prompt → progress bar → auto-install via FileProvider
-- Version compare: current vs latest from GitHub releases API + version.json
-- Snooze logic: per-session (SharedPreferences), re-shows on fresh app restart if still pending
-- Post-update "What's New" screen: shown once per new version, animates to Dashboard
-- Emulator confirmed: dialog shows `v1.5.6 → v2.0.0` with release notes and functional buttons
-
-Currently working on: Update system shipped and verified on emulator. Ready for next feature.
+## Step 1: Initial Dialog
+![Update Dialog](.artifacts/20260705-045152-7026ea07-c01d-4f21-8368-47be5cb1d736/screenshot_update_dialog.png)

@@ -1,6 +1,5 @@
 package com.app.muzzutech.utils
 
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -10,6 +9,13 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import android.view.Gravity
+import android.view.View
+import android.view.WindowManager
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -26,22 +32,26 @@ import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.Locale
 
 object UpdateManager {
 
   private const val UPDATE_CHANNEL_ID = "app_updates"
   private const val NOTIF_ID_UPDATE = 7701
   private const val TAG = "UpdateManager"
+  private var downloadFile: java.io.File? = null
 
   fun checkForUpdates(activity: AppCompatActivity) {
     Log.d(TAG, "checkForUpdates: starting update check, currentVersionCode=${UpdateRepository(activity).getCurrentVersionCode()}")
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
+      // Prioritize GitHub Releases API for the real source of truth
       val result = prefs.fetchReleaseFromGitHubApi()
       var info = result.getOrNull()
       Log.d(TAG, "checkForUpdates: GitHub API result=${result.isSuccess} info=$info")
+      
       if (info == null) {
-        Log.w(TAG, "checkForUpdates: GitHub API returned null, falling back to version.json")
+        Log.w(TAG, "checkForUpdates: GitHub API null, trying version.json fallback")
         info = prefs.fetchLatestVersion().getOrNull()
         Log.d(TAG, "checkForUpdates: version.json fallback=$info")
       }
@@ -66,18 +76,16 @@ object UpdateManager {
 
       activity.runOnUiThread {
         Log.i(TAG, "checkForUpdates: showing update dialog ${info.versionName}")
-        UpdateBottomSheet.newInstance(
-            versionName = info.versionName,
-            currentVersionName = prefs.getCurrentVersionName(),
-            releaseNotes = info.releaseNotes,
-            sizeBytes = info.sizeBytes,
-            downloadUrl = info.downloadUrl,
-            versionCode = info.versionCode,
-            forceUpdate = info.forceUpdate,
-          )
-          .also { sheet ->
-            sheet.show(activity.supportFragmentManager, "update_sheet")
-          }
+        val sheet = UpdateBottomSheet.newInstance(
+          versionName = info.versionName,
+          currentVersionName = prefs.getCurrentVersionName(),
+          releaseNotes = info.releaseNotes,
+          sizeBytes = info.sizeBytes,
+          downloadUrl = info.downloadUrl,
+          versionCode = info.versionCode,
+          forceUpdate = info.forceUpdate
+        )
+        sheet.show(activity.supportFragmentManager, "update_sheet")
       }
     }
   }
@@ -86,27 +94,23 @@ object UpdateManager {
     Log.d(TAG, "handleNotificationIntent: processing notification tap")
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
-      val result = prefs.fetchReleaseFromGitHubApi()
+      var result = prefs.fetchReleaseFromGitHubApi()
       var info = result.getOrNull()
-      Log.d(TAG, "handleNotificationIntent: GitHub API result=${result.isSuccess} info=$info")
       if (info == null) {
         info = prefs.fetchLatestVersion().getOrNull()
-        Log.d(TAG, "handleNotificationIntent: version.json fallback=$info")
       }
       if (info != null && info.versionCode > prefs.getCurrentVersionCode()) {
         activity.runOnUiThread {
-          UpdateBottomSheet.newInstance(
-              versionName = info.versionName,
-              currentVersionName = prefs.getCurrentVersionName(),
-              releaseNotes = info.releaseNotes,
-              sizeBytes = info.sizeBytes,
-              downloadUrl = info.downloadUrl,
-              versionCode = info.versionCode,
-              forceUpdate = info.forceUpdate,
-            )
-            .also { sheet ->
-              sheet.show(activity.supportFragmentManager, "update_sheet")
-            }
+          val sheet = UpdateBottomSheet.newInstance(
+            versionName = info.versionName,
+            currentVersionName = prefs.getCurrentVersionName(),
+            releaseNotes = info.releaseNotes,
+            sizeBytes = info.sizeBytes,
+            downloadUrl = info.downloadUrl,
+            versionCode = info.versionCode,
+            forceUpdate = info.forceUpdate
+          )
+          sheet.show(activity.supportFragmentManager, "update_sheet")
         }
       } else {
         Log.i(TAG, "handleNotificationIntent: no update available (info=$info current=${prefs.getCurrentVersionCode()})")
@@ -114,13 +118,36 @@ object UpdateManager {
     }
   }
 
+  fun setSnoozedVersion(versionCode: Int) {
+    UpdateRepository(appInstance()).setSnoozedVersion(versionCode)
+  }
+
+  fun getSnoozedVersion(): Int {
+    return UpdateRepository(appInstance()).getSnoozedVersion()
+  }
+
+  private fun appInstance(): Context {
+    return try {
+      Class.forName("android.app.ActivityThread")
+        .getMethod("currentApplication")
+        .invoke(null) as Context
+    } catch (e: Exception) {
+      throw RuntimeException("Cannot get Application instance", e)
+    }
+  }
+
   fun downloadAndInstall(
     context: Context,
     url: String,
     onProgress: (Int, String) -> Unit,
-    onComplete: () -> Unit,
+    onComplete: (File) -> Unit,
     onFailed: (String) -> Unit,
   ) {
+    val updateDir = File(context.filesDir, "updates")
+    if (!updateDir.exists()) updateDir.mkdirs()
+    val apkFile = File(updateDir, "update.apk")
+    if (apkFile.exists()) apkFile.delete()
+
     val request = Request.Builder().url(url).build()
     val client =
       OkHttpClient.Builder()
@@ -131,9 +158,6 @@ object UpdateManager {
           host == "raw.githubusercontent.com" || host == "github.com"
         }
         .build()
-
-    val apkFile = File(context.cacheDir, "repair_shop_update_${System.currentTimeMillis()}.apk")
-    if (apkFile.exists()) apkFile.delete()
 
     client.newCall(request).enqueue(
       object : okhttp3.Callback {
@@ -165,7 +189,7 @@ object UpdateManager {
                     val pct = ((downloadedBytes * 100) / totalBytes).toInt()
                     val mbStr =
                       String.format(
-                        java.util.Locale.getDefault(),
+                        Locale.getDefault(),
                         "%.1f / %.1f MB",
                         downloadedBytes / (1024.0 * 1024.0),
                         totalBytes / (1024.0 * 1024.0),
@@ -176,7 +200,8 @@ object UpdateManager {
                 fos.flush()
               }
             }
-            CoroutineScope(Dispatchers.Main).launch { onComplete() }
+            downloadFile = apkFile
+            CoroutineScope(Dispatchers.Main).launch { onComplete(apkFile) }
           } catch (e: Exception) {
             CoroutineScope(Dispatchers.Main).launch {
               onFailed(e.message ?: context.getString(R.string.download_failed, "io error"))
@@ -189,7 +214,7 @@ object UpdateManager {
     )
   }
 
-  fun installApk(context: Context, apkFile: File) {
+  fun installApk(context: Context, apkFile: File, launcher: androidx.activity.result.ActivityResultLauncher<Intent>? = null) {
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", apkFile)
     val intent = Intent(Intent.ACTION_VIEW).apply {
       setDataAndType(uri, "application/vnd.android.package-archive")
@@ -201,7 +226,9 @@ object UpdateManager {
         val settingsIntent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
           data = Uri.parse("package:${context.packageName}")
         }
-        if (context is Activity) {
+        if (launcher != null) {
+          launcher.launch(settingsIntent)
+        } else if (context is android.app.Activity) {
           context.startActivityForResult(settingsIntent, 9001)
         } else {
           context.startActivity(settingsIntent)
@@ -247,7 +274,7 @@ object UpdateManager {
     val notif =
       NotificationCompat.Builder(context, UPDATE_CHANNEL_ID)
         .setSmallIcon(android.R.drawable.ic_dialog_info)
-        .setContentTitle("Update Available — v$versionName")
+        .setContentTitle("Update Available \u2014 v$versionName")
         .setContentText("MuZZu Tech has a new update ready.")
         .setStyle(NotificationCompat.BigTextStyle().bigText("Tap to update now."))
         .setContentIntent(pi)

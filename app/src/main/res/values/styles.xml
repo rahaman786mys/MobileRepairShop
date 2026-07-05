@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ThemeOverlay.MuZZu.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+    <style name="ThemeOverlay.MuZZu.BottomSheet" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="bottomSheetStyle">@style/Widget.MuZZu.BottomSheet</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MuZZu.BottomSheet</item>
         <item name="colorSurface">@color/muzzu_surface</item>
         <item name="colorPrimary">@color/muzzu_accent</item>
+        <item name="android:windowBackground">@color/muzzu_surface</item>
+    </style>
+
+    <style name="ThemeOverlay.MuZZu.UpdateDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MuZZu.BottomSheet</item>
     </style>
 
     <style name="Widget.MuZZu.BottomSheet" parent="Widget.Material3.BottomSheet">
