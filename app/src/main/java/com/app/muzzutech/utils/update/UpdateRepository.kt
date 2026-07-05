@@ -43,8 +43,8 @@ class UpdateRepository(private val context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    fun getCurrentVersionCode(): Int = BuildConfig.VERSION_CODE
-    fun getCurrentVersionName(): String = BuildConfig.VERSION_NAME
+    fun getCurrentVersionCode(): Int = com.app.muzzutech.BuildConfig.VERSION_CODE
+    fun getCurrentVersionName(): String = com.app.muzzutech.BuildConfig.VERSION_NAME
 
     fun getLastSeenVersion(): Int =
         prefs.getInt(KEY_LAST_SEEN_VERSION, getCurrentVersionCode())
