@@ -18,7 +18,6 @@ import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -30,6 +29,9 @@ import com.app.muzzutech.ui.entry.EntryViewModel.ContactResult
 import com.app.muzzutech.utils.PhotoUtils
 import com.app.muzzutech.utils.ValidationUtils
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -39,6 +41,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     companion object {
         var skipCameraLaunch = false
+        private const val TAG = "EntryFragment"
     }
 
     private var _binding: FragmentEntryBinding? = null
@@ -58,7 +61,15 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     private val selectedExtraItems = mutableSetOf<String>()
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        Log.d(TAG, "Camera returned success=$success slot=$currentPhotoSlot")
         if (success) {
+            // Defer Glide load to next frame — ensures file is fully written by camera app
+            binding.ivEntryPhoto.post {
+                loadThumbnail(1, binding.ivEntryPhoto, viewModel.photo1Path.value)
+            }
+            binding.ivEntryPhoto2.post {
+                loadThumbnail(2, binding.ivEntryPhoto2, viewModel.photo2Path.value)
+            }
             updatePhotoButtonText()
         }
     }
@@ -68,12 +79,29 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         else if (isAdded) Snackbar.make(binding.root, "Camera permission is needed to take photos", Snackbar.LENGTH_LONG).show()
     }
 
+    private fun loadThumbnail(slot: Int, imageView: android.widget.ImageView, path: String?) {
+        Log.d(TAG, "loadThumbnail slot=$slot path=$path exists=${path?.let { File(it).exists() }} size=${path?.let { File(it).length() }}")
+        if (path == null || !isAdded) return
+        val file = File(path)
+        if (!file.exists() || file.length() == 0L) {
+            Log.w(TAG, "Thumbnail file missing or empty for slot $slot: $path")
+            return
+        }
+        imageView.setPadding(0, 0, 0, 0)
+        Glide.with(this)
+            .load(file)
+            .transform(MultiTransformation(CenterCrop()))
+            .transition(DrawableTransitionOptions.withCrossFade(150))
+            .into(imageView)
+        Log.d(TAG, "Thumbnail loaded successfully for slot $slot")
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return try {
             _binding = FragmentEntryBinding.inflate(inflater, container, false)
             binding.root
         } catch (e: Exception) {
-            Log.e("EntryFragment", "Inflation Error", e)
+            Log.e(TAG, "Inflation Error", e)
             Toast.makeText(requireContext(), "Screen Error: ${e.message}", Toast.LENGTH_LONG).show()
             View(requireContext())
         }
@@ -90,6 +118,11 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         setupExtraItemsDropdown()
         observePhotoState()
         observeViewModel()
+
+        // Load any existing photo paths (e.g., after configuration change)
+        loadThumbnail(1, binding.ivEntryPhoto, viewModel.photo1Path.value)
+        loadThumbnail(2, binding.ivEntryPhoto2, viewModel.photo2Path.value)
+        updatePhotoButtonText()
     }
 
     private fun observePhotoState() {
@@ -97,18 +130,18 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.photo1Path.collectLatest { path ->
+                        Log.d(TAG, "photo1Path emitted: $path")
                         if (path != null && isAdded) {
-                            binding.ivEntryPhoto.setPadding(0, 0, 0, 0)
-                            Glide.with(this@EntryFragment).load(File(path)).centerCrop().into(binding.ivEntryPhoto)
+                            loadThumbnail(1, binding.ivEntryPhoto, path)
                         }
                         updatePhotoButtonText()
                     }
                 }
                 launch {
                     viewModel.photo2Path.collectLatest { path ->
+                        Log.d(TAG, "photo2Path emitted: $path")
                         if (path != null && isAdded) {
-                            binding.ivEntryPhoto2.setPadding(0, 0, 0, 0)
-                            Glide.with(this@EntryFragment).load(File(path)).centerCrop().into(binding.ivEntryPhoto2)
+                            loadThumbnail(2, binding.ivEntryPhoto2, path)
                         }
                         updatePhotoButtonText()
                     }
@@ -201,10 +234,11 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             } else {
                 viewModel.setPhoto2(photoFile.absolutePath)
             }
+            Log.d(TAG, "Launching camera for slot $currentPhotoSlot uri=$photoUri path=${photoFile.absolutePath}")
             if (skipCameraLaunch) return
             cameraLauncher.launch(photoUri)
         } catch (e: Exception) {
-            Log.e("EntryFragment", "Error opening camera", e)
+            Log.e(TAG, "Error opening camera", e)
             if (isAdded) Toast.makeText(requireContext(), "Could not open camera: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
@@ -256,9 +290,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
                     binding.etName.setText(chosenName)
                     Snackbar.make(binding.root, "Mobile exists as both Customer and Dealer. Using ${if (preferDealer) "Dealer" else "Customer"} entry.", Snackbar.LENGTH_LONG).show()
                 }
-                is EntryViewModel.ContactResult.NotFound -> {
-                    // New contact, fields remain empty
-                }
+                is EntryViewModel.ContactResult.NotFound -> {}
             }
             binding.layoutRepairFields.isVisible = true
         }
@@ -290,7 +322,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     }
 
     private fun saveEntry(isDraft: Boolean = false) {
-        Log.w("EntryFragment", "saveEntry called isAdded=$isAdded isDraft=$isDraft p1=${viewModel.photo1Path.value} p2=${viewModel.photo2Path.value}")
+        Log.w(TAG, "saveEntry called isAdded=$isAdded isDraft=$isDraft p1=${viewModel.photo1Path.value} p2=${viewModel.photo2Path.value}")
         if (!isAdded) return
         val name = binding.etName.text.toString().trim()
         val mobile = binding.etMobileNumber.text.toString().trim()
