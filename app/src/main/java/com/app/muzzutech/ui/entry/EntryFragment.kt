@@ -1,7 +1,6 @@
 package com.app.muzzutech.ui.entry
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -26,11 +25,11 @@ import androidx.navigation.fragment.findNavController
 import com.app.muzzutech.R
 import com.app.muzzutech.data.model.ServiceMan
 import com.app.muzzutech.databinding.FragmentEntryBinding
+import com.app.muzzutech.ui.entry.EntryViewModel.ContactResult
 import com.app.muzzutech.utils.PhotoUtils
 import com.app.muzzutech.utils.ValidationUtils
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
-import com.app.muzzutech.ui.entry.EntryViewModel.ContactResult
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
@@ -43,17 +42,14 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     private var _binding: FragmentEntryBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: EntryViewModel by viewModels()
+    internal val viewModel: EntryViewModel by viewModels()
 
-    private var photoFile: File? = null
-    private var photoUri: Uri? = null
-    private var photoFile2: File? = null
-    private var photoUri2: Uri? = null
     private var serviceMenList = listOf<ServiceMan>()
+    private var currentPhotoSlot = 0 // 1 = first photo, 2 = second photo
 
     private val brands = listOf(
-        "Select Brand", "Samsung", "Apple (iPhone)", "Xiaomi (Mi/Redmi/Poco)", 
-        "Vivo", "Oppo", "Realme", "OnePlus", "Motorola", "Google Pixel", 
+        "Select Brand", "Samsung", "Apple (iPhone)", "Xiaomi (Mi/Redmi/Poco)",
+        "Vivo", "Oppo", "Realme", "OnePlus", "Motorola", "Google Pixel",
         "Nokia", "Micromax", "Lava", "IQOO", "Infinix", "Techno", "Nothing", "Others"
     )
 
@@ -61,25 +57,15 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     private val selectedExtraItems = mutableSetOf<String>()
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && photoUri != null && isAdded) {
-            binding.ivEntryPhoto.setPadding(0, 0, 0, 0)
-            Glide.with(this).load(photoUri).centerCrop().into(binding.ivEntryPhoto)
-        }
-    }
-
-    private val cameraLauncher2 = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && photoUri2 != null && isAdded) {
-            binding.ivEntryPhoto2.setPadding(0, 0, 0, 0)
-            Glide.with(this).load(photoUri2).centerCrop().into(binding.ivEntryPhoto2)
+        if (success) {
+            Glide.with(this).load(viewModel.photo1Path.value).centerCrop().into(binding.ivEntryPhoto)
+            Glide.with(this).load(viewModel.photo2Path.value).centerCrop().into(binding.ivEntryPhoto2)
+            updatePhotoButtonText()
         }
     }
 
     private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) openCamera()
-        else if (isAdded) Snackbar.make(binding.root, "Camera permission is needed to take photos", Snackbar.LENGTH_LONG).show()
-    }
-    private val cameraPermissionLauncher2 = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) openCamera2()
         else if (isAdded) Snackbar.make(binding.root, "Camera permission is needed to take photos", Snackbar.LENGTH_LONG).show()
     }
 
@@ -89,8 +75,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             binding.root
         } catch (e: Exception) {
             Log.e("EntryFragment", "Inflation Error", e)
-            val msg = e.message ?: e.toString()
-            Toast.makeText(requireContext(), "Screen Error: $msg", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "Screen Error: ${e.message}", Toast.LENGTH_LONG).show()
             View(requireContext())
         }
     }
@@ -99,64 +84,53 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         super.onViewCreated(view, savedInstanceState)
         if (_binding == null) return
 
-        Log.d("EntryFragment", "onViewCreated started")
-        
-        try {
-            viewModel.resetSaveState()
+        viewModel.resetSaveState()
+        setupClickListeners()
+        setupMobileWatcher()
+        setupBrandSpinner()
+        setupExtraItemsDropdown()
+        observePhotoState()
+        observeViewModel()
+    }
 
-            setupClickListeners()
-            setupMobileWatcher()
-            setupBrandSpinner()
-            setupExtraItemsDropdown()
-            observeViewModel()
-
-
-            
-            savedInstanceState?.let { bundle ->
-                bundle.getString("photo1")?.let { 
-                    photoFile = File(it)
-                    Glide.with(this).load(photoFile).centerCrop().into(binding.ivEntryPhoto)
+    private fun observePhotoState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.photo1Path.collectLatest { path ->
+                        if (path != null && isAdded) {
+                            binding.ivEntryPhoto.setPadding(0, 0, 0, 0)
+                            Glide.with(this@EntryFragment).load(File(path)).centerCrop().into(binding.ivEntryPhoto)
+                        }
+                        updatePhotoButtonText()
+                    }
                 }
-                bundle.getString("photo2")?.let { 
-                    photoFile2 = File(it)
-                    Glide.with(this).load(photoFile2).centerCrop().into(binding.ivEntryPhoto2)
+                launch {
+                    viewModel.photo2Path.collectLatest { path ->
+                        if (path != null && isAdded) {
+                            binding.ivEntryPhoto2.setPadding(0, 0, 0, 0)
+                            Glide.with(this@EntryFragment).load(File(path)).centerCrop().into(binding.ivEntryPhoto2)
+                        }
+                        updatePhotoButtonText()
+                    }
                 }
             }
-        } catch (e: Exception) {
-            Log.e("EntryFragment", "onViewCreated Error", e)
-            val msg = e.message ?: e.toString()
-            Toast.makeText(requireContext(), "Start Error: $msg", Toast.LENGTH_LONG).show()
         }
     }
 
-    private fun setupBrandSpinner() {
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, brands)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerBrand.adapter = adapter
-    }
-
-    private fun setupExtraItemsDropdown() {
-        binding.etExtraItems.setOnClickListener {
-            val selectedArray = BooleanArray(extraItemsList.size) { i ->
-                selectedExtraItems.contains(extraItemsList[i])
-            }
-
-            AlertDialog.Builder(requireContext())
-                .setTitle("Extra Items Received")
-                .setMultiChoiceItems(extraItemsList, selectedArray) { _, which, isChecked ->
-                    if (isChecked) selectedExtraItems.add(extraItemsList[which])
-                    else selectedExtraItems.remove(extraItemsList[which])
-                }
-                .setPositiveButton("Done") { _, _ ->
-                    binding.etExtraItems.setText(selectedExtraItems.joinToString(", "))
-                    binding.tilOtherItem.isVisible = selectedExtraItems.contains("Other")
-                }
-                .show()
+    private fun updatePhotoButtonText() {
+        val hasPhoto1 = viewModel.photo1Path.value != null
+        val hasPhoto2 = viewModel.photo2Path.value != null
+        binding.btnTakePhotos.text = when {
+            !hasPhoto1 && !hasPhoto2 -> "Take Device Photos"
+            hasPhoto1 && !hasPhoto2 -> "Take Second Photo"
+            hasPhoto1 && hasPhoto2 -> "Retake Photos"
+            else -> "Take Device Photos"
         }
     }
 
     private fun setupClickListeners() {
-        binding.btnTakePhoto.setOnClickListener {
+        binding.btnTakePhotos.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED
             ) {
@@ -166,13 +140,21 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             }
         }
 
-        binding.btnTakePhoto2.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED
-            ) {
-                openCamera2()
+        binding.cardPhoto1.setOnClickListener {
+            if (viewModel.photo1Path.value != null) {
+                PhotoPreviewDialog.newInstance(viewModel.photo1Path.value!!, 1)
+                    .show(childFragmentManager, "preview1")
             } else {
-                cameraPermissionLauncher2.launch(Manifest.permission.CAMERA)
+                openCameraForSlot(1)
+            }
+        }
+
+        binding.cardPhoto2.setOnClickListener {
+            if (viewModel.photo2Path.value != null) {
+                PhotoPreviewDialog.newInstance(viewModel.photo2Path.value!!, 2)
+                    .show(childFragmentManager, "preview2")
+            } else {
+                openCameraForSlot(2)
             }
         }
 
@@ -197,6 +179,34 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
                 binding.etCity.setText("")
                 binding.layoutRepairFields.isVisible = false
             }
+        }
+    }
+
+    fun openCameraForSlot(slot: Int) {
+        currentPhotoSlot = slot
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            openCamera()
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun openCamera() {
+        try {
+            val photoFile = PhotoUtils.createPhotoFile(requireContext(), "ENTRY${currentPhotoSlot}_")
+            val photoUri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", photoFile)
+            if (currentPhotoSlot == 1) {
+                viewModel.setPhoto1(photoFile.absolutePath)
+            } else {
+                viewModel.setPhoto2(photoFile.absolutePath)
+            }
+            if (skipCameraLaunch) return
+            cameraLauncher.launch(photoUri)
+        } catch (e: Exception) {
+            Log.e("EntryFragment", "Error opening camera", e)
+            if (isAdded) Toast.makeText(requireContext(), "Could not open camera: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -255,32 +265,88 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         }
     }
 
-    private fun openCamera() {
-        try {
-            photoFile = PhotoUtils.createPhotoFile(requireContext(), "ENTRY1_")
-            if (skipCameraLaunch) return
-            photoUri = photoFile?.let {
-                FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+    private fun setupBrandSpinner() {
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, brands)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerBrand.adapter = adapter
+    }
+
+    private fun setupExtraItemsDropdown() {
+        binding.etExtraItems.setOnClickListener {
+            val selectedArray = BooleanArray(extraItemsList.size) { i ->
+                selectedExtraItems.contains(extraItemsList[i])
             }
-            photoUri?.let { cameraLauncher.launch(it) }
-        } catch (e: Exception) {
-            Log.e("EntryFragment", "Error opening camera", e)
-            if (isAdded) Toast.makeText(requireContext(), "Could not open camera: ${e.message}", Toast.LENGTH_LONG).show()
+            android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Extra Items Received")
+                .setMultiChoiceItems(extraItemsList, selectedArray) { _, which, isChecked ->
+                    if (isChecked) selectedExtraItems.add(extraItemsList[which])
+                    else selectedExtraItems.remove(extraItemsList[which])
+                }
+                .setPositiveButton("Done") { _, _ ->
+                    binding.etExtraItems.setText(selectedExtraItems.joinToString(", "))
+                    binding.tilOtherItem.isVisible = selectedExtraItems.contains("Other")
+                }
+                .show()
         }
     }
 
-    private fun openCamera2() {
-        try {
-            photoFile2 = PhotoUtils.createPhotoFile(requireContext(), "ENTRY2_")
-            if (skipCameraLaunch) return
-            photoUri2 = photoFile2?.let {
-                FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
+    private fun saveEntry(isDraft: Boolean = false) {
+        Log.w("EntryFragment", "saveEntry called isAdded=$isAdded isDraft=$isDraft p1=${viewModel.photo1Path.value} p2=${viewModel.photo2Path.value}")
+        if (!isAdded) return
+        val name = binding.etName.text.toString().trim()
+        val mobile = binding.etMobileNumber.text.toString().trim()
+        val city = binding.etCity.text.toString().trim()
+        val model = binding.etModelName.text.toString().trim()
+        val isDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
+
+        if (!isDraft) {
+            if (!ValidationUtils.validatePhoneNumber(binding.tilMobile)) return
+            if (name.isEmpty()) {
+                Snackbar.make(binding.root, "Customer name is required", Snackbar.LENGTH_SHORT).show()
+                return
             }
-            photoUri2?.let { cameraLauncher2.launch(it) }
-        } catch (e: Exception) {
-            Log.e("EntryFragment", "Error opening camera 2", e)
-            if (isAdded) Toast.makeText(requireContext(), "Could not open camera: ${e.message}", Toast.LENGTH_LONG).show()
+            if (viewModel.photo1Path.value == null || viewModel.photo2Path.value == null) {
+                Snackbar.make(binding.root, "Mandatory: 2 photos required", Snackbar.LENGTH_SHORT).show()
+                return
+            }
+            if (binding.spinnerBrand.selectedItemPosition <= 0) {
+                Snackbar.make(binding.root, "Please select a brand", Snackbar.LENGTH_SHORT).show()
+                return
+            }
+            if (model.isEmpty()) {
+                binding.etModelName.error = "Model name required"
+                return
+            }
+            if (binding.spinnerServiceMan.selectedItemPosition <= 0) {
+                Snackbar.make(binding.root, "Mandatory: Assign a specialist", Snackbar.LENGTH_SHORT).show()
+                return
+            }
+        } else if (mobile.isEmpty()) {
+            return
         }
+
+        val brand = if (binding.spinnerBrand.selectedItemPosition > 0) {
+            brands[binding.spinnerBrand.selectedItemPosition]
+        } else ""
+
+        val selectedPos = binding.spinnerServiceMan.selectedItemPosition
+        val serviceManId = if (selectedPos > 0 && selectedPos <= serviceMenList.size) {
+            serviceMenList[selectedPos - 1].id
+        } else 0L
+
+        viewModel.saveEntry(
+            photoPath = viewModel.photo1Path.value ?: "",
+            photoPath2 = viewModel.photo2Path.value ?: "",
+            name = name,
+            mobile = mobile,
+            city = city,
+            isDealer = isDealer,
+            serviceManId = serviceManId,
+            brand = brand,
+            model = model,
+            extraItems = collectExtraItems(),
+            isDraft = isDraft
+        )
     }
 
     private fun collectExtraItems(): String {
@@ -303,74 +369,6 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, names)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerServiceMan.adapter = adapter
-    }
-
-    private fun saveEntry(isDraft: Boolean = false) {
-        android.util.Log.w("EntryFragment", "saveEntry called isAdded=$isAdded isDraft=$isDraft photoFile=$photoFile photoFile2=$photoFile2 brandPos=${binding.spinnerBrand.selectedItemPosition} model='${binding.etModelName.text}' servicePos=${binding.spinnerServiceMan.selectedItemPosition} phone='${binding.etMobileNumber.text}'")
-        if (!isAdded) return
-        val name = binding.etName.text.toString().trim()
-        val mobile = binding.etMobileNumber.text.toString().trim()
-        val city = binding.etCity.text.toString().trim()
-        val model = binding.etModelName.text.toString().trim()
-        val isDealer = binding.toggleGroupEntryType.checkedButtonId == R.id.btnTypeDealer
-
-        if (!isDraft) {
-            if (!ValidationUtils.validatePhoneNumber(binding.tilMobile)) return
-
-            if (name.isEmpty()) {
-                Snackbar.make(binding.root, "Customer name is required", Snackbar.LENGTH_SHORT).show()
-                return
-            }
-
-            if (photoFile == null || photoFile2 == null) {
-                Log.w("EntryFragment", "saveEntry: photoFile=$photoFile photoFile2=$photoFile2")
-                Snackbar.make(binding.root, "Mandatory: 2 photos required", Snackbar.LENGTH_SHORT).show()
-                return
-            }
-
-            if (binding.spinnerBrand.selectedItemPosition <= 0) {
-                Log.w("EntryFragment", "saveEntry: brand not selected (pos=${binding.spinnerBrand.selectedItemPosition})")
-                Snackbar.make(binding.root, "Please select a brand", Snackbar.LENGTH_SHORT).show()
-                return
-            }
-
-            if (model.isEmpty()) {
-                Log.w("EntryFragment", "saveEntry: model empty")
-                binding.etModelName.error = "Model name required"
-                return
-            }
-
-            if (binding.spinnerServiceMan.selectedItemPosition <= 0) {
-                Log.w("EntryFragment", "saveEntry: serviceMan not selected (pos=${binding.spinnerServiceMan.selectedItemPosition})")
-                Snackbar.make(binding.root, "Mandatory: Assign a specialist", Snackbar.LENGTH_SHORT).show()
-                return
-            }
-        } else if (mobile.isEmpty()) {
-            return 
-        }
-
-        val brand = if (binding.spinnerBrand.selectedItemPosition > 0) {
-            brands[binding.spinnerBrand.selectedItemPosition]
-        } else ""
-
-        val selectedPos = binding.spinnerServiceMan.selectedItemPosition
-        val serviceManId = if (selectedPos > 0 && selectedPos <= serviceMenList.size) {
-            serviceMenList[selectedPos - 1].id
-        } else 0L
-
-        viewModel.saveEntry(
-            photoPath = photoFile?.absolutePath ?: "",
-            photoPath2 = photoFile2?.absolutePath ?: "",
-            name = name,
-            mobile = mobile,
-            city = city,
-            isDealer = isDealer,
-            serviceManId = serviceManId,
-            brand = brand,
-            model = model,
-            extraItems = collectExtraItems(),
-            isDraft = isDraft
-        )
     }
 
     private fun observeViewModel() {
@@ -417,12 +415,6 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
                 }
             }
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("photo1", photoFile?.absolutePath)
-        outState.putString("photo2", photoFile2?.absolutePath)
     }
 
     override fun onDestroyView() {

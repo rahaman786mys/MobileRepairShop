@@ -29,6 +29,15 @@ class EntryViewModel : ViewModel() {
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving
 
+    private val _photo1Path = MutableStateFlow<String?>(null)
+    val photo1Path: StateFlow<String?> = _photo1Path
+
+    private val _photo2Path = MutableStateFlow<String?>(null)
+    val photo2Path: StateFlow<String?> = _photo2Path
+
+    fun setPhoto1(path: String?) { _photo1Path.value = path }
+    fun setPhoto2(path: String?) { _photo2Path.value = path }
+
     // Track draft entry IDs by mobile to prevent duplicates from autoSaveDraft
     private val draftEntryIds = mutableMapOf<String, Long>()
 
