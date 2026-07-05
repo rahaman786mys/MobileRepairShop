@@ -18,6 +18,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -58,8 +59,6 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
 
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            Glide.with(this).load(viewModel.photo1Path.value).centerCrop().into(binding.ivEntryPhoto)
-            Glide.with(this).load(viewModel.photo2Path.value).centerCrop().into(binding.ivEntryPhoto2)
             updatePhotoButtonText()
         }
     }
