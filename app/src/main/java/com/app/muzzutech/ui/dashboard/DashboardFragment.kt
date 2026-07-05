@@ -60,7 +60,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     binding.cardMoreGrid?.setOnClickListener { findNavController().navigate(R.id.moreFragment) }
     binding.btnFixMissingInfo.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
     binding.cardInvest.setOnClickListener { showInvestDialog() }
-    binding.ivSearch.setOnClickListener { findNavController().navigate(R.id.entriesFragment) }
   }
 
   private fun showInvestDialog() {
@@ -125,7 +124,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
           _binding?.let { b ->
             b.cardMissingInfo.isVisible = profile == null || profile.phone.isEmpty()
-            b.tvWorkshopTitle.text = profile?.shopName?.ifEmpty { "MuZZu Tech" } ?: "MuZZu Tech"
           }
         }
       }

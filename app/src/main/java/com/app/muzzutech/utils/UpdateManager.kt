@@ -9,6 +9,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -30,24 +31,41 @@ object UpdateManager {
 
   private const val UPDATE_CHANNEL_ID = "app_updates"
   private const val NOTIF_ID_UPDATE = 7701
+  private const val TAG = "UpdateManager"
 
   fun checkForUpdates(activity: AppCompatActivity) {
+    Log.d(TAG, "checkForUpdates: starting update check, currentVersionCode=${UpdateRepository(activity).getCurrentVersionCode()}")
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
       val result = prefs.fetchReleaseFromGitHubApi()
       var info = result.getOrNull()
+      Log.d(TAG, "checkForUpdates: GitHub API result=${result.isSuccess} info=$info")
       if (info == null) {
+        Log.w(TAG, "checkForUpdates: GitHub API returned null, falling back to version.json")
         info = prefs.fetchLatestVersion().getOrNull()
+        Log.d(TAG, "checkForUpdates: version.json fallback=$info")
       }
       prefs.setLastCheckTimestamp(System.currentTimeMillis())
 
-      if (info == null) return@launch
+      if (info == null) {
+        Log.w(TAG, "checkForUpdates: no version info from any source, aborting")
+        return@launch
+      }
       val currentCode = prefs.getCurrentVersionCode()
-      if (info.versionCode <= currentCode) return@launch
+      Log.d(TAG, "checkForUpdates: remote=$info remoteVersionCode=${info.versionCode} localVersionCode=$currentCode")
+      if (info.versionCode <= currentCode) {
+        Log.i(TAG, "checkForUpdates: already up to date ($currentCode >= ${info.versionCode}), skipping")
+        return@launch
+      }
       val snoozed = prefs.getSnoozedVersion()
-      if (info.versionCode == snoozed) return@launch
+      Log.d(TAG, "checkForUpdates: snoozedVersion=$snoozed")
+      if (info.versionCode == snoozed) {
+        Log.i(TAG, "checkForUpdates: version ${info.versionCode} was snoozed, skipping")
+        return@launch
+      }
 
       activity.runOnUiThread {
+        Log.i(TAG, "checkForUpdates: showing update dialog ${info.versionName}")
         UpdateBottomSheet.newInstance(
             versionName = info.versionName,
             currentVersionName = prefs.getCurrentVersionName(),
@@ -65,12 +83,15 @@ object UpdateManager {
   }
 
   fun handleNotificationIntent(activity: AppCompatActivity, intent: Intent) {
+    Log.d(TAG, "handleNotificationIntent: processing notification tap")
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
       val result = prefs.fetchReleaseFromGitHubApi()
       var info = result.getOrNull()
+      Log.d(TAG, "handleNotificationIntent: GitHub API result=${result.isSuccess} info=$info")
       if (info == null) {
         info = prefs.fetchLatestVersion().getOrNull()
+        Log.d(TAG, "handleNotificationIntent: version.json fallback=$info")
       }
       if (info != null && info.versionCode > prefs.getCurrentVersionCode()) {
         activity.runOnUiThread {
@@ -87,6 +108,8 @@ object UpdateManager {
               sheet.show(activity.supportFragmentManager, "update_sheet")
             }
         }
+      } else {
+        Log.i(TAG, "handleNotificationIntent: no update available (info=$info current=${prefs.getCurrentVersionCode()})")
       }
     }
   }

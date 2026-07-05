@@ -31,7 +31,6 @@ class CustomerAddFragment : Fragment() {
         val editMobile = arguments?.getString("customerMobile")
         if (editMobile != null) {
             loadForEdit(editMobile)
-            binding.tvTitle.text = getString(R.string.edit_profile)
         }
 
         binding.btnSave.setOnClickListener {

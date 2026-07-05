@@ -11,13 +11,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Financial Insights"
-            style="@style/TextAppearance.MuZZu.Heading"
-            android:layout_marginBottom="24dp" />
-
         <!-- Period Selector -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupPeriod"

@@ -11,13 +11,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Repair Entry"
-            style="@style/TextAppearance.MuZZu.Heading"
-            android:layout_marginBottom="24dp" />
-
         <!-- Selection Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"

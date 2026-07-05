@@ -13,19 +13,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/inventory_ledger"
-            style="@style/TextAppearance.MuZZu.Heading" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tally_of_spare_parts"
-            style="@style/TextAppearance.MuZZu.Body"
-            android:textSize="12sp" />
-
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

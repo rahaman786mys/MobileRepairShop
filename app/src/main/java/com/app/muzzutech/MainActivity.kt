@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.app.muzzutech.databinding.ActivityMainBinding
 import com.app.muzzutech.utils.UpdateManager
@@ -29,6 +31,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+
         UpdateManager.checkForUpdates(this)
         checkForWhatIsNew()
 
@@ -36,6 +40,16 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as? NavHostFragment ?: return
         val navController = navHostFragment.navController
 
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.dashboardFragment,
+                R.id.entryFragment,
+                R.id.entriesFragment,
+                R.id.reportsFragment,
+                R.id.moreFragment
+            )
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavigation.setupWithNavController(navController)
 
         val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
@@ -72,14 +86,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            binding.toolbar.title = destination.label ?: "Repair Shop"
             when (destination.id) {
                 R.id.loginFragment -> {
                     binding.bottomNavigation.visibility = View.GONE
-                    binding.toolbar.visibility = View.GONE
-                }
-                R.id.dashboardFragment -> {
-                    binding.bottomNavigation.visibility = View.VISIBLE
                     binding.toolbar.visibility = View.GONE
                 }
                 else -> {

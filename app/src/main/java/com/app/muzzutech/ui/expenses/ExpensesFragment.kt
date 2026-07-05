@@ -85,21 +85,6 @@ private fun ExpensesScreen(vm: ExpensesViewModel) {
         .sortedByDescending { it.date }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { vm.previousMonth() }) {
-                            Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
-                        }
-                        Text(DateUtils.formatMonth(monthStart), fontWeight = FontWeight.SemiBold)
-                        IconButton(onClick = { vm.nextMonth() }) {
-                            Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
-                        }
-                    }
-                }
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddDialog = true }) {
                 Icon(Icons.Default.Add, contentDescription = "Add expense")
@@ -107,6 +92,27 @@ private fun ExpensesScreen(vm: ExpensesViewModel) {
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
+            // Month Picker
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                IconButton(onClick = { vm.previousMonth() }) {
+                    Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    DateUtils.formatMonth(monthStart),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(onClick = { vm.nextMonth() }) {
+                    Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
+                }
+            }
+
             ExpenseSummaryCard(
                 total = totalThisMonth,
                 categoryTotals = categoryTotals

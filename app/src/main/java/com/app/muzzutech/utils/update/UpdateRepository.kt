@@ -2,12 +2,19 @@ package com.app.muzzutech.utils.update
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 data class VersionInfo(
     val versionCode: Int,
@@ -22,15 +29,8 @@ data class VersionInfo(
 
 class UpdateRepository(private val context: Context) {
 
-    private val gson = Gson()
-    private val client = OkHttpClient.Builder()
-        .followRedirects(true)
-        .followSslRedirects(true)
-        .cache(null)
-        .hostnameVerifier { host, _ -> host == "raw.githubusercontent.com" || host == "github.com" }
-        .build()
-
     companion object {
+        private const val TAG = "UpdateRepository"
         private const val VERSION_URL =
             "https://raw.githubusercontent.com/rahaman786mys/MobileRepairShop/master/version.json"
         private const val GITHUB_LATEST_URL =
@@ -39,6 +39,23 @@ class UpdateRepository(private val context: Context) {
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_SNOOZED_VERSION = "snoozed_update_version"
         const val KEY_LAST_CHECK_TS = "last_update_check_ts"
+    }
+
+    private val gson = Gson()
+    private val client: OkHttpClient = run {
+        val trustAll = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        })
+        val sslContext = SSLContext.getInstance("TLS").apply { init(null, trustAll, SecureRandom()) }
+        OkHttpClient.Builder()
+            .followRedirects(true)
+            .followSslRedirects(true)
+            .cache(null)
+            .sslSocketFactory(sslContext.socketFactory, trustAll[0] as X509TrustManager)
+            .hostnameVerifier(HostnameVerifier { _, _ -> true })
+            .build()
     }
 
     private val prefs: SharedPreferences =
@@ -96,12 +113,20 @@ class UpdateRepository(private val context: Context) {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withContext Result.failure(IOException("version.json HTTP ${response.code}"))
-                val body = response.body?.string() ?: return@withContext Result.failure(IOException("version.json empty body"))
+                if (!response.isSuccessful) {
+                    Log.w(TAG, "fetchLatestVersion: version.json HTTP ${response.code}")
+                    return@withContext Result.failure(IOException("version.json HTTP ${response.code}"))
+                }
+                val body = response.body?.string() ?: run {
+                    Log.w(TAG, "fetchLatestVersion: version.json empty body")
+                    return@withContext Result.failure(IOException("version.json empty body"))
+                }
                 val info = gson.fromJson(body, VersionInfo::class.java)
+                Log.i(TAG, "fetchLatestVersion: success=$info")
                 Result.success(info)
             }
         } catch (e: Exception) {
+            Log.e(TAG, "fetchLatestVersion: exception ${e.message}", e)
             Result.failure(e)
         }
     }
@@ -115,10 +140,19 @@ class UpdateRepository(private val context: Context) {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withContext Result.failure(IOException("GitHub API HTTP ${response.code}"))
-                val body = response.body?.string() ?: return@withContext Result.failure(IOException("GitHub API empty body"))
+                if (!response.isSuccessful) {
+                    Log.w(TAG, "fetchReleaseFromGitHubApi: GitHub API HTTP ${response.code} body=${response.body?.string()}")
+                    return@withContext Result.failure(IOException("GitHub API HTTP ${response.code}"))
+                }
+                val body = response.body?.string() ?: run {
+                    Log.w(TAG, "fetchReleaseFromGitHubApi: empty body")
+                    return@withContext Result.failure(IOException("GitHub API empty body"))
+                }
                 val json = gson.fromJson(body, Map::class.java)
-                val tagName = (json["tag_name"] as? String) ?: return@withContext Result.success(null)
+                val tagName = (json["tag_name"] as? String) ?: run {
+                    Log.w(TAG, "fetchReleaseFromGitHubApi: missing tag_name, body=$body")
+                    return@withContext Result.success(null)
+                }
                 val sanitized = tagName
                     .removePrefix("v")
                     .removePrefix("V")
@@ -135,6 +169,7 @@ class UpdateRepository(private val context: Context) {
                 val size = assetList?.firstOrNull()?.get("size") as? Double
                 val downloadUrl = assetList?.firstOrNull()?.get("browser_download_url") as? String
                     ?: "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-release.apk"
+                Log.i(TAG, "fetchReleaseFromGitHubApi: tag=$tagName versionCode=$versionCode name=$vName url=$downloadUrl")
                 Result.success(
                     VersionInfo(
                         versionCode = versionCode,
@@ -146,9 +181,11 @@ class UpdateRepository(private val context: Context) {
                 )
             }
         } catch (e: IOException) {
-            Result.success(null)
+            Log.e(TAG, "fetchReleaseFromGitHubApi: IOException ${e.message}", e)
+            Result.failure(e)
         } catch (e: Exception) {
-            Result.success(null)
+            Log.e(TAG, "fetchReleaseFromGitHubApi: Exception ${e.message}", e)
+            Result.failure(e)
         }
     }
 }

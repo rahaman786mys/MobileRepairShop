@@ -77,36 +77,40 @@ private fun PayrollScreen(vm: PayrollViewModel) {
     val salaries by vm.salaryPayments.collectAsStateWithLifecycle()
     val busy by vm.busy.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { vm.previousMonth() }) {
-                            Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
-                        }
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            DateUtils.formatMonth(monthStart),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        IconButton(onClick = { vm.nextMonth() }) {
-                            Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
-                        }
-                    }
+    Scaffold { padding ->
+        Column(modifier = Modifier.padding(padding)) {
+            // Month Picker
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                IconButton(onClick = { vm.previousMonth() }) {
+                    Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
                 }
-            )
-        }
-    ) { padding ->
-        Box(modifier = Modifier.padding(padding)) {
-            if (busy && servicemen.isEmpty()) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            } else if (servicemen.isEmpty()) {
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "No technicians yet. Add servicemen to use payroll.",
-                    modifier = Modifier.align(Alignment.Center).padding(24.dp)
+                    DateUtils.formatMonth(monthStart),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
                 )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(onClick = { vm.nextMonth() }) {
+                    Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
+                }
+            }
+
+            if (busy && servicemen.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+            } else if (servicemen.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        "No technicians yet. Add servicemen to use payroll.",
+                        modifier = Modifier.align(Alignment.Center).padding(24.dp)
+                    )
+                }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),

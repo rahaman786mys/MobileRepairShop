@@ -6,8 +6,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -23,31 +25,8 @@ import java.util.Locale
 
 class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
 
-    private var downloadUrl: String = ""
-    private var targetVersionCode: Int = 0
-    private var downloadFile: java.io.File? = null
-
-    private lateinit var progressBar: ProgressBar
-    private lateinit var tvProgress: TextView
-    private lateinit var tvFailed: TextView
-    private lateinit var btnUpdateNow: Button
-    private lateinit var btnLater: Button
-    private lateinit var btnRetry: Button
-
-    private val installPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        downloadFile?.let { file ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-                !requireContext().packageManager.canRequestPackageInstalls()
-            ) {
-                return@registerForActivityResult
-            }
-            UpdateManager.installApk(requireContext(), file)
-        }
-    }
-
     companion object {
+        private const val TAG = "UpdateBottomSheet"
         private const val ARG_VERSION_NAME = "version_name"
         private const val ARG_CURRENT_VERSION = "current_version"
         private const val ARG_RELEASE_NOTES = "release_notes"
@@ -78,27 +57,60 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         }
     }
 
+    private var downloadUrl: String = ""
+    private var targetVersionCode: Int = 0
+    private var downloadFile: java.io.File? = null
+    private var forceUpdate = false
+
+    private lateinit var progressBar: ProgressBar
+    private lateinit var tvProgress: TextView
+    private lateinit var tvFailed: TextView
+    private lateinit var btnUpdateNow: Button
+    private lateinit var btnLater: Button
+    private lateinit var btnRetry: Button
+
+    private val installPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        downloadFile?.let { file ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                !requireContext().packageManager.canRequestPackageInstalls()
+            ) {
+                return@registerForActivityResult
+            }
+            UpdateManager.installApk(requireContext(), file)
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate savedInstanceState=$savedInstanceState")
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        Log.d(TAG, "onCreateDialog building dialog")
         val ctx = requireContext()
         val args = requireArguments()
         val versionName = args.getString(ARG_VERSION_NAME, "?")
         val currentVersion = args.getString(ARG_CURRENT_VERSION, "?")
         val notes = args.getString(ARG_RELEASE_NOTES, "")
         val sizeBytes = args.getLong(ARG_SIZE_BYTES, 0)
-        val forceUpdate = args.getBoolean(ARG_FORCE_UPDATE, false)
+        forceUpdate = args.getBoolean(ARG_FORCE_UPDATE, false)
         downloadUrl = args.getString(ARG_DOWNLOAD_URL, "") ?: ""
         targetVersionCode = args.getInt(ARG_VERSION_CODE)
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(48, 48, 48, 48)
+            setBackgroundColor(0xFF0B1120.toInt())
         }
 
         val versionText = TextView(ctx).apply {
-            text = "v$currentVersion → v$versionName"
+            text = "v$currentVersion \u2192 v$versionName"
             textSize = 18f
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             gravity = Gravity.CENTER
+            setTextColor(0xFFF1F5F9.toInt())
         }
         root.addView(versionText, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -112,6 +124,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             visibility = if (sizeBytes > 0) View.VISIBLE else View.GONE
             gravity = Gravity.CENTER
             textSize = 13f
+            setTextColor(0xFFCBD5E1.toInt())
         }
         root.addView(sizeText, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -122,6 +135,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             text = "What's New"
             textSize = 13f
             setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setTextColor(0xFFF1F5F9.toInt())
         }
         root.addView(notesTitle, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -135,6 +149,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             setLineSpacing(3f, 1f)
             setBackgroundColor(0x1AFFFFFF.toInt())
             setPadding(28, 28, 28, 28)
+            setTextColor(0xFFE2E8F0.toInt())
         }
         root.addView(notesText, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -145,6 +160,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             max = 100
             progress = 0
             visibility = View.GONE
+            progressDrawable?.setTint(0xFF3B82F6.toInt())
         }
         root.addView(progressBar, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -154,6 +170,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         tvProgress = TextView(ctx).apply {
             visibility = View.GONE
             textSize = 12f
+            setTextColor(0xFFCBD5E1.toInt())
         }
         root.addView(tvProgress, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -216,13 +233,23 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             startDownload()
         }
 
-        return MaterialAlertDialogBuilder(ctx, R.style.ThemeOverlay_MuZZu_BottomSheet)
+        val dialog = MaterialAlertDialogBuilder(ctx, R.style.ThemeOverlay_MuZZu_BottomSheet)
             .setView(root)
             .create()
-            .also {
-                it.setCanceledOnTouchOutside(!forceUpdate)
-                it.setCancelable(!forceUpdate)
-            }
+        Log.d(TAG, "onCreateDialog dialog created forceUpdate=$forceUpdate")
+        dialog.setCanceledOnTouchOutside(!forceUpdate)
+        dialog.setCancelable(!forceUpdate)
+        Log.d(TAG, "onCreateDialog dialog window=${dialog.window}")
+        return dialog
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart dialog=${dialog}")
+        dialog?.window?.apply {
+            setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+            setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        }
     }
 
     private fun formatReleaseNotes(raw: String): String {
@@ -232,8 +259,8 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             .trim()
         if (cleaned.isEmpty()) return getString(R.string.update_no_notes)
         return cleaned.split("\n").joinToString("\n") { line ->
-            line.trim().removePrefix("-").removePrefix("•").trim().let {
-                if (it.isEmpty()) "" else "• $it"
+            line.trim().removePrefix("-").removePrefix("\u2022").trim().let {
+                if (it.isEmpty()) "" else "\u2022 $it"
             }
         }.trim()
     }

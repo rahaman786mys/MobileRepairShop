@@ -11,47 +11,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Premium Header -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvWorkshopTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="MuZZu Tech"
-                    style="@style/TextAppearance.MuZZu.Display" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Workshop Overview"
-                    style="@style/TextAppearance.MuZZu.Label"
-                    android:layout_marginTop="2dp" />
-            </LinearLayout>
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivSearch"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:src="@android:drawable/ic_menu_search"
-                android:padding="10dp"
-                android:background="@drawable/bg_circle_sunken"
-                app:tint="@color/muzzu_primary"
-                android:clickable="true"
-                android:focusable="true" />
-        </LinearLayout>
-
         <!-- Stats Grid (Unified) -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
