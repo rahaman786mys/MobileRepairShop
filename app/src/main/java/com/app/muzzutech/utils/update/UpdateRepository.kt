@@ -14,7 +14,8 @@ data class VersionInfo(
     val versionName: String,
     val downloadUrl: String,
     val releaseNotes: String,
-    val sizeBytes: Long? = null
+    val sizeBytes: Long? = null,
+    val forceUpdate: Boolean = false
 ) {
     val hasSize: Boolean get() = sizeBytes != null && sizeBytes > 0
 }
@@ -118,8 +119,12 @@ class UpdateRepository(private val context: Context) {
                 val body = response.body?.string() ?: return@withContext Result.failure(IOException("GitHub API empty body"))
                 val json = gson.fromJson(body, Map::class.java)
                 val tagName = (json["tag_name"] as? String) ?: return@withContext Result.success(null)
-                val semver = tagName.removePrefix("v").removePrefix("V")
-                val parts = semver.split(".")
+                val sanitized = tagName
+                    .removePrefix("v")
+                    .removePrefix("V")
+                    .split("-")
+                    .first()
+                val parts = sanitized.split(".")
                 val versionCode =
                     (parts.getOrNull(0)?.toIntOrNull() ?: 0) * 1000000 +
                             (parts.getOrNull(1)?.toIntOrNull() ?: 0) * 1000 +

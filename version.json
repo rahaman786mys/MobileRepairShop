@@ -1,6 +1,7 @@
 {
-  "versionCode": 24,
-  "versionName": "1.5.6",
-  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-MuZZu-release.apk",
-  "releaseNotes": "• CRITICAL: Fixed APK signing issue (App will now install correctly)\n• STABILITY: Version 1.5.6 with full Tally-style features\n• FIXED: Photo persistence and profile editing verified"
+  "versionCode": 25,
+  "versionName": "1.5.7",
+  "releaseNotes": "What's New in v1.5.7:\n• Fixed supplier transaction orphan bug (sale accounting)\n• Fixed duplicate payroll expense records\n• Fixed part return refund not recording cash-in\n• Fixed zero-advance incorrectly linking transactions\n• Fixed AI Advisor overcounting restock costs\n• Fixed unpaid expenses counted as cash loss\n• Added real-time update progress bar\n• Added What's New screen after updates\n• Improved supplier, customer and dealer balance accuracy\n• 12 financial accounting bugs fixed\n• 20,000+ automated test scenarios passing",
+  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.7/app-release.apk",
+  "forceUpdate": false
 }

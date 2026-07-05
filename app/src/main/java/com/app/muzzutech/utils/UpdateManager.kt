@@ -55,6 +55,7 @@ object UpdateManager {
             sizeBytes = info.sizeBytes,
             downloadUrl = info.downloadUrl,
             versionCode = info.versionCode,
+            forceUpdate = info.forceUpdate,
           )
           .also { sheet ->
             sheet.show(activity.supportFragmentManager, "update_sheet")
@@ -80,6 +81,7 @@ object UpdateManager {
               sizeBytes = info.sizeBytes,
               downloadUrl = info.downloadUrl,
               versionCode = info.versionCode,
+              forceUpdate = info.forceUpdate,
             )
             .also { sheet ->
               sheet.show(activity.supportFragmentManager, "update_sheet")

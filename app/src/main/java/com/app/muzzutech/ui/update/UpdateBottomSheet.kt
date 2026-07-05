@@ -54,6 +54,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         private const val ARG_SIZE_BYTES = "size_bytes"
         private const val ARG_DOWNLOAD_URL = "download_url"
         private const val ARG_VERSION_CODE = "version_code"
+        private const val ARG_FORCE_UPDATE = "force_update"
 
         fun newInstance(
             versionName: String,
@@ -61,7 +62,8 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             releaseNotes: String,
             sizeBytes: Long?,
             downloadUrl: String,
-            versionCode: Int
+            versionCode: Int,
+            forceUpdate: Boolean = false
         ): UpdateBottomSheet {
             val args = Bundle().apply {
                 putString(ARG_VERSION_NAME, versionName)
@@ -70,6 +72,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
                 putLong(ARG_SIZE_BYTES, sizeBytes ?: 0)
                 putString(ARG_DOWNLOAD_URL, downloadUrl)
                 putInt(ARG_VERSION_CODE, versionCode)
+                putBoolean(ARG_FORCE_UPDATE, forceUpdate)
             }
             return UpdateBottomSheet().apply { arguments = args }
         }
@@ -82,6 +85,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         val currentVersion = args.getString(ARG_CURRENT_VERSION, "?")
         val notes = args.getString(ARG_RELEASE_NOTES, "")
         val sizeBytes = args.getLong(ARG_SIZE_BYTES, 0)
+        val forceUpdate = args.getBoolean(ARG_FORCE_UPDATE, false)
         downloadUrl = args.getString(ARG_DOWNLOAD_URL, "") ?: ""
         targetVersionCode = args.getInt(ARG_VERSION_CODE)
 
@@ -168,7 +172,10 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
 
         val btnRow = LinearLayout(ctx).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.END }
 
-        btnLater = Button(ctx).apply { text = "Later" }
+        btnLater = Button(ctx).apply {
+            text = "Later"
+            visibility = if (forceUpdate) View.GONE else View.VISIBLE
+        }
         btnUpdateNow = Button(ctx).apply { text = "Update Now" }
         btnRetry = Button(ctx).apply {
             text = "Retry"
@@ -212,7 +219,10 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         return MaterialAlertDialogBuilder(ctx, R.style.ThemeOverlay_MuZZu_BottomSheet)
             .setView(root)
             .create()
-            .also { it.setCanceledOnTouchOutside(true) }
+            .also {
+                it.setCanceledOnTouchOutside(!forceUpdate)
+                it.setCancelable(!forceUpdate)
+            }
     }
 
     private fun formatReleaseNotes(raw: String): String {
