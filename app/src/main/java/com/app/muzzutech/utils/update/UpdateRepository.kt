@@ -95,15 +95,13 @@ class UpdateRepository(private val context: Context) {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withContext Result.success(null)
-                val body = response.body?.string() ?: return@withContext Result.success(null)
+                if (!response.isSuccessful) return@withContext Result.failure(IOException("version.json HTTP ${response.code}"))
+                val body = response.body?.string() ?: return@withContext Result.failure(IOException("version.json empty body"))
                 val info = gson.fromJson(body, VersionInfo::class.java)
                 Result.success(info)
             }
-        } catch (e: IOException) {
-            Result.success(null)
         } catch (e: Exception) {
-            Result.success(null)
+            Result.failure(e)
         }
     }
 
@@ -116,21 +114,25 @@ class UpdateRepository(private val context: Context) {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withContext Result.success(null)
-                val body = response.body?.string() ?: return@withContext Result.success(null)
+                if (!response.isSuccessful) return@withContext Result.failure(IOException("GitHub API HTTP ${response.code}"))
+                val body = response.body?.string() ?: return@withContext Result.failure(IOException("GitHub API empty body"))
                 val json = gson.fromJson(body, Map::class.java)
                 val tagName = (json["tag_name"] as? String) ?: return@withContext Result.success(null)
-                val versionCode = tagName.filter { it.isDigit() || it == '.' }
+                val semver = tagName.removePrefix("v").removePrefix("V")
+                val parts = semver.split(".")
+                val versionCode =
+                    (parts.getOrNull(0)?.toIntOrNull() ?: 0) * 1000000 +
+                            (parts.getOrNull(1)?.toIntOrNull() ?: 0) * 1000 +
+                            (parts.getOrNull(2)?.toIntOrNull() ?: 0)
+                val vName = tagName.removePrefix("v")
                 val releaseNotes = (json["body"] as? String) ?: ""
-                val htmlUrl = (json["html_url"] as? String) ?: ""
                 val assetList = json["assets"] as? List<Map<String, Any>>
                 val size = assetList?.firstOrNull()?.get("size") as? Double
                 val downloadUrl = assetList?.firstOrNull()?.get("browser_download_url") as? String
                     ?: "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-release.apk"
-                val vName = tagName.removePrefix("v")
                 Result.success(
                     VersionInfo(
-                        versionCode = versionCode.hashCode(),
+                        versionCode = versionCode,
                         versionName = vName,
                         downloadUrl = downloadUrl,
                         releaseNotes = releaseNotes,
