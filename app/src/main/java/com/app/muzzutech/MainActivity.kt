@@ -12,6 +12,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.app.muzzutech.databinding.ActivityMainBinding
 import com.app.muzzutech.utils.UpdateManager
+import com.app.muzzutech.utils.update.UpdateRepository
+import com.app.muzzutech.ui.update.WhatsNewFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         UpdateManager.checkForUpdates(this)
+        checkForWhatIsNew()
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as? NavHostFragment ?: return
@@ -35,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-        val prefs = getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
+        val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
         prefs.edit().putBoolean("is_logged_in", true).apply()
 
         val navDest = intent.getStringExtra(EXTRA_NAV_DEST)
@@ -87,6 +90,42 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkForWhatIsNew() {
+        val repo = UpdateRepository(this)
+        if (!repo.shouldShowWhatsNew()) return
+        val versionName = repo.getCurrentVersionName()
+        val versionCode = repo.getCurrentVersionCode()
+        repo.markWhatsNewShown()
+
+        val bundle = android.os.Bundle().apply {
+            putString("version_name", versionName)
+            putInt("version_code", versionCode)
+            putString("release_notes", "")
+        }
+
+        supportFragmentManager.beginTransaction()
+            .replace(android.R.id.content, WhatsNewFragment::class.java, bundle)
+            .addToBackStack("whats_new")
+            .commitAllowingStateLoss()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra("show_update_dialog", false)) {
+            UpdateManager.handleNotificationIntent(this, intent)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val intent = intent
+        if (intent.getBooleanExtra("show_update_dialog", false)) {
+            UpdateManager.handleNotificationIntent(this, intent)
+            intent.removeExtra("show_update_dialog")
+        }
+    }
+
     private fun commitPendingNav(navController: androidx.navigation.NavController) {
         val destId = pendingNavDestId ?: return
         pendingNavDestId = null
@@ -103,50 +142,19 @@ class MainActivity : AppCompatActivity() {
         return findNavController(R.id.nav_host_fragment).navigateUp()
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-        val navDest = intent.getStringExtra(EXTRA_NAV_DEST)
-        if (navDest != null) {
-            val navHostFragment = supportFragmentManager
-                .findFragmentById(R.id.nav_host_fragment) as? NavHostFragment ?: return
-            val destId = navDest.toDestId()
-            if (destId != null) {
-                pendingNavDestId = destId
-                supportFragmentManager.registerFragmentLifecycleCallbacks(
-                    object : FragmentManager.FragmentLifecycleCallbacks() {
-                        override fun onFragmentViewCreated(
-                            fm: FragmentManager,
-                            fragment: Fragment,
-                            view: View,
-                            savedInstanceState: Bundle?
-                        ) {
-                            super.onFragmentViewCreated(fm, fragment, view, savedInstanceState)
-                            if (fragment === navHostFragment) {
-                                fm.unregisterFragmentLifecycleCallbacks(this)
-                                view.post { commitPendingNav(navHostFragment.navController) }
-                            }
-                        }
-                    }, false
-                )
-            }
-        }
+    private fun String.toDestId(): Int? = when (this) {
+        TestLauncherActivity.DEST_ENTRY -> R.id.entryFragment
+        TestLauncherActivity.DEST_SALE -> R.id.saleFragment
+        TestLauncherActivity.DEST_DUES -> R.id.duesFragment
+        TestLauncherActivity.DEST_REPORTS -> R.id.reportsFragment
+        TestLauncherActivity.DEST_MORE -> R.id.moreFragment
+        TestLauncherActivity.DEST_PAYROLL -> R.id.payrollFragment
+        TestLauncherActivity.DEST_EXPENSES -> R.id.expensesFragment
+        TestLauncherActivity.DEST_SUPPLIERS -> R.id.supplierListFragment
+        TestLauncherActivity.DEST_CUSTOMERS -> R.id.customerListFragment
+        TestLauncherActivity.DEST_FAULTS -> R.id.commonFaultsFragment
+        TestLauncherActivity.DEST_INVENTORY -> R.id.inventoryFragment
+        TestLauncherActivity.DEST_PROFILE -> R.id.profileFragment
+        else -> null
     }
 }
-
-private fun String.toDestId(): Int? = when (this) {
-    TestLauncherActivity.DEST_ENTRY -> R.id.entryFragment
-    TestLauncherActivity.DEST_SALE -> R.id.saleFragment
-    TestLauncherActivity.DEST_DUES -> R.id.duesFragment
-    TestLauncherActivity.DEST_REPORTS -> R.id.reportsFragment
-    TestLauncherActivity.DEST_MORE -> R.id.moreFragment
-    TestLauncherActivity.DEST_PAYROLL -> R.id.payrollFragment
-    TestLauncherActivity.DEST_EXPENSES -> R.id.expensesFragment
-    TestLauncherActivity.DEST_SUPPLIERS -> R.id.supplierListFragment
-    TestLauncherActivity.DEST_CUSTOMERS -> R.id.customerListFragment
-    TestLauncherActivity.DEST_FAULTS -> R.id.commonFaultsFragment
-    TestLauncherActivity.DEST_INVENTORY -> R.id.inventoryFragment
-    TestLauncherActivity.DEST_PROFILE -> R.id.profileFragment
-    else -> null
-}
-

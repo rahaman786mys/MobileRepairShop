@@ -6,6 +6,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.app.muzzutech.work.UpdateWorker
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -19,9 +20,10 @@ import java.util.concurrent.TimeUnit
  */
 object AppScheduler {
 
-    private const val WORK_REORDER_DAILY = "reorder_daily_alert"
-    private const val WORK_SALARY_MONTHLY = "salary_monthly_reminder"
-    private const val WORK_LEDGER_AUDIT = "ledger_daily_audit"
+private const val WORK_REORDER_DAILY = "reorder_daily_alert"
+private const val WORK_SALARY_MONTHLY = "salary_monthly_reminder"
+private const val WORK_LEDGER_AUDIT = "ledger_daily_audit"
+private const val WORK_APP_UPDATE = "app_update_check"
 
     fun enqueueDailyJobs(context: Context) {
         val wm = WorkManager.getInstance(context)
@@ -59,8 +61,24 @@ object AppScheduler {
             salaryRequest
         )
 
-        // Nightly ledger audit — runs once per day, reconciles books
-        val auditRequest = PeriodicWorkRequestBuilder<LedgerAuditWorker>(1, TimeUnit.DAYS)
+    // App update check — runs once per day
+    val updateRequest = PeriodicWorkRequestBuilder<UpdateWorker>(1, TimeUnit.DAYS)
+        .setConstraints(
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build()
+        )
+        .setInitialDelay(60, TimeUnit.MINUTES)
+        .build()
+    wm.enqueueUniquePeriodicWork(
+        WORK_APP_UPDATE,
+        ExistingPeriodicWorkPolicy.KEEP,
+        updateRequest
+    )
+
+    // Nightly ledger audit — runs once per day, reconciles books
+    val auditRequest = PeriodicWorkRequestBuilder<LedgerAuditWorker>(1, TimeUnit.DAYS)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiresBatteryNotLow(true)

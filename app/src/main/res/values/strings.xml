@@ -149,4 +149,9 @@
     <string name="take_photo">Take Photo</string>
     <string name="gallery">Gallery</string>
     <string name="select">Select</string>
+    <string name="update_no_notes">No release notes available for this update.</string>
+    <string name="download_failed_short">Download failed: %s</string>
+    <string name="download_in_progress">Downloading…</string>
+    <string name="install_now_action">Install Now</string>
+    <string name="update_installing">Installing update…</string>
 </resources>

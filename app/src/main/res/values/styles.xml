@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ThemeOverlay.MuZZu.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.MuZZu.BottomSheet</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MuZZu.BottomSheet</item>
+        <item name="colorSurface">@color/muzzu_surface</item>
+        <item name="colorPrimary">@color/muzzu_accent</item>
+    </style>
+
+    <style name="Widget.MuZZu.BottomSheet" parent="Widget.Material3.BottomSheet">
+        <item name="shapeAppearance">@style/ShapeAppearance.MuZZu.BottomSheet</item>
+    </style>
+
+    <style name="ShapeAppearance.MuZZu.BottomSheet" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+</resources>

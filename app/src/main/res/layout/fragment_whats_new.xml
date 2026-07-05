@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/muzzu_bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="32dp">
+
+        <!-- Icon -->
+        <ImageView
+            android:id="@+id/iconContainer"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@android:drawable/ic_dialog_info"
+            android:tint="@color/muzzu_accent"
+            android:layout_marginTop="48dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Version label -->
+        <TextView
+            android:id="@+id/tvVersionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="v1.6.0"
+            android:textSize="14sp"
+            android:textColor="@color/muzzu_accent"
+            android:layout_marginBottom="4dp" />
+
+        <!-- Headline -->
+        <TextView
+            android:id="@+id/tvWhatsNewVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="What's New"
+            style="@style/TextAppearance.MuZZu.Heading"
+            android:textSize="28sp"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Version card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/versionCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MuZZu.Card"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:text="Just Updated!"
+                    android:textSize="16sp"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="?attr/colorOnPrimaryContainer"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="• Feature 1\n• Feature 2"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="3dp"
+                    android:textColor="?attr/colorOnPrimaryContainer" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- CTA Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLetsGo"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="Let's Go!"
+            style="@style/Widget.MuZZu.Button"
+            android:layout_marginTop="24dp"
+            app:icon="@android:drawable/ic_menu_send"
+            app:iconGravity="textStart" />
+
+    </LinearLayout>
+</ScrollView>
