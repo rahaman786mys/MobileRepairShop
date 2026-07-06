@@ -48,4 +48,6 @@
     <color name="grey_500">#8C959F</color>
     <color name="grey_200">#D0D7DE</color>
     <color name="card_bg_green">#E6FFED</color>
+    <color name="card_alert_bg">#1AF85149</color>
+    <color name="card_action_bg">#1A2F81F7</color>
 </resources>

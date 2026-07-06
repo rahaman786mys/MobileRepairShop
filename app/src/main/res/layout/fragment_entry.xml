@@ -205,6 +205,7 @@
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_plus_premium"
                             android:padding="40dp"
+                            android:contentDescription="Device photo 1"
                             app:tint="@color/muzzu_border" />
                     </com.google.android.material.card.MaterialCardView>
 
@@ -224,6 +225,7 @@
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_plus_premium"
                             android:padding="40dp"
+                            android:contentDescription="Device photo 2"
                             app:tint="@color/muzzu_border" />
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>

@@ -103,6 +103,7 @@
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_plus_premium"
                             android:padding="60dp"
+                            android:contentDescription="Inspection photo"
                             app:tint="@color/muzzu_border" />
                     </com.google.android.material.card.MaterialCardView>
 
@@ -112,6 +113,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="Capture Photo"
+                        android:contentDescription="Capture inspection photo"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:textAllCaps="false" />
 
@@ -134,7 +136,7 @@
                         android:visibility="gone"
                         android:padding="16dp"
                         android:background="@drawable/bg_gradient_advisor"
-                        android:textColor="#B0C4DE"
+                        android:textColor="@color/muzzu_text_on_dark"
                         style="@style/TextAppearance.MuZZu.Caption"
                         android:lineHeight="18sp" />
 

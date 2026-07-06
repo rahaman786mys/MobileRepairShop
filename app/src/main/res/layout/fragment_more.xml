@@ -373,6 +373,7 @@
                         android:layout_height="32dp"
                         android:background="@android:color/transparent"
                         android:src="@android:drawable/ic_menu_rotate"
+                        android:contentDescription="Sync now"
                         app:tint="@color/muzzu_accent" />
                 </LinearLayout>
 

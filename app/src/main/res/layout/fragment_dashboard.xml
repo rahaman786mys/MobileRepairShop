@@ -200,7 +200,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="#1AF85149"
+                app:cardBackgroundColor="@color/card_alert_bg"
                 app:strokeColor="@color/muzzu_error"
                 style="@style/Widget.MuZZu.Card">
                 <LinearLayout
@@ -293,8 +293,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Balance is good. Consider upselling tempered glass."
-                            android:textColor="#B0C4DE"
+                    android:text="Balance is good. Consider upselling tempered glass."
+                    android:textColor="@color/muzzu_text_on_dark"
                             style="@style/TextAppearance.MuZZu.Caption"
                             android:lineHeight="16sp"
                             android:includeFontPadding="false"
@@ -333,7 +333,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#1A2F81F7"
+                    app:cardBackgroundColor="@color/card_action_bg"
                     app:strokeWidth="0dp"
                     style="@style/Widget.MuZZu.Card">
                     <LinearLayout
@@ -368,7 +368,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#1A2F81F7"
+                    app:cardBackgroundColor="@color/card_action_bg"
                     app:strokeWidth="0dp"
                     style="@style/Widget.MuZZu.Card">
                     <LinearLayout
@@ -403,7 +403,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#1A2F81F7"
+                    app:cardBackgroundColor="@color/card_action_bg"
                     app:strokeWidth="0dp"
                     style="@style/Widget.MuZZu.Card">
                     <LinearLayout
@@ -438,7 +438,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#1A2F81F7"
+                    app:cardBackgroundColor="@color/card_action_bg"
                     app:strokeWidth="0dp"
                     style="@style/Widget.MuZZu.Card">
                     <LinearLayout
@@ -473,7 +473,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#1A2F81F7"
+                    app:cardBackgroundColor="@color/card_action_bg"
                     app:strokeWidth="0dp"
                     style="@style/Widget.MuZZu.Card">
                     <LinearLayout
@@ -508,7 +508,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#1A2F81F7"
+                    app:cardBackgroundColor="@color/card_action_bg"
                     app:strokeWidth="0dp"
                     style="@style/Widget.MuZZu.Card">
                     <LinearLayout
@@ -543,7 +543,7 @@
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    app:cardBackgroundColor="#1A2F81F7"
+                    app:cardBackgroundColor="@color/card_action_bg"
                     app:strokeWidth="0dp"
                     style="@style/Widget.MuZZu.Card">
                     <LinearLayout

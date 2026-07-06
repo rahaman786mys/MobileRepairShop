@@ -16,6 +16,7 @@
         android:background="@drawable/bg_circle_sunken"
         android:padding="16dp"
         android:src="@drawable/ic_service_premium"
+        android:contentDescription="MuZZu Tech logo"
         app:tint="@color/muzzu_accent"
         android:layout_marginBottom="24dp"/>
 

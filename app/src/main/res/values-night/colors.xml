@@ -43,5 +43,7 @@
     <color name="gradient_end">#0D1117</color>
     <color name="grey_500">#484F58</color>
     <color name="grey_200">#30363D</color>
-    <color name="card_bg_green">#161B22</color>
+    <color name="card_bg_green">#1A3FB950</color>
+    <color name="card_alert_bg">#33F85149</color>
+    <color name="card_action_bg">#332F81F7</color>
 </resources>
