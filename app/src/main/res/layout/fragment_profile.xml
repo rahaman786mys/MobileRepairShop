@@ -153,14 +153,14 @@ android:id="@+id/btnSaveProfile"
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Backup & Sync Card -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Data Backup &amp; Sync"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Data Backup &amp; Sync"
+                android:textColor="@color/muzzu_text_main"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -181,7 +181,7 @@ android:id="@+id/btnSaveProfile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Last Sync: Never"
-                    android:textColor="@color/black"
+                    android:textColor="@color/muzzu_text_main"
                     android:textStyle="bold"
                     android:textSize="14sp" />
 
@@ -211,7 +211,7 @@ android:id="@+id/btnSaveProfile"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="@string/app_settings"
-            android:textColor="@color/black"
+            android:textColor="@color/muzzu_text_main"
             android:textSize="16sp"
             android:textStyle="bold" />
 
