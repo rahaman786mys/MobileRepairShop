@@ -154,4 +154,5 @@
     <string name="download_in_progress">Downloading…</string>
     <string name="install_now_action">Install Now</string>
     <string name="update_installing">Installing update…</string>
+    <string name="dark_mode">Dark Mode</string>
 </resources>

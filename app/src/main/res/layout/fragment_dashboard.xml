@@ -4,14 +4,12 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/muzzu_bg"
-    android:fitsSystemWindows="true">
+    android:background="@color/muzzu_bg">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="80dp">
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,7 +21,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:paddingStart="8dp"
                 android:text="TODAY'S OVERVIEW"
                 style="@style/TextAppearance.MuZZu.Label"
@@ -48,22 +46,31 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="12dp">
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="PROFIT"
                             style="@style/TextAppearance.MuZZu.Caption"
-                            android:textAllCaps="true" />
+                            android:textAllCaps="true"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                         <TextView
                             android:id="@+id/tvTodayProfit"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="₹ 0"
                             android:textColor="@color/muzzu_success"
-                            style="@style/TextAppearance.MuZZu.Display"
-                            android:textSize="24sp" />
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -79,22 +86,31 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="12dp">
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="REVENUE"
                             style="@style/TextAppearance.MuZZu.Caption"
-                            android:textAllCaps="true" />
+                            android:textAllCaps="true"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                         <TextView
                             android:id="@+id/tvTodayInvest"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="₹ 0"
                             android:textColor="@color/muzzu_primary"
-                            style="@style/TextAppearance.MuZZu.Display"
-                            android:textSize="24sp" />
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -109,22 +125,31 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="12dp">
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="PENDING"
                             style="@style/TextAppearance.MuZZu.Caption"
-                            android:textAllCaps="true" />
+                            android:textAllCaps="true"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                         <TextView
                             android:id="@+id/tvPendingCount"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="0"
                             android:textColor="@color/muzzu_warning"
-                            style="@style/TextAppearance.MuZZu.Display"
-                            android:textSize="24sp" />
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -139,22 +164,31 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="12dp">
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="TOTAL DUES"
                             style="@style/TextAppearance.MuZZu.Caption"
-                            android:textAllCaps="true" />
+                            android:textAllCaps="true"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                         <TextView
                             android:id="@+id/tvCustomerDuesTotal"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="₹ 0"
                             android:textColor="@color/muzzu_error"
-                            style="@style/TextAppearance.MuZZu.Display"
-                            android:textSize="24sp" />
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </GridLayout>
@@ -164,7 +198,7 @@
                 android:id="@+id/cardLedgerAlert"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="#1AF85149"
                 app:strokeColor="@color/muzzu_error"
@@ -183,7 +217,10 @@
                         android:text="Ledger mismatch detected!"
                         style="@style/TextAppearance.MuZZu.Body"
                         android:textColor="@color/muzzu_error"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewLedgerAlerts"
                         android:layout_width="wrap_content"
@@ -199,7 +236,7 @@
                 android:id="@+id/cardAiAdvisor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginHorizontal="4dp"
                 app:cardBackgroundColor="@color/transparent"
                 app:strokeWidth="0dp"
@@ -247,16 +284,22 @@
                             android:layout_height="wrap_content"
                             android:text="Steady Growth"
                             android:textColor="@color/white"
-                            style="@style/TextAppearance.MuZZu.Title" />
+                            style="@style/TextAppearance.MuZZu.Title"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                         <TextView
                             android:id="@+id/tvAiRecommendation"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="Balance is good. Consider upselling tempered glass."
                             android:textColor="#B0C4DE"
                             style="@style/TextAppearance.MuZZu.Caption"
-                            android:lineHeight="16sp" />
+                            android:lineHeight="16sp"
+                            android:includeFontPadding="false"
+                            android:maxLines="3"
+                            android:ellipsize="end" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -265,12 +308,15 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="12dp"
                 android:paddingStart="8dp"
                 android:text="QUICK ACTIONS"
                 style="@style/TextAppearance.MuZZu.Label"
-                android:background="@drawable/bg_border_left_accent" />
+                android:background="@drawable/bg_border_left_accent"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <!-- Quick Action Grid -->
             <GridLayout
@@ -302,13 +348,16 @@
                             android:src="@drawable/ic_plus_premium"
                             app:tint="@color/muzzu_accent" />
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="New Entry"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/muzzu_text_sub"
+                            android:textStyle="bold"
                             style="@style/TextAppearance.MuZZu.Label"
-                            android:textSize="11sp" />
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:gravity="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -334,13 +383,16 @@
                             android:src="@drawable/ic_workflow_premium"
                             app:tint="@color/muzzu_accent" />
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Active Jobs"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/muzzu_text_sub"
+                            android:textStyle="bold"
                             style="@style/TextAppearance.MuZZu.Label"
-                            android:textSize="11sp" />
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:gravity="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -366,13 +418,16 @@
                             android:src="@drawable/ic_sales_premium"
                             app:tint="@color/muzzu_accent" />
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Direct Sales"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/muzzu_text_sub"
-                            style="@style/TextAppearance.MuZZu.Label"
-                            android:textSize="11sp" />
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:gravity="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -398,13 +453,16 @@
                             android:src="@drawable/ic_dues_premium"
                             app:tint="@color/muzzu_accent" />
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Dues"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/muzzu_text_sub"
-                            style="@style/TextAppearance.MuZZu.Label"
-                            android:textSize="11sp" />
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:gravity="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -430,13 +488,16 @@
                             android:src="@drawable/ic_suppliers_premium"
                             app:tint="@color/muzzu_accent" />
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Suppliers"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/muzzu_text_sub"
-                            style="@style/TextAppearance.MuZZu.Label"
-                            android:textSize="11sp" />
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:gravity="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -462,13 +523,16 @@
                             android:src="@drawable/ic_chart_premium"
                             app:tint="@color/muzzu_accent" />
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Reports"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/muzzu_text_sub"
-                            style="@style/TextAppearance.MuZZu.Label"
-                            android:textSize="11sp" />
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:gravity="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -494,13 +558,16 @@
                             android:src="@drawable/ic_more_premium"
                             app:tint="@color/muzzu_accent" />
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="More"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/muzzu_text_sub"
-                            style="@style/TextAppearance.MuZZu.Label"
-                            android:textSize="11sp" />
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:gravity="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </GridLayout>
@@ -510,7 +577,7 @@
                 android:id="@+id/cardMissingInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:visibility="gone"
                 app:cardBackgroundColor="#1AF85149"
                 app:strokeColor="@color/muzzu_error"
@@ -528,7 +595,10 @@
                         android:text="Shop profile incomplete"
                         style="@style/TextAppearance.MuZZu.Body"
                         android:textColor="@color/muzzu_error"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:includeFontPadding="false"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnFixMissingInfo"
                         android:layout_width="wrap_content"
