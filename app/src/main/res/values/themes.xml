@@ -97,11 +97,11 @@
     <!-- Bottom Nav Styles -->
     <style name="BottomNavText" parent="TextAppearance.Material3.LabelMedium" />
     <style name="BottomNavText.Active">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">11sp</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="BottomNavText.Inactive">
-        <item name="android:textSize">11sp</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:textStyle">normal</item>
     </style>
 
