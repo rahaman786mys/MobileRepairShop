@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -32,21 +35,25 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.muzzutech.data.model.ServiceMan
+import com.app.muzzutech.ui.compose.DarkBorder
+import com.app.muzzutech.ui.compose.ErrorRed
 import com.app.muzzutech.ui.compose.MuzzuTheme
+import com.app.muzzutech.ui.compose.SuccessGreen
+import com.app.muzzutech.ui.compose.WarningAmber
 import com.app.muzzutech.ui.compose.composeView
 import com.app.muzzutech.utils.DateUtils
 import com.app.muzzutech.utils.PriceUtils
@@ -77,43 +84,49 @@ private fun PayrollScreen(vm: PayrollViewModel) {
     val salaries by vm.salaryPayments.collectAsStateWithLifecycle()
     val busy by vm.busy.collectAsStateWithLifecycle()
 
-    Scaffold { padding ->
+    Scaffold(
+        containerColor = Color.Transparent
+    ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             // Month Picker
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(onClick = { vm.previousMonth() }) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
+                    Icon(Icons.Default.ChevronLeft, contentDescription = "Prev", tint = MaterialTheme.colorScheme.primary)
                 }
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    DateUtils.formatMonth(monthStart),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    DateUtils.formatMonth(monthStart).uppercase(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.sp
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = { vm.nextMonth() }) {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
+                    Icon(Icons.Default.ChevronRight, contentDescription = "Next", tint = MaterialTheme.colorScheme.primary)
                 }
             }
 
             if (busy && servicemen.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = MaterialTheme.colorScheme.primary)
                 }
             } else if (servicemen.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Text(
-                        "No technicians yet. Add servicemen to use payroll.",
-                        modifier = Modifier.align(Alignment.Center).padding(24.dp)
+                        "No technicians registered.\nAdd staff in Master Records to manage payroll.",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
@@ -122,7 +135,13 @@ private fun PayrollScreen(vm: PayrollViewModel) {
                             totalPaid = salaries.values.sumOf { it.paidAmount },
                             totalDue = salaries.values.sumOf { it.dueAmount }
                         )
-                        Spacer(Modifier.height(4.dp))
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            "STAFF DISBURSEMENT",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
                     }
                     items(servicemen, key = { it.id }) { sm ->
                         PayrollTechCard(
@@ -131,7 +150,7 @@ private fun PayrollScreen(vm: PayrollViewModel) {
                             salary = salaries[sm.id]
                         )
                     }
-                    item { Spacer(Modifier.height(24.dp)) }
+                    item { Spacer(Modifier.height(40.dp)) }
                 }
             }
         }
@@ -142,37 +161,33 @@ private fun PayrollScreen(vm: PayrollViewModel) {
 private fun PayrollSummaryCard(totalSalary: Double, totalPaid: Double, totalDue: Double) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Monthly Payroll Summary", style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(12.dp))
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Total Salary", style = MaterialTheme.typography.labelMedium)
-                    Text(
-                        PriceUtils.formatPrice(totalSalary),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Paid", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    Text(
-                        PriceUtils.formatPrice(totalPaid),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Due", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error)
-                    Text(
-                        PriceUtils.formatPrice(totalDue),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text("Payroll Summary", style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                SummaryItem("TOTAL PAYABLE", totalSalary, MaterialTheme.colorScheme.onSurface)
+                SummaryItem("TOTAL PAID", totalPaid, SuccessGreen)
+                SummaryItem("TOTAL DUE", totalDue, ErrorRed)
             }
         }
+    }
+}
+
+@Composable
+private fun SummaryItem(label: String, amount: Double, color: Color) {
+    Column {
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            PriceUtils.formatPrice(amount),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = color,
+            modifier = Modifier.padding(top = 2.dp)
+        )
     }
 }
 
@@ -182,79 +197,72 @@ private fun PayrollTechCard(
     stats: PayrollViewModel.MonthStats?,
     salary: com.app.muzzutech.data.model.SalaryPayment?
 ) {
-    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder)
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        serviceman.name.firstOrNull()?.toString()?.take(1) ?: "?",
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        serviceman.name.firstOrNull()?.toString()?.uppercase() ?: "?",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(serviceman.name, fontWeight = FontWeight.SemiBold)
+                    Text(serviceman.name, style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "${serviceman.designation.ifBlank { "Technician" }} · ${serviceman.employeeId.ifBlank { "No ID" }}",
-                        style = MaterialTheme.typography.labelSmall
+                        "${serviceman.designation.ifBlank { "Technician" }} \u2022 ${serviceman.employeeId.ifBlank { "ID-N/A" }}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 attendanceBadge(stats?.workedDays ?: 0.0)
             }
 
-            Spacer(Modifier.height(12.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider(color = DarkBorder, thickness = 0.5.dp)
+            Spacer(Modifier.height(16.dp))
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Worked Days", style = MaterialTheme.typography.labelMedium)
-                    Text(
-                        "%.1f".format(stats?.workedDays ?: 0.0),
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Per Day", style = MaterialTheme.typography.labelMedium)
-                    val perDay = serviceman.perDaySalary.let {
-                        if (it > 0) it else serviceman.monthlySalary / 30.0
-                    }
-                    Text(PriceUtils.formatPrice(perDay), fontWeight = FontWeight.SemiBold)
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Computed", style = MaterialTheme.typography.labelMedium)
-                    Text(
-                        PriceUtils.formatPrice(salary?.computedAmount ?: PayrollMath.computePayable(
-                            serviceman.monthlySalary,
-                            serviceman.perDaySalary,
-                            stats?.workedDays ?: 0.0
-                        )),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                SummaryItemSmall("WORK DAYS", "%.1f".format(stats?.workedDays ?: 0.0))
+                val perDay = if (serviceman.perDaySalary > 0) serviceman.perDaySalary else serviceman.monthlySalary / 30.0
+                SummaryItemSmall("RATE/DAY", PriceUtils.formatPrice(perDay))
+                val computed = salary?.computedAmount ?: PayrollMath.computePayable(serviceman.monthlySalary, serviceman.perDaySalary, stats?.workedDays ?: 0.0)
+                SummaryItemSmall("COMPUTED", PriceUtils.formatPrice(computed), isBold = true)
             }
 
-            Spacer(Modifier.height(8.dp))
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Status", style = MaterialTheme.typography.labelMedium)
-                    val status = salary?.status ?: if ((stats?.workedDays ?: 0.0) > 0) "PENDING" else "—"
-                    Text(status, fontWeight = FontWeight.SemiBold, color = statusColor(status))
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Paid", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    Text(PriceUtils.formatPrice(salary?.paidAmount ?: 0.0), color = MaterialTheme.colorScheme.primary)
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Due", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error)
-                    Text(PriceUtils.formatPrice(salary?.dueAmount ?: (salary?.computedAmount ?: 0.0)), color = MaterialTheme.colorScheme.error)
+            Spacer(Modifier.height(12.dp))
+            
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    .padding(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val status = salary?.status ?: if ((stats?.workedDays ?: 0.0) > 0) "PENDING" else "NO WORK"
+                Text(status, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = statusColor(status))
+                
+                Row {
+                    Text("PAID ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(PriceUtils.formatPrice(salary?.paidAmount ?: 0.0), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(12.dp))
+                    Text("DUE ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(PriceUtils.formatPrice(salary?.dueAmount ?: (salary?.computedAmount ?: 0.0)), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ErrorRed)
                 }
             }
         }
@@ -262,25 +270,39 @@ private fun PayrollTechCard(
 }
 
 @Composable
+private fun SummaryItemSmall(label: String, value: String, isBold: Boolean = false) {
+    Column {
+        Text(label, style = MaterialTheme.typography.labelSmall, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
 private fun attendanceBadge(workedDays: Double) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .padding(horizontal = 10.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(if (workedDays > 0) SuccessGreen.copy(alpha = 0.1f) else DarkBorder)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Text(
-            "%.1f".format(workedDays) + " days",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondaryContainer
+            "%.1f D".format(workedDays),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            color = if (workedDays > 0) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
 @Composable
 private fun statusColor(status: String): Color = when (status) {
-    "PAID" -> MaterialTheme.colorScheme.primary
-    "UNPAID", "PENDING" -> MaterialTheme.colorScheme.error
-    "PARTIAL" -> Color(0xFFF59E0B)
+    "PAID" -> SuccessGreen
+    "UNPAID", "PENDING" -> ErrorRed
+    "PARTIAL" -> WarningAmber
     else -> MaterialTheme.colorScheme.onSurfaceVariant
 }

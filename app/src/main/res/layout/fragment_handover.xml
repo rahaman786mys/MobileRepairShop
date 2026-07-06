@@ -1,181 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/muzzu_bg"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardElevation="4dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Repair Summary"
-                    android:textColor="@color/primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvSummaryFault"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Fault: -" />
-
-                <TextView
-                    android:id="@+id/tvSummaryCharge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Charge: ₹ 0" />
-
-                <TextView
-                    android:id="@+id/tvSummaryParts"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Parts Used: -" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etFinalAmount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/handover_final_amount"
-                android:inputType="numberDecimal" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Payment Mode"
-            android:textColor="@color/primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/radioGroupPayment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radioCash"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Cash" />
-
-            <RadioButton
-                android:id="@+id/radioOnline"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Online" />
-
-            <RadioButton
-                android:id="@+id/radioBoth"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Both" />
-
-            <RadioButton
-                android:id="@+id/radioPayLater"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Pay Later" />
-        </RadioGroup>
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp">
 
         <LinearLayout
-            android:id="@+id/layoutSplitPayment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            android:visibility="gone">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCashAmount"
+                style="@style/Widget.MuZZu.Card">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Cash Amount"
-                    android:inputType="numberDecimal" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="REPAIR SUMMARY"
+                        style="@style/TextAppearance.MuZZu.Label"
+                        android:layout_marginBottom="12dp" />
+                    <TextView
+                        android:id="@+id/tvSummaryFault"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fault: -"
+                        style="@style/TextAppearance.MuZZu.Title" />
+                    <TextView
+                        android:id="@+id/tvSummaryCharge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Initial Estimate: ₹ 0"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvSummaryParts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Parts: None"
+                        style="@style/TextAppearance.MuZZu.Caption" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="12dp"
+                android:text="BILLING DETAILS"
+                style="@style/TextAppearance.MuZZu.Label" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-
+                android:hint="Final Amount (₹)"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:boxBackgroundColor="@color/muzzu_surface"
+                app:prefixText="₹ "
+                app:prefixTextColor="@color/muzzu_success">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etOnlineAmount"
+                    android:id="@+id/etFinalAmount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Online Amount"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal"
+                    style="@style/TextAppearance.MuZZu.Display"
+                    android:textSize="28sp"
+                    android:textColor="@color/muzzu_success" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="PAYMENT MODE"
+                style="@style/TextAppearance.MuZZu.Label" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.MuZZu.Card">
+                <RadioGroup
+                    android:id="@+id/radioGroupPayment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/radioCash"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Cash Payment"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/radioOnline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Online Transfer / UPI"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/radioBoth"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Split (Both)"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/radioPayLater"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Record as Due (Unpaid)"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                </RadioGroup>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:id="@+id/layoutSplitPayment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:visibility="gone">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:hint="Cash Amt"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCashAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:hint="Online Amt"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etOnlineAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCompleteHandover"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginTop="32dp"
+                android:text="Complete &amp; Archive"
+                style="@style/Widget.MuZZu.Button" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGenerateInvoice"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="Digital Invoice"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:visibility="gone"
+                app:icon="@android:drawable/ic_menu_save" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelWork"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="24dp"
+                android:text="Discard Entry"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:textColor="@color/muzzu_error" />
+
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCompleteHandover"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="24dp"
-            android:text="Complete Handover"
-            android:textSize="16sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancelWork"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:text="Cancel &amp; Delete Work"
-            android:textColor="@color/muzzu_error" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnGenerateInvoice"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:text="Print/Share Invoice"
-            android:visibility="gone"
-            app:icon="@android:drawable/ic_menu_save" />
-
-    </LinearLayout>
-</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

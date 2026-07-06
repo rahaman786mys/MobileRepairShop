@@ -43,12 +43,12 @@ class SupplierListFragment : Fragment(R.layout.fragment_supplier_list) {
                     binding.rvSuppliers.adapter = object : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
                         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
                             object : androidx.recyclerview.widget.RecyclerView.ViewHolder(
-                                LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+                                LayoutInflater.from(parent.context).inflate(R.layout.item_person, parent, false)
                             ) {}
                         override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
                             val s = suppliers[position]
-                            holder.itemView.findViewById<TextView>(android.R.id.text1).text = s.name
-                            holder.itemView.findViewById<TextView>(android.R.id.text2).text = "${s.companyName} | ${s.mobile}"
+                            holder.itemView.findViewById<TextView>(R.id.text1).text = s.name
+                            holder.itemView.findViewById<TextView>(R.id.text2).text = "${s.companyName} | ${s.mobile}"
                             
                             holder.itemView.setOnClickListener {
                                 val bundle = Bundle().apply {

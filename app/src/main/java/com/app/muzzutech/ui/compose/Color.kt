@@ -2,30 +2,28 @@ package com.app.muzzutech.ui.compose
 
 import androidx.compose.ui.graphics.Color
 
-// Brand colors (matching existing muzzu_* palette)
-val MuzzuPrimary = Color(0xFF0F172A)        // Deep midnight
-val MuzzuAccent = Color(0xFF3B82F6)         // Electric blue
-val MuzzuAccentLight = Color(0xFFDBEAFE)
-val MuzzuAccentDark = Color(0xFF1D4ED8)
+// MuZZu Tech Premium Palette - Phase 1 Redesign
+val MuzzuPrimary = Color(0xFF2F81F7)        // Electric blue
+val MuzzuAccent = Color(0xFF2F81F7)
 
-// Light theme
-val LightBg = Color(0xFFF1F5F9)
-val LightSurface = Color(0xFFFFFFFF)
-val LightBorder = Color(0xFFE2E8F0)
-val LightTextMain = Color(0xFF0F172A)
-val LightTextSub = Color(0xFF475569)
-val LightTextMuted = Color(0xFF94A3B8)
+// Light theme (Standard UI)
+val LightBg = Color(0xFFFFFFFF)
+val LightSurface = Color(0xFFF6F8FA)
+val LightBorder = Color(0xFFD0D7DE)
+val LightTextMain = Color(0xFF1F2328)
+val LightTextSub = Color(0xFF636C76)
+val LightTextMuted = Color(0xFF8C959F)
 
-// Dark theme
-val DarkBg = Color(0xFF0B1120)
-val DarkSurface = Color(0xFF1E293B)
-val DarkSurfaceElevated = Color(0xFF334155)
-val DarkBorder = Color(0xFF475569)
-val DarkTextMain = Color(0xFFF1F5F9)
-val DarkTextSub = Color(0xFFCBD5E1)
-val DarkTextMuted = Color(0xFF94A3B8)
+// Dark theme (Premium Dashboard feel)
+val DarkBg = Color(0xFF0D1117)
+val DarkSurface = Color(0xFF161B22)
+val DarkSurfaceElevated = Color(0xFF21262D)
+val DarkBorder = Color(0xFF30363D)
+val DarkTextMain = Color(0xFFE6EDF3)
+val DarkTextSub = Color(0xFF7D8590)
+val DarkTextMuted = Color(0xFF484F58)
 
-// Semantic
-val SuccessGreen = Color(0xFF10B981)
-val ErrorRed = Color(0xFFEF4444)
-val WarningAmber = Color(0xFFF59E0B)
+// Semantic States
+val SuccessGreen = Color(0xFF3FB950) // Emerald
+val ErrorRed = Color(0xFFF85149)     // Coral Red
+val WarningAmber = Color(0xFFD29922) // Amber

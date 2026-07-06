@@ -1,5 +1,6 @@
 package com.app.muzzutech.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,27 +33,42 @@ class RepairEntryAdapter(
         private val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
         private val tvDate: TextView = itemView.findViewById(R.id.tvDate)
         private val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
+        private val viewStatusAccent: View = itemView.findViewById(R.id.viewStatusAccent)
+        private val cardStatus: com.google.android.material.card.MaterialCardView = itemView.findViewById(R.id.cardStatus)
 
         fun bind(entry: RepairEntry) {
             tvCustomer.text = entry.customerName
             tvMobile.text = entry.customerMobile
             tvFault.text = entry.faultDetected.ifEmpty { "No fault set" }
-            tvStatus.text = entry.workStatus
+            tvStatus.text = entry.workStatus.uppercase()
             tvDate.text = DateUtils.formatDateTime(entry.createdAt)
 
             val amount = if (entry.finalAmount > 0) entry.finalAmount else entry.chargeAmount
             tvAmount.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
 
-            // Status color
-            tvStatus.setTextColor(
-                when (entry.workStatus) {
-                    "Done" -> itemView.context.getColor(R.color.status_done)
-                    "InProgress" -> itemView.context.getColor(R.color.status_progress)
-                    else -> itemView.context.getColor(R.color.status_pending)
-                }
-            )
+            // Status theme binding
+            val context = itemView.context
+            val statusColor = when (entry.workStatus) {
+                "Done" -> context.getColor(R.color.muzzu_success)
+                "InProgress" -> context.getColor(R.color.muzzu_primary)
+                "Ready" -> context.getColor(R.color.muzzu_warning)
+                else -> context.getColor(R.color.muzzu_text_sub)
+            }
+
+            viewStatusAccent.setBackgroundColor(statusColor)
+            tvStatus.setTextColor(statusColor)
+            cardStatus.setCardBackgroundColor(statusColor.applyAlpha(0.15f))
 
             itemView.setOnClickListener { onItemClick(entry) }
+        }
+
+        private fun Int.applyAlpha(alpha: Float): Int {
+            return Color.argb(
+                (alpha * 255).toInt(),
+                android.graphics.Color.red(this),
+                android.graphics.Color.green(this),
+                android.graphics.Color.blue(this)
+            )
         }
     }
 

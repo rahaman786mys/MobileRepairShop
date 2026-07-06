@@ -1,85 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/muzzu_bg"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/muzzu_surface"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            style="@style/Widget.MuZZu.Card"
-            app:cardBackgroundColor="@color/muzzu_primary">
-
+            app:cardBackgroundColor="@color/muzzu_surface"
+            app:cardCornerRadius="0dp"
+            app:strokeWidth="0dp"
+            app:cardElevation="2dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp">
+                android:orientation="vertical"
+                android:padding="20dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/total_invested"
-                        style="@style/TextAppearance.MuZZu.Label"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:alpha="0.7" />
-                    <TextView
-                        android:id="@+id/tvTotalInventoryValue"
-                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="INVENTORY VALUE"
+                            style="@style/TextAppearance.MuZZu.Label" />
+                        <TextView
+                            android:id="@+id/tvTotalInventoryValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹ 0"
+                            android:layout_marginTop="4dp"
+                            style="@style/TextAppearance.MuZZu.Display"
+                            android:textSize="24sp"
+                            android:textColor="@color/muzzu_primary" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="₹ 0"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:textStyle="bold"
-                        android:textSize="18sp" />
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ITEMS"
+                            style="@style/TextAppearance.MuZZu.Label" />
+                        <TextView
+                            android:id="@+id/tvTotalItemsCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:layout_marginTop="4dp"
+                            style="@style/TextAppearance.MuZZu.Display"
+                            android:textSize="24sp" />
+                    </LinearLayout>
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/items_count"
-                        style="@style/TextAppearance.MuZZu.Label"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:alpha="0.7" />
-                    <TextView
-                        android:id="@+id/tvTotalItemsCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:textStyle="bold"
-                        android:textSize="18sp" />
-                </LinearLayout>
-
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvInventory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp"
+            android:clipToPadding="false"
+            android:layoutAnimation="@anim/layout_fall_down" />
+
     </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvInventory"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="8dp"
-        android:clipToPadding="false" />
-
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

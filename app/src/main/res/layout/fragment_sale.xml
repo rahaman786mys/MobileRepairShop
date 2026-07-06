@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/muzzu_bg"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -16,75 +18,112 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Item Name (e.g. Tempered Glass)"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etItemName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/select_supplier"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
-
-            <Spinner
-                android:id="@+id/spinnerSupplier"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_spinner" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAddSupplierQuick"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginTop="8dp"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:text="@string/add_new_supplier"
-                android:textColor="@color/primary" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Purchase Price (₹)"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etPurchasePrice"
+                style="@style/Widget.MuZZu.Card">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SALE DETAILS"
+                        style="@style/TextAppearance.MuZZu.Label"
+                        android:layout_marginBottom="16dp" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Sale Price (₹)"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSalePrice"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Item Description (e.g. 65W Adapter)"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etItemName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/TextAppearance.MuZZu.Body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="SOURCED FROM"
+                        style="@style/TextAppearance.MuZZu.Label" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Select Supplier"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                            <Spinner
+                                android:id="@+id/spinnerSupplier"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="0dp"
+                                android:background="@null" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAddSupplierQuick"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_marginStart="8dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp">
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:hint="Purchase ₹"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etPurchasePrice"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="numberDecimal" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:hint="Sale Price ₹"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etSalePrice"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="numberDecimal" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveSale"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="64dp"
                 android:layout_marginTop="32dp"
-                android:text="@string/complete_sale"
-                android:textSize="16sp" />
+                android:text="Process Quick Sale"
+                style="@style/Widget.MuZZu.Button" />
 
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

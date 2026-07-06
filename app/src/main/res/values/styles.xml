@@ -8,14 +8,6 @@
         <item name="android:windowBackground">@color/muzzu_surface</item>
     </style>
 
-    <style name="ThemeOverlay.MuZZu.UpdateDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowCloseOnTouchOutside">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:backgroundDimAmount">0.5</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MuZZu.BottomSheet</item>
-    </style>
-
     <style name="Widget.MuZZu.BottomSheet" parent="Widget.Material3.BottomSheet">
         <item name="shapeAppearance">@style/ShapeAppearance.MuZZu.BottomSheet</item>
     </style>

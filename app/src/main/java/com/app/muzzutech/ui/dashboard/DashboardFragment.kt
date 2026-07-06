@@ -59,7 +59,8 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     binding.cardReportsGrid?.setOnClickListener { findNavController().navigate(R.id.reportsFragment) }
     binding.cardMoreGrid?.setOnClickListener { findNavController().navigate(R.id.moreFragment) }
     binding.btnFixMissingInfo.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
-    binding.cardInvest.setOnClickListener { showInvestDialog() }
+    // binding.cardInvest removed from new design grid, using a simple listener if re-added
+    // binding.cardReportsGrid removed from new design grid
   }
 
   private fun showInvestDialog() {
@@ -86,13 +87,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        viewModel.completedToday.collectLatest { count ->
-          binding.tvCompletedCount.text = count.toString()
-        }
-      }
-    }
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.dailyProfit.collectLatest { profit ->
           binding.tvTodayProfit.text = com.app.muzzutech.utils.PriceUtils.formatPrice(profit)
         }
@@ -109,13 +103,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.totalCustomerDue.collectLatest { due ->
           binding.tvCustomerDuesTotal.text = com.app.muzzutech.utils.PriceUtils.formatPrice(due)
-        }
-      }
-    }
-    viewLifecycleOwner.lifecycleScope.launch {
-      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        viewModel.totalSupplierDue.collectLatest { due ->
-          binding.tvSupplierDuesTotal.text = com.app.muzzutech.utils.PriceUtils.formatPrice(due)
         }
       }
     }
@@ -150,11 +137,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             } else {
               b.cardAiAdvisor.isVisible = true
               b.tvAiMoveTitle.text = health.smartMove
-              b.tvAiHealthScore.text = "Score: ${health.healthScore}/100"
+              b.tvAiHealthScore.text = health.healthScore.toString()
+              b.aiProgressIndicator.progress = health.healthScore
               b.tvAiRecommendation.text = health.recommendation
-              b.tvAiRevenue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(health.dailyRevenue)
-              b.tvAiExpense.text = com.app.muzzutech.utils.PriceUtils.formatPrice(health.dailyExpense)
-              b.tvAiMargin.text = "${String.format("%.0f", health.profitMargin)}%"
             }
           }
         }

@@ -1,66 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark mode overrides for MuZZu Tech design system -->
+    <!-- Dark Mode Palette (Primary Focus) -->
 
-    <!-- Core Neutrals -->
-    <color name="muzzu_bg">#0B1120</color>
-    <color name="muzzu_surface">#1E293B</color>
-    <color name="muzzu_surface_elevated">#334155</color>
-    <color name="muzzu_border">#475569</color>
-    <color name="muzzu_border_focus">#64748B</color>
+    <!-- Base Colors -->
+    <color name="muzzu_bg">#0D1117</color>
+    <color name="muzzu_surface">#161B22</color>
+    <color name="muzzu_surface_elevated">#21262D</color>
+    <color name="muzzu_border">#30363D</color>
+    <color name="muzzu_border_focus">#2F81F7</color>
 
-    <!-- Primary Branding (accent stays same for brand consistency) -->
-    <color name="muzzu_primary">#F1F5F9</color>
-    <color name="muzzu_accent">#3B82F6</color>
-    <color name="muzzu_accent_light">#1E3A5F</color>
-    <color name="muzzu_accent_dark">#60A5FA</color>
+    <!-- Accents & States -->
+    <color name="muzzu_primary">#2F81F7</color> <!-- Electric Blue -->
+    <color name="muzzu_accent">#2F81F7</color>
+    <color name="muzzu_success">#3FB950</color> <!-- Emerald -->
+    <color name="muzzu_warning">#D29922</color> <!-- Amber -->
+    <color name="muzzu_error">#F85149</color>   <!-- Coral Red -->
 
     <!-- Typography -->
-    <color name="muzzu_text_main">#F1F5F9</color>
-    <color name="muzzu_text_sub">#CBD5E1</color>
-    <color name="muzzu_text_muted">#94A3B8</color>
-    <color name="muzzu_text_on_dark">#0F172A</color>
-
-    <!-- Semantic States (brighter for dark bg) -->
-    <color name="muzzu_success">#34D399</color>
-    <color name="muzzu_error">#F87171</color>
-    <color name="muzzu_warning">#FBBF24</color>
+    <color name="muzzu_text_main">#E6EDF3</color>
+    <color name="muzzu_text_sub">#7D8590</color>
+    <color name="muzzu_text_muted">#484F58</color>
+    <color name="muzzu_text_on_dark">#FFFFFF</color>
 
     <!-- Legacy Mappings -->
-    <color name="primary">#F1F5F9</color>
-    <color name="primary_variant">#334155</color>
-    <color name="background">#0B1120</color>
-    <color name="surface">#1E293B</color>
-    <color name="white">#1E293B</color>
-    <color name="black">#F1F5F9</color>
-    <color name="grey_100">#1E293B</color>
-    <color name="grey_200">#334155</color>
-    <color name="grey_300">#475569</color>
-    <color name="grey_500">#94A3B8</color>
-    <color name="grey_600">#CBD5E1</color>
-    <color name="success">#34D399</color>
-    <color name="error">#F87171</color>
-    <color name="warning">#FBBF24</color>
+    <color name="primary">#2F81F7</color>
+    <color name="primary_variant">#161B22</color>
+    <color name="background">#0D1117</color>
+    <color name="surface">#161B22</color>
+    <color name="white">#E6EDF3</color>
+    <color name="black">#0D1117</color>
+    <color name="accent">#2F81F7</color>
+    <color name="success">#3FB950</color>
+    <color name="error">#F85149</color>
+    <color name="warning">#D29922</color>
 
-    <color name="accent">#60A5FA</color>
-    <color name="grey_400">#94A3B8</color>
-    <color name="status_pending">#F87171</color>
-    <color name="status_in_progress">#60A5FA</color>
-    <color name="status_progress">#60A5FA</color>
-    <color name="status_done">#34D399</color>
+    <color name="text_primary">#E6EDF3</color>
+    <color name="text_secondary">#7D8590</color>
 
-    <color name="text_primary">#F1F5F9</color>
-    <color name="text_secondary">#CBD5E1</color>
-
-    <color name="gradient_start">#1E293B</color>
-    <color name="gradient_center">#334155</color>
-    <color name="gradient_end">#475569</color>
-
-    <!-- Card Backgrounds -->
-    <color name="card_bg_blue">#1E293B</color>
-    <color name="card_bg_green">#1E293B</color>
-    <color name="card_bg_orange">#1E293B</color>
-    <color name="card_bg_purple">#1E293B</color>
-    <color name="card_bg_pink">#1E293B</color>
-    <color name="card_bg_indigo">#1E293B</color>
+    <!-- Missing Legacy -->
+    <color name="gradient_start">#1E3A5F</color>
+    <color name="gradient_center">#161B22</color>
+    <color name="gradient_end">#0D1117</color>
+    <color name="grey_500">#484F58</color>
+    <color name="grey_200">#30363D</color>
+    <color name="card_bg_green">#161B22</color>
 </resources>

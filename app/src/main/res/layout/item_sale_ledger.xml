@@ -4,15 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    style="@style/Widget.MuZZu.Card"
-    app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/muzzu_surface_elevated">
+    style="@style/Widget.MuZZu.Card">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="16dp"
         android:gravity="center_vertical">
 
         <LinearLayout
@@ -26,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Item Name"
-                style="@style/TextAppearance.MuZZu.Heading"
+                style="@style/TextAppearance.MuZZu.Title"
                 android:textSize="14sp" />
 
             <TextView
@@ -35,7 +33,8 @@
                 android:layout_height="wrap_content"
                 android:text="Supplier"
                 style="@style/TextAppearance.MuZZu.Label"
-                android:textSize="10sp" />
+                android:textSize="10sp"
+                android:layout_marginTop="2dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -49,19 +48,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="₹ 0"
-                style="@style/TextAppearance.MuZZu.Heading"
-                android:textSize="14sp"
-                android:textColor="@color/muzzu_accent" />
+                style="@style/TextAppearance.MuZZu.Title"
+                android:textSize="15sp"
+                android:textColor="@color/muzzu_primary" />
 
             <TextView
                 android:id="@+id/tvProfit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Profit: ₹ 0"
-                style="@style/TextAppearance.MuZZu.Body"
-                android:textSize="11sp"
+                android:text="PROFIT: ₹ 0"
+                style="@style/TextAppearance.MuZZu.Caption"
                 android:textColor="@color/muzzu_success"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="2dp" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

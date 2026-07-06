@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.muzzutech.R
 import com.app.muzzutech.data.model.Payment
 import com.app.muzzutech.databinding.FragmentDuesBinding
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -39,44 +40,30 @@ class DuesFragment : Fragment(R.layout.fragment_dues) {
     }
 
     private fun setupTabs() {
-        binding.tabAll.setOnClickListener {
-            currentTab = "ALL"
-            updateTabColors()
-            updateList(viewModel.allDues.value)
-        }
-        binding.tabDealer.setOnClickListener {
-            currentTab = "DEALER"
-            updateTabColors()
-            updateList(viewModel.dealerDues.value)
-        }
-        binding.tabSupplier.setOnClickListener {
-            currentTab = "SUPPLIER"
-            updateTabColors()
-            updateList(viewModel.supplierDues.value)
-        }
-        binding.tabCustomer.setOnClickListener {
-            currentTab = "CUSTOMER"
-            updateTabColors()
-            updateList(viewModel.customerDues.value)
-        }
-    }
-
-    private fun updateTabColors() {
-        val context = requireContext()
-        val inactiveColor = androidx.core.content.ContextCompat.getColor(context, R.color.muzzu_bg)
-        val activeColor = androidx.core.content.ContextCompat.getColor(context, R.color.muzzu_primary)
-
-        binding.tabAll.setBackgroundColor(inactiveColor)
-        binding.tabDealer.setBackgroundColor(inactiveColor)
-        binding.tabSupplier.setBackgroundColor(inactiveColor)
-        binding.tabCustomer.setBackgroundColor(inactiveColor)
-
-        when (currentTab) {
-            "ALL" -> binding.tabAll.setBackgroundColor(activeColor)
-            "DEALER" -> binding.tabDealer.setBackgroundColor(activeColor)
-            "SUPPLIER" -> binding.tabSupplier.setBackgroundColor(activeColor)
-            "CUSTOMER" -> binding.tabCustomer.setBackgroundColor(activeColor)
-        }
+        binding.tabLayoutDues.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                when (tab?.position) {
+                    0 -> {
+                        currentTab = "ALL"
+                        updateList(viewModel.allDues.value)
+                    }
+                    1 -> {
+                        currentTab = "DEALER"
+                        updateList(viewModel.dealerDues.value)
+                    }
+                    2 -> {
+                        currentTab = "SUPPLIER"
+                        updateList(viewModel.supplierDues.value)
+                    }
+                    3 -> {
+                        currentTab = "CUSTOMER"
+                        updateList(viewModel.customerDues.value)
+                    }
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
     }
 
     private fun observeData() {
@@ -84,27 +71,6 @@ class DuesFragment : Fragment(R.layout.fragment_dues) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.totalDue.collectLatest { amount ->
                     binding.tvTotalDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.dealerDue.collectLatest { amount ->
-                    binding.tvDealerDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.supplierDue.collectLatest { amount ->
-                    binding.tvSupplierDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
-                }
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.customerDue.collectLatest { amount ->
-                    binding.tvCustomerDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(amount)
                 }
             }
         }
@@ -153,14 +119,9 @@ class DuesFragment : Fragment(R.layout.fragment_dues) {
                 holder.itemView.findViewById<TextView>(R.id.tvDueAmount).text = 
                     com.app.muzzutech.utils.PriceUtils.formatPrice(p.dueAmount)
                 holder.itemView.findViewById<TextView>(R.id.tvDescription).text = p.description
-                val statusColor = when (p.status) {
-                    "PAID" -> R.color.muzzu_success
-                    "PARTIAL" -> R.color.muzzu_warning
-                    else -> R.color.muzzu_error
-                }
+                
                 holder.itemView.findViewById<TextView>(R.id.tvStatus).apply {
                     text = p.status
-                    setTextColor(androidx.core.content.ContextCompat.getColor(requireContext(), statusColor))
                 }
                 holder.itemView.setOnClickListener {
                     val bundle = Bundle().apply {

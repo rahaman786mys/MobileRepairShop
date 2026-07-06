@@ -1,326 +1,252 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/muzzu_bg">
+    android:background="@color/muzzu_bg"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp">
 
-        <!-- Period Selector -->
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupPeriod"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            android:layout_marginBottom="20dp">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipDaily"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Daily" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipWeekly"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Weekly" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipMonthly"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Monthly" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipCustom"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Custom Range" />
-        </com.google.android.material.chip.ChipGroup>
-
-        <!-- Manual Ledger Audit trigger -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <TextView
-                android:id="@+id/tvAuditStatus"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Tap to run a fresh ledger audit"
-                android:textSize="13sp"
-                android:textColor="@color/muzzu_text_sub" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRunAuditNow"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Run Audit Now"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:textSize="13sp"
-                app:icon="@android:drawable/ic_dialog_info"
-                app:iconGravity="textStart" />
-        </LinearLayout>
-
-        <!-- Summary Grid -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            style="@style/Widget.MuZZu.Card">
-            <LinearLayout
+            <!-- Period Selector -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <LinearLayout
+                android:layout_marginBottom="24dp"
+                style="@style/Widget.MuZZu.Card">
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupPeriod"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
-                    <LinearLayout
-                        android:layout_width="0dp"
+                    android:padding="8dp"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipDaily"
+                        style="@style/Widget.MuZZu.Chip"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:text="Daily"
+                        android:checked="true" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipWeekly"
+                        style="@style/Widget.MuZZu.Chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Weekly" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipMonthly"
+                        style="@style/Widget.MuZZu.Chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Monthly" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipCustom"
+                        style="@style/Widget.MuZZu.Chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Custom" />
+                </com.google.android.material.chip.ChipGroup>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Chart Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginBottom="24dp"
+                style="@style/Widget.MuZZu.Card">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PERFORMANCE TREND"
+                        style="@style/TextAppearance.MuZZu.Label"
+                        android:layout_marginBottom="16dp" />
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/barChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Financial Summary -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:alignmentMode="alignMargins"
+                android:rowOrderPreserved="false">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    style="@style/Widget.MuZZu.Card">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Revenue"
-                            style="@style/TextAppearance.MuZZu.Label" />
+                            android:text="REVENUE"
+                            style="@style/TextAppearance.MuZZu.Caption" />
                         <TextView
                             android:id="@+id/tvReportRevenue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
                             android:text="₹ 0"
-                            style="@style/TextAppearance.MuZZu.Heading"
-                            android:textColor="@color/muzzu_accent"
-                            android:layout_marginTop="4dp" />
+                            android:textColor="@color/muzzu_primary"
+                            style="@style/TextAppearance.MuZZu.Title" />
                     </LinearLayout>
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="@color/muzzu_border"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp" />
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Completed"
-                            style="@style/TextAppearance.MuZZu.Label" />
-                        <TextView
-                            android:id="@+id/tvReportCompleted"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            style="@style/TextAppearance.MuZZu.Heading"
-                            android:textColor="@color/muzzu_success"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/muzzu_border"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    style="@style/Widget.MuZZu.Card">
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:padding="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Expenses"
-                            style="@style/TextAppearance.MuZZu.Label" />
+                            android:text="EXPENSES"
+                            style="@style/TextAppearance.MuZZu.Caption" />
                         <TextView
                             android:id="@+id/tvReportExpenses"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
                             android:text="₹ 0"
-                            style="@style/TextAppearance.MuZZu.Heading"
                             android:textColor="@color/muzzu_error"
-                            android:layout_marginTop="4dp" />
+                            style="@style/TextAppearance.MuZZu.Title" />
                     </LinearLayout>
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="@color/muzzu_border"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginRight="16dp" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    style="@style/Widget.MuZZu.Card">
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:padding="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Net Profit"
-                            style="@style/TextAppearance.MuZZu.Label" />
+                            android:text="NET PROFIT"
+                            style="@style/TextAppearance.MuZZu.Caption" />
                         <TextView
                             android:id="@+id/tvReportProfit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
                             android:text="₹ 0"
-                            style="@style/TextAppearance.MuZZu.Heading"
                             android:textColor="@color/muzzu_success"
-                            android:layout_marginTop="4dp" />
+                            style="@style/TextAppearance.MuZZu.Title" />
                     </LinearLayout>
-                </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                <!-- BUG #7: accrual vs cash basis labels -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="6dp">
-                    <TextView
-                        android:layout_width="0dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    style="@style/Widget.MuZZu.Card">
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Revenue = Accrual (invoice value)"
-                        android:textSize="10sp"
-                        android:textColor="@color/muzzu_text_muted" />
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Profit = Cash (received)"
-                        android:textSize="10sp"
-                        android:textColor="@color/muzzu_text_muted"
-                        android:gravity="end" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                        android:orientation="vertical"
+                        android:padding="16dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="COMPLETED"
+                            style="@style/TextAppearance.MuZZu.Caption" />
+                        <TextView
+                            android:id="@+id/tvReportCompleted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="0"
+                            style="@style/TextAppearance.MuZZu.Title" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </GridLayout>
 
-        <!-- Performance Chart -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            style="@style/Widget.MuZZu.Card">
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Performance Trend"
-                    style="@style/TextAppearance.MuZZu.Label"
-                    android:layout_marginBottom="16dp" />
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/barChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="12dp"
+                android:text="QUICK SALES LEDGER"
+                style="@style/TextAppearance.MuZZu.Label" />
 
-        <!-- Inventory Expenses -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Inventory Investment"
-            style="@style/TextAppearance.MuZZu.Heading"
-            android:textSize="18sp"
-            android:layout_marginBottom="16dp" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.MuZZu.Card">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Purchased Parts Total"
-                        style="@style/TextAppearance.MuZZu.Body" />
-                    <TextView
-                        android:id="@+id/tvSupplierPurchaseTotal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="₹ 0"
-                        style="@style/TextAppearance.MuZZu.Body"
-                        android:textStyle="bold"
-                        android:textColor="@color/muzzu_text_main" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/muzzu_border"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvSupplierPurchases"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Direct Sales Ledger"
-            style="@style/TextAppearance.MuZZu.Heading"
-            android:textSize="18sp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="16dp" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            style="@style/Widget.MuZZu.Card">
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvDirectSales"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:nestedScrollingEnabled="false" />
-        </com.google.android.material.card.MaterialCardView>
+                android:nestedScrollingEnabled="false"
+                android:layoutAnimation="@anim/layout_fall_down" />
 
-    </LinearLayout>
-</ScrollView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="12dp"
+                android:text="LEDGER RECONCILIATION"
+                style="@style/TextAppearance.MuZZu.Label" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.MuZZu.Card">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:id="@+id/tvAuditStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Audit Status: Optimal"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRunAuditNow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Run Manual Auditor"
+                        style="@style/Widget.Material3.Button.TonalButton" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

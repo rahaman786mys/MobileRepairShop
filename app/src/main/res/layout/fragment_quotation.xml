@@ -1,97 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/muzzu_bg">
+    android:background="@color/muzzu_bg"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Final Repair Details"
-            style="@style/TextAppearance.MuZZu.Heading"
-            android:layout_marginBottom="24dp" />
-
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            style="@style/Widget.MuZZu.Card">
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Step Progress -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
-
+                android:layout_marginBottom="24dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Select Work Fault"
+                    android:text="Step 4 of 5: Quotation"
                     style="@style/TextAppearance.MuZZu.Label"
-                    android:layout_marginBottom="12dp" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvCommonFaults"
+                    android:textColor="@color/muzzu_primary" />
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false" />
-
-                <TextView
-                    android:id="@+id/tvFaultDetected"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Selected: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textStyle="bold"
-                    android:textColor="@color/muzzu_accent" />
+                    android:layout_height="4dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:weightSum="5">
+                    <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="4" android:background="@color/muzzu_primary" android:layout_marginEnd="2dp" />
+                    <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/muzzu_border" android:layout_marginStart="2dp" />
+                </LinearLayout>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeColor="@color/muzzu_border">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etChargeAmount"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                style="@style/Widget.MuZZu.Card">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SELECT WORK FAULT"
+                        style="@style/TextAppearance.MuZZu.Label"
+                        android:layout_marginBottom="12dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvCommonFaults"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:layoutAnimation="@anim/layout_fall_down" />
+
+                    <TextView
+                        android:id="@+id/tvFaultDetected"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Selected: -"
+                        android:textColor="@color/muzzu_accent"
+                        style="@style/TextAppearance.MuZZu.Title" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Repair Charge (₹)"
-                android:inputType="numberDecimal"
-                android:textColor="@color/muzzu_text_main" />
-        </com.google.android.material.textfield.TextInputLayout>
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:boxBackgroundColor="@color/muzzu_surface"
+                app:prefixText="₹ ">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etChargeAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    style="@style/TextAppearance.MuZZu.Body" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeColor="@color/muzzu_border">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etAdvanceAmount"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Advance Taken (₹)"
-                android:inputType="numberDecimal"
-                android:textColor="@color/muzzu_text_main" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="16dp"
+                android:hint="Advance Amount (Optional)"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:boxBackgroundColor="@color/muzzu_surface"
+                app:prefixText="₹ ">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAdvanceAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    style="@style/TextAppearance.MuZZu.Body" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveQuotation"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginTop="32dp"
-            android:text="Start Repair &amp; Notify"
-            style="@style/Widget.MuZZu.Button" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveQuotation"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginTop="32dp"
+                android:text="Finalize Quotation"
+                style="@style/Widget.MuZZu.Button" />
 
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,63 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/muzzu_bg"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilName"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etName"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Full Name" />
-        </com.google.android.material.textfield.TextInputLayout>
+                style="@style/Widget.MuZZu.Card">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PROFILE DETAILS"
+                        style="@style/TextAppearance.MuZZu.Label"
+                        android:layout_marginBottom="16dp" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilMobile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etMobile"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Full Name *"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/TextAppearance.MuZZu.Body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilMobile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="WhatsApp Number *"
+                        app:prefixText="+91 "
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etMobile"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="phone"
+                            android:maxLength="10"
+                            style="@style/TextAppearance.MuZZu.Body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilCity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="City / Location"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etCity"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/TextAppearance.MuZZu.Body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Mobile Number"
-                android:inputType="phone"
-                android:maxLength="10" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_height="64dp"
+                android:layout_marginTop="32dp"
+                android:text="Save Profile"
+                style="@style/Widget.MuZZu.Button" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilCity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="City" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSave"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="32dp"
-            android:text="Save Details"
-            style="@style/Widget.MuZZu.Button" />
-
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,204 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/muzzu_bg"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
-    <!-- Header -->
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/muzzu_surface"
-        android:orientation="horizontal"
-        android:padding="20dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvSupplierName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Supplier Name"
-                style="@style/TextAppearance.MuZZu.Heading" />
-
-            <TextView
-                android:id="@+id/tvSupplierMobile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mobile"
-                style="@style/TextAppearance.MuZZu.Body" />
-        </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnEditSupplier"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/edit"
-            app:icon="@android:drawable/ic_menu_edit" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteSupplier"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Delete"
-            android:textColor="@color/muzzu_error"
-            app:icon="@android:drawable/ic_menu_delete" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingBottom="20dp">
-
-        <!-- Tally Box -->
-        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            style="@style/Widget.MuZZu.Card"
-            app:cardBackgroundColor="@color/muzzu_primary">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <LinearLayout
+            <!-- Hero Section -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:baselineAligned="false">
-
+                style="@style/Widget.MuZZu.Card">
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:background="@drawable/bg_gradient_advisor"
                     android:orientation="vertical"
-                    android:gravity="center">
+                    android:padding="24dp">
                     <TextView
+                        android:id="@+id/tvSupplierName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/total_bought"
-                        style="@style/TextAppearance.MuZZu.Label"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:alpha="0.7" />
+                        android:text="Supplier Name"
+                        android:textColor="@color/white"
+                        style="@style/TextAppearance.MuZZu.Display"
+                        android:textSize="24sp" />
                     <TextView
-                        android:id="@+id/tvTotalBought"
+                        android:id="@+id/tvSupplierMobile"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="₹ 0"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:textStyle="bold"
-                        android:textSize="18sp" />
-                </LinearLayout>
+                        android:layout_marginTop="4dp"
+                        android:text="9999912345"
+                        android:textColor="#B0C4DE"
+                        style="@style/TextAppearance.MuZZu.Body" />
 
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#33FFFFFF" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#33FFFFFF"
+                        android:layout_marginVertical="16dp" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/total_paid"
-                        style="@style/TextAppearance.MuZZu.Label"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:alpha="0.7" />
-                    <TextView
-                        android:id="@+id/tvTotalPaid"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="₹ 0"
-                        android:textColor="@color/muzzu_success"
-                        android:textStyle="bold"
-                        android:textSize="18sp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#33FFFFFF" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:gravity="center">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/balance_due"
-                        style="@style/TextAppearance.MuZZu.Label"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:alpha="0.7" />
+                        android:text="OUTSTANDING BALANCE"
+                        style="@style/TextAppearance.MuZZu.Caption"
+                        android:textColor="#B0C4DE" />
                     <TextView
                         android:id="@+id/tvBalanceDue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₹ 0"
-                        android:textColor="@color/muzzu_error"
-                        android:textStyle="bold"
-                        android:textSize="18sp" />
+                        android:textColor="@color/white"
+                        style="@style/TextAppearance.MuZZu.Display"
+                        android:textSize="32sp" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditSupplier"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="Edit Details"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    app:icon="@android:drawable/ic_menu_edit" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDeleteSupplier"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Remove"
+                    android:textColor="@color/muzzu_error"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    app:icon="@android:drawable/ic_menu_delete" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/direct_sales_history"
-        style="@style/TextAppearance.MuZZu.Label"
-        android:padding="16dp" />
+            <!-- Tally Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    style="@style/Widget.MuZZu.Card">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TOTAL BOUGHT"
+                            style="@style/TextAppearance.MuZZu.Caption" />
+                        <TextView
+                            android:id="@+id/tvTotalBought"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹ 0"
+                            style="@style/TextAppearance.MuZZu.Title" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    style="@style/Widget.MuZZu.Card">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TOTAL PAID"
+                            style="@style/TextAppearance.MuZZu.Caption" />
+                        <TextView
+                            android:id="@+id/tvTotalPaid"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹ 0"
+                            android:textColor="@color/muzzu_success"
+                            style="@style/TextAppearance.MuZZu.Title" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSupplierSales"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:clipToPadding="false"
-        android:padding="8dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="12dp"
+                android:text="DIRECT SALES"
+                style="@style/TextAppearance.MuZZu.Label" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSupplierSales"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:nestedScrollingEnabled="false" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Purchase History"
-        style="@style/TextAppearance.MuZZu.Label"
-        android:padding="16dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="PURCHASE LEDGER"
+                style="@style/TextAppearance.MuZZu.Label" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSupplierPurchases"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:nestedScrollingEnabled="false" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSupplierPurchases"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:clipToPadding="false"
-        android:padding="8dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="PAYMENT HISTORY"
+                style="@style/TextAppearance.MuZZu.Label" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPaymentHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Payments Sent"
-        style="@style/TextAppearance.MuZZu.Label"
-        android:padding="16dp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvPaymentHistory"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="8dp" />
-
-</LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

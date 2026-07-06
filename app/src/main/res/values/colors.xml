@@ -1,74 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      MuZZu Tech Premium Design System
-      Aesthetic: Minimalist, Slate/Electric Blue, High Contrast
+      MuZZu Tech Premium Design System - Color Palette
+      Theme: Bloomberg Terminal / Stripe Dashboard / Linear.app
     -->
 
-    <!-- Core Neutrals -->
-    <color name="muzzu_bg">#F1F5F9</color>
-    <color name="muzzu_surface">#FFFFFF</color>
-    <color name="muzzu_surface_elevated">#F8FAFC</color>
-    <color name="muzzu_border">#E2E8F0</color>
-    <color name="muzzu_border_focus">#94A3B8</color>
+    <!-- Base Colors -->
+    <color name="muzzu_bg">#FFFFFF</color>
+    <color name="muzzu_surface">#F6F8FA</color>
+    <color name="muzzu_surface_elevated">#FFFFFF</color>
+    <color name="muzzu_border">#D0D7DE</color>
+    <color name="muzzu_border_focus">#2F81F7</color>
 
-    <!-- Primary Branding -->
-    <color name="muzzu_primary">#0F172A</color> <!-- Deep Midnight -->
-    <color name="muzzu_accent">#3B82F6</color>  <!-- Electric Blue -->
-    <color name="muzzu_accent_light">#DBEAFE</color>
-    <color name="muzzu_accent_dark">#1D4ED8</color>
+    <!-- Accents & States -->
+    <color name="muzzu_primary">#2F81F7</color> <!-- Electric Blue -->
+    <color name="muzzu_accent">#2F81F7</color>
+    <color name="muzzu_success">#3FB950</color> <!-- Emerald -->
+    <color name="muzzu_warning">#D29922</color> <!-- Amber -->
+    <color name="muzzu_error">#F85149</color>   <!-- Coral Red -->
 
     <!-- Typography -->
-    <color name="muzzu_text_main">#0F172A</color>
-    <color name="muzzu_text_sub">#475569</color>
-    <color name="muzzu_text_muted">#94A3B8</color>
+    <color name="muzzu_text_main">#1F2328</color>
+    <color name="muzzu_text_sub">#636C76</color>
+    <color name="muzzu_text_muted">#8C959F</color>
     <color name="muzzu_text_on_dark">#FFFFFF</color>
 
-    <!-- Semantic States (Subtle) -->
-    <color name="muzzu_success">#10B981</color>
-    <color name="muzzu_success_light">#D1FAE5</color>
-    <color name="muzzu_success_dark">#065F46</color>
-    <color name="muzzu_error">#EF4444</color>
-    <color name="muzzu_error_light">#FEE2E2</color>
-    <color name="muzzu_error_dark">#991B1B</color>
-    <color name="muzzu_warning">#F59E0B</color>
-
-    <!-- Legacy Mappings (Ensures app doesn't crash while migrating) -->
-    <color name="primary">#0F172A</color>
-    <color name="primary_variant">#1E293B</color>
-    <color name="background">#F1F5F9</color>
-    <color name="surface">#FFFFFF</color>
+    <!-- Legacy Mappings for compatibility -->
+    <color name="primary">#2F81F7</color>
+    <color name="primary_variant">#1F2328</color>
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#F6F8FA</color>
     <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+    <color name="black">#1F2328</color>
     <color name="transparent">#00000000</color>
-    <color name="grey_100">#F8FAFC</color>
-    <color name="grey_200">#F1F5F9</color>
-    <color name="grey_300">#E2E8F0</color>
-    <color name="grey_500">#64748B</color>
-    <color name="grey_600">#475569</color>
-    <color name="success">#10B981</color>
-    <color name="error">#EF4444</color>
-    <color name="warning">#F59E0B</color>
+    <color name="accent">#2F81F7</color>
+    <color name="success">#3FB950</color>
+    <color name="error">#F85149</color>
+    <color name="warning">#D29922</color>
 
-    <color name="accent">#3B82F6</color>
-    <color name="grey_400">#94A3B8</color>
-    <color name="status_pending">#EF4444</color>
-    <color name="status_in_progress">#3B82F6</color>
-    <color name="status_progress">#3B82F6</color>
-    <color name="status_done">#10B981</color>
+    <color name="text_primary">#1F2328</color>
+    <color name="text_secondary">#636C76</color>
 
-    <color name="text_primary">#0F172A</color>
-    <color name="text_secondary">#475569</color>
-
-    <color name="gradient_start">#0F172A</color>
-    <color name="gradient_center">#1E293B</color>
-    <color name="gradient_end">#334155</color>
-
-    <!-- Card Backgrounds - Remapped to Premium palette -->
-    <color name="card_bg_blue">#F8FAFC</color>
-    <color name="card_bg_green">#F8FAFC</color>
-    <color name="card_bg_orange">#F8FAFC</color>
-    <color name="card_bg_purple">#F8FAFC</color>
-    <color name="card_bg_pink">#F8FAFC</color>
-    <color name="card_bg_indigo">#F8FAFC</color>
+    <!-- Missing Legacy for Gradients/Spinners -->
+    <color name="gradient_start">#2F81F7</color>
+    <color name="gradient_center">#60A5FA</color>
+    <color name="gradient_end">#DBEAFE</color>
+    <color name="grey_500">#8C959F</color>
+    <color name="grey_200">#D0D7DE</color>
+    <color name="card_bg_green">#E6FFED</color>
 </resources>

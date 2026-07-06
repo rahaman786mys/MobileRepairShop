@@ -5,18 +5,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -27,6 +32,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -36,7 +42,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,13 +50,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.muzzutech.data.model.Expense
+import com.app.muzzutech.ui.compose.DarkBorder
+import com.app.muzzutech.ui.compose.ErrorRed
 import com.app.muzzutech.ui.compose.MuzzuTheme
+import com.app.muzzutech.ui.compose.SuccessGreen
 import com.app.muzzutech.ui.compose.composeView
 import com.app.muzzutech.utils.DateUtils
 import com.app.muzzutech.utils.PriceUtils
@@ -85,47 +96,79 @@ private fun ExpensesScreen(vm: ExpensesViewModel) {
         .sortedByDescending { it.date }
 
     Scaffold(
+        containerColor = Color.Transparent,
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White,
+                shape = RoundedCornerShape(12.dp)
+            ) {
                 Icon(Icons.Default.Add, contentDescription = "Add expense")
             }
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            // Month Picker
+            // Premium Month Picker
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(onClick = { vm.previousMonth() }) {
-                    Icon(Icons.Default.ChevronLeft, contentDescription = "Previous month")
+                    Icon(Icons.Default.ChevronLeft, contentDescription = "Prev", tint = MaterialTheme.colorScheme.primary)
                 }
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    DateUtils.formatMonth(monthStart),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    DateUtils.formatMonth(monthStart).uppercase(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.sp
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = { vm.nextMonth() }) {
-                    Icon(Icons.Default.ChevronRight, contentDescription = "Next month")
+                    Icon(Icons.Default.ChevronRight, contentDescription = "Next", tint = MaterialTheme.colorScheme.primary)
                 }
             }
 
-            ExpenseSummaryCard(
-                total = totalThisMonth,
-                categoryTotals = categoryTotals
+            // Category Totals Horizontal Scroll
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                item {
+                    CategoryChip(label = "Total", amount = totalThisMonth, color = ErrorRed)
+                }
+                categoryTotals.forEach { (cat, amt) ->
+                    item {
+                        CategoryChip(label = cat, amount = amt, color = categoryColor(cat))
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+            
+            Text(
+                "TRANSACTION HISTORY",
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(8.dp))
+
             if (monthExpenses.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No expenses recorded this month.\nTap + to add one.", modifier = Modifier.padding(24.dp))
+                    Text(
+                        "No expenses recorded.\nTap + to add one.", 
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(monthExpenses, key = { it.id }) { e ->
                         ExpenseRow(
@@ -159,30 +202,20 @@ private fun ExpensesScreen(vm: ExpensesViewModel) {
 }
 
 @Composable
-private fun ExpenseSummaryCard(total: Double, categoryTotals: Map<String, Double>) {
+private fun CategoryChip(label: String, amount: Double, color: Color) {
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.border(1.dp, DarkBorder.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Text("This Month", style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(4.dp))
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            Text(label.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
-                PriceUtils.formatPrice(total),
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.headlineMedium
+                PriceUtils.formatPrice(amount),
+                style = MaterialTheme.typography.titleMedium,
+                color = color,
+                fontWeight = FontWeight.Bold
             )
-            Spacer(Modifier.height(12.dp))
-            categoryTotals.forEach { (cat, amt) ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(cat, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-                    Text(PriceUtils.formatPrice(amt), fontWeight = FontWeight.SemiBold)
-                }
-            }
         }
     }
 }
@@ -193,46 +226,58 @@ private fun ExpenseRow(
     onDelete: () -> Unit,
     onTogglePaid: () -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, DarkBorder)
+    ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(categoryColor(expense.category))
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(categoryColor(expense.category).copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    expense.category.first().toString(),
-                    color = androidx.compose.ui.graphics.Color.White,
-                    fontWeight = FontWeight.Bold
+                    expense.category.take(1).uppercase(),
+                    color = categoryColor(expense.category),
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 16.sp
                 )
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(expense.title, fontWeight = FontWeight.SemiBold)
+                Text(expense.title, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "${DateUtils.formatDayMonth(expense.date)} · ${if (expense.isRecurring) "Recurring · " else ""}${if (expense.paid) "Paid" else "Unpaid"}",
+                    "${DateUtils.formatDayMonth(expense.date)} \u2022 ${if (expense.isRecurring) "RECURRING" else "ONE-TIME"}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Spacer(Modifier.width(8.dp))
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     PriceUtils.formatPrice(expense.amount),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.error
+                    color = ErrorRed
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = expense.paid, onCheckedChange = { onTogglePaid() })
-                    IconButton(onClick = onDelete) {
+                    Checkbox(
+                        checked = expense.paid, 
+                        onCheckedChange = { onTogglePaid() },
+                        colors = CheckboxDefaults.colors(checkedColor = SuccessGreen)
+                    )
+                    IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
                         Icon(
                             Icons.Default.Delete,
                             contentDescription = "Delete",
-                            tint = MaterialTheme.colorScheme.error
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
@@ -255,57 +300,61 @@ private fun AddExpenseDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Expense") },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        title = { Text("Record Expense", style = MaterialTheme.typography.headlineLarge) },
         text = {
             Column {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Title / Description") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(12.dp))
                 OutlinedTextField(
                     value = amountText,
                     onValueChange = { amountText = it.filter { c -> c.isDigit() || c == '.' } },
-                    label = { Text("Amount") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Amount (₹)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(Modifier.height(8.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    listOf(
+                Spacer(Modifier.height(16.dp))
+                Text("Category", style = MaterialTheme.typography.labelSmall)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(listOf(
                         Expense.CATEGORY_RENT,
                         Expense.CATEGORY_ELECTRICITY,
                         Expense.CATEGORY_INTERNET,
                         Expense.CATEGORY_SUPPLIES,
                         Expense.CATEGORY_OTHER
-                    ).forEach { c ->
+                    )) { c ->
+                        val selected = category == c
                         TextButton(
                             onClick = { category = c },
-                            modifier = Modifier.weight(1f).padding(end = 4.dp)
+                            modifier = Modifier
+                                .border(
+                                    1.dp, 
+                                    if (selected) MaterialTheme.colorScheme.primary else DarkBorder, 
+                                    RoundedCornerShape(8.dp)
+                                )
+                                .background(if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent)
                         ) {
-                            Text(
-                                c,
-                                fontWeight = if (category == c) FontWeight.Bold else FontWeight.Normal,
-                                color = if (category == c) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Text(c, style = MaterialTheme.typography.labelMedium, color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = recurring, onCheckedChange = { recurring = it })
-                    Text("Recurring monthly", modifier = Modifier.weight(1f))
-                    Checkbox(checked = paid, onCheckedChange = { paid = it })
-                    Text("Paid")
+                    Text("Monthly Recurring", style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.weight(1f))
+                    Checkbox(checked = paid, onCheckedChange = { paid = it }, colors = CheckboxDefaults.colors(checkedColor = SuccessGreen))
+                    Text("Mark Paid", style = MaterialTheme.typography.bodyMedium)
                 }
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = note,
-                    onValueChange = { note = it },
-                    label = { Text("Note (optional)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         },
         confirmButton = {
@@ -316,17 +365,17 @@ private fun AddExpenseDialog(
                         onConfirm(title, amt, category, recurring, paid, note)
                     }
                 }
-            ) { Text("Save") }
+            ) { Text("SAVE TRANSACTION", fontWeight = FontWeight.Bold) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text("CANCEL") } }
     )
 }
 
-private fun categoryColor(category: String): androidx.compose.ui.graphics.Color = when (category) {
-    Expense.CATEGORY_RENT -> androidx.compose.ui.graphics.Color(0xFF6366F1)
-    Expense.CATEGORY_ELECTRICITY -> androidx.compose.ui.graphics.Color(0xFFF59E0B)
-    Expense.CATEGORY_SALARY -> androidx.compose.ui.graphics.Color(0xFF10B981)
-    Expense.CATEGORY_INTERNET -> androidx.compose.ui.graphics.Color(0xFF3B82F6)
-    Expense.CATEGORY_SUPPLIES -> androidx.compose.ui.graphics.Color(0xFF8B5CF6)
-    else -> androidx.compose.ui.graphics.Color(0xFF94A3B8)
+private fun categoryColor(category: String): Color = when (category) {
+    Expense.CATEGORY_RENT -> Color(0xFF6366F1)
+    Expense.CATEGORY_ELECTRICITY -> Color(0xFFF59E0B)
+    Expense.CATEGORY_SALARY -> Color(0xFF10B981)
+    Expense.CATEGORY_INTERNET -> Color(0xFF3B82F6)
+    Expense.CATEGORY_SUPPLIES -> Color(0xFF8B5CF6)
+    else -> Color(0xFF94A3B8)
 }

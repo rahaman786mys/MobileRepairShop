@@ -1,77 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/muzzu_bg"
-    android:orientation="vertical">
+    android:background="@color/muzzu_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:background="@color/muzzu_surface">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- Search Hub -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="Search jobs, customers, mobile..."
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            app:startIconDrawable="@android:drawable/ic_menu_search"
-            app:startIconTint="@color/muzzu_text_muted"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeColor="@color/muzzu_border"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusBottomEnd="12dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSearch"
+            app:cardBackgroundColor="@color/muzzu_surface"
+            app:shapeAppearanceOverlay="@null"
+            app:strokeWidth="0dp"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="2dp">
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:textColor="@color/muzzu_text_main" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </LinearLayout>
+                android:orientation="vertical"
+                android:padding="16dp">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Search ledger..."
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    app:startIconDrawable="@android:drawable/ic_menu_search"
+                    app:startIconTint="@color/muzzu_text_muted"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeColor="@color/muzzu_border"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvEntries"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="16dp"
-            android:clipToPadding="false" />
+            android:layout_height="match_parent">
 
-        <!-- Premium Empty State -->
-        <LinearLayout
-            android:id="@+id/layoutEmpty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:visibility="gone">
-            <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:src="@drawable/ic_workflow_premium"
-                app:tint="@color/muzzu_border" />
-            <TextView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvEntries"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:clipToPadding="false" />
+
+            <!-- Premium Empty State -->
+            <LinearLayout
+                android:id="@+id/layoutEmpty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="No matching jobs found"
-                style="@style/TextAppearance.MuZZu.Body"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </FrameLayout>
-
-</LinearLayout>
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@drawable/ic_workflow_premium"
+                    app:tint="@color/muzzu_primary"
+                    android:alpha="0.5" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="No records found"
+                    style="@style/TextAppearance.MuZZu.Title" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Try a different search term"
+                    style="@style/TextAppearance.MuZZu.Caption" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

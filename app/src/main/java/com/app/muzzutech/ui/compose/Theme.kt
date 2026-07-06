@@ -7,17 +7,16 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColors = lightColorScheme(
     primary = MuzzuAccent,
-    onPrimary = LightSurface,
-    primaryContainer = MuzzuAccentLight,
-    onPrimaryContainer = MuzzuAccentDark,
+    onPrimary = Color.White,
     secondary = MuzzuPrimary,
-    onSecondary = LightSurface,
+    onSecondary = Color.White,
     background = LightBg,
     onBackground = LightTextMain,
     surface = LightSurface,
@@ -25,19 +24,15 @@ private val LightColors = lightColorScheme(
     surfaceVariant = LightBg,
     onSurfaceVariant = LightTextSub,
     outline = LightBorder,
-    outlineVariant = LightBorder,
     error = ErrorRed,
-    errorContainer = ErrorRed.copy(alpha = 0.12f),
-    onErrorContainer = ErrorRed
+    onError = Color.White
 )
 
 private val DarkColors = darkColorScheme(
     primary = MuzzuAccent,
-    onPrimary = DarkSurface,
-    primaryContainer = MuzzuAccentDark,
-    onPrimaryContainer = MuzzuAccentLight,
-    secondary = LightSurface,
-    onSecondary = MuzzuPrimary,
+    onPrimary = Color.White,
+    secondary = MuzzuPrimary,
+    onSecondary = Color.White,
     background = DarkBg,
     onBackground = DarkTextMain,
     surface = DarkSurface,
@@ -45,10 +40,8 @@ private val DarkColors = darkColorScheme(
     surfaceVariant = DarkSurfaceElevated,
     onSurfaceVariant = DarkTextSub,
     outline = DarkBorder,
-    outlineVariant = DarkBorder,
     error = ErrorRed,
-    errorContainer = ErrorRed.copy(alpha = 0.18f),
-    onErrorContainer = ErrorRed
+    onError = Color.White
 )
 
 @Composable
@@ -62,8 +55,10 @@ fun MuzzuTheme(
         SideEffect {
             val window = (view.context as? Activity)?.window
             if (window != null) {
-                WindowCompat.setDecorFitsSystemWindows(window, true)
-                window.statusBarColor = if (darkTheme) DarkBg.toArgb() else MuzzuPrimary.toArgb()
+                // Ensure Compose screens respect the global edge-to-edge transparent bars
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                window.statusBarColor = android.graphics.Color.TRANSPARENT
+                window.navigationBarColor = android.graphics.Color.TRANSPARENT
             }
         }
     }

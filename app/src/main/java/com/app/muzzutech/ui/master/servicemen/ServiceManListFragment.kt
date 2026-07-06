@@ -43,12 +43,12 @@ class ServiceManListFragment : Fragment(R.layout.fragment_service_man_list) {
                     binding.rvServiceMen.adapter = object : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
                         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
                             object : androidx.recyclerview.widget.RecyclerView.ViewHolder(
-                                LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+                                LayoutInflater.from(parent.context).inflate(R.layout.item_person, parent, false)
                             ) {}
                         override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
                             val sm = men[position]
-                            holder.itemView.findViewById<android.widget.TextView>(android.R.id.text1).text = sm.name
-                            holder.itemView.findViewById<android.widget.TextView>(android.R.id.text2).text = "${sm.designation} | ${sm.mobile}"
+                            holder.itemView.findViewById<android.widget.TextView>(R.id.text1).text = sm.name
+                            holder.itemView.findViewById<android.widget.TextView>(R.id.text2).text = "${sm.designation} | ${sm.mobile}"
                             holder.itemView.setOnClickListener {
                                 val bundle = Bundle().apply {
                                     putLong("serviceManId", sm.id)

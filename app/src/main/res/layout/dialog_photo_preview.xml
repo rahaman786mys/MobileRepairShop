@@ -3,15 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
+    android:background="@color/muzzu_bg"
     android:fitsSystemWindows="true">
 
     <ImageView
         android:id="@+id/ivPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:contentDescription="Photo preview" />
+        android:scaleType="fitCenter" />
 
     <ImageButton
         android:id="@+id/btnClosePreview"
@@ -21,38 +20,37 @@
         android:layout_margin="16dp"
         android:background="@android:color/transparent"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
-        android:tint="@android:color/white"
-        android:contentDescription="Close preview" />
+        app:tint="@color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="#B3000000">
+        android:padding="24dp"
+        android:background="@drawable/bg_gradient_advisor"
+        android:alpha="0.9">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRetake"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.MuZZu.Button.Outlined"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="Retake"
-            android:textAllCaps="false"
-            app:strokeColor="@android:color/white"
-            app:strokeWidth="1dp"
-            android:textColor="@android:color/white" />
+            android:text="Retake Photo"
+            app:strokeColor="@color/white"
+            android:textColor="@color/white" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDelete"
             style="@style/Widget.MuZZu.Button"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Delete"
-            android:textAllCaps="false"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="16dp"
+            app:backgroundTint="@color/muzzu_error"
+            android:textColor="@color/white"
             app:icon="@android:drawable/ic_menu_delete" />
     </LinearLayout>
 

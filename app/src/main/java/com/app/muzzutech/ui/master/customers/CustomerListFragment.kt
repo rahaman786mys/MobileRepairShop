@@ -49,7 +49,7 @@ class CustomerListFragment : Fragment(R.layout.fragment_customer_list) {
 
     inner class CustomerAdapter(private val list: List<PersonListItem>) : RecyclerView.Adapter<CustomerAdapter.ViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_2, parent, false)
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_person, parent, false)
             return ViewHolder(view)
         }
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -67,8 +67,8 @@ class CustomerListFragment : Fragment(R.layout.fragment_customer_list) {
         }
         override fun getItemCount() = list.size
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val text1: TextView = view.findViewById(android.R.id.text1)
-            val text2: TextView = view.findViewById(android.R.id.text2)
+            val text1: TextView = view.findViewById(R.id.text1)
+            val text2: TextView = view.findViewById(R.id.text2)
         }
     }
 
