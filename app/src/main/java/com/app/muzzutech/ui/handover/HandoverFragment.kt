@@ -123,6 +123,7 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
 
     private fun completeHandover() {
         if (isCompleting) return
+        val entry = viewModel.entry.value ?: return
         val finalAmountText = binding.etFinalAmount.text.toString().trim()
         if (finalAmountText.isEmpty()) {
             Snackbar.make(binding.root, "Please enter final amount", Snackbar.LENGTH_LONG).show()
@@ -143,13 +144,14 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
         }
 
         val isPayLater = paymentMode == "Pay Later"
+        val remainingAfterAdvance = (finalAmount - entry.advanceAmount).coerceAtLeast(0L)
         val cashAmount = if (!isPayLater && paymentMode == "Both") {
             ((binding.etCashAmount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
-        } else if (!isPayLater && paymentMode == "Cash") finalAmount else 0L
+        } else if (!isPayLater && paymentMode == "Cash") remainingAfterAdvance else 0L
 
         val onlineAmount = if (!isPayLater && paymentMode == "Both") {
             ((binding.etOnlineAmount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
-        } else if (!isPayLater && paymentMode == "Online") finalAmount else 0L
+        } else if (!isPayLater && paymentMode == "Online") remainingAfterAdvance else 0L
 
         if (paymentMode == "Both") {
             val combined = cashAmount + onlineAmount

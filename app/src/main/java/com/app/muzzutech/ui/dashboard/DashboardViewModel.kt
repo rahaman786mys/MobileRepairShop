@@ -24,6 +24,7 @@ class DashboardViewModel : ViewModel() {
     val completedToday: StateFlow<Int> = _completedToday
 
     private val _dailyRevenue = MutableStateFlow(0L)
+    val dailyRevenue: StateFlow<Long> = _dailyRevenue
     private val _dailyInvest = MutableStateFlow(0L)
     val dailyInvest: StateFlow<Long> = _dailyInvest
 
@@ -35,6 +36,9 @@ class DashboardViewModel : ViewModel() {
 
     private val _dailyDueInvest = MutableStateFlow(0L)
     val dailyDueInvest: StateFlow<Long> = _dailyDueInvest
+
+    private val _salaryLiability = MutableStateFlow(0L)
+    val salaryLiability: StateFlow<Long> = _salaryLiability
 
     private val _totalCustomerDue = MutableStateFlow(0L)
     val totalCustomerDue: StateFlow<Long> = _totalCustomerDue
@@ -85,51 +89,56 @@ class DashboardViewModel : ViewModel() {
                 val partsFlow = database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd)
 
                 combine(handoverFlow, salesFlow, txnFlow, partsFlow) { a, b, c, d ->
+                    val handoverRevenue = a.sumOf { it.finalAmount }
                     val saleRevenue = b.sumOf { it.salePrice }
 
-                    // Advances: PaymentTransactions with paymentId=null and personType=CUSTOMER/DEALER
-                    val advancePayments = c.filter {
-                        it.paymentId == null &&
+                    // Cash in from customers/dealers: advances (paymentId=null) + due collections (paymentId!=null)
+                    val customerCashIn = c.filter {
                         (it.personType == "CUSTOMER" || it.personType == "DEALER") &&
-                        it.amount > 0L
+                                it.amount > 0L
                     }.sumOf { it.amount }
 
-                    // Due collections: PaymentTransactions with paymentId != null (linked to a Payment)
-                    val dueCollections = c.filter {
-                        it.paymentId != null &&
-                        (it.personType == "CUSTOMER" || it.personType == "DEALER") &&
-                        it.amount > 0L
-                    }.sumOf { it.amount }
-
-                    // Supplier payments cash out
+                    // Actual cash out to suppliers (not refunds — refunds have personType SUPPLIER_REFUND)
                     val supplierPayments = c.filter {
                         it.personType == "SUPPLIER" && it.amount > 0L
+                    }.sumOf { it.amount }
+
+                    // Cash in from supplier refunds (part returns)
+                    val supplierRefunds = c.filter {
+                        it.personType == "SUPPLIER_REFUND" && it.amount > 0L
                     }.sumOf { it.amount }
 
                     val partPurchases = d.sumOf { it.purchasePrice * it.quantity }
 
                     ProfitAggregate(
-                        handoverRevenue = 0L,
+                        handoverRevenue = handoverRevenue,
                         saleRevenue = saleRevenue,
-                        advancePayments = advancePayments,
-                        dueCollections = dueCollections,
+                        customerCashIn = customerCashIn,
+                        partReturnRefunds = supplierRefunds,
                         partPurchases = partPurchases,
                         supplierPayments = supplierPayments
                     )
                 }.combine(database.expenseDao().getByDateRange(todayStart, todayEnd)) { agg, expenses ->
                     agg.copy(shopExpenses = expenses.sumOf { it.amount })
                 }.combine(database.salaryDao().getByMonth(monthStart, monthEnd)) { agg, salaries ->
-                    agg.copy(salaryPayouts = salaries.sumOf { it.paidAmount })
+                    agg.copy(
+                        salaryPayouts = salaries.sumOf { it.paidAmount },
+                        salaryLiability = salaries.sumOf { it.dueAmount }
+                    )
                 }.combine(database.partReturnDao().getReturnsByDateRangeQuery(todayStart, todayEnd)) { agg, returns ->
                     agg.copy(partReturnRefunds = returns.sumOf { it.refundAmount })
                 }.collect { agg ->
-                    val totalRevenue = agg.saleRevenue + agg.advancePayments +
-                            agg.dueCollections + agg.partReturnRefunds
+                    // Cash-basis revenue: all cash in from customers/dealers + direct sales + supplier refunds
+                    val totalRevenue = agg.customerCashIn + agg.saleRevenue + agg.partReturnRefunds
+                    // Cost: parts bought + shop expenses + salaries paid + supplier payments
+                    // supplier refunds INCREASE profit (cost recovery), so they increase revenue not decrease cost
                     val totalCost = agg.partPurchases + agg.shopExpenses + agg.salaryPayouts + agg.supplierPayments
                     _dailyRevenue.value = totalRevenue
                     _dailyProfit.value = totalRevenue - totalCost
                     _dailyInvest.value = agg.partPurchases
-                    _dailyPaidInvest.value = agg.supplierPayments - (agg.partPurchases - agg.supplierPayments).coerceAtLeast(0L)
+                    _dailyPaidInvest.value = agg.supplierPayments
+                    _dailyDueInvest.value = (agg.partPurchases - agg.supplierPayments).coerceAtLeast(0L)
+                    _salaryLiability.value = agg.salaryLiability
                 }
             } catch (e: Exception) { e.printStackTrace() }
         }
@@ -196,12 +205,12 @@ class DashboardViewModel : ViewModel() {
     private data class ProfitAggregate(
         val handoverRevenue: Long = 0L,
         val saleRevenue: Long = 0L,
-        val advancePayments: Long = 0L,
-        val dueCollections: Long = 0L,
+        val customerCashIn: Long = 0L,
         val partReturnRefunds: Long = 0L,
         val partPurchases: Long = 0L,
         val shopExpenses: Long = 0L,
         val salaryPayouts: Long = 0L,
+        val salaryLiability: Long = 0L,
         val supplierPayments: Long = 0L
     )
 }

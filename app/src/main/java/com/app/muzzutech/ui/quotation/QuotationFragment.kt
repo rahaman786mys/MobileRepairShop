@@ -51,6 +51,9 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
         faultAdapter = CommonFaultAdapter { fault ->
             selectedFault = fault.faultName
             binding.tvFaultDetected.text = "Selected: $selectedFault"
+            if (fault.defaultCharge > 0L && binding.etChargeAmount.text.isNullOrBlank()) {
+                binding.etChargeAmount.setText((fault.defaultCharge / 100.0).toString())
+            }
         }
         binding.rvCommonFaults.apply {
             layoutManager = LinearLayoutManager(requireContext())

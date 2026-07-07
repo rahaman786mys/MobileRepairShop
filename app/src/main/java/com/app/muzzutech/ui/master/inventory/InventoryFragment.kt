@@ -96,13 +96,14 @@ class InventoryFragment : Fragment(R.layout.fragment_inventory) {
     }
 
     private fun updateSummary() {
-        val totalValue = purchases.sumOf { it.value }
+        val totalValue = allItems.sumOf { it.value }
         binding.tvTotalInventoryValue.text = PriceUtils.formatPrice(totalValue)
-        binding.tvTotalItemsCount.text = "${purchases.size} purchases"
+        binding.tvTotalItemsCount.text = "${purchases.size} purchases, ${returns.size} returns"
     }
 
     private fun combineAndDisplay() {
         allItems = (purchases + sales + returns).sortedByDescending { it.date }
+        updateSummary()
         setupRecyclerView(allItems)
     }
 

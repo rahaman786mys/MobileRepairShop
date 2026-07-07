@@ -116,7 +116,7 @@ class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
                             val refundTxnId = db.paymentTransactionDao().insert(
                                 com.app.muzzutech.data.model.PaymentTransaction(
                                     paymentId = linkedPayment.id,
-                                    personType = "SUPPLIER",
+                                    personType = "SUPPLIER_REFUND",
                                     personMobile = linkedPayment.personMobile,
                                     personName = "${linkedPayment.personName} (Refund)",
                                     amount = refund,
