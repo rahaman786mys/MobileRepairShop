@@ -75,9 +75,8 @@ class DashboardViewModel : ViewModel() {
             } catch (e: Exception) { e.printStackTrace() }
         }
 
-        // Zero-Sum profit: includes ALL cash flows
-        // Total Profit = (Handover Revenue + Direct Sales + Advances + Due Collections + Part Return Refunds)
-        //              - (Part Purchases + Shop Expenses + Salary Payouts + Supplier Payments)
+        // Cash-basis profit: only actual cash movement counts as revenue/cost.
+        // Invoice totals are excluded here to avoid double-counting handovers plus collections.
         viewModelScope.launch {
             try {
                 val handoverFlow = database.repairEntryDao().getCompletedEntries()
@@ -86,8 +85,6 @@ class DashboardViewModel : ViewModel() {
                 val partsFlow = database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd)
 
                 combine(handoverFlow, salesFlow, txnFlow, partsFlow) { a, b, c, d ->
-                    val handoverRevenue = a.filter { it.handoverDate in todayStart..todayEnd }
-                        .sumOf { it.finalAmount }
                     val saleRevenue = b.sumOf { it.salePrice }
 
                     // Advances: PaymentTransactions with paymentId=null and personType=CUSTOMER/DEALER
@@ -112,7 +109,7 @@ class DashboardViewModel : ViewModel() {
                     val partPurchases = d.sumOf { it.purchasePrice * it.quantity }
 
                     ProfitAggregate(
-                        handoverRevenue = handoverRevenue,
+                        handoverRevenue = 0L,
                         saleRevenue = saleRevenue,
                         advancePayments = advancePayments,
                         dueCollections = dueCollections,
@@ -126,7 +123,7 @@ class DashboardViewModel : ViewModel() {
                 }.combine(database.partReturnDao().getReturnsByDateRangeQuery(todayStart, todayEnd)) { agg, returns ->
                     agg.copy(partReturnRefunds = returns.sumOf { it.refundAmount })
                 }.collect { agg ->
-                    val totalRevenue = agg.handoverRevenue + agg.saleRevenue + agg.advancePayments +
+                    val totalRevenue = agg.saleRevenue + agg.advancePayments +
                             agg.dueCollections + agg.partReturnRefunds
                     val totalCost = agg.partPurchases + agg.shopExpenses + agg.salaryPayouts + agg.supplierPayments
                     _dailyRevenue.value = totalRevenue

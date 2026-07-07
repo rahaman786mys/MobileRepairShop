@@ -7,9 +7,13 @@ import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.room.Room
 import com.app.muzzutech.MobileRepairApp
+import com.app.muzzutech.data.db.AppDatabase
+import com.app.muzzutech.utils.crpto.DatabasePassphraseProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.sqlcipher.database.SupportFactory
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -97,12 +101,26 @@ object BackupManager {
                 }
             } ?: return@withContext false
 
-            // 2. Verify integrity by attempting to open with raw SQLite
+            // 2. Verify integrity using the same encrypted Room configuration as production.
             val integrityOk = try {
-                val testDb = android.database.sqlite.SQLiteDatabase.openDatabase(
-                    tempFile.absolutePath, null,
-                    android.database.sqlite.SQLiteDatabase.OPEN_READONLY
+                val passphrase = DatabasePassphraseProvider.getOrCreatePassphrase(context)
+                val testDb = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    tempFile.absolutePath
                 )
+                    .openHelperFactory(SupportFactory(passphrase))
+                    .addMigrations(
+                        AppDatabase.MIGRATION_8_9,
+                        AppDatabase.MIGRATION_9_10,
+                        AppDatabase.MIGRATION_10_11,
+                        AppDatabase.MIGRATION_11_12,
+                        AppDatabase.MIGRATION_12_13,
+                        AppDatabase.MIGRATION_13_14,
+                        AppDatabase.MIGRATION_14_15
+                    )
+                    .build()
+                testDb.openHelper.readableDatabase.query("SELECT COUNT(*) FROM sqlite_master").close()
                 testDb.close()
                 true
             } catch (e: Exception) {

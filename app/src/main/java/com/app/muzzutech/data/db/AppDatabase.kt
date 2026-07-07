@@ -10,6 +10,7 @@ import com.app.muzzutech.data.db.dao.*
 import com.app.muzzutech.data.model.*
 import net.sqlcipher.database.SupportFactory
 import java.io.File
+import java.io.IOException
 
 @Database(
     entities = [
@@ -302,7 +303,6 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                     .apply { if (factory != null) openHelperFactory(factory) }
                     .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
-                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
@@ -324,16 +324,61 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private fun migrateToEncrypted(context: Context, dbFile: File, passphrase: ByteArray) {
+            val backupFile = File(context.noBackupFilesDir, "legacy_db_plaintext_backup.db")
+            val encryptedTempFile = File(context.noBackupFilesDir, "mobile_repair_shop_db_encrypted.tmp")
             try {
-                val backupFile = File(context.cacheDir, "legacy_db_backup.db")
                 if (backupFile.exists()) backupFile.delete()
+                if (encryptedTempFile.exists()) encryptedTempFile.delete()
+
+                // Preserve the live DB until the encrypted copy is fully verified.
                 dbFile.copyTo(backupFile, overwrite = true)
-                dbFile.delete()
-                // Room will create a new encrypted database via SupportFactory on next access.
-                // The unencrypted backup is preserved at legacy_db_backup.db for manual restore.
-                android.util.Log.i("AppDatabase", "Legacy unencrypted DB backed up to ${backupFile.absolutePath}")
+
+                net.sqlcipher.database.SQLiteDatabase.loadLibs(context)
+                val plainDb = net.sqlcipher.database.SQLiteDatabase.openDatabase(
+                    backupFile.absolutePath,
+                    "",
+                    null as net.sqlcipher.database.SQLiteDatabase.CursorFactory?,
+                    net.sqlcipher.database.SQLiteDatabase.OPEN_READWRITE
+                )
+                val encryptedPath = encryptedTempFile.absolutePath.replace("'", "''")
+                val keyHex = passphrase.joinToString(separator = "") { "%02x".format(it) }
+                plainDb.rawExecSQL("ATTACH DATABASE '$encryptedPath' AS encrypted KEY x'$keyHex'")
+                plainDb.rawExecSQL("SELECT sqlcipher_export('encrypted')")
+                val versionCursor = plainDb.rawQuery("PRAGMA user_version", arrayOfNulls<String>(0))
+                val userVersion = if (versionCursor.moveToFirst()) versionCursor.getInt(0) else 0
+                versionCursor.close()
+                plainDb.rawExecSQL("PRAGMA encrypted.user_version = $userVersion")
+                plainDb.rawExecSQL("DETACH DATABASE encrypted")
+                plainDb.close()
+
+                val keyHexForOpen = passphrase.joinToString(separator = "") { "%02x".format(it) }
+                val encryptedDb = net.sqlcipher.database.SQLiteDatabase.openDatabase(
+                    encryptedTempFile.absolutePath,
+                    keyHexForOpen,
+                    null as net.sqlcipher.database.SQLiteDatabase.CursorFactory?,
+                    net.sqlcipher.database.SQLiteDatabase.OPEN_READONLY
+                )
+                encryptedDb.rawQuery("SELECT COUNT(*) FROM sqlite_master", arrayOfNulls<String>(0)).use { it.moveToFirst() }
+                encryptedDb.close()
+
+                val replaceBackup = File(context.noBackupFilesDir, "mobile_repair_shop_db.pre_encryption")
+                if (replaceBackup.exists()) replaceBackup.delete()
+                dbFile.copyTo(replaceBackup, overwrite = true)
+                if (!dbFile.delete()) throw IOException("Unable to replace plaintext database")
+                encryptedTempFile.copyTo(dbFile, overwrite = true)
+                encryptedTempFile.delete()
+                deleteSidecarFiles(context, "mobile_repair_shop_db")
+                android.util.Log.i("AppDatabase", "Plaintext database encrypted successfully")
             } catch (e: Exception) {
-                android.util.Log.e("AppDatabase", "Failed to backup legacy database", e)
+                android.util.Log.e("AppDatabase", "SQLCipher migration failed; keeping plaintext database", e)
+                if (encryptedTempFile.exists()) encryptedTempFile.delete()
+            }
+        }
+
+        private fun deleteSidecarFiles(context: Context, dbName: String) {
+            listOf("$dbName-wal", "$dbName-shm", "$dbName-journal").forEach { name ->
+                val sidecar = context.getDatabasePath(name)
+                if (sidecar.exists()) sidecar.delete()
             }
         }
     }

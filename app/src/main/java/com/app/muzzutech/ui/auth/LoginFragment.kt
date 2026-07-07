@@ -7,16 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentLoginBinding
-import com.app.muzzutech.utils.WhatsAppOtpUtil
+import com.app.muzzutech.utils.OtpManager
 import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -65,7 +62,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.btnSendOtp.setOnClickListener {
             val phone = binding.etMobileNumber.text.toString().trim()
             if (phone.length == 10) {
-                sendOtpViaWhatsApp(phone)
+                sendOtp(phone)
             } else {
                 binding.tilMobileNumber.error = "Enter valid 10-digit WhatsApp number"
             }
@@ -73,17 +70,13 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
         binding.btnVerifyOtp.setOnClickListener {
             val otp = binding.etOtp.text.toString().trim()
-            if (WhatsAppOtpUtil.validateOtp(otp)) {
-                loginSuccess()
-            } else {
-                Toast.makeText(requireContext(), "Invalid OTP. Check your WhatsApp", Toast.LENGTH_SHORT).show()
-            }
+            verifyOtp(otp)
         }
 
         binding.tvResendOtp.setOnClickListener {
             val phone = binding.etMobileNumber.text.toString().trim()
             if (phone.length == 10) {
-                sendOtpViaWhatsApp(phone)
+                sendOtp(phone)
             }
         }
     }
@@ -100,24 +93,38 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
-    private fun sendOtpViaWhatsApp(mobile: String) {
-        val otp = WhatsAppOtpUtil.sendOtpViaWhatsApp(requireContext(), mobile)
-        if (otp != null) {
-            binding.progressBar.isVisible = true
-            binding.btnSendOtp.isEnabled = false
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                delay(500)
-                if (isAdded) {
-                    binding.progressBar.isVisible = false
+    private fun sendOtp(mobile: String) {
+        binding.progressBar.isVisible = true
+        binding.btnSendOtp.isEnabled = false
+        OtpManager.sendOtp(mobile) { success, error ->
+            activity?.runOnUiThread {
+                if (!isAdded) return@runOnUiThread
+                binding.progressBar.isVisible = false
+                binding.btnSendOtp.isEnabled = true
+                if (success) {
                     binding.layoutMobileInput.isVisible = false
                     binding.layoutOtpInput.isVisible = true
-                    binding.tvOtpSentTo.text = "OTP sent via WhatsApp to +91 $mobile\n\nCheck your WhatsApp, copy the OTP and enter it below."
-                    Toast.makeText(requireContext(), "WhatsApp opened! Send the message to yourself", Toast.LENGTH_LONG).show()
+                    binding.tvOtpSentTo.text = "OTP sent to +91 $mobile. Enter it below to continue."
+                    Toast.makeText(requireContext(), "OTP sent", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), error ?: "Failed to send OTP", Toast.LENGTH_SHORT).show()
                 }
             }
-        } else {
-            Toast.makeText(requireContext(), "Failed to open WhatsApp", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun verifyOtp(otp: String) {
+        binding.progressBar.isVisible = true
+        OtpManager.verifyOtp(otp) { success, error ->
+            activity?.runOnUiThread {
+                if (!isAdded) return@runOnUiThread
+                binding.progressBar.isVisible = false
+                if (success) {
+                    loginSuccess()
+                } else {
+                    Toast.makeText(requireContext(), error ?: "Invalid OTP", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

@@ -16,7 +16,9 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.lifecycle.Observer
 import com.app.muzzutech.R
 import com.app.muzzutech.ui.update.UpdateBottomSheet
 import com.app.muzzutech.utils.update.PlayUpdateHelper
@@ -37,11 +39,10 @@ object UpdateManager {
   private var downloadFile: java.io.File? = null
 
   fun checkForUpdates(activity: AppCompatActivity) {
-    // Try Play In-App Updates first (for Play Store distribution)
-    if (PlayUpdateHelper.tryImmediateUpdate(activity)) {
-      Log.i(TAG, "checkForUpdates: Play In-App Updates triggered")
-      return
-    }
+    PlayUpdateHelper.tryImmediateUpdate(activity) { checkFallbackForUpdates(activity) }
+  }
+
+  private fun checkFallbackForUpdates(activity: AppCompatActivity) {
     Log.d(TAG, "checkForUpdates: starting update check, currentVersionCode=${UpdateRepository(activity).getCurrentVersionCode()}")
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
@@ -92,8 +93,11 @@ object UpdateManager {
 
   fun handleNotificationIntent(activity: AppCompatActivity, intent: Intent) {
     Log.d(TAG, "handleNotificationIntent: processing notification tap")
-    if (PlayUpdateHelper.tryImmediateUpdate(activity)) return
-    CoroutineScope(Dispatchers.IO).launch {
+    PlayUpdateHelper.tryImmediateUpdate(activity) { showFallbackUpdateFromNotification(activity) }
+  }
+
+  private fun showFallbackUpdateFromNotification(activity: AppCompatActivity) {
+      CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
       var result = prefs.fetchReleaseFromGitHubApi()
       var info = result.getOrNull()
@@ -159,12 +163,16 @@ object UpdateManager {
         .build()
 
     WorkManager.getInstance(appContext).enqueue(work)
-    WorkManager.getInstance(appContext).getWorkInfoByIdLiveData(work.id).observeForever { info ->
-      if (info == null) return@observeForever
+    val workManager = WorkManager.getInstance(appContext)
+    val liveData = workManager.getWorkInfoByIdLiveData(work.id)
+    lateinit var observer: Observer<WorkInfo>
+    observer = Observer { info ->
+      if (info == null) return@Observer
       val progress = info.progress.getInt(DownloadWorker.KEY_PROGRESS, 0)
       val progressText = info.progress.getString(DownloadWorker.KEY_PROGRESS_TEXT).orEmpty()
       if (progress > 0) onProgress(progress, progressText)
       if (info.state.isFinished) {
+        liveData.removeObserver(observer)
         if (info.state == androidx.work.WorkInfo.State.SUCCEEDED) {
           val path = info.outputData.getString(DownloadWorker.KEY_FILE_PATH)
           if (path != null) {
@@ -179,6 +187,7 @@ object UpdateManager {
         }
       }
     }
+    liveData.observeForever(observer)
   }
 
   fun installApk(context: Context, apkFile: File, launcher: androidx.activity.result.ActivityResultLauncher<Intent>? = null) {

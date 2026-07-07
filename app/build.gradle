@@ -6,6 +6,17 @@ plugins {
     id 'com.google.gms.google-services'
 }
 
+def localProps = rootProject.file('local.properties')
+def props = new Properties()
+if (localProps.exists()) {
+    props.load(localProps.newDataInputStream())
+}
+def releaseStoreFile = props.getProperty('STORE_FILE')
+def releaseStorePassword = props.getProperty('STORE_PASSWORD')
+def releaseKeyAlias = props.getProperty('KEY_ALIAS')
+def releaseKeyPassword = props.getProperty('KEY_PASSWORD')
+def hasReleaseSigning = releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
+
 android {
     namespace 'com.app.muzzutech'
     compileSdk 34
@@ -21,11 +32,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // OTP credentials injected from local.properties (never hardcoded in source)
-        def localProps = rootProject.file('local.properties')
-        def props = new Properties()
-        if (localProps.exists()) {
-            props.load(localProps.newDataInputStream())
-        }
         def otpApiKey = props.getProperty('otp.api.key')
         if (otpApiKey == null || otpApiKey.isEmpty()) {
             throw new GradleException("otp.api.key not found in local.properties")
@@ -58,6 +64,14 @@ android {
                 keyPassword 'android'
             }
         }
+        release {
+            if (hasReleaseSigning) {
+                storeFile rootProject.file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
     }
 
     buildTypes {
@@ -66,7 +80,9 @@ android {
             minifyEnabled false
         }
         release {
-            signingConfig signingConfigs.debug
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

@@ -40,7 +40,7 @@
 
         <activity
             android:name=".TestLauncherActivity"
-            android:exported="true"
+            android:exported="false"
             android:theme="@style/Theme.MobileRepairShop">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

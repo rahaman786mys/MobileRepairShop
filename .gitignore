@@ -40,3 +40,7 @@ debug_keystore_base64.txt
 
 # Google services (contains Firebase API key + OAuth client IDs)
 google-services.json
+
+# Large dumps / heap snapshots
+*.hprof
+*.prof
