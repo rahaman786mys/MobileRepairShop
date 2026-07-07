@@ -17,6 +17,7 @@ import androidx.navigation.fragment.findNavController
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentLoginBinding
 import com.app.muzzutech.utils.WhatsAppOtpUtil
+import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -122,7 +123,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private fun loginSuccess(email: String = "") {
         val ctx = context ?: return
-        val prefs = ctx.getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
+        val prefs = SecurePrefs.authPrefs(ctx)
         prefs.edit().apply {
             putBoolean("is_logged_in", true)
             if (email.isNotEmpty()) putString("logged_in_email", email)

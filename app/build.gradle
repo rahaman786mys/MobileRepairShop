@@ -22,19 +22,30 @@ android {
 
         // OTP credentials injected from local.properties (never hardcoded in source)
         def localProps = rootProject.file('local.properties')
-        def otpApiKey = "PLACEHOLDER_KEY"
-        def otpSenderId = "PLACEHOLDER_SENDER"
-        def otpTemplateId = "PLACEHOLDER_TEMPLATE"
+        def props = new Properties()
         if (localProps.exists()) {
-            def props = new Properties()
             props.load(localProps.newDataInputStream())
-            otpApiKey = props.getProperty('otp.api.key', otpApiKey)
-            otpSenderId = props.getProperty('otp.sender.id', otpSenderId)
-            otpTemplateId = props.getProperty('otp.template.id', otpTemplateId)
+        }
+        def otpApiKey = props.getProperty('otp.api.key')
+        if (otpApiKey == null || otpApiKey.isEmpty()) {
+            throw new GradleException("otp.api.key not found in local.properties")
+        }
+        def otpSenderId = props.getProperty('otp.sender.id')
+        if (otpSenderId == null || otpSenderId.isEmpty()) {
+            throw new GradleException("otp.sender.id not found in local.properties")
+        }
+        def otpTemplateId = props.getProperty('otp.template.id')
+        if (otpTemplateId == null || otpTemplateId.isEmpty()) {
+            throw new GradleException("otp.template.id not found in local.properties")
         }
         buildConfigField "String", "OTP_API_KEY", "\"$otpApiKey\""
         buildConfigField "String", "OTP_SENDER_ID", "\"$otpSenderId\""
         buildConfigField "String", "OTP_TEMPLATE_ID", "\"$otpTemplateId\""
+
+        // Update check URL (configurable via local.properties)
+        def updateCheckUrl = props.getProperty('update.check.url',
+            'https://raw.githubusercontent.com/rahaman786mys/MobileRepairShop/master/version.json')
+        buildConfigField "String", "UPDATE_CHECK_URL", "\"$updateCheckUrl\""
     }
 
     signingConfigs {
@@ -56,8 +67,8 @@ android {
         }
         release {
             signingConfig signingConfigs.debug
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -84,6 +95,22 @@ android {
 
     kotlinOptions {
         jvmTarget = '17'
+    }
+
+    // Preserve ProGuard mapping file for crash deobfuscation
+    android.applicationVariants.all { variant ->
+        variant.assembleProvider.configure {
+            doLast {
+                def mappingDir = project.file("${rootDir}/build/outputs/mapping/${variant.name}")
+                if (variant.mappingFile != null && variant.mappingFile.exists()) {
+                    copy {
+                        from variant.mappingFile
+                        into mappingDir
+                        rename { String fileName -> "mapping-${variant.versionName}.txt" }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -147,6 +174,14 @@ androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
 
     // WorkManager (background jobs)
     implementation 'androidx.work:work-runtime-ktx:2.9.0'
+
+    // Encrypted storage (SQLCipher + EncryptedSharedPreferences)
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.4'
+    implementation 'androidx.sqlite:sqlite-ktx:2.4.0'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+
+    // Play In-App Updates (for Play Store distribution)
+    implementation 'com.google.android.play:app-update-ktx:2.1.0'
 
     // Testing
     testImplementation 'junit:junit:4.13.2'

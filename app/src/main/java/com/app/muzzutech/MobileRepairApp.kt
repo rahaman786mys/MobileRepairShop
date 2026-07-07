@@ -3,6 +3,7 @@ package com.app.muzzutech
 import android.app.Application
 import com.app.muzzutech.data.db.AppDatabase
 import com.app.muzzutech.data.repository.RepairRepository
+import com.app.muzzutech.utils.crpto.DatabasePassphraseProvider
 import com.app.muzzutech.work.AppScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,8 @@ class MobileRepairApp : Application() {
 
     val database: AppDatabase
         get() = _database ?: synchronized(this) {
-            _database ?: AppDatabase.getDatabase(this).also { _database = it }
+            val passphrase = DatabasePassphraseProvider.getOrCreatePassphrase(this)
+            _database ?: AppDatabase.getDatabase(this, passphrase).also { _database = it }
         }
 
     val repairRepository: RepairRepository by lazy {

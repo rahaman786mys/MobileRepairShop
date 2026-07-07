@@ -18,6 +18,7 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentMoreBinding
 import com.app.muzzutech.utils.BackupManager
+import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -70,15 +71,7 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         }
 
         binding.cardCloudSync.setOnClickListener {
-            val account = GoogleSignIn.getLastSignedInAccount(requireContext())
-            if (account != null) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    BackupManager.syncWithGoogleDrive(requireContext(), account.email ?: "Backup")
-                }
-            } else {
-                Toast.makeText(requireContext(), "Please sign in with Google in Profile first", Toast.LENGTH_LONG).show()
-                findNavController().navigate(R.id.profileFragment)
-            }
+            Toast.makeText(requireContext(), "Google Drive sync coming soon", Toast.LENGTH_SHORT).show()
         }
 
         binding.cardBackupLocal.setOnClickListener { showBackupOptions() }
@@ -139,7 +132,7 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
     }
 
     private fun setupSettings() {
-        val prefs = requireContext().getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
+        val prefs = SecurePrefs.appSettings(requireContext())
         binding.switchBiometric.isChecked = prefs.getBoolean("biometric_enabled", false)
         binding.switchDarkMode.isChecked = prefs.getBoolean("dark_mode", false)
 
@@ -201,7 +194,7 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
     }
 
     private fun logout() {
-        val prefs = requireContext().getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
+        val prefs = SecurePrefs.authPrefs(requireContext())
         prefs.edit().putBoolean("is_logged_in", false).apply()
         Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
         findNavController().navigate(R.id.dashboardFragment)

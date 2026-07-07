@@ -22,6 +22,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
 import com.app.muzzutech.R
 import com.app.muzzutech.ui.update.UpdateBottomSheet
+import com.app.muzzutech.utils.update.PlayUpdateHelper
 import com.app.muzzutech.utils.update.UpdateRepository
 import com.app.muzzutech.utils.update.VersionInfo
 import kotlinx.coroutines.CoroutineScope
@@ -42,6 +43,11 @@ object UpdateManager {
   private var downloadFile: java.io.File? = null
 
   fun checkForUpdates(activity: AppCompatActivity) {
+    // Try Play In-App Updates first (for Play Store distribution)
+    if (PlayUpdateHelper.tryImmediateUpdate(activity)) {
+      Log.i(TAG, "checkForUpdates: Play In-App Updates triggered")
+      return
+    }
     Log.d(TAG, "checkForUpdates: starting update check, currentVersionCode=${UpdateRepository(activity).getCurrentVersionCode()}")
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
@@ -92,6 +98,7 @@ object UpdateManager {
 
   fun handleNotificationIntent(activity: AppCompatActivity, intent: Intent) {
     Log.d(TAG, "handleNotificationIntent: processing notification tap")
+    if (PlayUpdateHelper.tryImmediateUpdate(activity)) return
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
       var result = prefs.fetchReleaseFromGitHubApi()
@@ -154,9 +161,6 @@ object UpdateManager {
         .followRedirects(true)
         .followSslRedirects(true)
         .cache(null)
-        .hostnameVerifier { host, _ ->
-          host == "raw.githubusercontent.com" || host == "github.com"
-        }
         .build()
 
     client.newCall(request).enqueue(

@@ -8,6 +8,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.app.muzzutech.data.db.dao.*
 import com.app.muzzutech.data.model.*
+import net.sqlcipher.database.SupportFactory
+import java.io.File
 
 @Database(
     entities = [
@@ -286,18 +288,52 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        fun getDatabase(context: Context): AppDatabase {
+        fun getDatabase(context: Context, passphrase: ByteArray? = null): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                val dbFile = context.getDatabasePath("mobile_repair_shop_db")
+                if (passphrase != null && dbFile.exists() && !isEncrypted(dbFile)) {
+                    migrateToEncrypted(context, dbFile, passphrase)
+                }
+                val factory = if (passphrase != null) SupportFactory(passphrase) else null
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "mobile_repair_shop_db"
                 )
+                    .apply { if (factory != null) openHelperFactory(factory) }
                     .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
+            }
+        }
+
+        private fun isEncrypted(file: File): Boolean {
+            return try {
+                file.inputStream().buffered().use { stream ->
+                    val header = ByteArray(16)
+                    val read = stream.read(header)
+                    if (read < 16) return false
+                    val headerStr = String(header, Charsets.US_ASCII)
+                    headerStr != "SQLite format 3\u0000"
+                }
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        private fun migrateToEncrypted(context: Context, dbFile: File, passphrase: ByteArray) {
+            try {
+                val backupFile = File(context.cacheDir, "legacy_db_backup.db")
+                if (backupFile.exists()) backupFile.delete()
+                dbFile.copyTo(backupFile, overwrite = true)
+                dbFile.delete()
+                // Room will create a new encrypted database via SupportFactory on next access.
+                // The unencrypted backup is preserved at legacy_db_backup.db for manual restore.
+                android.util.Log.i("AppDatabase", "Legacy unencrypted DB backed up to ${backupFile.absolutePath}")
+            } catch (e: Exception) {
+                android.util.Log.e("AppDatabase", "Failed to backup legacy database", e)
             }
         }
     }

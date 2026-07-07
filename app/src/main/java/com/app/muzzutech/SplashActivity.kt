@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.app.muzzutech.utils.update.UpdateRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun checkBiometrics() {
-        val prefs = getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
+        val prefs = SecurePrefs.appSettings(this)
         val isBiometricEnabled = prefs.getBoolean("biometric_enabled", false)
 
         if (!isBiometricEnabled) {

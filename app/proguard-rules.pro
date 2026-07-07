@@ -36,5 +36,5 @@
 # Kotlin Coroutines
 -dontwarn kotlinx.coroutines.**
 
-# Keep data classes for Gson
--keep class com.app.muzzutech.** { *; }
+# Keep VersionInfo for Gson deserialization
+-keep class com.app.muzzutech.utils.update.VersionInfo { *; }

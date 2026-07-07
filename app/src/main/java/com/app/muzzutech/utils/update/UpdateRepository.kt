@@ -9,12 +9,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 
 data class VersionInfo(
     val versionCode: Int,
@@ -31,8 +25,7 @@ class UpdateRepository(private val context: Context) {
 
     companion object {
         private const val TAG = "UpdateRepository"
-        private const val VERSION_URL =
-            "https://raw.githubusercontent.com/rahaman786mys/MobileRepairShop/master/version.json"
+        private val VERSION_URL get() = com.app.muzzutech.BuildConfig.UPDATE_CHECK_URL
         private const val GITHUB_LATEST_URL =
             "https://api.github.com/repos/rahaman786mys/MobileRepairShop/releases/latest"
         const val PREFS_NAME = "update_prefs"
@@ -42,21 +35,11 @@ class UpdateRepository(private val context: Context) {
     }
 
     private val gson = Gson()
-    private val client: OkHttpClient = run {
-        val trustAll = arrayOf<TrustManager>(object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
-            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-        })
-        val sslContext = SSLContext.getInstance("TLS").apply { init(null, trustAll, SecureRandom()) }
-        OkHttpClient.Builder()
-            .followRedirects(true)
-            .followSslRedirects(true)
-            .cache(null)
-            .sslSocketFactory(sslContext.socketFactory, trustAll[0] as X509TrustManager)
-            .hostnameVerifier(HostnameVerifier { _, _ -> true })
-            .build()
-    }
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .cache(null)
+        .build()
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

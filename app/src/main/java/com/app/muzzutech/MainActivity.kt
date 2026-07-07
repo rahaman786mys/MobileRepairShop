@@ -16,8 +16,12 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.app.muzzutech.databinding.ActivityMainBinding
 import com.app.muzzutech.utils.UpdateManager
+import com.app.muzzutech.utils.crpto.SecurePrefs
+import com.app.muzzutech.utils.update.PlayUpdateHelper
 import com.app.muzzutech.utils.update.UpdateRepository
 import com.app.muzzutech.ui.update.WhatsNewFragment
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.UpdateAvailability
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavigation.setupWithNavController(navController)
 
-        val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+        val prefs = SecurePrefs.authPrefs(this)
         prefs.edit().putBoolean("is_logged_in", true).apply()
 
         val navDest = intent.getStringExtra(EXTRA_NAV_DEST)
@@ -139,6 +143,18 @@ class MainActivity : AppCompatActivity() {
             UpdateManager.handleNotificationIntent(this, intent)
             intent.removeExtra("show_update_dialog")
         }
+        // Resume Play In-App Updates if interrupted (e.g., user went to Play Store to update)
+        try {
+            val appUpdateManager = AppUpdateManagerFactory.create(this)
+            appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
+                if (info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                    appUpdateManager.startUpdateFlowForResult(
+                        info, com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE,
+                        this, PlayUpdateHelper.REQUEST_CODE_IMMEDIATE_UPDATE
+                    )
+                }
+            }
+        } catch (_: Exception) { }
     }
 
     private fun commitPendingNav(navController: androidx.navigation.NavController) {
