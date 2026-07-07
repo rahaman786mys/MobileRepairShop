@@ -19,6 +19,9 @@ suspend fun delete(purchase: SparePartPurchase): Int
 @Query("SELECT * FROM spare_part_purchases WHERE repairEntryId = :repairId ORDER BY purchaseDate DESC")
 fun getPurchasesByRepairId(repairId: Long): Flow<List<SparePartPurchase>>
 
+@Query("SELECT * FROM spare_part_purchases WHERE repairEntryId = :repairId ORDER BY purchaseDate DESC")
+suspend fun getPurchasesByRepairIdList(repairId: Long): List<SparePartPurchase>
+
 @Query("SELECT * FROM spare_part_purchases ORDER BY purchaseDate DESC")
 fun getAllPurchases(): Flow<List<SparePartPurchase>>
 

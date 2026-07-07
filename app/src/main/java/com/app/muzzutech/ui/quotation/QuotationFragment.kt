@@ -44,6 +44,7 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
         setupFaultsList()
         binding.btnSaveQuotation.setOnClickListener { saveQuotation() }
         observeData()
+        observeSaveComplete()
     }
 
     private fun setupFaultsList() {
@@ -76,6 +77,17 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
         }
     }
 
+    private fun observeSaveComplete() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.saveComplete.collect { id ->
+                NotificationUtils.sendRepairStartedWhatsApp(requireContext(), MobileRepairApp.instance.repairRepository.getEntryById(id)!!)
+                Snackbar.make(binding.root, "Work Started & Notified!", Snackbar.LENGTH_SHORT).show()
+                val bundle = Bundle().apply { putLong("entryId", id) }
+                findNavController().navigate(R.id.sparePartsFragment, bundle)
+            }
+        }
+    }
+
     private fun saveQuotation() {
         val chargeText = binding.etChargeAmount.text.toString().trim()
         val advanceText = binding.etAdvanceAmount.text.toString().trim()
@@ -88,25 +100,7 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
         val charge = ((chargeText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
         val advance = ((advanceText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            MobileRepairApp.instance.repairRepository.getEntryById(entryId)?.let { entry ->
-                val updated = entry.copy(
-                    faultDetected = selectedFault,
-                    chargeAmount = charge,
-                    advanceAmount = advance,
-                    quotationDate = System.currentTimeMillis(),
-                    quotationDone = true
-                )
-                MobileRepairApp.instance.repairRepository.update(updated)
-                
-                // Notify Customer
-                NotificationUtils.sendRepairStartedWhatsApp(requireContext(), updated)
-                
-                Snackbar.make(binding.root, "Work Started & Notified!", Snackbar.LENGTH_SHORT).show()
-                val bundle = Bundle().apply { putLong("entryId", entryId) }
-                findNavController().navigate(R.id.sparePartsFragment, bundle)
-            }
-        }
+        viewModel.saveQuotation(entryId, charge, advance, selectedFault)
     }
 
     override fun onDestroyView() {

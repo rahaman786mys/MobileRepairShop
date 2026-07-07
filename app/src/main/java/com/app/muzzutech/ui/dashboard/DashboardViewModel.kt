@@ -58,6 +58,7 @@ class DashboardViewModel : ViewModel() {
         val todayStart = DateUtils.getStartOfDay()
         val todayEnd = DateUtils.getEndOfDay()
         val monthStart = DateUtils.getStartOfMonth()
+        val monthEnd = DateUtils.getEndOfMonth(monthStart)
 
         viewModelScope.launch {
             try {
@@ -74,45 +75,65 @@ class DashboardViewModel : ViewModel() {
             } catch (e: Exception) { e.printStackTrace() }
         }
 
-        // True COGS-based daily profit: Revenue - COGS - Expenses - Salaries
+        // Zero-Sum profit: includes ALL cash flows
+        // Total Profit = (Handover Revenue + Direct Sales + Advances + Due Collections + Part Return Refunds)
+        //              - (Part Purchases + Shop Expenses + Salary Payouts + Supplier Payments)
         viewModelScope.launch {
             try {
-                combine(
-                    database.repairEntryDao().getCompletedEntries(),
-                    database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd),
-                    database.expenseDao().getByDateRange(todayStart, todayEnd),
-                    database.salaryDao().getByMonth(monthStart, DateUtils.getEndOfMonth(monthStart))
-                ) { completed, parts, expenses, salaries ->
-                    // Revenue: finalAmount of entries handed over today
-                    val todayHandovers = completed.filter { it.handoverDate in todayStart..todayEnd }
-                    val revenue = todayHandovers.sumOf { it.finalAmount }
+                val handoverFlow = database.repairEntryDao().getCompletedEntries()
+                val salesFlow = database.saleDao().getSalesByDateRange(todayStart, todayEnd)
+                val txnFlow = database.paymentTransactionDao().getTransactionsByDateRange(todayStart, todayEnd)
+                val partsFlow = database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd)
 
-                    // COGS: parts consumed in today's handovers only
-                    val handoverIds = todayHandovers.map { it.id }.toSet()
-                    val cogs = parts.filter { it.repairEntryId in handoverIds }
-                        .sumOf { it.purchasePrice * it.quantity }
+                combine(handoverFlow, salesFlow, txnFlow, partsFlow) { a, b, c, d ->
+                    val handoverRevenue = a.filter { it.handoverDate in todayStart..todayEnd }
+                        .sumOf { it.finalAmount }
+                    val saleRevenue = b.sumOf { it.salePrice }
 
-                    // Shop expenses (paid today)
-                    val shopExpenses = expenses.sumOf { it.amount }
+                    // Advances: PaymentTransactions with paymentId=null and personType=CUSTOMER/DEALER
+                    val advancePayments = c.filter {
+                        it.paymentId == null &&
+                        (it.personType == "CUSTOMER" || it.personType == "DEALER") &&
+                        it.amount > 0L
+                    }.sumOf { it.amount }
 
-                    // Salaries paid this month (apportioned daily view)
-                    val salariesPaid = salaries.sumOf { it.paidAmount }
+                    // Due collections: PaymentTransactions with paymentId != null (linked to a Payment)
+                    val dueCollections = c.filter {
+                        it.paymentId != null &&
+                        (it.personType == "CUSTOMER" || it.personType == "DEALER") &&
+                        it.amount > 0L
+                    }.sumOf { it.amount }
 
-                    val totalCost = cogs + shopExpenses + salariesPaid
-                    Pair(revenue, totalCost)
-                }.collect { (revenue, totalCost) ->
-                    _dailyRevenue.value = revenue
-                    _dailyProfit.value = revenue - totalCost
+                    // Supplier payments cash out
+                    val supplierPayments = c.filter {
+                        it.personType == "SUPPLIER" && it.amount > 0L
+                    }.sumOf { it.amount }
+
+                    val partPurchases = d.sumOf { it.purchasePrice * it.quantity }
+
+                    ProfitAggregate(
+                        handoverRevenue = handoverRevenue,
+                        saleRevenue = saleRevenue,
+                        advancePayments = advancePayments,
+                        dueCollections = dueCollections,
+                        partPurchases = partPurchases,
+                        supplierPayments = supplierPayments
+                    )
+                }.combine(database.expenseDao().getByDateRange(todayStart, todayEnd)) { agg, expenses ->
+                    agg.copy(shopExpenses = expenses.sumOf { it.amount })
+                }.combine(database.salaryDao().getByMonth(monthStart, monthEnd)) { agg, salaries ->
+                    agg.copy(salaryPayouts = salaries.sumOf { it.paidAmount })
+                }.combine(database.partReturnDao().getReturnsByDateRangeQuery(todayStart, todayEnd)) { agg, returns ->
+                    agg.copy(partReturnRefunds = returns.sumOf { it.refundAmount })
+                }.collect { agg ->
+                    val totalRevenue = agg.handoverRevenue + agg.saleRevenue + agg.advancePayments +
+                            agg.dueCollections + agg.partReturnRefunds
+                    val totalCost = agg.partPurchases + agg.shopExpenses + agg.salaryPayouts + agg.supplierPayments
+                    _dailyRevenue.value = totalRevenue
+                    _dailyProfit.value = totalRevenue - totalCost
+                    _dailyInvest.value = agg.partPurchases
+                    _dailyPaidInvest.value = agg.supplierPayments - (agg.partPurchases - agg.supplierPayments).coerceAtLeast(0L)
                 }
-            } catch (e: Exception) { e.printStackTrace() }
-        }
-
-        viewModelScope.launch {
-            try {
-                database.sparePartPurchaseDao()
-                    .getTotalPurchaseInRange(todayStart, todayEnd).collect { total ->
-                        _dailyInvest.value = total ?: 0L
-                    }
             } catch (e: Exception) { e.printStackTrace() }
         }
     }
@@ -122,18 +143,6 @@ class DashboardViewModel : ViewModel() {
         _secondaryLoaded = true
         val todayStart = DateUtils.getStartOfDay()
         val todayEnd = DateUtils.getEndOfDay()
-
-        viewModelScope.launch {
-            try {
-                database.paymentDao()
-                    .getPaymentsByTypeAndDate("SUPPLIER", todayStart, todayEnd).collect { payments ->
-                        val paid = payments.sumOf { it.paidAmount }
-                        val due = payments.sumOf { it.dueAmount }
-                        _dailyPaidInvest.value = paid
-                        _dailyDueInvest.value = due
-                    }
-            } catch (e: Exception) { e.printStackTrace() }
-        }
 
         viewModelScope.launch {
             try {
@@ -186,4 +195,16 @@ class DashboardViewModel : ViewModel() {
             } catch (e: Exception) { e.printStackTrace() }
         }
     }
+
+    private data class ProfitAggregate(
+        val handoverRevenue: Long = 0L,
+        val saleRevenue: Long = 0L,
+        val advancePayments: Long = 0L,
+        val dueCollections: Long = 0L,
+        val partReturnRefunds: Long = 0L,
+        val partPurchases: Long = 0L,
+        val shopExpenses: Long = 0L,
+        val salaryPayouts: Long = 0L,
+        val supplierPayments: Long = 0L
+    )
 }

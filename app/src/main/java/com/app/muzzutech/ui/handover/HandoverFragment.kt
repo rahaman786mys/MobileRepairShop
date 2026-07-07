@@ -76,13 +76,9 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
     }
 
     private fun cancelWork() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.entry.value?.let { entry ->
-                val updated = entry.copy(isDraft = true, workStatus = "Cancelled")
-                MobileRepairApp.instance.repairRepository.update(updated)
-                Toast.makeText(requireContext(), "Work Cancelled & Moved to Drafts", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack(R.id.dashboardFragment, false)
-            }
+        viewModel.cancelWork(entryId) {
+            Toast.makeText(requireContext(), "Work Cancelled — advance refunded", Toast.LENGTH_SHORT).show()
+            findNavController().popBackStack(R.id.dashboardFragment, false)
         }
     }
 

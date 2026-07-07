@@ -39,7 +39,16 @@ class RepairRepository(private val repairEntryDao: RepairEntryDao) {
 
     suspend fun insert(entry: RepairEntry): Long = repairEntryDao.insert(entry)
 
-    suspend fun update(entry: RepairEntry) = repairEntryDao.update(entry)
+    /** Guarded update — silently refuses if handoverDone == 1. Returns true if applied. */
+    suspend fun update(entry: RepairEntry): Boolean {
+        val current = getEntryById(entry.id) ?: return false
+        if (current.handoverDone) return false
+        repairEntryDao.update(entry)
+        return true
+    }
+
+    /** Force-update even completed entries (for adjusting entries only). */
+    suspend fun forceUpdate(entry: RepairEntry) = repairEntryDao.update(entry)
 
     suspend fun delete(entry: RepairEntry) = repairEntryDao.delete(entry)
 }

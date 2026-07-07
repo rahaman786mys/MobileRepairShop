@@ -117,37 +117,25 @@ class DuesViewModel : ViewModel() {
         viewModelScope.launch {
             val db = MobileRepairApp.instance.database
             db.withTransaction {
-                // Re-read the payment inside the transaction to avoid lost-update race
-                val current = paymentDao.getPaymentById(payment.id) ?: return@withTransaction
-
-                // Overpayment guard: amount must not exceed current due amount
-                val currentDueAmount = current.totalAmount - current.paidAmount
-                if (amount > currentDueAmount) {
-                    _paymentError.emit("Payment of ${com.app.muzzutech.utils.PriceUtils.formatPrice(amount)} exceeds due amount of ${com.app.muzzutech.utils.PriceUtils.formatPrice(currentDueAmount)}")
+                // Atomic SQL: increment paidAmount, decrement dueAmount in one statement
+                // The WHERE dueAmount >= :amount guard prevents overpayment atomically.
+                val rowsAffected = paymentDao.atomicAddPayment(
+                    paymentId = payment.id,
+                    amount = amount,
+                    now = System.currentTimeMillis()
+                )
+                if (rowsAffected == 0) {
+                    val current = paymentDao.getPaymentById(payment.id)
+                    val due = if (current != null) current.totalAmount - current.paidAmount else 0L
+                    _paymentError.emit("Payment of ${com.app.muzzutech.utils.PriceUtils.formatPrice(amount)} exceeds due amount of ${com.app.muzzutech.utils.PriceUtils.formatPrice(due)}")
                     return@withTransaction
                 }
 
-                val newPaidAmount = current.paidAmount + amount
-                val newDueAmount = current.totalAmount - newPaidAmount
-                val newStatus = when {
-                    newDueAmount <= 0L -> "PAID"
-                    newPaidAmount > 0L -> "PARTIAL"
-                    else -> "UNPAID"
-                }
-
-                val updatedPayment = current.copy(
-                    paidAmount = newPaidAmount,
-                    dueAmount = newDueAmount.coerceAtLeast(0L),
-                    status = newStatus,
-                    updatedAt = System.currentTimeMillis()
-                )
-                paymentDao.update(updatedPayment)
-
                 val transaction = PaymentTransaction(
-                    paymentId = current.id,
-                    personType = current.personType,
-                    personMobile = current.personMobile,
-                    personName = current.personName,
+                    paymentId = payment.id,
+                    personType = payment.personType,
+                    personMobile = payment.personMobile,
+                    personName = payment.personName,
                     amount = amount,
                     paymentMode = mode,
                     note = note

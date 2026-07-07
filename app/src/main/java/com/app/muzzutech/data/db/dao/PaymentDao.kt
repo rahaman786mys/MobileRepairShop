@@ -48,4 +48,14 @@ interface PaymentDao {
 
     @Query("SELECT COUNT(*) FROM payments WHERE personType = :type AND createdAt BETWEEN :startDate AND :endDate")
     fun getPaymentCountByTypeAndDate(type: String, startDate: Long, endDate: Long): Flow<Int>
+
+    @Query("""
+        UPDATE payments 
+        SET paidAmount = paidAmount + :amount, 
+            dueAmount = dueAmount - :amount,
+            status = CASE WHEN (dueAmount - :amount) <= 0 THEN 'PAID' ELSE 'PARTIAL' END,
+            updatedAt = :now
+        WHERE id = :paymentId AND dueAmount >= :amount
+    """)
+    suspend fun atomicAddPayment(paymentId: Long, amount: Long, now: Long): Int
 }

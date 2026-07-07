@@ -32,6 +32,53 @@ class HandoverViewModel : ViewModel() {
         }
     }
 
+    fun cancelWork(entryId: Long, onDone: () -> Unit) {
+        viewModelScope.launch {
+            val entry = repository.getEntryById(entryId) ?: return@launch
+            if (entry.handoverDone) return@launch
+            val db = MobileRepairApp.instance.database
+            db.withTransaction {
+                // 1. If advance exists, create a cash-out refund transaction
+                val advanceTxnId = entry.advancePaymentTransactionId
+                if (advanceTxnId != null) {
+                    val advanceTxn = db.paymentTransactionDao().getTransactionById(advanceTxnId)
+                    if (advanceTxn != null) {
+                        db.paymentTransactionDao().insert(
+                            com.app.muzzutech.data.model.PaymentTransaction(
+                                paymentId = null,
+                                personType = advanceTxn.personType,
+                                personMobile = advanceTxn.personMobile,
+                                personName = advanceTxn.personName,
+                                amount = -advanceTxn.amount,
+                                paymentMode = "REFUND",
+                                note = "Refund of advance for cancelled repair #${entry.id}: ${entry.deviceBrand} ${entry.deviceModel}"
+                            )
+                        )
+                    }
+                }
+
+                // 2. Delete linked SparePartPurchases and their Payments
+                val parts = purchaseDao.getPurchasesByRepairIdList(entryId)
+                for (part in parts) {
+                    val linkedPayment = db.paymentDao().getPaymentByLinkedPartId(part.id)
+                    if (linkedPayment != null) {
+                        db.paymentDao().delete(linkedPayment)
+                    }
+                    purchaseDao.delete(part)
+                }
+
+                // 3. Mark entry Cancelled
+                repository.forceUpdate(entry.copy(
+                    workStatus = "Cancelled",
+                    isDraft = true,
+                    advanceAmount = 0L,
+                    advancePaymentTransactionId = null
+                ))
+            }
+            onDone()
+        }
+    }
+
     suspend fun completeHandover(
         entryId: Long,
         finalAmount: Long,
