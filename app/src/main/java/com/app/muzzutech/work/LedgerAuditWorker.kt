@@ -9,6 +9,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.data.model.LedgerAlert
+import com.app.muzzutech.utils.PriceUtils
 import kotlinx.coroutines.flow.first
 
 class LedgerAuditWorker(
@@ -33,7 +34,7 @@ class LedgerAuditWorker(
             val linkedTxns = txnDao.getTransactionsByPayment(payment.id).first()
             val sumTxn = linkedTxns.sumOf { it.amount }
             val diff = kotlin.math.abs(sumTxn - payment.paidAmount)
-            if (diff > 0.01 && payment.paidAmount > 0) {
+            if (diff != 0L && payment.paidAmount > 0L) {
                 alerts.add(
                     LedgerAlert(
                         type = "PAYMENT_MISMATCH",
@@ -58,14 +59,14 @@ class LedgerAuditWorker(
                     alerts.add(
                         LedgerAlert(
                             type = "EXPENSE_MISMATCH",
-                            description = "Expense #${expense.id} '${expense.title}' (${expense.amount}) is PAID but has no PaymentTransaction",
+                            description = "Expense #${expense.id} '${expense.title}' (${PriceUtils.formatPrice(expense.amount)}) is PAID but has no PaymentTransaction",
                             expectedAmount = expense.amount,
-                            actualAmount = 0.0,
+                            actualAmount = 0L,
                             mismatchAmount = expense.amount
                         )
                     )
                 }
-                diff > 0.01 -> {
+                diff != 0L -> {
                     alerts.add(
                         LedgerAlert(
                             type = "EXPENSE_MISMATCH",
@@ -91,9 +92,9 @@ class LedgerAuditWorker(
             alerts.add(
                 LedgerAlert(
                     type = "ORPHAN_TRANSACTION",
-                    description = "Txn #${txn.id} ${txn.personType}/${txn.personName}: ₹${txn.amount} " +
+                    description = "Txn #${txn.id} ${txn.personType}/${txn.personName}: ${PriceUtils.formatPrice(txn.amount)} " +
                             "(${txn.note}) is missing its parent ${if (txn.personType == "EXPENSE") "Expense" else "SalaryPayment"}",
-                    expectedAmount = 0.0,
+                    expectedAmount = 0L,
                     actualAmount = txn.amount,
                     mismatchAmount = txn.amount
                 )

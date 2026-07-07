@@ -16,6 +16,7 @@ import com.app.muzzutech.databinding.FragmentPartReturnBinding
 import androidx.room.withTransaction
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
 class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
 
@@ -64,7 +65,7 @@ class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
         binding.btnReturnPart.setOnClickListener {
             val partName = binding.etPartName.text.toString().trim()
             val refundStr = binding.etRefundAmount.text.toString().trim()
-            val refund = refundStr.toDoubleOrNull() ?: 0.0
+            val refund = ((refundStr.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
 
             if (partName.isEmpty()) {
                 Snackbar.make(binding.root, "Enter part name", Snackbar.LENGTH_SHORT).show()
@@ -92,13 +93,13 @@ class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
                         val partReturnId = db.partReturnDao().insert(partReturn)
 
                         val linkedPayment = db.paymentDao().getPaymentByLinkedPartId(selectedPart.id)
-                        if (linkedPayment != null && refund > 0) {
-                            val reducedTotal = (linkedPayment.totalAmount - refund).coerceAtLeast(0.0)
-                            val reducedPaid = (linkedPayment.paidAmount - refund).coerceAtLeast(0.0)
-                            val reducedDue = (reducedTotal - reducedPaid).coerceAtLeast(0.0)
+                        if (linkedPayment != null && refund > 0L) {
+                            val reducedTotal = (linkedPayment.totalAmount - refund).coerceAtLeast(0L)
+                            val reducedPaid = (linkedPayment.paidAmount - refund).coerceAtLeast(0L)
+                            val reducedDue = (reducedTotal - reducedPaid).coerceAtLeast(0L)
                             val newStatus = when {
-                                reducedDue <= 0.0 -> "PAID"
-                                reducedPaid > 0.0 -> "PARTIAL"
+                                reducedDue <= 0L -> "PAID"
+                                reducedPaid > 0L -> "PARTIAL"
                                 else -> "UNPAID"
                             }
                             val updatedPayment = linkedPayment.copy(

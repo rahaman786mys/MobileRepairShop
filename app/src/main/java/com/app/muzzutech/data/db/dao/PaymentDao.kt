@@ -11,10 +11,10 @@ interface PaymentDao {
     suspend fun insert(payment: Payment): Long
 
     @Update
-    suspend fun update(payment: Payment)
+    suspend fun update(payment: Payment): Int
 
     @Delete
-    suspend fun delete(payment: Payment)
+    suspend fun delete(payment: Payment): Int
 
     @Query("SELECT * FROM payments ORDER BY createdAt DESC")
     fun getAllPayments(): Flow<List<Payment>>
@@ -35,13 +35,13 @@ interface PaymentDao {
     suspend fun getPaymentByLinkedPartId(partId: Long): Payment?
 
     @Query("SELECT COALESCE(SUM(dueAmount), 0) FROM payments WHERE status != 'PAID'")
-    fun getTotalDueAmount(): Flow<Double>
+    fun getTotalDueAmount(): Flow<Long>
 
     @Query("SELECT COALESCE(SUM(dueAmount), 0) FROM payments WHERE personType = :type AND status != 'PAID'")
-    fun getTotalDueByType(type: String): Flow<Double>
+    fun getTotalDueByType(type: String): Flow<Long>
 
     @Query("SELECT COALESCE(SUM(dueAmount), 0) FROM payments WHERE personMobile = :mobile AND status != 'PAID'")
-    fun getTotalDueByMobile(mobile: String): Flow<Double>
+    fun getTotalDueByMobile(mobile: String): Flow<Long>
 
     @Query("SELECT * FROM payments WHERE personType = :type AND createdAt BETWEEN :startDate AND :endDate ORDER BY createdAt DESC")
     fun getPaymentsByTypeAndDate(type: String, startDate: Long, endDate: Long): Flow<List<Payment>>

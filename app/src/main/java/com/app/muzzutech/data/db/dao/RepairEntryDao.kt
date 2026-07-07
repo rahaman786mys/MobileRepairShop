@@ -11,10 +11,10 @@ interface RepairEntryDao {
     suspend fun insert(entry: RepairEntry): Long
 
     @Update
-    suspend fun update(entry: RepairEntry)
+    suspend fun update(entry: RepairEntry): Int
 
     @Delete
-    suspend fun delete(entry: RepairEntry)
+    suspend fun delete(entry: RepairEntry): Int
 
     @Query("SELECT * FROM repair_entries ORDER BY id DESC")
     fun getAllEntries(): Flow<List<RepairEntry>>
@@ -50,7 +50,7 @@ interface RepairEntryDao {
 
     // Total revenue in date range
     @Query("SELECT SUM(finalAmount) FROM repair_entries WHERE handoverDone = 1 AND handoverDate BETWEEN :startDate AND :endDate")
-    fun getRevenueInRange(startDate: Long, endDate: Long): Flow<Double?>
+    fun getRevenueInRange(startDate: Long, endDate: Long): Flow<Long?>
 
     // Reports - Daily/Weekly/Monthly
     @Query("""
@@ -75,5 +75,5 @@ interface RepairEntryDao {
 data class DailyReportRow(
     val dateGroup: String,
     val count: Int,
-    val totalRevenue: Double?
+    val totalRevenue: Long?
 )

@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.app.muzzutech.data.model.CommonFault
 import com.app.muzzutech.databinding.ItemCommonFaultBinding
+import com.app.muzzutech.utils.PriceUtils
 
 class CommonFaultAdapter(
     private val onFaultDelete: (CommonFault) -> Unit = {},
@@ -32,7 +33,7 @@ class CommonFaultAdapter(
         fun bind(fault: CommonFault) {
             binding.tvFaultName.text = fault.faultName
             binding.tvCategory.text = fault.category
-            binding.tvDefaultCharge.text = "₹${fault.defaultCharge}"
+            binding.tvDefaultCharge.text = PriceUtils.formatPrice(fault.defaultCharge)
             
             binding.root.setOnClickListener {
                 onFaultClick(fault)

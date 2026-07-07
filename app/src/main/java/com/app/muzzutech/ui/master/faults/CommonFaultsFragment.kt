@@ -16,6 +16,7 @@ import com.app.muzzutech.adapter.CommonFaultAdapter
 import com.app.muzzutech.databinding.FragmentCommonFaultsBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
 class CommonFaultsFragment : Fragment(R.layout.fragment_common_faults) {
 
@@ -35,7 +36,7 @@ class CommonFaultsFragment : Fragment(R.layout.fragment_common_faults) {
 
         binding.btnAddFault.setOnClickListener {
             val name = binding.etFaultName.text.toString().trim()
-            val charge = binding.etDefaultCharge.text.toString().toDoubleOrNull() ?: 0.0
+            val charge = ((binding.etDefaultCharge.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
             val category = binding.etCategory.text.toString().trim()
 
             if (name.isEmpty()) {
@@ -72,7 +73,7 @@ class CommonFaultsFragment : Fragment(R.layout.fragment_common_faults) {
                             editingFaultId = fault.id
                             binding.etFaultName.setText(fault.faultName)
                             binding.etCategory.setText(fault.category)
-                            binding.etDefaultCharge.setText(fault.defaultCharge.toBigDecimal().toPlainString())
+                            binding.etDefaultCharge.setText((fault.defaultCharge / 100).toString())
                             binding.btnAddFault.text = "Update"
                         },
                         onFaultDelete = { fault ->

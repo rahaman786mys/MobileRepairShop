@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import androidx.core.content.FileProvider
 import android.content.Intent
 import java.io.File
+import kotlin.math.roundToLong
 
 class HandoverFragment : Fragment(R.layout.fragment_handover) {
 
@@ -132,7 +133,7 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
             return
         }
 
-        val finalAmount = finalAmountText.toDoubleOrNull() ?: 0.0
+        val finalAmount = ((finalAmountText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
         val selectedPaymentId = binding.radioGroupPayment.checkedRadioButtonId
         val paymentMode = when (selectedPaymentId) {
             R.id.radioCash -> "Cash"
@@ -147,22 +148,22 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
 
         val isPayLater = paymentMode == "Pay Later"
         val cashAmount = if (!isPayLater && paymentMode == "Both") {
-            binding.etCashAmount.text.toString().toDoubleOrNull() ?: 0.0
-        } else if (!isPayLater && paymentMode == "Cash") finalAmount else 0.0
+            ((binding.etCashAmount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        } else if (!isPayLater && paymentMode == "Cash") finalAmount else 0L
 
         val onlineAmount = if (!isPayLater && paymentMode == "Both") {
-            binding.etOnlineAmount.text.toString().toDoubleOrNull() ?: 0.0
-        } else if (!isPayLater && paymentMode == "Online") finalAmount else 0.0
+            ((binding.etOnlineAmount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        } else if (!isPayLater && paymentMode == "Online") finalAmount else 0L
 
         if (paymentMode == "Both") {
             val combined = cashAmount + onlineAmount
-            if (Math.abs(combined - finalAmount) > 0.01) {
-                Snackbar.make(binding.root, "Cash + Online must equal Total (₹$finalAmount)", Snackbar.LENGTH_LONG).show()
+            if (combined != finalAmount) {
+                Snackbar.make(binding.root, "Cash + Online must equal Total (₹${finalAmount / 100.0})", Snackbar.LENGTH_LONG).show()
                 return
             }
         }
 
-        if (finalAmount < 0) {
+        if (finalAmount < 0L) {
             Snackbar.make(binding.root, "Final amount cannot be negative", Snackbar.LENGTH_LONG).show()
             return
         }

@@ -14,7 +14,7 @@ interface LedgerAlertDao {
     suspend fun insert(alert: LedgerAlert): Long
 
     @Update
-    suspend fun update(alert: LedgerAlert)
+    suspend fun update(alert: LedgerAlert): Int
 
     @Query("SELECT * FROM ledger_alerts ORDER BY alertDate DESC")
     fun getAll(): Flow<List<LedgerAlert>>
@@ -29,5 +29,5 @@ interface LedgerAlertDao {
     suspend fun countUnresolved(): Int
 
     @Query("UPDATE ledger_alerts SET resolved = 1, resolvedAt = :now WHERE id = :id")
-    suspend fun resolve(id: Long, now: Long = System.currentTimeMillis())
+    suspend fun resolve(id: Long, now: Long = System.currentTimeMillis()): Int
 }

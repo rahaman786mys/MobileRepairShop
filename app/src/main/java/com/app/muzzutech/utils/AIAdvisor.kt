@@ -13,9 +13,9 @@ import com.app.muzzutech.data.model.PartReturn
 object AIAdvisor {
 
     data class BusinessHealth(
-        val dailyProfit: Double,
-        val dailyRevenue: Double,
-        val dailyExpense: Double,
+        val dailyProfit: Long,
+        val dailyRevenue: Long,
+        val dailyExpense: Long,
         val profitMargin: Double,
         val healthScore: Int, // 0-100
         val smartMove: String,
@@ -68,7 +68,7 @@ object AIAdvisor {
         val totalExpenses = partCost + otherCost - refundReceived
 
         val profit = revenue - totalExpenses
-        val margin = if (revenue > 0) (profit / revenue) * 100 else 0.0
+        val margin = if (revenue > 0) (profit.toDouble() / revenue.toDouble()) * 100.0 else 0.0
         
         // AI Logic for Health Score & Smart Move
         val healthScore = when {

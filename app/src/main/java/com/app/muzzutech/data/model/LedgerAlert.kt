@@ -17,9 +17,9 @@ data class LedgerAlert(
     val alertDate: Long = System.currentTimeMillis(),
     val type: String,             // "PAYMENT_MISMATCH", "EXPENSE_MISMATCH", "ORPHAN_TRANSACTION"
     val description: String,      // Human-readable summary
-    val expectedAmount: Double = 0.0,
-    val actualAmount: Double = 0.0,
-    val mismatchAmount: Double = 0.0,
+    val expectedAmount: Long = 0L,
+    val actualAmount: Long = 0L,
+    val mismatchAmount: Long = 0L,
     val resolved: Boolean = false,
     val resolvedAt: Long? = null
 )

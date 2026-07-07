@@ -19,6 +19,7 @@ import com.app.muzzutech.utils.NotificationUtils
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
 class QuotationFragment : Fragment(R.layout.fragment_quotation) {
 
@@ -84,8 +85,8 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
             return
         }
 
-        val charge = chargeText.toDoubleOrNull() ?: 0.0
-        val advance = advanceText.toDoubleOrNull() ?: 0.0
+        val charge = ((chargeText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        val advance = ((advanceText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
 
         viewLifecycleOwner.lifecycleScope.launch {
             MobileRepairApp.instance.repairRepository.getEntryById(entryId)?.let { entry ->

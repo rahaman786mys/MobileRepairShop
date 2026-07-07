@@ -57,18 +57,14 @@ class RepairEntryAdapter(
 
             viewStatusAccent.setBackgroundColor(statusColor)
             tvStatus.setTextColor(statusColor)
-            cardStatus.setCardBackgroundColor(statusColor.applyAlpha(0.15f))
+            cardStatus.setCardBackgroundColor(Color.argb(
+                (0.15f * 255).toInt(),
+                Color.red(statusColor),
+                Color.green(statusColor),
+                Color.blue(statusColor)
+            ))
 
             itemView.setOnClickListener { onItemClick(entry) }
-        }
-
-        private fun Int.applyAlpha(alpha: Float): Int {
-            return Color.argb(
-                (alpha * 255).toInt(),
-                android.graphics.Color.red(this),
-                android.graphics.Color.green(this),
-                android.graphics.Color.blue(this)
-            )
         }
     }
 

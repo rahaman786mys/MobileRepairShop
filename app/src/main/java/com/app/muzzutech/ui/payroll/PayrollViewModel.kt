@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToLong
 
 /**
  * Pure-Kotlin payroll logic — kept in an object for unit testing without Android.
@@ -39,13 +40,13 @@ object PayrollMath {
      *    derived from monthlySalary / 30 if explicit perDaySalary is 0.
      *  - If only perDaySalary is set (and monthly is 0), use perDaySalary × workedDays.
      */
-    fun computePayable(monthlySalary: Double, perDaySalary: Double, workedDays: Double): Double {
+    fun computePayable(monthlySalary: Long, perDaySalary: Long, workedDays: Double): Long {
         val effectivePerDay = when {
-            perDaySalary > 0 -> perDaySalary
-            monthlySalary > 0 -> monthlySalary / 30.0
+            perDaySalary > 0L -> perDaySalary.toDouble()
+            monthlySalary > 0L -> monthlySalary.toDouble() / 30.0
             else -> 0.0
         }
-        return effectivePerDay * workedDays
+        return (effectivePerDay * workedDays).roundToLong()
     }
 
     /** Build a SalaryPayment snapshot row. */
@@ -54,15 +55,15 @@ object PayrollMath {
         smName: String,
         monthStart: Long,
         workedDays: Double,
-        monthlySalary: Double,
-        perDaySalary: Double,
-        paidAmount: Double,
+        monthlySalary: Long,
+        perDaySalary: Long,
+        paidAmount: Long,
         note: String = ""
     ): SalaryPayment {
         val computed = computePayable(monthlySalary, perDaySalary, workedDays)
-        val due = (computed - paidAmount).coerceAtLeast(0.0)
+        val due = (computed - paidAmount).coerceAtLeast(0L)
         val status = when {
-            paidAmount <= 0 -> "UNPAID"
+            paidAmount <= 0L -> "UNPAID"
             paidAmount >= computed -> "PAID"
             else -> "PARTIAL"
         }
@@ -71,7 +72,7 @@ object PayrollMath {
             servicemanName = smName,
             monthStart = monthStart,
             daysWorked = workedDays,
-            perDaySalary = if (perDaySalary > 0) perDaySalary else (monthlySalary / 30.0),
+            perDaySalary = if (perDaySalary > 0L) perDaySalary else (monthlySalary.toDouble() / 30.0).roundToLong(),
             fixedMonthlySalary = monthlySalary,
             computedAmount = computed,
             paidAmount = paidAmount,
@@ -219,7 +220,7 @@ class PayrollViewModel : ViewModel() {
      * Computes worked days from attendance and snapshots the per-day/monthly salary
      * from the current ServiceMan settings.
      */
-    fun generateOrUpdateSalary(smId: Long, paidAmount: Double, note: String = "") {
+    fun generateOrUpdateSalary(smId: Long, paidAmount: Long, note: String = "") {
         viewModelScope.launch {
             _busy.value = true
             try {
@@ -255,7 +256,7 @@ class PayrollViewModel : ViewModel() {
                     }
 
                     // Create transaction record + expense entry for accounting
-                    if (paidAmount > 0) {
+                    if (paidAmount > 0L) {
                         val expenseId = db.expenseDao().insert(
                             com.app.muzzutech.data.model.Expense(
                                 title = "Salary: ${sm.name}",

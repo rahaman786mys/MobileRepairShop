@@ -15,7 +15,7 @@ interface ExpenseDao {
     suspend fun insert(expense: Expense): Long
 
     @Update
-    suspend fun update(expense: Expense)
+    suspend fun update(expense: Expense): Int
 
     @Query("SELECT * FROM expenses ORDER BY date DESC")
     fun getAll(): Flow<List<Expense>>
@@ -30,11 +30,11 @@ interface ExpenseDao {
     fun getRecurring(): Flow<List<Expense>>
 
     @Query("SELECT COALESCE(SUM(amount), 0.0) FROM expenses WHERE date BETWEEN :start AND :end")
-    suspend fun getTotalInRange(start: Long, end: Long): Double
+    suspend fun getTotalInRange(start: Long, end: Long): Long
 
-    @Query("SELECT COALESCE(SUM(amount), 0.0) FROM expenses WHERE category = :category AND date BETWEEN :start AND :end")
-    suspend fun getTotalForCategoryInRange(category: String, start: Long, end: Long): Double
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM expenses WHERE category = :category AND date BETWEEN :start AND :end")
+    suspend fun getTotalForCategoryInRange(category: String, start: Long, end: Long): Long
 
     @Query("DELETE FROM expenses WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    suspend fun deleteById(id: Long): Int
 }

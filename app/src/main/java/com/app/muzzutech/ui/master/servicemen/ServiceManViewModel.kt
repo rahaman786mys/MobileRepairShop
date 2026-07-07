@@ -29,8 +29,8 @@ class ServiceManViewModel : ViewModel() {
         email: String,
         empId: String,
         designation: String,
-        monthlySalary: Double = 0.0,
-        perDaySalary: Double = 0.0
+        monthlySalary: Long = 0L,
+        perDaySalary: Long = 0L
     ) {
         viewModelScope.launch {
             dao.insert(ServiceMan(
@@ -45,7 +45,7 @@ class ServiceManViewModel : ViewModel() {
         }
     }
 
-    fun update(id: Long, name: String, mobile: String, email: String, empId: String, designation: String, monthlySalary: Double, perDaySalary: Double) {
+    fun update(id: Long, name: String, mobile: String, email: String, empId: String, designation: String, monthlySalary: Long, perDaySalary: Long) {
         viewModelScope.launch {
             dao.update(ServiceMan(
                 id = id,

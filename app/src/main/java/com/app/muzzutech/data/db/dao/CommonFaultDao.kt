@@ -11,13 +11,13 @@ interface CommonFaultDao {
     suspend fun insert(fault: CommonFault): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(faults: List<CommonFault>)
+    suspend fun insertAll(faults: List<CommonFault>): List<Long>
 
     @Update
-    suspend fun update(fault: CommonFault)
+    suspend fun update(fault: CommonFault): Int
 
     @Delete
-    suspend fun delete(fault: CommonFault)
+    suspend fun delete(fault: CommonFault): Int
 
     @Query("SELECT * FROM common_faults ORDER BY sortOrder ASC, faultName ASC")
     fun getAllFaults(): Flow<List<CommonFault>>

@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.Flow
 interface SupplierDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(supplier: Supplier)
+    suspend fun insert(supplier: Supplier): Long
 
     @Update
-    suspend fun update(supplier: Supplier)
+    suspend fun update(supplier: Supplier): Int
 
     @Delete
-    suspend fun delete(supplier: Supplier)
+    suspend fun delete(supplier: Supplier): Int
 
     @Query("SELECT * FROM suppliers ORDER BY name ASC")
     fun getAllSuppliers(): Flow<List<Supplier>>

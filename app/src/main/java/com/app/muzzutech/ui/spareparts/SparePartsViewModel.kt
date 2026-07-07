@@ -45,7 +45,7 @@ class SparePartsViewModel : ViewModel() {
         repairEntryId: Long,
         partName: String,
         photoPath: String,
-        price: Double,
+        price: Long,
         quantity: Int,
         supplierId: String,
         supplierName: String,
@@ -71,15 +71,23 @@ class SparePartsViewModel : ViewModel() {
                 val partId = purchaseDao.insert(part)
                 val totalCost = price * quantity
 
-                if (totalCost > 0 && supplierId.isNotEmpty()) {
+                // Atomically update the RepairEntry with the latest part info
+                if (entry != null) {
+                    repairRepository.update(entry.copy(
+                        sparePartName = safePartName,
+                        sparePartPurchasePrice = totalCost.coerceAtMost(entry.sparePartPurchasePrice + totalCost)
+                    ))
+                }
+
+                if (totalCost > 0L && supplierId.isNotEmpty()) {
                     val payment = Payment(
                         personType = "SUPPLIER",
                         personMobile = supplierId,
                         personName = supplierName,
                         description = "Parts: $partName x $quantity (Repair #$repairEntryId)",
                         totalAmount = totalCost,
-                        paidAmount = if (payLater) 0.0 else totalCost,
-                        dueAmount = if (payLater) totalCost else 0.0,
+                        paidAmount = if (payLater) 0L else totalCost,
+                        dueAmount = if (payLater) totalCost else 0L,
                         status = if (payLater) "UNPAID" else "PAID",
                         linkedPartId = partId
                     )

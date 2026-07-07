@@ -31,7 +31,7 @@ data class PaymentTransaction(
     val personType: String,          // "DEALER", "SUPPLIER", "CUSTOMER", "EXPENSE", "SALARY"
     val personMobile: String,
     val personName: String = "",
-    val amount: Double = 0.0,
+    val amount: Long = 0L,
     val paymentMode: String = "CASH", // "CASH", "ONLINE", "UPI"
     val note: String = "",
     val transactionDate: Long = System.currentTimeMillis()

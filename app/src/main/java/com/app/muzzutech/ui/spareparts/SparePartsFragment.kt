@@ -26,6 +26,7 @@ import com.app.muzzutech.utils.PhotoUtils
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.math.roundToLong
 
 class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
 
@@ -133,8 +134,8 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
             return
         }
 
-        val price = priceText.toDoubleOrNull() ?: 0.0
-        if (price <= 0.0) {
+        val price = ((priceText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        if (price <= 0L) {
             Snackbar.make(binding.root, "Please enter a valid purchase price", Snackbar.LENGTH_LONG).show()
             return
         }

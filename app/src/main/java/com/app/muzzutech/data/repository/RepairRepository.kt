@@ -28,7 +28,7 @@ class RepairRepository(private val repairEntryDao: RepairEntryDao) {
     fun getCompletedCountInRange(startDate: Long, endDate: Long): Flow<Int> =
         repairEntryDao.getCompletedCountInRange(startDate, endDate)
 
-    fun getRevenueInRange(startDate: Long, endDate: Long): Flow<Double?> =
+    fun getRevenueInRange(startDate: Long, endDate: Long): Flow<Long?> =
         repairEntryDao.getRevenueInRange(startDate, endDate)
 
     fun getDailyReport(startDate: Long, endDate: Long): Flow<List<DailyReportRow>> =

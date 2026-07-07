@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentServiceManAddBinding
 import com.app.muzzutech.utils.ValidationUtils
+import kotlin.math.roundToLong
 
 class ServiceManAddFragment : Fragment(R.layout.fragment_service_man_add) {
 
@@ -35,8 +36,8 @@ class ServiceManAddFragment : Fragment(R.layout.fragment_service_man_add) {
                 binding.etEmail.setText(args.getString("serviceManEmail", ""))
                 binding.etEmployeeId.setText(args.getString("serviceManEmpId", ""))
                 binding.etDesignation.setText(args.getString("serviceManDesignation", ""))
-                binding.etMonthlySalary.setText(args.getDouble("monthlySalary", 0.0).toString())
-                binding.etPerDaySalary.setText(args.getDouble("perDaySalary", 0.0).toString())
+                binding.etMonthlySalary.setText((args.getLong("monthlySalary", 0L) / 100).toString())
+                binding.etPerDaySalary.setText((args.getLong("perDaySalary", 0L) / 100).toString())
             }
         }
 
@@ -46,8 +47,8 @@ class ServiceManAddFragment : Fragment(R.layout.fragment_service_man_add) {
             val email = binding.etEmail.text.toString().trim()
             val empId = binding.etEmployeeId.text.toString().trim()
             val designation = binding.etDesignation.text.toString().trim()
-            val monthly = binding.etMonthlySalary.text.toString().toDoubleOrNull() ?: 0.0
-            val perDay = binding.etPerDaySalary.text.toString().toDoubleOrNull() ?: 0.0
+            val monthly = ((binding.etMonthlySalary.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+            val perDay = ((binding.etPerDaySalary.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
 
             if (name.isEmpty()) {
                 Snackbar.make(binding.root, "Name is required", Snackbar.LENGTH_LONG).show()

@@ -11,10 +11,10 @@ interface ServiceManDao {
     suspend fun insert(serviceMan: ServiceMan): Long
 
     @Update
-    suspend fun update(serviceMan: ServiceMan)
+    suspend fun update(serviceMan: ServiceMan): Int
 
     @Delete
-    suspend fun delete(serviceMan: ServiceMan)
+    suspend fun delete(serviceMan: ServiceMan): Int
 
     @Query("SELECT * FROM service_men ORDER BY name ASC")
     fun getAllServiceMen(): Flow<List<ServiceMan>>

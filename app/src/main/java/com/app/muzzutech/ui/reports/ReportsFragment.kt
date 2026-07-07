@@ -117,7 +117,7 @@ private fun observeData() {
             launch { viewModel.profit.collectLatest { p ->
                 binding.tvReportProfit.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p)
                 binding.tvReportProfit.setTextColor(
-                    resources.getColor(if (p >= 0) R.color.muzzu_success else R.color.muzzu_error, null)
+                    resources.getColor(if (p >= 0L) R.color.muzzu_success else R.color.muzzu_error, null)
                 )
             }}
 
@@ -137,9 +137,9 @@ private fun observeData() {
                 val s = sales[position]
                 holder.itemView.findViewById<TextView>(R.id.tvItemName).text = s.itemName
                 holder.itemView.findViewById<TextView>(R.id.tvSupplierInfo).text = "Ref: ${s.supplierId}"
-                holder.itemView.findViewById<TextView>(R.id.tvSalePrice).text = "₹${s.salePrice}"
+                holder.itemView.findViewById<TextView>(R.id.tvSalePrice).text = com.app.muzzutech.utils.PriceUtils.formatPrice(s.salePrice)
                 val profit = s.salePrice - s.purchasePrice
-                holder.itemView.findViewById<TextView>(R.id.tvProfit).text = "Profit: ₹$profit"
+                holder.itemView.findViewById<TextView>(R.id.tvProfit).text = "Profit: ${com.app.muzzutech.utils.PriceUtils.formatPrice(profit)}"
             }
             override fun getItemCount() = sales.size
         }

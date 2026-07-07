@@ -15,7 +15,7 @@ interface SalaryDao {
     suspend fun insert(payment: SalaryPayment): Long
 
     @Update
-    suspend fun update(payment: SalaryPayment)
+    suspend fun update(payment: SalaryPayment): Int
 
     @Query("SELECT * FROM salary_payments WHERE servicemanId = :smId ORDER BY monthStart DESC")
     fun getByServiceMan(smId: Long): Flow<List<SalaryPayment>>
@@ -30,14 +30,14 @@ interface SalaryDao {
     suspend fun getById(id: Long): SalaryPayment?
 
     @Query("DELETE FROM salary_payments WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    suspend fun deleteById(id: Long): Int
 
     @Query("SELECT * FROM salary_payments WHERE status != 'PAID' ORDER BY monthStart DESC")
     fun getPendingPayments(): Flow<List<SalaryPayment>>
 
     @Query("SELECT COALESCE(SUM(paidAmount), 0.0) FROM salary_payments WHERE monthStart BETWEEN :start AND :end")
-    suspend fun getTotalPaidInRange(start: Long, end: Long): Double
+    suspend fun getTotalPaidInRange(start: Long, end: Long): Long
 
-    @Query("SELECT COALESCE(SUM(dueAmount), 0.0) FROM salary_payments WHERE monthStart BETWEEN :start AND :end")
-    suspend fun getTotalDueInRange(start: Long, end: Long): Double
+    @Query("SELECT COALESCE(SUM(dueAmount), 0) FROM salary_payments WHERE monthStart BETWEEN :start AND :end")
+    suspend fun getTotalDueInRange(start: Long, end: Long): Long
 }

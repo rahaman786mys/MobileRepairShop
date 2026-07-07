@@ -21,7 +21,7 @@ data class SparePartPurchase(
     val repairEntryId: Long? = null,          // Links to RepairEntry (null if direct stock)
     val partName: String = "",
     val partPhotoPath: String = "",
-    val purchasePrice: Double = 0.0,
+    val purchasePrice: Long = 0L,
     val supplierId: String = "",          // Links to Supplier Mobile
     val supplierName: String = "",        // Denormalized for quick display
     val quantity: Int = 1,

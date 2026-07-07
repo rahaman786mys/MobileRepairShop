@@ -11,10 +11,10 @@ interface PaymentTransactionDao {
     suspend fun insert(transaction: PaymentTransaction): Long
 
     @Update
-    suspend fun update(transaction: PaymentTransaction)
+    suspend fun update(transaction: PaymentTransaction): Int
 
     @Delete
-    suspend fun delete(transaction: PaymentTransaction)
+    suspend fun delete(transaction: PaymentTransaction): Int
 
     @Query("SELECT * FROM payment_transactions WHERE paymentId = :paymentId ORDER BY transactionDate DESC")
     fun getTransactionsByPayment(paymentId: Long): Flow<List<PaymentTransaction>>
@@ -26,14 +26,17 @@ interface PaymentTransactionDao {
     fun getAllTransactions(): Flow<List<PaymentTransaction>>
 
     @Query("SELECT COALESCE(SUM(amount), 0) FROM payment_transactions WHERE personMobile = :mobile")
-    fun getTotalPaidByMobile(mobile: String): Flow<Double>
+    fun getTotalPaidByMobile(mobile: String): Flow<Long>
 
     @Query("SELECT * FROM payment_transactions WHERE transactionDate BETWEEN :start AND :end")
     fun getTransactionsByDateRange(start: Long, end: Long): Flow<List<PaymentTransaction>>
+
+    @Query("SELECT * FROM payment_transactions WHERE id = :id LIMIT 1")
+    suspend fun getTransactionById(id: Long): PaymentTransaction?
 
     @Query("SELECT * FROM payment_transactions WHERE expenseId = :expenseId LIMIT 1")
     suspend fun getTransactionByExpenseId(expenseId: Long): PaymentTransaction?
 
     @Query("SELECT * FROM payment_transactions WHERE personMobile = :mobile AND paymentId IS NULL AND amount = :amount LIMIT 1")
-    suspend fun findUnlinkedByMobileAndAmount(mobile: String, amount: Double): PaymentTransaction?
+    suspend fun findUnlinkedByMobileAndAmount(mobile: String, amount: Long): PaymentTransaction?
 }

@@ -13,13 +13,13 @@ import kotlinx.coroutines.flow.Flow
 interface AttendanceDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(attendance: Attendance)
+    suspend fun upsert(attendance: Attendance): Long
 
     @Update
-    suspend fun update(attendance: Attendance)
+    suspend fun update(attendance: Attendance): Int
 
     @Delete
-    suspend fun delete(attendance: Attendance)
+    suspend fun delete(attendance: Attendance): Int
 
     @Query("SELECT * FROM attendance WHERE servicemanId = :smId ORDER BY date DESC")
     fun getByServiceMan(smId: Long): Flow<List<Attendance>>

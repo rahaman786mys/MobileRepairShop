@@ -13,7 +13,7 @@ data class CommonFault(
     val id: Long = 0,
     val faultName: String = "",
     val category: String = "",           // e.g., "Display", "Battery", "Charging", "Motherboard", "Body"
-    val defaultCharge: Double = 0.0,     // Suggested charge amount
+    val defaultCharge: Long = 0L,     // Suggested charge amount (paise)
     val description: String = "",
     val isActive: Boolean = true,
     val sortOrder: Int = 0,

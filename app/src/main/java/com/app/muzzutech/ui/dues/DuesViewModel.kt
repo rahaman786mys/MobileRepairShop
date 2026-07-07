@@ -6,8 +6,11 @@ import androidx.room.withTransaction
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.data.model.Payment
 import com.app.muzzutech.data.model.PaymentTransaction
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -29,20 +32,23 @@ class DuesViewModel : ViewModel() {
     private val _customerDues = MutableStateFlow<List<Payment>>(emptyList())
     val customerDues: StateFlow<List<Payment>> = _customerDues
 
-    private val _totalDue = MutableStateFlow(0.0)
-    val totalDue: StateFlow<Double> = _totalDue
+    private val _totalDue = MutableStateFlow(0L)
+    val totalDue: StateFlow<Long> = _totalDue
 
-    private val _dealerDue = MutableStateFlow(0.0)
-    val dealerDue: StateFlow<Double> = _dealerDue
+    private val _dealerDue = MutableStateFlow(0L)
+    val dealerDue: StateFlow<Long> = _dealerDue
 
-    private val _supplierDue = MutableStateFlow(0.0)
-    val supplierDue: StateFlow<Double> = _supplierDue
+    private val _supplierDue = MutableStateFlow(0L)
+    val supplierDue: StateFlow<Long> = _supplierDue
 
-    private val _customerDue = MutableStateFlow(0.0)
-    val customerDue: StateFlow<Double> = _customerDue
+    private val _customerDue = MutableStateFlow(0L)
+    val customerDue: StateFlow<Long> = _customerDue
 
     private val _paymentHistory = MutableStateFlow<List<PaymentTransaction>>(emptyList())
     val paymentHistory: StateFlow<List<PaymentTransaction>> = _paymentHistory
+
+    private val _paymentError = MutableSharedFlow<String>()
+    val paymentError: SharedFlow<String> = _paymentError.asSharedFlow()
 
     init {
         loadPrimaryDues()
@@ -107,23 +113,31 @@ class DuesViewModel : ViewModel() {
         }
     }
 
-    fun recordPayment(payment: Payment, amount: Double, mode: String, note: String) {
+    fun recordPayment(payment: Payment, amount: Long, mode: String, note: String) {
         viewModelScope.launch {
             val db = MobileRepairApp.instance.database
             db.withTransaction {
                 // Re-read the payment inside the transaction to avoid lost-update race
                 val current = paymentDao.getPaymentById(payment.id) ?: return@withTransaction
+
+                // Overpayment guard: amount must not exceed current due amount
+                val currentDueAmount = current.totalAmount - current.paidAmount
+                if (amount > currentDueAmount) {
+                    _paymentError.emit("Payment of ${com.app.muzzutech.utils.PriceUtils.formatPrice(amount)} exceeds due amount of ${com.app.muzzutech.utils.PriceUtils.formatPrice(currentDueAmount)}")
+                    return@withTransaction
+                }
+
                 val newPaidAmount = current.paidAmount + amount
                 val newDueAmount = current.totalAmount - newPaidAmount
                 val newStatus = when {
-                    newDueAmount <= 0.0 -> "PAID"
-                    newPaidAmount > 0.0 -> "PARTIAL"
+                    newDueAmount <= 0L -> "PAID"
+                    newPaidAmount > 0L -> "PARTIAL"
                     else -> "UNPAID"
                 }
 
                 val updatedPayment = current.copy(
                     paidAmount = newPaidAmount,
-                    dueAmount = newDueAmount.coerceAtLeast(0.0),
+                    dueAmount = newDueAmount.coerceAtLeast(0L),
                     status = newStatus,
                     updatedAt = System.currentTimeMillis()
                 )

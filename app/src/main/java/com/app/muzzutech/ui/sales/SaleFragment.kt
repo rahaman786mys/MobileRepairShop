@@ -17,6 +17,7 @@ import com.app.muzzutech.data.model.Supplier
 import com.app.muzzutech.databinding.FragmentSaleBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
 class SaleFragment : Fragment(R.layout.fragment_sale) {
 
@@ -86,8 +87,8 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
 
     private fun saveSale() {
         val itemName = binding.etItemName.text.toString().trim()
-        val purchasePrice = binding.etPurchasePrice.text.toString().toDoubleOrNull() ?: 0.0
-        val salePrice = binding.etSalePrice.text.toString().toDoubleOrNull() ?: 0.0
+        val purchasePrice = ((binding.etPurchasePrice.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        val salePrice = ((binding.etSalePrice.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
         val selectedPos = binding.spinnerSupplier.selectedItemPosition
 
         if (itemName.isEmpty()) {
@@ -100,7 +101,7 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
             return
         }
 
-        if (purchasePrice < 0 || salePrice < 0) {
+        if (purchasePrice < 0L || salePrice < 0L) {
             Toast.makeText(requireContext(), "Prices cannot be negative", Toast.LENGTH_SHORT).show()
             return
         }

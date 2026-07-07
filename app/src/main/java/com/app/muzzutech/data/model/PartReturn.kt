@@ -18,7 +18,7 @@ data class PartReturn(
     val partName: String,
     val returnReason: String = "",  // "Defective", "Wrong Item", "Not Needed", "Other"
     val returnDate: Long = System.currentTimeMillis(),
-    val refundAmount: Double = 0.0,
+    val refundAmount: Long = 0L,
     val refundReceived: Boolean = false,
     val refundTransactionId: Long? = null,   // Links to cash-in PaymentTransaction for the refund
     val createdAt: Long = System.currentTimeMillis()

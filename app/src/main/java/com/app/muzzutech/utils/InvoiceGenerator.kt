@@ -69,13 +69,34 @@ object InvoiceGenerator {
         yPos += 25f
 
         parts.forEach { part ->
-            canvas.drawText("Part: ${part.partName}", 40f, yPos, paint)
+            canvas.drawText("Part: ${part.partName} x${part.quantity}", 40f, yPos, paint)
             canvas.drawText(PriceUtils.formatPrice(part.purchasePrice * part.quantity), 480f, yPos, paint)
             yPos += 25f
         }
 
         canvas.drawLine(40f, yPos, 555f, yPos, paint)
         yPos += 30f
+
+        // GST line if applicable
+        if (entry.gstAmount > 0L) {
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            canvas.drawText("Subtotal", 350f, yPos, paint)
+            val subtotal = entry.finalAmount - entry.gstAmount
+            canvas.drawText(PriceUtils.formatPrice(subtotal), 480f, yPos, paint)
+            yPos += 25f
+            canvas.drawText("GST", 350f, yPos, paint)
+            canvas.drawText(PriceUtils.formatPrice(entry.gstAmount), 480f, yPos, paint)
+            yPos += 25f
+        }
+
+        // Discount line if applicable
+        if (entry.discountAmount > 0L) {
+            paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            canvas.drawText("Discount", 350f, yPos, paint)
+            canvas.drawText("-${PriceUtils.formatPrice(entry.discountAmount)}", 480f, yPos, paint)
+            yPos += 25f
+        }
+
         paint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         canvas.drawText("TOTAL PAID", 350f, yPos, paint)
         canvas.drawText(PriceUtils.formatPrice(entry.finalAmount), 480f, yPos, paint)

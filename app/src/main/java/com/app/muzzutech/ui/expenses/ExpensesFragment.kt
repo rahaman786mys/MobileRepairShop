@@ -66,6 +66,7 @@ import com.app.muzzutech.ui.compose.SuccessGreen
 import com.app.muzzutech.ui.compose.composeView
 import com.app.muzzutech.utils.DateUtils
 import com.app.muzzutech.utils.PriceUtils
+import kotlin.math.roundToLong
 
 class ExpensesFragment : Fragment() {
 
@@ -202,7 +203,7 @@ private fun ExpensesScreen(vm: ExpensesViewModel) {
 }
 
 @Composable
-private fun CategoryChip(label: String, amount: Double, color: Color) {
+private fun CategoryChip(label: String, amount: Long, color: Color) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
@@ -289,7 +290,7 @@ private fun ExpenseRow(
 @Composable
 private fun AddExpenseDialog(
     onDismiss: () -> Unit,
-    onConfirm: (title: String, amount: Double, category: String, recurring: Boolean, paid: Boolean, note: String) -> Unit
+    onConfirm: (title: String, amount: Long, category: String, recurring: Boolean, paid: Boolean, note: String) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
@@ -360,8 +361,8 @@ private fun AddExpenseDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val amt = amountText.toDoubleOrNull() ?: 0.0
-                    if (title.isNotBlank() && amt > 0) {
+                    val amt = ((amountText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+                    if (title.isNotBlank() && amt > 0L) {
                         onConfirm(title, amt, category, recurring, paid, note)
                     }
                 }

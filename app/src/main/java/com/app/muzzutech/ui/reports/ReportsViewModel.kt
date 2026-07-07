@@ -11,6 +11,7 @@ import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class ReportsViewModel : ViewModel() {
@@ -20,10 +21,11 @@ class ReportsViewModel : ViewModel() {
     private val purchaseDao = db.sparePartPurchaseDao()
     private val saleDao = db.saleDao()
     private val expenseDao = db.expenseDao()
+    private val salaryDao = db.salaryDao()
     private val transactionDao = db.paymentTransactionDao()
 
-    private val _revenue = MutableStateFlow(0.0)
-    val revenue: StateFlow<Double> = _revenue
+    private val _revenue = MutableStateFlow(0L)
+    val revenue: StateFlow<Long> = _revenue
 
     private val _completedCount = MutableStateFlow(0)
     val completedCount: StateFlow<Int> = _completedCount
@@ -37,11 +39,17 @@ class ReportsViewModel : ViewModel() {
     private val _directSales = MutableStateFlow<List<Sale>>(emptyList())
     val directSales: StateFlow<List<Sale>> = _directSales
 
-    private val _expenses = MutableStateFlow(0.0)
-    val expenses: StateFlow<Double> = _expenses
+    private val _expenses = MutableStateFlow(0L)
+    val expenses: StateFlow<Long> = _expenses
 
-    private val _profit = MutableStateFlow(0.0)
-    val profit: StateFlow<Double> = _profit
+    private val _profit = MutableStateFlow(0L)
+    val profit: StateFlow<Long> = _profit
+
+    private val _cogs = MutableStateFlow(0L)
+    val cogs: StateFlow<Long> = _cogs
+
+    private val _salariesPaid = MutableStateFlow(0L)
+    val salariesPaid: StateFlow<Long> = _salariesPaid
 
     private val _unresolvedAlertsCount = MutableStateFlow(0)
     val unresolvedAlertsCount: StateFlow<Int> = _unresolvedAlertsCount
@@ -90,17 +98,14 @@ class ReportsViewModel : ViewModel() {
         loadData(start, end)
     }
 
-    private fun updateProfit() {
-        _profit.value = _revenue.value - _expenses.value
-    }
-
     private fun loadData(start: Long, end: Long) {
         reportJobs.forEach { it.cancel() }
+        val monthStart = DateUtils.getStartOfMonth(start)
+        val monthEnd = DateUtils.getEndOfMonth(start)
         reportJobs = listOf(
             viewModelScope.launch {
                 repository.getRevenueInRange(start, end).collect { rev ->
-                    _revenue.value = rev ?: 0.0
-                    updateProfit()
+                    _revenue.value = rev ?: 0L
                 }
             },
             viewModelScope.launch {
@@ -126,7 +131,26 @@ class ReportsViewModel : ViewModel() {
             viewModelScope.launch {
                 expenseDao.getByDateRange(start, end).collect { list ->
                     _expenses.value = list.sumOf { it.amount }
-                    updateProfit()
+                }
+            },
+            // True COGS-based profit: Revenue - COGS - Expenses - Salaries
+            viewModelScope.launch {
+                combine(
+                    repository.getRevenueInRange(start, end),
+                    purchaseDao.getPurchasesByDateRange(start, end),
+                    expenseDao.getByDateRange(start, end),
+                    salaryDao.getByMonth(monthStart, monthEnd)
+                ) { rev, purchases, expenses, salaries ->
+                    val revenue = rev ?: 0L
+                    // COGS: parts purchased in range (approximation; exact COGS would need RepairEntry linkage)
+                    val cogs = purchases.sumOf { it.purchasePrice * it.quantity }
+                    val shopExpenses = expenses.sumOf { it.amount }
+                    val salariesPaid = salaries.sumOf { it.paidAmount }
+                    val totalCost = cogs + shopExpenses + salariesPaid
+                    Triple(revenue, cogs, totalCost)
+                }.collect { (revenue, cogs, totalCost) ->
+                    _cogs.value = cogs
+                    _profit.value = revenue - totalCost
                 }
             }
         )

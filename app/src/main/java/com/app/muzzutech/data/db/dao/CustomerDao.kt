@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.Flow
 interface CustomerDao {
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
-	suspend fun insert(customer: Customer)
+	suspend fun insert(customer: Customer): Long
 
 	@Query("DELETE FROM customers WHERE mobileNumber = :mobile")
-	suspend fun deleteByMobile(mobile: String)
+	suspend fun deleteByMobile(mobile: String): Int
 
 	@Update
-	suspend fun update(customer: Customer)
+	suspend fun update(customer: Customer): Int
 
 	@Query("SELECT * FROM customers WHERE mobileNumber = :mobile")
 	suspend fun getCustomerByMobile(mobile: String): Customer?

@@ -11,10 +11,10 @@ interface SparePartPurchaseDao {
 suspend fun insert(purchase: SparePartPurchase): Long
 
 @Update
-suspend fun update(purchase: SparePartPurchase)
+suspend fun update(purchase: SparePartPurchase): Int
 
 @Delete
-suspend fun delete(purchase: SparePartPurchase)
+suspend fun delete(purchase: SparePartPurchase): Int
 
 @Query("SELECT * FROM spare_part_purchases WHERE repairEntryId = :repairId ORDER BY purchaseDate DESC")
 fun getPurchasesByRepairId(repairId: Long): Flow<List<SparePartPurchase>>
@@ -29,7 +29,7 @@ fun getPurchasesBySupplier(supplierId: String): Flow<List<SparePartPurchase>>
 fun getPurchasesByDateRange(startDate: Long, endDate: Long): Flow<List<SparePartPurchase>>
 
 @Query("SELECT SUM(purchasePrice * quantity) FROM spare_part_purchases WHERE purchaseDate BETWEEN :startDate AND :endDate")
-fun getTotalPurchaseInRange(startDate: Long, endDate: Long): Flow<Double?>
+fun getTotalPurchaseInRange(startDate: Long, endDate: Long): Flow<Long?>
 
 @Query("SELECT COUNT(*) FROM spare_part_purchases")
 fun getTotalPurchasesCount(): Flow<Int>

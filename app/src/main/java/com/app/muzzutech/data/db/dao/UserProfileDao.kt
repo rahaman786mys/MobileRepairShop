@@ -13,8 +13,8 @@ interface UserProfileDao {
     suspend fun getUserProfile(): UserProfile?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOrUpdate(profile: UserProfile)
+    suspend fun insertOrUpdate(profile: UserProfile): Long
 
     @Delete
-    suspend fun delete(profile: UserProfile)
+    suspend fun delete(profile: UserProfile): Int
 }

@@ -104,12 +104,12 @@ object AIAnalyzer {
     fun estimateRepairCost(
         fault: String,
         commonFaults: List<CommonFault>
-    ): Double {
+    ): Long {
         val matchedFault = commonFaults.find {
             it.faultName.contains(fault, ignoreCase = true) ||
             fault.contains(it.faultName, ignoreCase = true)
         }
-        return matchedFault?.defaultCharge ?: 0.0
+        return matchedFault?.defaultCharge ?: 0L
     }
 
     /**
@@ -164,7 +164,7 @@ object AIAnalyzer {
             completedRepairs = completedRepairs,
             pendingRepairs = totalRepairs - completedRepairs,
             totalRevenue = totalRevenue,
-            averageRevenue = if (completedRepairs > 0) totalRevenue / completedRepairs else 0.0,
+            averageRevenue = if (completedRepairs > 0) totalRevenue.toDouble() / completedRepairs else 0.0,
             topFaults = faultCounts.map { it.key },
             topFaultCounts = faultCounts.map { it.value },
             averageRepairTimeDays = avgRepairTimeDays.toInt()
@@ -200,7 +200,7 @@ data class TrendsAnalysis(
     val totalRepairs: Int = 0,
     val completedRepairs: Int = 0,
     val pendingRepairs: Int = 0,
-    val totalRevenue: Double = 0.0,
+    val totalRevenue: Long = 0L,
     val averageRevenue: Double = 0.0,
     val topFaults: List<String> = emptyList(),
     val topFaultCounts: List<Int> = emptyList(),

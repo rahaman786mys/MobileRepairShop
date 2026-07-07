@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DealerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(dealer: Dealer)
+    suspend fun insert(dealer: Dealer): Long
 
     @Update
-    suspend fun update(dealer: Dealer)
+    suspend fun update(dealer: Dealer): Int
 
     @Query("SELECT * FROM dealers WHERE mobileNumber = :mobile")
     suspend fun getDealerByMobile(mobile: String): Dealer?

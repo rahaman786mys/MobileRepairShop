@@ -31,9 +31,9 @@ data class Payment(
     val personMobile: String,       // Phone number (links to Customer/Dealer/Supplier)
     val personName: String = "",
     val description: String = "",   // e.g., "Repair charge for Galaxy S21" or "Parts purchase - Display"
-    val totalAmount: Double = 0.0,
-    val paidAmount: Double = 0.0,
-    val dueAmount: Double = 0.0,   // totalAmount - paidAmount
+    val totalAmount: Long = 0L,
+    val paidAmount: Long = 0L,
+    val dueAmount: Long = 0L,   // totalAmount - paidAmount
     val status: String = "UNPAID",  // "UNPAID", "PARTIAL", "PAID"
     val linkedEntryId: Long? = null,   // Links to RepairEntry (nullable: FK SET NULL on delete)
     val linkedSaleId: Long = 0,    // Links to Sale (if supplier direct purchase)

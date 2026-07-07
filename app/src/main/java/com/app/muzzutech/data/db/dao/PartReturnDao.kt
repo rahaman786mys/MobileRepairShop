@@ -11,10 +11,10 @@ interface PartReturnDao {
     suspend fun insert(partReturn: PartReturn): Long
 
     @Update
-    suspend fun update(partReturn: PartReturn)
+    suspend fun update(partReturn: PartReturn): Int
 
     @Delete
-    suspend fun delete(partReturn: PartReturn)
+    suspend fun delete(partReturn: PartReturn): Int
 
     @Query("SELECT * FROM part_returns ORDER BY returnDate DESC")
     fun getAllReturns(): Flow<List<PartReturn>>

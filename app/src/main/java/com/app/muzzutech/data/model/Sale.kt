@@ -16,11 +16,11 @@ data class Sale(
     val itemName: String,
     val supplierId: String, // Supplier mobile number
     val supplierName: String = "",
-    val purchasePrice: Double,
-    val salePrice: Double,
-    val paidToSupplier: Double = 0.0,     // Amount paid to supplier
-    val supplierDue: Double = 0.0,         // Remaining due to supplier
-    val customerPaid: Double = 0.0,       // Amount customer paid us
-    val customerDue: Double = 0.0,        // Remaining customer owes us
+    val purchasePrice: Long,
+    val salePrice: Long,
+    val paidToSupplier: Long = 0L,     // Amount paid to supplier
+    val supplierDue: Long = 0L,         // Remaining due to supplier
+    val customerPaid: Long = 0L,       // Amount customer paid us
+    val customerDue: Long = 0L,        // Remaining customer owes us
     val saleDate: Long = System.currentTimeMillis()
 )

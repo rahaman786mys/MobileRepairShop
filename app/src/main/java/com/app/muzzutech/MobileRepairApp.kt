@@ -45,12 +45,12 @@ class MobileRepairApp : Application() {
                 val existingFaults = faultDao.getAllFaults().first()
                 if (existingFaults.isEmpty()) {
                     val defaults = listOf(
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Display Replacement", category = "Display", defaultCharge = 2500.0, sortOrder = 1),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Battery Replacement", category = "Battery", defaultCharge = 1200.0, sortOrder = 2),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Charging Port Fix", category = "Charging", defaultCharge = 800.0, sortOrder = 3),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Mic/Speaker Problem", category = "Audio", defaultCharge = 600.0, sortOrder = 4),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Software/Flashing", category = "Software", defaultCharge = 500.0, sortOrder = 5),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Dead/Water Damage", category = "Motherboard", defaultCharge = 3500.0, sortOrder = 6)
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Display Replacement", category = "Display", defaultCharge = 250000L, sortOrder = 1),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Battery Replacement", category = "Battery", defaultCharge = 120000L, sortOrder = 2),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Charging Port Fix", category = "Charging", defaultCharge = 80000L, sortOrder = 3),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Mic/Speaker Problem", category = "Audio", defaultCharge = 60000L, sortOrder = 4),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Software/Flashing", category = "Software", defaultCharge = 50000L, sortOrder = 5),
+                        com.app.muzzutech.data.model.CommonFault(faultName = "Dead/Water Damage", category = "Motherboard", defaultCharge = 350000L, sortOrder = 6)
                     )
                     faultDao.insertAll(defaults)
                 }
@@ -62,8 +62,8 @@ class MobileRepairApp : Application() {
                         db.supplierDao().insert(com.app.muzzutech.data.model.Supplier(mobile = "9999922222", name = "Modern Electronics", companyName = "ME Ltd", city = "Delhi"))
                     }
                     if (db.serviceManDao().getCount() == 0) {
-                        db.serviceManDao().insert(com.app.muzzutech.data.model.ServiceMan(name = "Senior Technician", mobile = "9000000001", designation = "Lead Specialist", monthlySalary = 45000.0))
-                        db.serviceManDao().insert(com.app.muzzutech.data.model.ServiceMan(name = "Junior Helper", mobile = "9000000002", designation = "Trainee", monthlySalary = 15000.0))
+                        db.serviceManDao().insert(com.app.muzzutech.data.model.ServiceMan(name = "Senior Technician", mobile = "9000000001", designation = "Lead Specialist", monthlySalary = 4500000L))
+                        db.serviceManDao().insert(com.app.muzzutech.data.model.ServiceMan(name = "Junior Helper", mobile = "9000000002", designation = "Trainee", monthlySalary = 1500000L))
                     }
                 }
             } catch (e: Exception) {

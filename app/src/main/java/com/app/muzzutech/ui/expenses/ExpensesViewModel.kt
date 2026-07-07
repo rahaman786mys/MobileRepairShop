@@ -21,11 +21,11 @@ class ExpensesViewModel : ViewModel() {
     private val _monthStart = MutableStateFlow(DateUtils.getStartOfMonth())
     val monthStart: StateFlow<Long> = _monthStart
 
-    private val _totalThisMonth = MutableStateFlow(0.0)
-    val totalThisMonth: StateFlow<Double> = _totalThisMonth
+    private val _totalThisMonth = MutableStateFlow(0L)
+    val totalThisMonth: StateFlow<Long> = _totalThisMonth
 
-    private val _categoryTotals = MutableStateFlow<Map<String, Double>>(emptyMap())
-    val categoryTotals: StateFlow<Map<String, Double>> = _categoryTotals
+    private val _categoryTotals = MutableStateFlow<Map<String, Long>>(emptyMap())
+    val categoryTotals: StateFlow<Map<String, Long>> = _categoryTotals
 
     init {
         observeExpenses()
@@ -70,7 +70,7 @@ class ExpensesViewModel : ViewModel() {
 
     fun addExpense(
         title: String,
-        amount: Double,
+        amount: Long,
         category: String,
         date: Long,
         recurring: Boolean,
@@ -78,7 +78,7 @@ class ExpensesViewModel : ViewModel() {
         note: String,
         onDone: () -> Unit
     ) {
-        if (title.isBlank() || amount <= 0.0) return
+        if (title.isBlank() || amount <= 0L) return
         viewModelScope.launch {
             val db = MobileRepairApp.instance.database
             db.withTransaction {

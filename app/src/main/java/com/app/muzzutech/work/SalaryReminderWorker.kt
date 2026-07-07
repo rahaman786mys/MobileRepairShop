@@ -9,6 +9,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.utils.DateUtils
+import com.app.muzzutech.utils.PriceUtils
 import kotlinx.coroutines.flow.first
 
 /**
@@ -37,8 +38,8 @@ class SalaryReminderWorker(
 
         val totalDue = pending.sumOf { it.dueAmount }
         val body = pending.joinToString("\n") {
-            "• ${it.servicemanName}: ${PriceUtils_format(it.dueAmount)} (${it.status})"
-        } + "\n\nTotal due: ${PriceUtils_format(totalDue)}"
+            "• ${it.servicemanName}: ${PriceUtils.formatPrice(it.dueAmount)} (${it.status})"
+        } + "\n\nTotal due: ${PriceUtils.formatPrice(totalDue)}"
 
         sendNotification(
             applicationContext,
@@ -46,12 +47,6 @@ class SalaryReminderWorker(
             body
         )
         return Result.success()
-    }
-
-    private fun PriceUtils_format(amount: Double): String {
-        // Local helper to avoid importing the Android-context PriceUtils (it's safe to import,
-        // but keep this worker self-contained for clarity).
-        return "Rs. %.0f".format(amount)
     }
 
     private fun sendNotification(context: Context, title: String, body: String) {

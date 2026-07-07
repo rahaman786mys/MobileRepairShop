@@ -44,15 +44,18 @@ val isDraft: Boolean = false, // true = saved as draft
     val inspectionDone: Boolean = false,
 
     // === QUOTATION STAGE ===
-    val chargeAmount: Double = 0.0,
-    val advanceAmount: Double = 0.0,
+    val chargeAmount: Long = 0L,
+    val advanceAmount: Long = 0L,
+    val gstAmount: Long = 0L,
+    val discountAmount: Long = 0L,
+    val advancePaymentTransactionId: Long? = null,
     val quotationDate: Long = 0,
     val quotationDone: Boolean = false,
 
     // === SPARE PARTS STAGE ===
     val sparePartPhotoPath: String = "",
     val sparePartName: String = "",
-    val sparePartPurchasePrice: Double = 0.0,
+    val sparePartPurchasePrice: Long = 0L,
     val supplierId: Long = 0,
     val sparePartDate: Long = 0,
     val sparePartDone: Boolean = false,
@@ -63,10 +66,10 @@ val isDraft: Boolean = false, // true = saved as draft
     val workDone: Boolean = false,
 
     // === HANDOVER STAGE ===
-    val finalAmount: Double = 0.0,
+    val finalAmount: Long = 0L,
     val paymentMode: String = "",              // Cash, Online, Both
-    val onlineAmount: Double = 0.0,
-    val cashAmount: Double = 0.0,
+    val onlineAmount: Long = 0L,
+    val cashAmount: Long = 0L,
     val handoverDate: Long = 0,
     val handoverDone: Boolean = false,
 

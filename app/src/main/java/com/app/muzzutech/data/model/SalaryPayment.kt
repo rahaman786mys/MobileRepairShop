@@ -36,11 +36,11 @@ data class SalaryPayment(
     val servicemanName: String = "",
     val monthStart: Long = System.currentTimeMillis(),
     val daysWorked: Double = 0.0,
-    val perDaySalary: Double = 0.0,
-    val fixedMonthlySalary: Double = 0.0,
-    val computedAmount: Double = 0.0,
-    val paidAmount: Double = 0.0,
-    val dueAmount: Double = 0.0,
+    val perDaySalary: Long = 0L,
+    val fixedMonthlySalary: Long = 0L,
+    val computedAmount: Long = 0L,
+    val paidAmount: Long = 0L,
+    val dueAmount: Long = 0L,
     val status: String = "UNPAID", // UNPAID, PARTIAL, PAID
     val note: String = "",
     val createdAt: Long = System.currentTimeMillis()

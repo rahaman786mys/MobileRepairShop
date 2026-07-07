@@ -34,10 +34,10 @@ class HandoverViewModel : ViewModel() {
 
     suspend fun completeHandover(
         entryId: Long,
-        finalAmount: Double,
+        finalAmount: Long,
         paymentMode: String,
-        cashAmount: Double,
-        onlineAmount: Double
+        cashAmount: Long,
+        onlineAmount: Long
     ) {
         val db = MobileRepairApp.instance.database
         db.withTransaction {
@@ -57,7 +57,7 @@ class HandoverViewModel : ViewModel() {
                 _entry.value = updated
 
                 val isPayLater = paymentMode == "Pay Later"
-                val handoverPaid = if (isPayLater) 0.0 else (cashAmount + onlineAmount)
+                val handoverPaid = if (isPayLater) 0L else (cashAmount + onlineAmount)
                 val paidTotal = entry.advanceAmount + handoverPaid
 
                 val personMobile = entry.customerMobile.ifEmpty { entry.dealerMobile }
@@ -71,25 +71,24 @@ class HandoverViewModel : ViewModel() {
                     description = "Repair - ${entry.deviceBrand} ${entry.deviceModel}",
                     totalAmount = finalAmount,
                     paidAmount = paidTotal,
-                    dueAmount = (finalAmount - paidTotal).coerceAtLeast(0.0),
-                    status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount - 0.01) "PAID" else "PARTIAL",
+                    dueAmount = (finalAmount - paidTotal).coerceAtLeast(0L),
+                    status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount) "PAID" else "PARTIAL",
                     linkedEntryId = entry.id
                 )
                 val paymentId = db.paymentDao().insert(payment)
 
-                // Link the advance PaymentTransaction (created at quotation with paymentId=null)
-                // to this new Payment so the auditor sees paidAmount == sum(linked txns).
-                // Guard: only attempt linking when there was a real non-zero advance.
-                if (entry.advanceAmount > 0) {
-                    val advanceTxn = db.paymentTransactionDao()
-                        .findUnlinkedByMobileAndAmount(personMobile, entry.advanceAmount)
-                    if (advanceTxn != null && advanceTxn.amount == entry.advanceAmount) {
+                // Link the advance PaymentTransaction via the explicit advancePaymentTransactionId
+                // stored on RepairEntry during quotation. This replaces the fragile mobile+amount match.
+                val advanceTxnId = entry.advancePaymentTransactionId
+                if (advanceTxnId != null) {
+                    val advanceTxn = db.paymentTransactionDao().getTransactionById(advanceTxnId)
+                    if (advanceTxn != null) {
                         db.paymentTransactionDao().update(advanceTxn.copy(paymentId = paymentId))
                     }
                 }
 
                 if (!isPayLater) {
-                    if (cashAmount > 0) {
+                    if (cashAmount > 0L) {
                         db.paymentTransactionDao().insert(
                             com.app.muzzutech.data.model.PaymentTransaction(
                                 paymentId = paymentId,
@@ -102,7 +101,7 @@ class HandoverViewModel : ViewModel() {
                             )
                         )
                     }
-                    if (onlineAmount > 0) {
+                    if (onlineAmount > 0L) {
                         db.paymentTransactionDao().insert(
                             com.app.muzzutech.data.model.PaymentTransaction(
                                 paymentId = paymentId,

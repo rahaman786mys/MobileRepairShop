@@ -49,7 +49,7 @@ class InventoryFragment : Fragment(R.layout.fragment_inventory) {
                         InventoryItem(
                             type = "PURCHASE",
                             label = p.partName,
-                            detail = "Qty: ${p.quantity} @ ₹${p.purchasePrice} | Supplier: ${p.supplierName}",
+                            detail = "Qty: ${p.quantity} @ ${PriceUtils.formatPrice(p.purchasePrice)} | Supplier: ${p.supplierName}",
                             value = p.purchasePrice * p.quantity,
                             date = p.purchaseDate
                         )
@@ -67,7 +67,7 @@ class InventoryFragment : Fragment(R.layout.fragment_inventory) {
                         InventoryItem(
                             type = "SALE",
                             label = s.itemName,
-                            detail = "Sold: ₹${s.salePrice} | Cost: ₹${s.purchasePrice} | Supplier: ${s.supplierName}",
+                            detail = "Sold: ${PriceUtils.formatPrice(s.salePrice)} | Cost: ${PriceUtils.formatPrice(s.purchasePrice)} | Supplier: ${s.supplierName}",
                             value = s.salePrice,
                             date = s.saleDate
                         )
@@ -84,7 +84,7 @@ class InventoryFragment : Fragment(R.layout.fragment_inventory) {
                         InventoryItem(
                             type = "RETURN",
                             label = r.partName,
-                            detail = "Refund: ₹${r.refundAmount} | Reason: ${r.returnReason} | Supplier: ${r.supplierName}",
+                            detail = "Refund: ${PriceUtils.formatPrice(r.refundAmount)} | Reason: ${r.returnReason} | Supplier: ${r.supplierName}",
                             value = -r.refundAmount,
                             date = r.returnDate
                         )
@@ -141,7 +141,7 @@ class InventoryFragment : Fragment(R.layout.fragment_inventory) {
         val type: String,
         val label: String,
         val detail: String,
-        val value: Double,
+        val value: Long,
         val date: Long
     )
 }

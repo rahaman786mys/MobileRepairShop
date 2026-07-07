@@ -57,8 +57,8 @@ class ServiceManListFragment : Fragment(R.layout.fragment_service_man_list) {
                                     putString("serviceManEmail", sm.email)
                                     putString("serviceManEmpId", sm.employeeId)
                                     putString("serviceManDesignation", sm.designation)
-                                    putDouble("monthlySalary", sm.monthlySalary)
-                                    putDouble("perDaySalary", sm.perDaySalary)
+                                    putLong("monthlySalary", sm.monthlySalary)
+                                    putLong("perDaySalary", sm.perDaySalary)
                                 }
                                 findNavController().navigate(R.id.serviceManAddFragment, bundle)
                             }

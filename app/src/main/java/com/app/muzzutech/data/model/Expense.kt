@@ -19,7 +19,7 @@ data class Expense(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val title: String = "",
-    val amount: Double = 0.0,
+    val amount: Long = 0L,
     val category: String = CATEGORY_OTHER,
     val date: Long = System.currentTimeMillis(),
     val isRecurring: Boolean = false,

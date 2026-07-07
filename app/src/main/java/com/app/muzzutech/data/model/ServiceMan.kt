@@ -16,7 +16,7 @@ data class ServiceMan(
     val employeeId: String = "",          // Shop's employee ID
     val designation: String = "Technician",
     val isActive: Boolean = true,
-    val monthlySalary: Double = 0.0,      // Contractual fixed monthly salary
-    val perDaySalary: Double = 0.0,       // Per-day salary (auto-computed fallback if monthlySalary=0)
+    val monthlySalary: Long = 0L,      // Contractual fixed monthly salary (paise)
+    val perDaySalary: Long = 0L,       // Per-day salary (paise, auto-computed fallback if monthlySalary=0)
     val createdAt: Long = System.currentTimeMillis()
 )

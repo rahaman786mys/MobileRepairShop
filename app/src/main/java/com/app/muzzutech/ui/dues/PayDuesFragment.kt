@@ -18,6 +18,7 @@ import com.app.muzzutech.data.model.PaymentTransaction
 import com.app.muzzutech.databinding.FragmentPayDuesBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
 class PayDuesFragment : Fragment(R.layout.fragment_pay_dues) {
 
@@ -66,7 +67,7 @@ class PayDuesFragment : Fragment(R.layout.fragment_pay_dues) {
                 binding.tvPaidAmount.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p.paidAmount)
                 binding.tvDueAmount.text = com.app.muzzutech.utils.PriceUtils.formatPrice(p.dueAmount)
                 binding.tvDescription.text = p.description
-                binding.etAmount.setText(p.dueAmount.toInt().toString())
+                binding.etAmount.setText((p.dueAmount / 100).toString())
             }
         }
     }
@@ -74,11 +75,11 @@ class PayDuesFragment : Fragment(R.layout.fragment_pay_dues) {
     private fun setupListeners() {
         binding.btnRecordPayment.setOnClickListener {
             val amountStr = binding.etAmount.text.toString().trim()
-            val amount = amountStr.toDoubleOrNull() ?: 0.0
+            val amount = ((amountStr.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
             val note = binding.etNote.text.toString().trim()
             val mode = binding.spinnerPaymentMode.selectedItemPosition
 
-            if (amount <= 0) {
+            if (amount <= 0L) {
                 Snackbar.make(binding.root, "Enter valid amount", Snackbar.LENGTH_SHORT).show()
                 return@setOnClickListener
             }

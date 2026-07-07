@@ -64,8 +64,8 @@ class SaleViewModel : ViewModel() {
      */
     fun saveSale(
         itemName: String,
-        purchasePrice: Double,
-        salePrice: Double,
+        purchasePrice: Long,
+        salePrice: Long,
         supplier: Supplier
     ) {
         if (_isSaving.value) return
@@ -87,9 +87,9 @@ class SaleViewModel : ViewModel() {
                         purchasePrice = purchasePrice,
                         salePrice = salePrice,
                         paidToSupplier = purchasePrice,
-                        supplierDue = 0.0,
+                        supplierDue = 0L,
                         customerPaid = salePrice,
-                        customerDue = 0.0
+                        customerDue = 0L
                     )
                     val saleId = saleDao.insert(sale)
 
@@ -102,7 +102,7 @@ class SaleViewModel : ViewModel() {
                         description = "Direct Sale: $safeItemName",
                         totalAmount = purchasePrice,
                         paidAmount = purchasePrice,
-                        dueAmount = 0.0,
+                        dueAmount = 0L,
                         status = "PAID",
                         linkedSaleId = saleId
                     )
@@ -122,7 +122,7 @@ class SaleViewModel : ViewModel() {
                     )
 
                     // 4. Cash outflow (supplier payment) — only if we actually paid
-                    if (purchasePrice > 0) {
+                    if (purchasePrice > 0L) {
                         paymentTransactionDao.insert(
                             PaymentTransaction(
                                 paymentId = supplierPaymentId,

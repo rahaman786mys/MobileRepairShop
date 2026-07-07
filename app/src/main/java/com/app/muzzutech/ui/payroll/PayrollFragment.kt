@@ -158,7 +158,7 @@ private fun PayrollScreen(vm: PayrollViewModel) {
 }
 
 @Composable
-private fun PayrollSummaryCard(totalSalary: Double, totalPaid: Double, totalDue: Double) {
+private fun PayrollSummaryCard(totalSalary: Long, totalPaid: Long, totalDue: Long) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -178,7 +178,7 @@ private fun PayrollSummaryCard(totalSalary: Double, totalPaid: Double, totalDue:
 }
 
 @Composable
-private fun SummaryItem(label: String, amount: Double, color: Color) {
+private fun SummaryItem(label: String, amount: Long, color: Color) {
     Column {
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
@@ -237,7 +237,7 @@ private fun PayrollTechCard(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 SummaryItemSmall("WORK DAYS", "%.1f".format(stats?.workedDays ?: 0.0))
-                val perDay = if (serviceman.perDaySalary > 0) serviceman.perDaySalary else serviceman.monthlySalary / 30.0
+                val perDay = if (serviceman.perDaySalary > 0L) serviceman.perDaySalary else if (serviceman.monthlySalary > 0L) (serviceman.monthlySalary / 30L) else 0L
                 SummaryItemSmall("RATE/DAY", PriceUtils.formatPrice(perDay))
                 val computed = salary?.computedAmount ?: PayrollMath.computePayable(serviceman.monthlySalary, serviceman.perDaySalary, stats?.workedDays ?: 0.0)
                 SummaryItemSmall("COMPUTED", PriceUtils.formatPrice(computed), isBold = true)
@@ -259,10 +259,10 @@ private fun PayrollTechCard(
                 
                 Row {
                     Text("PAID ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(PriceUtils.formatPrice(salary?.paidAmount ?: 0.0), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    Text(PriceUtils.formatPrice(salary?.paidAmount ?: 0L), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.width(12.dp))
                     Text("DUE ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(PriceUtils.formatPrice(salary?.dueAmount ?: (salary?.computedAmount ?: 0.0)), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ErrorRed)
+                    Text(PriceUtils.formatPrice(salary?.dueAmount ?: (salary?.computedAmount ?: 0L)), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ErrorRed)
                 }
             }
         }

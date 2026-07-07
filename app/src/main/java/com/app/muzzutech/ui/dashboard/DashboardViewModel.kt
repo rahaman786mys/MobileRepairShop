@@ -6,6 +6,7 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.utils.AIAdvisor
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -22,24 +23,24 @@ class DashboardViewModel : ViewModel() {
     private val _completedToday = MutableStateFlow(0)
     val completedToday: StateFlow<Int> = _completedToday
 
-    private val _dailyRevenue = MutableStateFlow(0.0)
-    private val _dailyInvest = MutableStateFlow(0.0)
-    val dailyInvest: StateFlow<Double> = _dailyInvest
+    private val _dailyRevenue = MutableStateFlow(0L)
+    private val _dailyInvest = MutableStateFlow(0L)
+    val dailyInvest: StateFlow<Long> = _dailyInvest
 
-    private val _dailyProfit = MutableStateFlow(0.0)
-    val dailyProfit: StateFlow<Double> = _dailyProfit
+    private val _dailyProfit = MutableStateFlow(0L)
+    val dailyProfit: StateFlow<Long> = _dailyProfit
 
-    private val _dailyPaidInvest = MutableStateFlow(0.0)
-    val dailyPaidInvest: StateFlow<Double> = _dailyPaidInvest
+    private val _dailyPaidInvest = MutableStateFlow(0L)
+    val dailyPaidInvest: StateFlow<Long> = _dailyPaidInvest
 
-    private val _dailyDueInvest = MutableStateFlow(0.0)
-    val dailyDueInvest: StateFlow<Double> = _dailyDueInvest
+    private val _dailyDueInvest = MutableStateFlow(0L)
+    val dailyDueInvest: StateFlow<Long> = _dailyDueInvest
 
-    private val _totalCustomerDue = MutableStateFlow(0.0)
-    val totalCustomerDue: StateFlow<Double> = _totalCustomerDue
+    private val _totalCustomerDue = MutableStateFlow(0L)
+    val totalCustomerDue: StateFlow<Long> = _totalCustomerDue
 
-    private val _totalSupplierDue = MutableStateFlow(0.0)
-    val totalSupplierDue: StateFlow<Double> = _totalSupplierDue
+    private val _totalSupplierDue = MutableStateFlow(0L)
+    val totalSupplierDue: StateFlow<Long> = _totalSupplierDue
 
     private val _businessHealth = MutableStateFlow<AIAdvisor.BusinessHealth?>(null)
     val businessHealth: StateFlow<AIAdvisor.BusinessHealth?> = _businessHealth
@@ -56,6 +57,7 @@ class DashboardViewModel : ViewModel() {
     private fun loadPrimaryData() {
         val todayStart = DateUtils.getStartOfDay()
         val todayEnd = DateUtils.getEndOfDay()
+        val monthStart = DateUtils.getStartOfMonth()
 
         viewModelScope.launch {
             try {
@@ -71,14 +73,36 @@ class DashboardViewModel : ViewModel() {
                 }
             } catch (e: Exception) { e.printStackTrace() }
         }
-        
+
+        // True COGS-based daily profit: Revenue - COGS - Expenses - Salaries
         viewModelScope.launch {
             try {
-                database.paymentTransactionDao().getTransactionsByDateRange(todayStart, todayEnd).collect { transactions ->
-                    val revenue = transactions.filter { it.personType == "CUSTOMER" || it.personType == "DEALER" }.sumOf { it.amount }
-                    val expense = transactions.filter { it.personType == "SUPPLIER" || it.personType == "SALARY" || it.personType == "EXPENSE" }.sumOf { it.amount }
+                combine(
+                    database.repairEntryDao().getCompletedEntries(),
+                    database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd),
+                    database.expenseDao().getByDateRange(todayStart, todayEnd),
+                    database.salaryDao().getByMonth(monthStart, DateUtils.getEndOfMonth(monthStart))
+                ) { completed, parts, expenses, salaries ->
+                    // Revenue: finalAmount of entries handed over today
+                    val todayHandovers = completed.filter { it.handoverDate in todayStart..todayEnd }
+                    val revenue = todayHandovers.sumOf { it.finalAmount }
+
+                    // COGS: parts consumed in today's handovers only
+                    val handoverIds = todayHandovers.map { it.id }.toSet()
+                    val cogs = parts.filter { it.repairEntryId in handoverIds }
+                        .sumOf { it.purchasePrice * it.quantity }
+
+                    // Shop expenses (paid today)
+                    val shopExpenses = expenses.sumOf { it.amount }
+
+                    // Salaries paid this month (apportioned daily view)
+                    val salariesPaid = salaries.sumOf { it.paidAmount }
+
+                    val totalCost = cogs + shopExpenses + salariesPaid
+                    Pair(revenue, totalCost)
+                }.collect { (revenue, totalCost) ->
                     _dailyRevenue.value = revenue
-                    _dailyProfit.value = revenue - expense
+                    _dailyProfit.value = revenue - totalCost
                 }
             } catch (e: Exception) { e.printStackTrace() }
         }
@@ -87,7 +111,7 @@ class DashboardViewModel : ViewModel() {
             try {
                 database.sparePartPurchaseDao()
                     .getTotalPurchaseInRange(todayStart, todayEnd).collect { total ->
-                        _dailyInvest.value = total ?: 0.0
+                        _dailyInvest.value = total ?: 0L
                     }
             } catch (e: Exception) { e.printStackTrace() }
         }
