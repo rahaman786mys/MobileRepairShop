@@ -8,8 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
@@ -130,6 +133,31 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             binding.tvAppVersion.text = "MuZZu Tech Professional v${pInfo.versionName}"
         } catch (e: Exception) {
             binding.tvAppVersion.text = "MuZZu Tech Professional"
+        }
+
+        setupSettings()
+    }
+
+    private fun setupSettings() {
+        val prefs = requireContext().getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
+        binding.switchBiometric.isChecked = prefs.getBoolean("biometric_enabled", false)
+        binding.switchDarkMode.isChecked = prefs.getBoolean("dark_mode", false)
+
+        binding.switchBiometric.setOnCheckedChangeListener { _, isChecked ->
+            if (isAdded) {
+                prefs.edit().putBoolean("biometric_enabled", isChecked).apply()
+                val status = if (isChecked) "enabled" else "disabled"
+                Toast.makeText(requireContext(), "Biometric security $status", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            if (isAdded) {
+                prefs.edit().putBoolean("dark_mode", isChecked).apply()
+                AppCompatDelegate.setDefaultNightMode(
+                    if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                )
+            }
         }
     }
 

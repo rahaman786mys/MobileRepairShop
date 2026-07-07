@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -25,8 +24,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentProfileBinding
-import com.app.muzzutech.utils.BackupManager
-import com.app.muzzutech.utils.DateUtils
 import com.app.muzzutech.utils.PhotoUtils
 import com.app.muzzutech.utils.ValidationUtils
 import kotlinx.coroutines.flow.collectLatest
@@ -137,10 +134,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
   }
 
   private fun observeProfile() {
-    val prefs = requireContext().getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
-    binding.switchBiometric.isChecked = prefs.getBoolean("biometric_enabled", false)
-    binding.switchDarkMode.isChecked = prefs.getBoolean("dark_mode", false)
-
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.profileFlow.collectLatest { profile ->
@@ -160,11 +153,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
               currentPhotoPath = it.profilePhotoPath
             }
 
-            if (it.lastSyncTimestamp > 0) {
-              binding.tvLastSync.text = "Last Sync: ${DateUtils.formatDateTime(it.lastSyncTimestamp)}"
-            } else {
-              binding.tvLastSync.text = "Last Sync: Never"
-            }
           }
         }
       }
@@ -196,33 +184,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             linkGoogleAccount()
         }
 
-        binding.btnSyncNow.setOnClickListener {
-            val email = binding.etProfileEmail.text.toString().trim()
-            if (email.isEmpty()) {
-                Snackbar.make(binding.root, "Please enter an email for backup", Snackbar.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            
-            viewLifecycleOwner.lifecycleScope.launch {
-                BackupManager.syncWithGoogleDrive(requireContext(), email)
-                Snackbar.make(binding.root, "Cloud backup initiated!", Snackbar.LENGTH_SHORT).show()
-            }
-        }
-
-        binding.switchBiometric.setOnCheckedChangeListener { _, isChecked ->
-            val prefs = requireContext().getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putBoolean("biometric_enabled", isChecked).apply()
-            val status = if (isChecked) "enabled" else "disabled"
-            Toast.makeText(requireContext(), "Biometric security $status", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
-            val prefs = requireContext().getSharedPreferences("app_settings", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putBoolean("dark_mode", isChecked).apply()
-            AppCompatDelegate.setDefaultNightMode(
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-            )
-        }
     }
 
     private fun linkGoogleAccount() {
