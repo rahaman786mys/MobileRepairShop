@@ -31,22 +31,30 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // OTP credentials injected from local.properties (never hardcoded in source)
-        def otpApiKey = props.getProperty('otp.api.key')
-        if (otpApiKey == null || otpApiKey.isEmpty()) {
-            throw new GradleException("otp.api.key not found in local.properties")
+        // OTP credentials injected from local.properties (enforced for release builds only)
+        def enforceOtpSecrets = project.hasProperty('enforceOtpSecrets') ? project.enforceOtpSecrets.toBoolean() : false
+
+        if (enforceOtpSecrets || gradle.startParameter.taskNames.any { it.contains('Release') }) {
+            def otpApiKey = props.getProperty('otp.api.key')
+            if (otpApiKey == null || otpApiKey.isEmpty()) {
+                throw new GradleException("otp.api.key not found in local.properties")
+            }
+            def otpSenderId = props.getProperty('otp.sender.id')
+            if (otpSenderId == null || otpSenderId.isEmpty()) {
+                throw new GradleException("otp.sender.id not found in local.properties")
+            }
+            def otpTemplateId = props.getProperty('otp.template.id')
+            if (otpTemplateId == null || otpTemplateId.isEmpty()) {
+                throw new GradleException("otp.template.id not found in local.properties")
+            }
+            buildConfigField "String", "OTP_API_KEY", "\"$otpApiKey\""
+            buildConfigField "String", "OTP_SENDER_ID", "\"$otpSenderId\""
+            buildConfigField "String", "OTP_TEMPLATE_ID", "\"$otpTemplateId\""
+        } else {
+            buildConfigField "String", "OTP_API_KEY", "\"\""
+            buildConfigField "String", "OTP_SENDER_ID", "\"\""
+            buildConfigField "String", "OTP_TEMPLATE_ID", "\"\""
         }
-        def otpSenderId = props.getProperty('otp.sender.id')
-        if (otpSenderId == null || otpSenderId.isEmpty()) {
-            throw new GradleException("otp.sender.id not found in local.properties")
-        }
-        def otpTemplateId = props.getProperty('otp.template.id')
-        if (otpTemplateId == null || otpTemplateId.isEmpty()) {
-            throw new GradleException("otp.template.id not found in local.properties")
-        }
-        buildConfigField "String", "OTP_API_KEY", "\"$otpApiKey\""
-        buildConfigField "String", "OTP_SENDER_ID", "\"$otpSenderId\""
-        buildConfigField "String", "OTP_TEMPLATE_ID", "\"$otpTemplateId\""
 
         // Update check URL (configurable via local.properties)
         def updateCheckUrl = props.getProperty('update.check.url',
