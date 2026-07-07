@@ -5,35 +5,29 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
 import android.util.Log
-import android.view.Gravity
-import android.view.View
-import android.view.WindowManager
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.app.muzzutech.R
 import com.app.muzzutech.ui.update.UpdateBottomSheet
 import com.app.muzzutech.utils.update.PlayUpdateHelper
 import com.app.muzzutech.utils.update.UpdateRepository
 import com.app.muzzutech.utils.update.VersionInfo
+import com.app.muzzutech.work.DownloadWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 object UpdateManager {
 
@@ -150,72 +144,41 @@ object UpdateManager {
     onComplete: (File) -> Unit,
     onFailed: (String) -> Unit,
   ) {
-    val updateDir = File(context.filesDir, "updates")
-    if (!updateDir.exists()) updateDir.mkdirs()
-    val apkFile = File(updateDir, "update.apk")
-    if (apkFile.exists()) apkFile.delete()
-
-    val request = Request.Builder().url(url).build()
-    val client =
-      OkHttpClient.Builder()
-        .followRedirects(true)
-        .followSslRedirects(true)
-        .cache(null)
+    val appContext = context.applicationContext
+    val work =
+      OneTimeWorkRequestBuilder<DownloadWorker>()
+        .setInputData(Data.Builder().putString(DownloadWorker.KEY_URL, url).build())
+        .setConstraints(
+          Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(true)
+            .setRequiresStorageNotLow(true)
+            .build()
+        )
+        .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
         .build()
 
-    client.newCall(request).enqueue(
-      object : okhttp3.Callback {
-        override fun onFailure(call: okhttp3.Call, e: IOException) {
-          CoroutineScope(Dispatchers.Main).launch {
-            onFailed(e.message ?: context.getString(R.string.download_failed, "network error"))
+    WorkManager.getInstance(appContext).enqueue(work)
+    WorkManager.getInstance(appContext).getWorkInfoByIdLiveData(work.id).observeForever { info ->
+      if (info == null) return@observeForever
+      val progress = info.progress.getInt(DownloadWorker.KEY_PROGRESS, 0)
+      val progressText = info.progress.getString(DownloadWorker.KEY_PROGRESS_TEXT).orEmpty()
+      if (progress > 0) onProgress(progress, progressText)
+      if (info.state.isFinished) {
+        if (info.state == androidx.work.WorkInfo.State.SUCCEEDED) {
+          val path = info.outputData.getString(DownloadWorker.KEY_FILE_PATH)
+          if (path != null) {
+            val file = File(path)
+            downloadFile = file
+            onComplete(file)
+          } else {
+            onFailed(context.getString(R.string.download_failed, "missing file"))
           }
+        } else {
+          onFailed(context.getString(R.string.download_failed, info.state.name.lowercase()))
         }
-
-        override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-          val body = response.body ?: run {
-            CoroutineScope(Dispatchers.Main).launch {
-              onFailed(context.getString(R.string.empty_response))
-            }
-            response.close()
-            return
-          }
-          val totalBytes = body.contentLength()
-          var downloadedBytes: Long = 0
-          try {
-            body.byteStream().use { input ->
-              FileOutputStream(apkFile).use { fos ->
-                val buffer = ByteArray(8192)
-                var bytesRead: Int
-                while (input.read(buffer).also { bytesRead = it } != -1) {
-                  fos.write(buffer, 0, bytesRead)
-                  downloadedBytes += bytesRead
-                  if (totalBytes > 0) {
-                    val pct = ((downloadedBytes * 100) / totalBytes).toInt()
-                    val mbStr =
-                      String.format(
-                        Locale.getDefault(),
-                        "%.1f / %.1f MB",
-                        downloadedBytes / (1024.0 * 1024.0),
-                        totalBytes / (1024.0 * 1024.0),
-                      )
-                    CoroutineScope(Dispatchers.Main).launch { onProgress(pct, mbStr) }
-                  }
-                }
-                fos.flush()
-              }
-            }
-            downloadFile = apkFile
-            CoroutineScope(Dispatchers.Main).launch { onComplete(apkFile) }
-          } catch (e: Exception) {
-            CoroutineScope(Dispatchers.Main).launch {
-              onFailed(e.message ?: context.getString(R.string.download_failed, "io error"))
-            }
-          } finally {
-            response.close()
-          }
-        }
-      },
-    )
+      }
+    }
   }
 
   fun installApk(context: Context, apkFile: File, launcher: androidx.activity.result.ActivityResultLauncher<Intent>? = null) {
@@ -224,22 +187,6 @@ object UpdateManager {
       setDataAndType(uri, "application/vnd.android.package-archive")
       addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      if (!context.packageManager.canRequestPackageInstalls()) {
-        val settingsIntent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-          data = Uri.parse("package:${context.packageName}")
-        }
-        if (launcher != null) {
-          launcher.launch(settingsIntent)
-        } else if (context is android.app.Activity) {
-          context.startActivityForResult(settingsIntent, 9001)
-        } else {
-          context.startActivity(settingsIntent)
-        }
-        Toast.makeText(context, R.string.enable_install_settings, Toast.LENGTH_LONG).show()
-        return
-      }
     }
     try {
       context.startActivity(intent)

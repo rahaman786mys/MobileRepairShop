@@ -16,6 +16,8 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
         private const val TAG = "DownloadWorker"
         const val KEY_URL = "download_url"
         const val KEY_FILE_PATH = "file_path"
+        const val KEY_PROGRESS = "progress"
+        const val KEY_PROGRESS_TEXT = "progress_text"
     }
 
     override suspend fun doWork(): Result {
@@ -35,9 +37,26 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
                 Log.e(TAG, "Download failed: HTTP ${response.code}")
                 return if (runAttemptCount < 3) Result.retry() else Result.failure()
             }
-            response.body?.byteStream()?.use { input ->
+            val body = response.body ?: return Result.failure()
+            val totalBytes = body.contentLength()
+            var downloadedBytes = 0L
+            body.byteStream().use { input ->
                 FileOutputStream(apkFile).use { output ->
-                    input.copyTo(output)
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var bytesRead: Int
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        downloadedBytes += bytesRead
+                        if (totalBytes > 0) {
+                            val progress = ((downloadedBytes * 100) / totalBytes).toInt()
+                            setProgress(
+                                Data.Builder()
+                                    .putInt(KEY_PROGRESS, progress)
+                                    .putString(KEY_PROGRESS_TEXT, formatProgress(downloadedBytes, totalBytes))
+                                    .build()
+                            )
+                        }
+                    }
                 }
             }
             val outputData = Data.Builder().putString(KEY_FILE_PATH, apkFile.absolutePath).build()
@@ -46,5 +65,14 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
             Log.e(TAG, "Download error", e)
             if (runAttemptCount < 3) Result.retry() else Result.failure()
         }
+    }
+
+    private fun formatProgress(downloadedBytes: Long, totalBytes: Long): String {
+        return String.format(
+            java.util.Locale.getDefault(),
+            "%.1f / %.1f MB",
+            downloadedBytes / (1024.0 * 1024.0),
+            totalBytes / (1024.0 * 1024.0)
+        )
     }
 }
