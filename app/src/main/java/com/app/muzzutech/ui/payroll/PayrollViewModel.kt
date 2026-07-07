@@ -220,7 +220,7 @@ class PayrollViewModel : ViewModel() {
      * Computes worked days from attendance and snapshots the per-day/monthly salary
      * from the current ServiceMan settings.
      */
-    fun generateOrUpdateSalary(smId: Long, paidAmount: Long, note: String = "") {
+    fun generateOrUpdateSalary(smId: Long, paidAmount: Long, note: String = "", paymentMode: String = "CASH") {
         viewModelScope.launch {
             _busy.value = true
             try {
@@ -242,8 +242,6 @@ class PayrollViewModel : ViewModel() {
                     val slipToSave = if (existing != null) slip.copy(id = existing.id) else slip
                     val salaryId = salaryDao.insert(slipToSave)
 
-                    // Only remove old accounting rows for this specific serviceman when creating a new payment.
-                    // If paidAmount == 0 we are only refreshing the slip — never destroy audit history.
                     if (paidAmount > 0L) {
                         val monthEnd = DateUtils.getEndOfMonth(monthStart)
                         val oldExpenses = db.expenseDao().getByDateRange(monthStart, monthEnd).first().filter {
@@ -277,8 +275,8 @@ class PayrollViewModel : ViewModel() {
                                 personMobile = sm.mobile,
                                 personName = sm.name,
                                 amount = paidAmount,
-                                paymentMode = "CASH",
-                                note = "Salary: ${DateUtils.formatDateTime(monthStart)}"
+                                paymentMode = paymentMode,
+                                note = "Salary: ${DateUtils.formatDateTime(monthStart)} [$paymentMode]"
                             )
                         )
                     }
@@ -287,5 +285,13 @@ class PayrollViewModel : ViewModel() {
                 _busy.value = false
             }
         }
+    }
+
+    fun paySalary(smId: Long, paymentMode: String = "CASH") {
+        val sm = _servicemen.value.find { it.id == smId } ?: return
+        val stats = _monthStats.value[smId] ?: return
+        val monthStart = _monthStart.value
+        val computedAmount = PayrollMath.computePayable(sm.monthlySalary, sm.perDaySalary, stats.workedDays)
+        generateOrUpdateSalary(smId, computedAmount, "", paymentMode)
     }
 }
