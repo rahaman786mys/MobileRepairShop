@@ -33,38 +33,38 @@ class PayrollMathTest {
 
     @Test
     fun computePayable_usesPerDaySalary_whenSet() {
-        assertEquals(3000.0, PayrollMath.computePayable(0.0, 300.0, 10.0), 0.001)
+        assertEquals(300000L, PayrollMath.computePayable(0L, 30000L, 10.0))
     }
 
     @Test
     fun computePayable_derivesFromMonthly_whenNoPerDay() {
-        assertEquals(10000.0, PayrollMath.computePayable(30000.0, 0.0, 10.0), 0.001)
+        assertEquals(10000L, PayrollMath.computePayable(30000L, 0L, 10.0))
     }
 
     @Test
     fun computePayable_zeroWhenNone() {
-        assertEquals(0.0, PayrollMath.computePayable(0.0, 0.0, 10.0), 0.001)
+        assertEquals(0L, PayrollMath.computePayable(0L, 0L, 10.0))
     }
 
     @Test
     fun buildSalaryPayment_unpaid() {
-        val slip = PayrollMath.buildSalaryPayment(1L, "Test", 1000L, 20.0, 30000.0, 0.0, 0.0)
+        val slip = PayrollMath.buildSalaryPayment(1L, "Test", 1000L, 20.0, 30000L, 0L, 0L)
         assertEquals("UNPAID", slip.status)
-        assertEquals(20000.0, slip.computedAmount, 0.001)
-        assertEquals(20000.0, slip.dueAmount, 0.001)
+        assertEquals(20000L, slip.computedAmount)
+        assertEquals(20000L, slip.dueAmount)
     }
 
     @Test
     fun buildSalaryPayment_paid() {
-        val slip = PayrollMath.buildSalaryPayment(1L, "Test", 1000L, 20.0, 30000.0, 0.0, 20000.0)
+        val slip = PayrollMath.buildSalaryPayment(1L, "Test", 1000L, 20.0, 30000L, 0L, 20000L)
         assertEquals("PAID", slip.status)
-        assertEquals(0.0, slip.dueAmount, 0.001)
+        assertEquals(0L, slip.dueAmount)
     }
 
     @Test
     fun buildSalaryPayment_partial() {
-        val slip = PayrollMath.buildSalaryPayment(1L, "Test", 1000L, 20.0, 30000.0, 0.0, 10000.0)
+        val slip = PayrollMath.buildSalaryPayment(1L, "Test", 1000L, 20.0, 30000L, 0L, 10000L)
         assertEquals("PARTIAL", slip.status)
-        assertEquals(10000.0, slip.dueAmount, 0.001)
+        assertEquals(10000L, slip.dueAmount)
     }
 }

@@ -39,4 +39,16 @@ interface PaymentTransactionDao {
 
     @Query("SELECT * FROM payment_transactions WHERE personMobile = :mobile AND paymentId IS NULL AND amount = :amount LIMIT 1")
     suspend fun findUnlinkedByMobileAndAmount(mobile: String, amount: Long): PaymentTransaction?
+
+    @Query("""
+        SELECT strftime('%Y-%m-%d', transactionDate / 1000, 'unixepoch') as dateGroup,
+               COUNT(*) as count,
+               SUM(amount) as totalRevenue
+        FROM payment_transactions
+        WHERE personType IN ('CUSTOMER', 'DEALER') AND amount > 0
+          AND transactionDate BETWEEN :startDate AND :endDate
+        GROUP BY dateGroup
+        ORDER BY dateGroup ASC
+    """)
+    fun getDailyCashReport(startDate: Long, endDate: Long): Flow<List<DailyReportRow>>
 }

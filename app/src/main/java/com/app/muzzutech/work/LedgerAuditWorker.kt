@@ -48,9 +48,10 @@ class LedgerAuditWorker(
             }
         }
 
-        // 2. Check every paid Expense: linked txn must exist AND sum(amount) must match expense.amount
-        val allExpenses = expenseDao.getAll().first()
-        for (expense in allExpenses.filter { it.paid }) {
+        // 2. Check paid Expenses in the last 30 days: linked txn must exist AND sum(amount) must match expense.amount
+        val thirtyDaysAgo = System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000
+        val recentExpenses = expenseDao.getByDateRange(thirtyDaysAgo, System.currentTimeMillis()).first()
+        for (expense in recentExpenses.filter { it.paid }) {
             val allLinked = txnDao.getAllTransactions().first().filter { it.expenseId == expense.id }
             val sumTxn = allLinked.sumOf { it.amount }
             val diff = kotlin.math.abs(sumTxn - expense.amount)

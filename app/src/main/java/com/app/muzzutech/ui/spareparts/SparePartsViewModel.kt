@@ -113,11 +113,20 @@ class SparePartsViewModel : ViewModel() {
 
     fun deletePart(part: SparePartPurchase) {
         viewModelScope.launch {
+            val repairId = part.repairEntryId ?: return@launch
             database.withTransaction {
+                val entry = repairRepository.getEntryById(repairId)
+                val partCost = part.purchasePrice * part.quantity
                 purchaseDao.delete(part)
                 val linkedPayment = paymentDao.getPaymentByLinkedPartId(part.id)
                 if (linkedPayment != null) {
                     paymentDao.delete(linkedPayment)
+                }
+                // Subtract deleted part cost from the RepairEntry aggregate
+                if (entry != null && partCost > 0L) {
+                    repairRepository.update(entry.copy(
+                        sparePartPurchasePrice = (entry.sparePartPurchasePrice - partCost).coerceAtLeast(0L)
+                    ))
                 }
             }
         }

@@ -18,8 +18,8 @@ class InvoiceGeneratorTest {
             deviceBrand = "Samsung",
             deviceModel = "Galaxy S21",
             faultDetected = "Broken screen",
-            chargeAmount = 1500.0,
-            finalAmount = 2000.0
+            chargeAmount = 150000L,
+            finalAmount = 200000L
         )
         val dir = File(System.getProperty("java.io.tmpdir"), "invoices")
         dir.mkdirs()
@@ -38,8 +38,8 @@ class InvoiceGeneratorTest {
             deviceBrand = "Apple",
             deviceModel = "iPhone 15",
             faultDetected = "Battery issue",
-            chargeAmount = 3000.0,
-            finalAmount = 3500.0
+            chargeAmount = 300000L,
+            finalAmount = 350000L
         )
         assertNotNull("Entry ID must be set", entry.id)
         assertTrue("Charge must be positive", entry.chargeAmount > 0)

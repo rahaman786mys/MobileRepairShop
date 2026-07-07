@@ -105,24 +105,40 @@ class HandoverViewModel : ViewModel() {
 
                 val isPayLater = paymentMode == "Pay Later"
                 val handoverPaid = if (isPayLater) 0L else (cashAmount + onlineAmount)
-                val paidTotal = entry.advanceAmount + handoverPaid
+                val paidTotal = (entry.advanceAmount + handoverPaid).coerceAtMost(finalAmount)
 
                 val personMobile = entry.customerMobile.ifEmpty { entry.dealerMobile }
                 val personName = entry.customerName.ifEmpty { entry.dealerName }
                 val personType = if (entry.customerMobile.isNotEmpty()) "CUSTOMER" else "DEALER"
 
-                val payment = com.app.muzzutech.data.model.Payment(
-                    personType = personType,
-                    personMobile = personMobile,
-                    personName = personName,
-                    description = "Repair - ${entry.deviceBrand} ${entry.deviceModel}",
-                    totalAmount = finalAmount,
-                    paidAmount = paidTotal,
-                    dueAmount = (finalAmount - paidTotal).coerceAtLeast(0L),
-                    status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount) "PAID" else "PARTIAL",
-                    linkedEntryId = entry.id
-                )
-                val paymentId = db.paymentDao().insert(payment)
+                val existingPayment = db.paymentDao().getPaymentByLinkedEntryId(entry.id)
+                val payment = if (existingPayment != null) {
+                    existingPayment.copy(
+                        totalAmount = finalAmount,
+                        paidAmount = paidTotal,
+                        dueAmount = (finalAmount - paidTotal).coerceAtLeast(0L),
+                        status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount) "PAID" else "PARTIAL",
+                        updatedAt = System.currentTimeMillis()
+                    )
+                } else {
+                    com.app.muzzutech.data.model.Payment(
+                        personType = personType,
+                        personMobile = personMobile,
+                        personName = personName,
+                        description = "Repair - ${entry.deviceBrand} ${entry.deviceModel}",
+                        totalAmount = finalAmount,
+                        paidAmount = paidTotal,
+                        dueAmount = (finalAmount - paidTotal).coerceAtLeast(0L),
+                        status = if (isPayLater) "UNPAID" else if (paidTotal >= finalAmount) "PAID" else "PARTIAL",
+                        linkedEntryId = entry.id
+                    )
+                }
+                val paymentId = if (existingPayment != null) {
+                    db.paymentDao().update(payment)
+                    existingPayment.id
+                } else {
+                    db.paymentDao().insert(payment)
+                }
 
                 // Link the advance PaymentTransaction via the explicit advancePaymentTransactionId
                 // stored on RepairEntry during quotation. This replaces the fragile mobile+amount match.

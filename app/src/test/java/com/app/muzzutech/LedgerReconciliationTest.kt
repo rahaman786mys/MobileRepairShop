@@ -26,15 +26,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-/**
- * Reconciliation tests for the accounting layer. Verifies:
- *  - Expense -> PaymentTransaction linkage via expenseId
- *  - Toggling paid/unpaid creates/removes the linked transaction
- *  - Deleting an expense cascades to its PaymentTransaction
- *  - The totalAmount = paidAmount + dueAmount invariant on Payment
- *  - The Nightly Auditor catches a deliberately injected ₹1 mismatch
- */
+@Config(application = TestApplication::class)
 @RunWith(RobolectricTestRunner::class)
 class LedgerReconciliationTest {
 
@@ -59,7 +53,7 @@ class LedgerReconciliationTest {
         val expenseId = db.expenseDao().insert(
             Expense(
                 title = "Shop Rent July",
-                amount = 15000.0,
+                amount = 1500000L,
                 category = Expense.CATEGORY_RENT,
                 paid = true
             )
@@ -71,14 +65,14 @@ class LedgerReconciliationTest {
                 personType = "EXPENSE",
                 personMobile = "SHOP",
                 personName = Expense.CATEGORY_RENT,
-                amount = 15000.0,
+                amount = 1500000L,
                 paymentMode = "CASH",
                 note = "Paid: Shop Rent July"
             )
         )
         val txn = db.paymentTransactionDao().getTransactionByExpenseId(expenseId)
         assertNotNull("Paid expense must have a linked PaymentTransaction", txn)
-        assertEquals(15000.0, txn!!.amount, 0.001)
+        assertEquals(1500000L, txn!!.amount)
         assertEquals("EXPENSE", txn.personType)
         assertEquals(expenseId, txn.expenseId)
     }
@@ -88,7 +82,7 @@ class LedgerReconciliationTest {
         val expenseId = db.expenseDao().insert(
             Expense(
                 title = "Electricity Bill",
-                amount = 2500.0,
+                amount = 250000L,
                 category = Expense.CATEGORY_ELECTRICITY,
                 paid = false
             )
@@ -101,12 +95,12 @@ class LedgerReconciliationTest {
     fun expenseDelete_removesLinkedTransaction() = runBlocking {
         // Mimic ExpensesViewModel: insert expense, then linked txn
         val expenseId = db.expenseDao().insert(
-            Expense(title = "Internet", amount = 1000.0, category = Expense.CATEGORY_INTERNET, paid = true)
+            Expense(title = "Internet", amount = 100000L, category = Expense.CATEGORY_INTERNET, paid = true)
         )
         db.paymentTransactionDao().insert(
             PaymentTransaction(paymentId = null, expenseId = expenseId, personType = "EXPENSE",
                 personMobile = "SHOP", personName = Expense.CATEGORY_INTERNET,
-                amount = 1000.0, note = "Paid: Internet")
+                amount = 100000L, note = "Paid: Internet")
         )
         assertNotNull(db.paymentTransactionDao().getTransactionByExpenseId(expenseId))
 
@@ -129,9 +123,9 @@ class LedgerReconciliationTest {
             personType = "CUSTOMER",
             personMobile = "9999912345",
             personName = "Test Customer",
-            totalAmount = 5000.0,
-            paidAmount = 3500.0,
-            dueAmount = 1500.0,
+            totalAmount = 500000L,
+            paidAmount = 350000L,
+            dueAmount = 150000L,
             status = "PARTIAL"
         )
         val id = db.paymentDao().insert(p)
@@ -140,7 +134,7 @@ class LedgerReconciliationTest {
         val expectedTotal = fetched!!.paidAmount + fetched.dueAmount
         assertTrue(
             "totalAmount (${fetched.totalAmount}) must equal paidAmount + dueAmount ($expectedTotal)",
-            kotlin.math.abs(fetched.totalAmount - expectedTotal) < 0.001
+            fetched.totalAmount - expectedTotal == 0L
         )
     }
 
@@ -152,9 +146,9 @@ class LedgerReconciliationTest {
                 personType = "CUSTOMER",
                 personMobile = "9999988888",
                 personName = "Ledger Victim",
-                totalAmount = 1000.0,
-                paidAmount = 1000.0,
-                dueAmount = 0.0,
+                totalAmount = 100000L,
+                paidAmount = 100000L,
+                dueAmount = 0L,
                 status = "PAID"
             )
         )
@@ -165,7 +159,7 @@ class LedgerReconciliationTest {
                 personType = "CUSTOMER",
                 personMobile = "9999988888",
                 personName = "Ledger Victim",
-                amount = 999.0,
+                amount = 99900L,
                 paymentMode = "CASH",
                 note = "Advance"
             )
@@ -176,7 +170,7 @@ class LedgerReconciliationTest {
         assertTrue("Auditor must produce at least one alert", alerts.isNotEmpty())
         val mismatch = alerts.firstOrNull { it.type == "PAYMENT_MISMATCH" }
         assertNotNull("Auditor must flag ₹1 payment mismatch", mismatch)
-        assertEquals(1.0, mismatch!!.mismatchAmount, 0.001)
+        assertEquals(100L, mismatch!!.mismatchAmount)
     }
 
     @Test
@@ -190,7 +184,7 @@ class LedgerReconciliationTest {
                 personType = "EXPENSE",
                 personMobile = "SHOP",
                 personName = "Mystery",
-                amount = 500.0,
+                amount = 50000L,
                 note = "Untraceable"
             )
         )
@@ -198,14 +192,14 @@ class LedgerReconciliationTest {
         val alerts = runAuditor()
         val orphan = alerts.firstOrNull { it.type == "ORPHAN_TRANSACTION" }
         assertNotNull("Auditor must flag orphan EXPENSE transaction", orphan)
-        assertEquals(500.0, orphan!!.mismatchAmount, 0.001)
+        assertEquals(50000L, orphan!!.mismatchAmount)
     }
 
     @Test
     fun auditor_detectsPaidExpenseWithoutTransaction() = runBlocking {
         // Mark an expense as paid without creating a linked txn
         val expenseId = db.expenseDao().insert(
-            Expense(title = "Supplies", amount = 800.0, category = Expense.CATEGORY_SUPPLIES, paid = true)
+            Expense(title = "Supplies", amount = 80000L, category = Expense.CATEGORY_SUPPLIES, paid = true)
         )
         // Simulate the corruption: delete the auto-created txn (if any)
         db.paymentTransactionDao().getTransactionByExpenseId(expenseId)?.let {
@@ -215,7 +209,7 @@ class LedgerReconciliationTest {
         val alerts = runAuditor()
         val bad = alerts.firstOrNull { it.type == "EXPENSE_MISMATCH" }
         assertNotNull("Auditor must flag paid expense without txn", bad)
-        assertEquals(800.0, bad!!.mismatchAmount, 0.001)
+        assertEquals(80000L, bad!!.mismatchAmount)
     }
 
     @Test
@@ -239,13 +233,13 @@ class LedgerReconciliationTest {
             Payment(
                 personType = "CUSTOMER", personMobile = "9111111111", personName = "Cust A",
                 description = "Repair screen",
-                totalAmount = 1000.0, paidAmount = 1000.0, dueAmount = 0.0, status = "PAID",
+                totalAmount = 100000L, paidAmount = 100000L, dueAmount = 0L, status = "PAID",
                 linkedEntryId = 1L, createdAt = now
             )
         )
         db.paymentTransactionDao().insert(
             PaymentTransaction(paymentId = p1, personType = "CUSTOMER", personMobile = "9111111111",
-                personName = "Cust A", amount = 1000.0, paymentMode = "CASH", transactionDate = now)
+                personName = "Cust A", amount = 100000L, paymentMode = "CASH", transactionDate = now)
         )
 
         // Repair 2 — full payment with linked txn
@@ -253,29 +247,29 @@ class LedgerReconciliationTest {
             Payment(
                 personType = "DEALER", personMobile = "9222222222", personName = "Dealer B",
                 description = "Battery swap",
-                totalAmount = 1500.0, paidAmount = 1500.0, dueAmount = 0.0, status = "PAID",
+                totalAmount = 150000L, paidAmount = 150000L, dueAmount = 0L, status = "PAID",
                 linkedEntryId = 2L, createdAt = now
             )
         )
         db.paymentTransactionDao().insert(
             PaymentTransaction(paymentId = p2, personType = "DEALER", personMobile = "9222222222",
-                personName = "Dealer B", amount = 1500.0, paymentMode = "CASH", transactionDate = now)
+                personName = "Dealer B", amount = 150000L, paymentMode = "CASH", transactionDate = now)
         )
 
         // Advance 500 with no linked payment (typical for Quotation flow)
         db.paymentTransactionDao().insert(
             PaymentTransaction(paymentId = null, personType = "CUSTOMER", personMobile = "9333333333",
-                personName = "Advance Cust", amount = 500.0, paymentMode = "CASH",
+                personName = "Advance Cust", amount = 50000L, paymentMode = "CASH",
                 note = "Advance for X", transactionDate = now)
         )
 
         // Paid rent expense 1000 — must produce linked txn
         val rentId = db.expenseDao().insert(
-            Expense(title = "Rent", amount = 1000.0, category = Expense.CATEGORY_RENT, date = now, paid = true)
+            Expense(title = "Rent", amount = 100000L, category = Expense.CATEGORY_RENT, date = now, paid = true)
         )
         db.paymentTransactionDao().insert(
             PaymentTransaction(paymentId = null, expenseId = rentId, personType = "EXPENSE",
-                personMobile = "SHOP", personName = "Rent", amount = 1000.0,
+                personMobile = "SHOP", personName = "Rent", amount = 100000L,
                 paymentMode = "CASH", note = "Paid: Rent", transactionDate = now)
         )
 
@@ -285,9 +279,9 @@ class LedgerReconciliationTest {
         val cashOut = txns.filter { it.personType in listOf("EXPENSE", "SALARY", "SUPPLIER") }.sumOf { it.amount }
         val net = cashIn - cashOut
 
-        assertTrue("Cash IN must be 3000, got $cashIn", kotlin.math.abs(3000.0 - cashIn) < 0.001)
-        assertTrue("Cash OUT must be 1000, got $cashOut", kotlin.math.abs(1000.0 - cashOut) < 0.001)
-        assertTrue("Net cash must be 2000, got $net", kotlin.math.abs(2000.0 - net) < 0.001)
+        assertTrue("Cash IN must be 3000, got $cashIn", kotlin.math.abs(300000L - cashIn) == 0L)
+        assertTrue("Cash OUT must be 1000, got $cashOut", kotlin.math.abs(100000L - cashOut) == 0L)
+        assertTrue("Net cash must be 2000, got $net", kotlin.math.abs(200000L - net) == 0L)
 
         // Auditor must produce NO alerts in a clean ledger
         val alerts = runAuditor()
@@ -299,12 +293,12 @@ class LedgerReconciliationTest {
         val paymentId = db.paymentDao().insert(
             Payment(
                 personType = "CUSTOMER", personMobile = "9444444444", personName = "Recover",
-                totalAmount = 2000.0, paidAmount = 2000.0, dueAmount = 0.0, status = "PAID"
+                totalAmount = 200000L, paidAmount = 200000L, dueAmount = 0L, status = "PAID"
             )
         )
         db.paymentTransactionDao().insert(
             PaymentTransaction(paymentId = paymentId, personType = "CUSTOMER",
-                personMobile = "9444444444", personName = "Recover", amount = 1999.0)
+                personMobile = "9444444444", personName = "Recover", amount = 199900L)
         )
 
         // First audit run flags the issue
@@ -314,7 +308,7 @@ class LedgerReconciliationTest {
         // Fix the mismatch by inserting the missing ₹1
         db.paymentTransactionDao().insert(
             PaymentTransaction(paymentId = paymentId, personType = "CUSTOMER",
-                personMobile = "9444444444", personName = "Recover", amount = 1.0,
+                personMobile = "9444444444", personName = "Recover", amount = 100L,
                 note = "Auditor-adjustment")
         )
 
@@ -334,12 +328,12 @@ class LedgerReconciliationTest {
                 itemName = "Screen Assembly",
                 supplierId = "9999911111",
                 supplierName = "Parts Co",
-                purchasePrice = 2500.0,
-                salePrice = 4500.0,
-                paidToSupplier = 2500.0,
-                supplierDue = 0.0,
-                customerPaid = 4500.0,
-                customerDue = 0.0
+                purchasePrice = 250000L,
+                salePrice = 450000L,
+                paidToSupplier = 250000L,
+                supplierDue = 0L,
+                customerPaid = 450000L,
+                customerDue = 0L
             )
         )
 
@@ -349,9 +343,9 @@ class LedgerReconciliationTest {
                 personMobile = "9999911111",
                 personName = "Parts Co",
                 description = "Direct Sale: Screen Assembly",
-                totalAmount = 2500.0,
-                paidAmount = 2500.0,
-                dueAmount = 0.0,
+                totalAmount = 250000L,
+                paidAmount = 250000L,
+                dueAmount = 0L,
                 status = "PAID",
                 linkedSaleId = saleId
             )
@@ -364,7 +358,7 @@ class LedgerReconciliationTest {
                 personType = "SUPPLIER",
                 personMobile = "9999911111",
                 personName = "Parts Co",
-                amount = 2500.0,
+                amount = 250000L,
                 paymentMode = "CASH",
                 note = "Purchase for Direct Sale: Screen Assembly"
             )
@@ -376,7 +370,7 @@ class LedgerReconciliationTest {
 
         assertTrue(
             "Supplier payment paidAmount (${payment.paidAmount}) must equal sum of linked transactions ($sumTxn)",
-            kotlin.math.abs(payment.paidAmount - sumTxn) < 0.001
+            payment.paidAmount - sumTxn == 0L
         )
     }
 
@@ -388,14 +382,14 @@ class LedgerReconciliationTest {
         db.serviceManDao().insert(
             com.app.muzzutech.data.model.ServiceMan(
                 id = smId, name = "Ravi", mobile = "9000000001",
-                designation = "Tech", monthlySalary = 30000.0
+                designation = "Tech", monthlySalary = 3000000L
             )
         )
 
         // Run the payroll logic twice for the same month (simulates user correcting paidAmount).
         // Each run must clean up old Expense + Transaction rows before inserting new ones.
         repeat(2) {
-            val slip = PayrollMath.buildSalaryPayment(smId, "Ravi", monthStart, 20.0, 30000.0, 0.0, 15000.0)
+            val slip = PayrollMath.buildSalaryPayment(smId, "Ravi", monthStart, 20.0, 3000000L, 0L, 1500000L)
             val existing = db.salaryDao().getByServiceManAndMonth(smId, monthStart)
             val slipToSave = if (existing != null) slip.copy(id = existing.id) else slip
             db.salaryDao().insert(slipToSave)
@@ -459,7 +453,7 @@ class LedgerReconciliationTest {
                 repairEntryId = 0,
                 partName = "Test Screen",
                 partPhotoPath = "/tmp/screen.jpg",
-                purchasePrice = 3000.0,
+                purchasePrice = 300000L,
                 supplierId = "9999922222",
                 supplierName = "Return Supplier",
                 quantity = 1,
@@ -473,16 +467,16 @@ class LedgerReconciliationTest {
                 personMobile = "9999922222",
                 personName = "Return Supplier",
                 description = "Parts: Test Screen x 1 (Repair #0)",
-                totalAmount = 3000.0,
-                paidAmount = 3000.0,
-                dueAmount = 0.0,
+                totalAmount = 300000L,
+                paidAmount = 300000L,
+                dueAmount = 0L,
                 status = "PAID",
                 linkedPartId = partId
             )
         )
 
         // Simulate PartReturnFragment with BUG #4 fix: create refund txn
-        val refundAmount = 1500.0
+        val refundAmount = 150000L
         db.withTransaction {
             db.partReturnDao().insert(
                 com.app.muzzutech.data.model.PartReturn(
@@ -494,15 +488,15 @@ class LedgerReconciliationTest {
                 )
             )
             val linkedPayment = db.paymentDao().getPaymentById(paymentId)!!
-            val reducedTotal = (linkedPayment.totalAmount - refundAmount).coerceAtLeast(0.0)
-            val reducedPaid = (linkedPayment.paidAmount - refundAmount).coerceAtLeast(0.0)
-            val reducedDue = (reducedTotal - reducedPaid).coerceAtLeast(0.0)
+            val reducedTotal = (linkedPayment.totalAmount - refundAmount).coerceAtLeast(0L)
+            val reducedPaid = (linkedPayment.paidAmount - refundAmount).coerceAtLeast(0L)
+            val reducedDue = (reducedTotal - reducedPaid).coerceAtLeast(0L)
             db.paymentDao().update(
                 linkedPayment.copy(
                     totalAmount = reducedTotal,
                     paidAmount = reducedPaid,
                     dueAmount = reducedDue,
-                    status = if (reducedDue <= 0.0) "PAID" else "PARTIAL",
+                    status = if (reducedDue <= 0L) "PAID" else "PARTIAL",
                     updatedAt = System.currentTimeMillis()
                 )
             )
@@ -524,9 +518,9 @@ class LedgerReconciliationTest {
         val refundTxns = db.paymentTransactionDao().getTransactionsByPayment(paymentId).first()
         val refundSum = refundTxns.filter { it.note.contains("Refund") }.sumOf { it.amount }
 
-        assertTrue("Supplier total must reduce by refund — got ${updatedPayment.totalAmount}", kotlin.math.abs(1500.0 - updatedPayment.totalAmount) < 0.001)
-        assertTrue("Supplier paid must reduce by refund — got ${updatedPayment.paidAmount}", kotlin.math.abs(1500.0 - updatedPayment.paidAmount) < 0.001)
-        assertTrue("Refund transaction must exist with correct amount — got $refundSum", kotlin.math.abs(1500.0 - refundSum) < 0.001)
+        assertTrue("Supplier total must reduce by refund — got ${updatedPayment.totalAmount}", kotlin.math.abs(150000L - updatedPayment.totalAmount) == 0L)
+        assertTrue("Supplier paid must reduce by refund — got ${updatedPayment.paidAmount}", kotlin.math.abs(150000L - updatedPayment.paidAmount) == 0L)
+        assertTrue("Refund transaction must exist with correct amount — got $refundSum", kotlin.math.abs(150000L - refundSum) == 0L)
     }
 
     @Test
@@ -537,7 +531,7 @@ class LedgerReconciliationTest {
                 customerName = "ZeroAdvance Cust",
                 deviceBrand = "Samsung",
                 deviceModel = "A52",
-                advanceAmount = 0.0
+                advanceAmount = 0L
             )
         )
 
@@ -547,17 +541,17 @@ class LedgerReconciliationTest {
                 personMobile = "9111111111",
                 personName = "ZeroAdvance Cust",
                 description = "Repair - Samsung A52",
-                totalAmount = 2000.0,
-                paidAmount = 2000.0,
-                dueAmount = 0.0,
+                totalAmount = 200000L,
+                paidAmount = 200000L,
+                dueAmount = 0L,
                 status = "PAID",
                 linkedEntryId = entryId
             )
         )
 
         // BUG #2 guard: only try linking if advanceAmount > 0
-        val advanceTxn = db.paymentTransactionDao().findUnlinkedByMobileAndAmount("9111111111", 0.0)
-        val linkedTxn = if (advanceTxn != null && 0.0 > 0) {
+        val advanceTxn = db.paymentTransactionDao().findUnlinkedByMobileAndAmount("9111111111", 0L)
+        val linkedTxn = if (advanceTxn != null && 0L > 0) {
             db.paymentTransactionDao().update(advanceTxn.copy(paymentId = paymentId))
             advanceTxn
         } else null
@@ -584,7 +578,7 @@ class LedgerReconciliationTest {
             val linked = db.paymentTransactionDao().getTransactionsByPayment(payment.id).first()
             val sumTxn = linked.sumOf { it.amount }
             val diff = kotlin.math.abs(sumTxn - payment.paidAmount)
-            if (diff > 0.01 && payment.paidAmount > 0) {
+            if (diff > 0L && payment.paidAmount > 0) {
                 alerts.add(
                     com.app.muzzutech.data.model.LedgerAlert(
                         type = "PAYMENT_MISMATCH",
@@ -608,12 +602,12 @@ class LedgerReconciliationTest {
                             type = "EXPENSE_MISMATCH",
                             description = "Expense #${expense.id} '${expense.title}' (${expense.amount}) is PAID but has no PaymentTransaction",
                             expectedAmount = expense.amount,
-                            actualAmount = 0.0,
+                            actualAmount = 0L,
                             mismatchAmount = expense.amount
                         )
                     )
                 }
-                diff > 0.01 -> {
+                diff > 0L -> {
                     alerts.add(
                         com.app.muzzutech.data.model.LedgerAlert(
                             type = "EXPENSE_MISMATCH",
@@ -636,7 +630,7 @@ class LedgerReconciliationTest {
                 com.app.muzzutech.data.model.LedgerAlert(
                     type = "ORPHAN_TRANSACTION",
                     description = "Txn #${txn.id} orphan",
-                    expectedAmount = 0.0,
+                    expectedAmount = 0L,
                     actualAmount = txn.amount,
                     mismatchAmount = txn.amount
                 )
@@ -662,7 +656,7 @@ class LedgerReconciliationTest {
         db.sparePartPurchaseDao().insert(
             SparePartPurchase(
                 repairEntryId = 0, partName = "Bulk Screen",
-                partPhotoPath = "/tmp/b.jpg", purchasePrice = 500.0,
+                partPhotoPath = "/tmp/b.jpg", purchasePrice = 50000L,
                 supplierId = "9999911111", supplierName = "Bulk Supplier",
                 quantity = 100, purchaseDate = today
             )
@@ -670,7 +664,7 @@ class LedgerReconciliationTest {
         db.sparePartPurchaseDao().insert(
             SparePartPurchase(
                 repairEntryId = entryId, partName = "Used Screen",
-                partPhotoPath = "/tmp/u.jpg", purchasePrice = 800.0,
+                partPhotoPath = "/tmp/u.jpg", purchasePrice = 80000L,
                 supplierId = "9999911111", supplierName = "Bulk Supplier",
                 quantity = 1, purchaseDate = today
             )
@@ -680,7 +674,7 @@ class LedgerReconciliationTest {
         val parts = db.sparePartPurchaseDao().getPurchasesByDateRange(today, today + 86400000).first()
         val health = AIAdvisor.analyzeDailyHealth(repairs, parts)
 
-        assertTrue("BUG #5: Only parts used in today's handovers should count — got ${health.dailyExpense}", kotlin.math.abs(800.0 - health.dailyExpense) < 0.001)
+        assertEquals("BUG #5: Only parts used in today's handovers should count", 80000L, health.dailyExpense)
     }
 
     // ----------------------------------------------------------------
@@ -690,16 +684,16 @@ class LedgerReconciliationTest {
     fun bug6_aiAdvisor_otherCostOnlyCountsPaidExpenses() = runBlocking {
         val today = DateUtils.getStartOfDay()
         db.expenseDao().insert(
-            Expense(title = "Paid Rent", amount = 5000.0, category = Expense.CATEGORY_RENT, date = today, paid = true)
+            Expense(title = "Paid Rent", amount = 500000L, category = Expense.CATEGORY_RENT, date = today, paid = true)
         )
         db.expenseDao().insert(
-            Expense(title = "Pending Electric", amount = 2000.0, category = Expense.CATEGORY_ELECTRICITY, date = today, paid = false)
+            Expense(title = "Pending Electric", amount = 200000L, category = Expense.CATEGORY_ELECTRICITY, date = today, paid = false)
         )
 
         val expenses = db.expenseDao().getByDateRange(today, today + 86400000).first()
         val health = AIAdvisor.analyzeDailyHealth(emptyList(), emptyList(), expenses)
 
-        assertEquals("BUG #6: Unpaid expense must not count as today's cost", 5000.0, health.dailyExpense, 0.001)
+        assertEquals("BUG #6: Unpaid expense must not count", 500000L, health.dailyExpense)
     }
 
     // ----------------------------------------------------------------
@@ -712,9 +706,9 @@ class LedgerReconciliationTest {
         db.saleDao().insert(
             Sale(
                 itemName = "Charger", supplierId = "9999933333", supplierName = "Gadget Co",
-                purchasePrice = 600.0, salePrice = 1000.0,
-                paidToSupplier = 600.0, supplierDue = 0.0,
-                customerPaid = 1000.0, customerDue = 0.0,
+                purchasePrice = 60000L, salePrice = 100000L,
+                paidToSupplier = 60000L, supplierDue = 0L,
+                customerPaid = 100000L, customerDue = 0L,
                 saleDate = today
             )
         )
@@ -722,7 +716,7 @@ class LedgerReconciliationTest {
             PartReturn(
                 supplierId = "9999944444", supplierName = "Parts Inc",
                 partName = "Old Screen", returnReason = "Defective",
-                refundAmount = 300.0, returnDate = today
+                refundAmount = 30000L, returnDate = today
             )
         )
 
@@ -730,8 +724,8 @@ class LedgerReconciliationTest {
         val returns = db.partReturnDao().getReturnsByDateRangeQuery(today, today + 86400000).first()
         val health = AIAdvisor.analyzeDailyHealth(emptyList(), emptyList(), emptyList(), sales, returns)
 
-        assertTrue("BUG #8a: Direct sale revenue must be counted — got ${health.dailyRevenue}", kotlin.math.abs(1000.0 - health.dailyRevenue) < 0.001)
-        assertTrue("BUG #8b: Part return refund reduces cost — got ${health.dailyExpense}", kotlin.math.abs(-300.0 - health.dailyExpense) < 0.001)
+        assertEquals("BUG #8a: Direct sale revenue must be counted", 100000L, health.dailyRevenue)
+        assertEquals("BUG #8b: Part return refund reduces cost", -30000L, health.dailyExpense)
     }
 
     // ----------------------------------------------------------------
@@ -746,7 +740,7 @@ class LedgerReconciliationTest {
             Payment(
                 personType = "CUSTOMER", personMobile = "9222222222",
                 personName = "Cust FK", description = "Repair - Samsung A52",
-                totalAmount = 2000.0, paidAmount = 2000.0, dueAmount = 0.0,
+                totalAmount = 200000L, paidAmount = 200000L, dueAmount = 0L,
                 status = "PAID", linkedEntryId = entryId
             )
         )
@@ -769,20 +763,20 @@ class LedgerReconciliationTest {
             Payment(
                 personType = "SUPPLIER", personMobile = "9333333333",
                 personName = "Supplier TXN", description = "Parts",
-                totalAmount = 500.0, paidAmount = 500.0, dueAmount = 0.0, status = "PAID"
+                totalAmount = 50000L, paidAmount = 50000L, dueAmount = 0L, status = "PAID"
             )
         )
         val txnId = db.paymentTransactionDao().insert(
             PaymentTransaction(
                 paymentId = paymentId, personType = "SUPPLIER", personMobile = "9333333333",
-                personName = "Supplier TXN", amount = 500.0, note = "Refund"
+                personName = "Supplier TXN", amount = 50000L, note = "Refund"
             )
         )
         val partReturnId = db.partReturnDao().insert(
             PartReturn(
                 supplierId = "9333333333", supplierName = "Supplier TXN",
                 partName = "Sensor", returnReason = "Defective",
-                refundAmount = 500.0, refundTransactionId = txnId
+                refundAmount = 50000L, refundTransactionId = txnId
             )
         )
         val saved = db.partReturnDao().getReturnById(partReturnId)!!
@@ -795,14 +789,14 @@ class LedgerReconciliationTest {
     @Test
     fun bug12_auditorCatch_expenseTxnSumMismatch() = runBlocking {
         val expenseId = db.expenseDao().insert(
-            Expense(title = "Big Buy", amount = 8000.0, category = Expense.CATEGORY_SUPPLIES, paid = true)
+            Expense(title = "Big Buy", amount = 800000L, category = Expense.CATEGORY_SUPPLIES, paid = true)
         )
         // Only 7500 paid via txn — 500 short
         db.paymentTransactionDao().insert(
             PaymentTransaction(
                 paymentId = null, expenseId = expenseId,
                 personType = "EXPENSE", personMobile = "SHOP",
-                personName = Expense.CATEGORY_SUPPLIES, amount = 7500.0,
+                personName = Expense.CATEGORY_SUPPLIES, amount = 750000L,
                 note = "Partial"
             )
         )
@@ -810,6 +804,6 @@ class LedgerReconciliationTest {
         val alerts = runAuditor()
         val mismatch = alerts.firstOrNull { it.type == "EXPENSE_MISMATCH" && it.description.contains("sum mismatch") }
         assertNotNull("BUG #12: Auditor must flag sum mismatch", mismatch)
-        assertEquals(500.0, mismatch!!.mismatchAmount, 0.001)
+        assertEquals(50000L, mismatch!!.mismatchAmount)
     }
 }

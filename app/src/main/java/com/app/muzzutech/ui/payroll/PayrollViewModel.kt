@@ -242,21 +242,21 @@ class PayrollViewModel : ViewModel() {
                     val slipToSave = if (existing != null) slip.copy(id = existing.id) else slip
                     val salaryId = salaryDao.insert(slipToSave)
 
-                    // Remove old accounting rows for this service man in the same month (before insert).
-                    // Using category+month only (no title filter) so this survives title changes.
-                    val monthEnd = DateUtils.getEndOfMonth(monthStart)
-                    val oldExpenses = db.expenseDao().getByDateRange(monthStart, monthEnd).first().filter {
-                        it.category == com.app.muzzutech.data.model.Expense.CATEGORY_SALARY
-                    }
-                    for (oldExp in oldExpenses) {
-                        db.paymentTransactionDao().getTransactionByExpenseId(oldExp.id)?.let { txn ->
-                            db.paymentTransactionDao().delete(txn)
-                        }
-                        db.expenseDao().deleteById(oldExp.id)
-                    }
-
-                    // Create transaction record + expense entry for accounting
+                    // Only remove old accounting rows for this specific serviceman when creating a new payment.
+                    // If paidAmount == 0 we are only refreshing the slip — never destroy audit history.
                     if (paidAmount > 0L) {
+                        val monthEnd = DateUtils.getEndOfMonth(monthStart)
+                        val oldExpenses = db.expenseDao().getByDateRange(monthStart, monthEnd).first().filter {
+                            it.category == com.app.muzzutech.data.model.Expense.CATEGORY_SALARY &&
+                            it.title == "Salary: ${sm.name}"
+                        }
+                        for (oldExp in oldExpenses) {
+                            db.paymentTransactionDao().getTransactionByExpenseId(oldExp.id)?.let { txn ->
+                                db.paymentTransactionDao().delete(txn)
+                            }
+                            db.expenseDao().deleteById(oldExp.id)
+                        }
+
                         val expenseId = db.expenseDao().insert(
                             com.app.muzzutech.data.model.Expense(
                                 title = "Salary: ${sm.name}",

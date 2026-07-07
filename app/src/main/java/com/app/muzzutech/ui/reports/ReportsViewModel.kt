@@ -100,13 +100,24 @@ class ReportsViewModel : ViewModel() {
 
     private fun loadData(start: Long, end: Long) {
         reportJobs.forEach { it.cancel() }
-        val monthStart = DateUtils.getStartOfMonth(start)
-        val monthEnd = DateUtils.getEndOfMonth(start)
+        val salaryMonthStart = DateUtils.getStartOfMonth(start)
+        val salaryMonthEnd = DateUtils.getEndOfMonth(end)
         reportJobs = listOf(
             viewModelScope.launch {
-                repository.getRevenueInRange(start, end).collect { rev ->
-                    _revenue.value = rev ?: 0L
-                }
+                combine(
+                    transactionDao.getTransactionsByDateRange(start, end),
+                    saleDao.getSalesByDateRange(start, end)
+                ) { txns, sales ->
+                    // Cash basis: all collected money from customers/dealers + direct sales + supplier refunds
+                    val cashInFromCustomers = txns.filter {
+                        (it.personType == "CUSTOMER" || it.personType == "DEALER") && it.amount > 0L
+                    }.sumOf { it.amount }
+                    val directSaleRevenue = sales.sumOf { it.salePrice }
+                    val supplierRefunds = txns.filter {
+                        it.personType == "SUPPLIER_REFUND" && it.amount > 0L
+                    }.sumOf { it.amount }
+                    (cashInFromCustomers + directSaleRevenue + supplierRefunds)
+                }.collect { _revenue.value = it }
             },
             viewModelScope.launch {
                 repository.getCompletedCountInRange(start, end).collect { count ->
@@ -114,7 +125,7 @@ class ReportsViewModel : ViewModel() {
                 }
             },
             viewModelScope.launch {
-                repository.getDailyReport(start, end).collect { report ->
+                transactionDao.getDailyCashReport(start, end).collect { report ->
                     _dailyReport.value = report
                 }
             },
@@ -133,19 +144,32 @@ class ReportsViewModel : ViewModel() {
                     _expenses.value = list.sumOf { it.amount }
                 }
             },
-            // True COGS-based profit: Revenue - COGS - Expenses - Salaries
+            // Cash-basis profit: Revenue (cash in) - COGS (actual costs paid out)
             viewModelScope.launch {
                 combine(
-                    repository.getRevenueInRange(start, end),
+                    transactionDao.getTransactionsByDateRange(start, end),
                     purchaseDao.getPurchasesByDateRange(start, end),
+                    saleDao.getSalesByDateRange(start, end),
                     expenseDao.getByDateRange(start, end),
-                    salaryDao.getByMonth(monthStart, monthEnd)
-                ) { rev, purchases, expenses, salaries ->
-                    val revenue = rev ?: 0L
-                    // COGS: parts purchased in range (approximation; exact COGS would need RepairEntry linkage)
-                    val cogs = purchases.sumOf { it.purchasePrice * it.quantity }
+                    salaryDao.getByMonth(salaryMonthStart, salaryMonthEnd)
+                ) { txns, purchases, sales, expenses, salaries ->
+                    val cashInFromCustomers = txns.filter {
+                        (it.personType == "CUSTOMER" || it.personType == "DEALER") && it.amount > 0L
+                    }.sumOf { it.amount }
+                    val directSaleRevenue = sales.sumOf { it.salePrice }
+                    val supplierRefunds = txns.filter {
+                        it.personType == "SUPPLIER_REFUND" && it.amount > 0L
+                    }.sumOf { it.amount }
+                    val revenue = cashInFromCustomers + directSaleRevenue + supplierRefunds
+
+                    val partCOGS = purchases.sumOf { it.purchasePrice * it.quantity }
+                    val directSaleCOGS = sales.sumOf { it.purchasePrice }
+                    val supplierPayments = txns.filter {
+                        it.personType == "SUPPLIER" && it.amount > 0L
+                    }.sumOf { it.amount }
                     val shopExpenses = expenses.sumOf { it.amount }
                     val salariesPaid = salaries.sumOf { it.paidAmount }
+                    val cogs = partCOGS + directSaleCOGS + supplierPayments
                     val totalCost = cogs + shopExpenses + salariesPaid
                     Triple(revenue, cogs, totalCost)
                 }.collect { (revenue, cogs, totalCost) ->
