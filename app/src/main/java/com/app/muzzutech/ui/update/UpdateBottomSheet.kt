@@ -288,30 +288,36 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
     }
 
     private fun startDownload() {
-        val ctx = requireContext()
+        val ctx = context ?: return
         UpdateManager.downloadAndInstall(
             context = ctx,
             url = downloadUrl,
             onProgress = { pct, mb ->
-                progressBar.progress = pct
-                tvProgress.text = "$pct%\n$mb"
+                if (isAdded) {
+                    progressBar.progress = pct
+                    tvProgress.text = "$pct%\n$mb"
+                }
             },
             onComplete = { file ->
-                downloadFile = file
-                progressBar.visibility = View.GONE
-                tvProgress.visibility = View.GONE
-                tvFailed.visibility = View.GONE
-                Toast.makeText(ctx, R.string.download_complete, Toast.LENGTH_SHORT).show()
-                UpdateManager.installApk(ctx, file, installPermissionLauncher)
+                if (isAdded) {
+                    downloadFile = file
+                    progressBar.visibility = View.GONE
+                    tvProgress.visibility = View.GONE
+                    tvFailed.visibility = View.GONE
+                    Toast.makeText(ctx, R.string.download_complete, Toast.LENGTH_SHORT).show()
+                    UpdateManager.installApk(ctx, file, installPermissionLauncher)
+                }
             },
             onFailed = { err ->
-                progressBar.visibility = View.GONE
-                tvProgress.visibility = View.GONE
-                btnRetry.visibility = View.VISIBLE
-                btnUpdateNow.visibility = View.VISIBLE
-                btnLater.isEnabled = true
-                tvFailed.text = getString(R.string.download_failed_short, err)
-                tvFailed.visibility = View.VISIBLE
+                if (isAdded) {
+                    progressBar.visibility = View.GONE
+                    tvProgress.visibility = View.GONE
+                    btnRetry.visibility = View.VISIBLE
+                    btnUpdateNow.visibility = View.VISIBLE
+                    btnLater.isEnabled = true
+                    tvFailed.text = getString(R.string.download_failed_short, err)
+                    tvFailed.visibility = View.VISIBLE
+                }
             }
         )
     }

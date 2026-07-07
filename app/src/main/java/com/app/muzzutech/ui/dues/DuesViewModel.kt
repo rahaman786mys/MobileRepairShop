@@ -9,6 +9,7 @@ import com.app.muzzutech.data.model.PaymentTransaction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class DuesViewModel : ViewModel() {
@@ -44,15 +45,38 @@ class DuesViewModel : ViewModel() {
     val paymentHistory: StateFlow<List<PaymentTransaction>> = _paymentHistory
 
     init {
-        loadDues()
+        loadPrimaryDues()
     }
 
-    private fun loadDues() {
+    private fun loadPrimaryDues() {
         viewModelScope.launch {
             paymentDao.getPendingDues().collectLatest { list ->
                 _allDues.value = list
             }
         }
+        viewModelScope.launch {
+            paymentDao.getDuesByType("CUSTOMER").collectLatest { list ->
+                _customerDues.value = list
+            }
+        }
+        viewModelScope.launch {
+            paymentDao.getTotalDueByType("CUSTOMER").collectLatest { amount ->
+                _customerDue.value = amount
+            }
+        }
+        viewModelScope.launch {
+            combine(
+                paymentDao.getTotalDueByType("DEALER"),
+                paymentDao.getTotalDueByType("SUPPLIER")
+            ) { dealer, supplier ->
+                dealer + supplier
+            }.collect { total ->
+                _totalDue.value = total
+            }
+        }
+    }
+
+    fun loadSecondaryDues() {
         viewModelScope.launch {
             paymentDao.getDuesByType("DEALER").collectLatest { list ->
                 _dealerDues.value = list
@@ -64,16 +88,6 @@ class DuesViewModel : ViewModel() {
             }
         }
         viewModelScope.launch {
-            paymentDao.getDuesByType("CUSTOMER").collectLatest { list ->
-                _customerDues.value = list
-            }
-        }
-        viewModelScope.launch {
-            paymentDao.getTotalDueAmount().collectLatest { amount ->
-                _totalDue.value = amount
-            }
-        }
-        viewModelScope.launch {
             paymentDao.getTotalDueByType("DEALER").collectLatest { amount ->
                 _dealerDue.value = amount
             }
@@ -81,11 +95,6 @@ class DuesViewModel : ViewModel() {
         viewModelScope.launch {
             paymentDao.getTotalDueByType("SUPPLIER").collectLatest { amount ->
                 _supplierDue.value = amount
-            }
-        }
-        viewModelScope.launch {
-            paymentDao.getTotalDueByType("CUSTOMER").collectLatest { amount ->
-                _customerDue.value = amount
             }
         }
     }

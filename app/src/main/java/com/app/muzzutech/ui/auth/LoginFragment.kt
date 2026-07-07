@@ -7,6 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -102,13 +105,16 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             binding.progressBar.isVisible = true
             binding.btnSendOtp.isEnabled = false
 
-            view?.postDelayed({
-                binding.progressBar.isVisible = false
-                binding.layoutMobileInput.isVisible = false
-                binding.layoutOtpInput.isVisible = true
-                binding.tvOtpSentTo.text = "OTP sent via WhatsApp to +91 $mobile\n\nCheck your WhatsApp, copy the OTP and enter it below."
-                Toast.makeText(requireContext(), "WhatsApp opened! Send the message to yourself", Toast.LENGTH_LONG).show()
-            }, 500)
+            viewLifecycleOwner.lifecycleScope.launch {
+                delay(500)
+                if (isAdded) {
+                    binding.progressBar.isVisible = false
+                    binding.layoutMobileInput.isVisible = false
+                    binding.layoutOtpInput.isVisible = true
+                    binding.tvOtpSentTo.text = "OTP sent via WhatsApp to +91 $mobile\n\nCheck your WhatsApp, copy the OTP and enter it below."
+                    Toast.makeText(requireContext(), "WhatsApp opened! Send the message to yourself", Toast.LENGTH_LONG).show()
+                }
+            }
         } else {
             Toast.makeText(requireContext(), "Failed to open WhatsApp", Toast.LENGTH_SHORT).show()
         }
