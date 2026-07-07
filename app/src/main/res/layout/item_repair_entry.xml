@@ -90,7 +90,7 @@
                     android:layout_marginTop="8dp"
                     app:cardElevation="0dp"
                     app:cardCornerRadius="4dp"
-                    app:cardBackgroundColor="#1A2F81F7"
+                    app:cardBackgroundColor="@color/card_action_bg"
                     app:strokeWidth="0dp">
                     <TextView
                         android:id="@+id/tvStatus"

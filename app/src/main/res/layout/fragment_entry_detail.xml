@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/muzzu_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,32 +27,43 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="Customer: -"
-                    android:textSize="14sp" />
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_main" />
                 <TextView
                     android:id="@+id/tvDetailMobile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mobile: -" />
+                    android:text="Mobile: -"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_main" />
                 <TextView
                     android:id="@+id/tvDetailCity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="City: -" />
+                    android:text="City: -"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_main" />
                 <TextView
                     android:id="@+id/tvDetailDealer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dealer: -" />
+                    android:text="Dealer: -"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_main" />
                 <TextView
                     android:id="@+id/tvDetailServiceMan"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Service Man: -" />
+                    android:text="Service Man: -"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_main" />
                 <TextView
                     android:id="@+id/tvDetailDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Date: -" />
+                    android:text="Date: -"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_sub" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -131,17 +142,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Fault: -"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_main"
                     android:textStyle="bold" />
                 <TextView
                     android:id="@+id/tvDetailCharge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Charge: ₹ 0" />
+                    android:text="Charge: ₹ 0"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_main" />
                 <TextView
                     android:id="@+id/tvDetailStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Status: -" />
+                    android:text="Status: -"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textColor="@color/muzzu_text_main" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -158,7 +175,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnInspect"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:layout_marginTop="8dp"
             android:text="1. Inspection"
             style="@style/Widget.Material3.Button.OutlinedButton" />
@@ -166,7 +183,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnQuotation"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:layout_marginTop="4dp"
             android:text="2. Quotation"
             style="@style/Widget.Material3.Button.OutlinedButton" />
@@ -174,7 +191,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSpareParts"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:layout_marginTop="4dp"
             android:text="3. Spare Parts"
             style="@style/Widget.Material3.Button.OutlinedButton" />
@@ -182,7 +199,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnHandover"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:layout_marginTop="4dp"
             android:text="4. Handover"
             style="@style/Widget.Material3.Button.OutlinedButton" />

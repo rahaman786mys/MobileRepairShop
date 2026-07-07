@@ -47,9 +47,11 @@
         </LinearLayout>
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="14dp"
             android:src="@android:drawable/ic_media_play"
+            android:contentDescription="View details"
             app:tint="@color/muzzu_border" />
 
     </LinearLayout>

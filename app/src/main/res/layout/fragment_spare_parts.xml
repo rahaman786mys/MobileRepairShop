@@ -67,6 +67,7 @@
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_plus_premium"
                             android:padding="32dp"
+                            android:contentDescription="Part photo"
                             app:tint="@color/muzzu_border" />
                     </com.google.android.material.card.MaterialCardView>
 
@@ -87,7 +88,8 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etPartName"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapWords" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <LinearLayout
@@ -153,9 +155,10 @@
                         </com.google.android.material.textfield.TextInputLayout>
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAddSupplierQuick"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
                             android:text="+"
+                            android:contentDescription="Add new supplier"
                             style="@style/Widget.Material3.Button.TonalButton"
                             android:layout_marginStart="8dp" />
                     </LinearLayout>

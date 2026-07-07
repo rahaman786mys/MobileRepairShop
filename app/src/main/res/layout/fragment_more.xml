@@ -369,8 +369,9 @@
                     </LinearLayout>
                     <ImageButton
                         android:id="@+id/btnDoSync"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:padding="8dp"
                         android:background="@android:color/transparent"
                         android:src="@android:drawable/ic_menu_rotate"
                         android:contentDescription="Sync now"

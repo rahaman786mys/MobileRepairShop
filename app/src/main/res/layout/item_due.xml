@@ -68,7 +68,7 @@
                 android:layout_marginTop="4dp"
                 app:cardElevation="0dp"
                 app:cardCornerRadius="4dp"
-                app:cardBackgroundColor="#1AF85149"
+                app:cardBackgroundColor="@color/card_alert_bg"
                 app:strokeWidth="0dp">
                 <TextView
                     android:id="@+id/tvStatus"
