@@ -23,20 +23,27 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +64,7 @@ import com.app.muzzutech.ui.compose.WarningAmber
 import com.app.muzzutech.ui.compose.composeView
 import com.app.muzzutech.utils.DateUtils
 import com.app.muzzutech.utils.PriceUtils
+import kotlin.math.roundToLong
 
 class PayrollFragment : Fragment() {
 
@@ -83,6 +91,7 @@ private fun PayrollScreen(vm: PayrollViewModel) {
     val stats by vm.monthStats.collectAsStateWithLifecycle()
     val salaries by vm.salaryPayments.collectAsStateWithLifecycle()
     val busy by vm.busy.collectAsStateWithLifecycle()
+    var payingSm by remember { mutableStateOf<ServiceMan?>(null) }
 
     Scaffold(
         containerColor = Color.Transparent
@@ -136,18 +145,23 @@ private fun PayrollScreen(vm: PayrollViewModel) {
                             totalDue = salaries.values.sumOf { it.dueAmount }
                         )
                         Spacer(Modifier.height(12.dp))
-                        Text(
-                            "STAFF DISBURSEMENT",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
+    Text(
+        "STAFF DISBURSEMENT",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
                     }
                     items(servicemen, key = { it.id }) { sm ->
+                        val salary = salaries[sm.id]
+                        val smStats = stats[sm.id]
+                        val isUnpaid = salary == null || salary.status == "UNPAID" || salary.status == "NO_WORK"
                         PayrollTechCard(
                             serviceman = sm,
-                            stats = stats[sm.id],
-                            salary = salaries[sm.id]
+                            stats = smStats,
+                            salary = salary,
+                            canPay = isUnpaid,
+                            onPay = { payingSm = sm }
                         )
                     }
                     item { Spacer(Modifier.height(40.dp)) }
@@ -195,8 +209,12 @@ private fun SummaryItem(label: String, amount: Long, color: Color) {
 private fun PayrollTechCard(
     serviceman: ServiceMan,
     stats: PayrollViewModel.MonthStats?,
-    salary: com.app.muzzutech.data.model.SalaryPayment?
+    salary: com.app.muzzutech.data.model.SalaryPayment?,
+    canPay: Boolean = false,
+    onPay: (() -> Unit)? = null
 ) {
+    val computed = salary?.computedAmount ?: PayrollMath.computePayable(serviceman.monthlySalary, serviceman.perDaySalary, stats?.workedDays ?: 0.0)
+    val perDay = if (serviceman.perDaySalary > 0L) serviceman.perDaySalary else if (serviceman.monthlySalary > 0L) (serviceman.monthlySalary / 30L) else 0L
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -237,9 +255,7 @@ private fun PayrollTechCard(
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 SummaryItemSmall("WORK DAYS", "%.1f".format(stats?.workedDays ?: 0.0))
-                val perDay = if (serviceman.perDaySalary > 0L) serviceman.perDaySalary else if (serviceman.monthlySalary > 0L) (serviceman.monthlySalary / 30L) else 0L
                 SummaryItemSmall("RATE/DAY", PriceUtils.formatPrice(perDay))
-                val computed = salary?.computedAmount ?: PayrollMath.computePayable(serviceman.monthlySalary, serviceman.perDaySalary, stats?.workedDays ?: 0.0)
                 SummaryItemSmall("COMPUTED", PriceUtils.formatPrice(computed), isBold = true)
             }
 
@@ -257,12 +273,22 @@ private fun PayrollTechCard(
                 val status = salary?.status ?: if ((stats?.workedDays ?: 0.0) > 0) "PENDING" else "NO WORK"
                 Text(status, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = statusColor(status))
                 
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("PAID ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(PriceUtils.formatPrice(salary?.paidAmount ?: 0L), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.width(12.dp))
                     Text("DUE ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(PriceUtils.formatPrice(salary?.dueAmount ?: (salary?.computedAmount ?: 0L)), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ErrorRed)
+                    if (canPay && onPay != null) {
+                        Spacer(Modifier.width(12.dp))
+                        androidx.compose.material3.Button(
+                            onClick = onPay,
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("PAY", fontSize = 12.sp)
+                        }
+                    }
                 }
             }
         }
@@ -305,4 +331,76 @@ private fun statusColor(status: String): Color = when (status) {
     "UNPAID", "PENDING" -> ErrorRed
     "PARTIAL" -> WarningAmber
     else -> MaterialTheme.colorScheme.onSurfaceVariant
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PaySalaryDialog(
+    serviceman: ServiceMan,
+    workedDays: Double,
+    computedAmount: Long,
+    currentPaid: Long,
+    onDismiss: () -> Unit,
+    onConfirm: (amountPaid: Long, paymentMode: String) -> Unit
+) {
+    var amountPaid by remember { mutableStateOf(computedAmount) }
+    var selectedMode by remember { mutableStateOf("CASH") }
+    val modes = listOf("CASH", "UPI", "BANK")
+    val remaining = (computedAmount - currentPaid).coerceAtLeast(0L)
+    val finalDue = (computedAmount - amountPaid).coerceAtLeast(0L)
+
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Pay Salary — ${serviceman.name}", style = MaterialTheme.typography.titleMedium) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                SummaryItemSmall("MONTH", DateUtils.formatMonth(DateUtils.getStartOfMonth()))
+                SummaryItemSmall("WORKED DAYS", "%.1f days".format(workedDays))
+                SummaryItemSmall("RATE/DAY", PriceUtils.formatPrice(
+                    if (serviceman.perDaySalary > 0L) serviceman.perDaySalary else (serviceman.monthlySalary / 30L)
+                ))
+                SummaryItemSmall("COMPUTED", PriceUtils.formatPrice(computedAmount), isBold = true)
+                if (currentPaid > 0L) {
+                    SummaryItemSmall("ALREADY PAID", PriceUtils.formatPrice(currentPaid))
+                }
+                OutlinedTextField(
+                    value = PriceUtils.formatAmount(amountPaid),
+                    onValueChange = {
+                        val paise = ((it.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+                        amountPaid = paise.coerceIn(0L, computedAmount)
+                    },
+                    label = { Text("Amount to Pay (₹)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text("Payment Mode", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    modes.forEach { mode ->
+                        val selected = selectedMode == mode
+                        androidx.compose.material3.FilterChip(
+                            selected = selected,
+                            onClick = { selectedMode = mode },
+                            label = { Text(mode) }
+                        )
+                    }
+                }
+                if (finalDue > 0L && amountPaid < computedAmount) {
+                    SummaryItemSmall("REMAINING DUE", PriceUtils.formatPrice(finalDue), isBold = true)
+                }
+                if (amountPaid >= computedAmount && computedAmount > 0L) {
+                    Text("✓ Full salary will be marked PAID", color = SuccessGreen, style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(amountPaid, selectedMode) },
+                enabled = amountPaid > 0L
+            ) {
+                Text("CONFIRM & PAY", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("CANCEL") }
+        }
+    )
 }

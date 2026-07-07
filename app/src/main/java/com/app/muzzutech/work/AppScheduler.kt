@@ -61,24 +61,24 @@ private const val WORK_APP_UPDATE = "app_update_check"
             salaryRequest
         )
 
-    // App update check — runs once per day
-    val updateRequest = PeriodicWorkRequestBuilder<UpdateWorker>(1, TimeUnit.DAYS)
-        .setConstraints(
-            Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresBatteryNotLow(true)
-                .build()
+        // App update check — runs once per day
+        val updateRequest = PeriodicWorkRequestBuilder<UpdateWorker>(1, TimeUnit.DAYS)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresBatteryNotLow(true)
+                    .build()
+            )
+            .setInitialDelay(60, TimeUnit.MINUTES)
+            .build()
+        wm.enqueueUniquePeriodicWork(
+            WORK_APP_UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP,
+            updateRequest
         )
-        .setInitialDelay(60, TimeUnit.MINUTES)
-        .build()
-    wm.enqueueUniquePeriodicWork(
-        WORK_APP_UPDATE,
-        ExistingPeriodicWorkPolicy.KEEP,
-        updateRequest
-    )
 
-    // Nightly ledger audit — runs once per day, reconciles books
-    val auditRequest = PeriodicWorkRequestBuilder<LedgerAuditWorker>(1, TimeUnit.DAYS)
+        // Nightly ledger audit — runs once per day, reconciles books
+        val auditRequest = PeriodicWorkRequestBuilder<LedgerAuditWorker>(1, TimeUnit.DAYS)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiresBatteryNotLow(true)
