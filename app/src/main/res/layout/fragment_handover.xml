@@ -77,6 +77,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
+                    android:imeOptions="actionNext"
                     style="@style/TextAppearance.MuZZu.Display"
                     android:textSize="28sp"
                     android:textColor="@color/muzzu_success" />
@@ -147,7 +148,8 @@
                         android:id="@+id/etCashAmount"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
+                        android:inputType="numberDecimal"
+                        android:imeOptions="actionNext" />
                 </com.google.android.material.textfield.TextInputLayout>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
@@ -161,7 +163,8 @@
                         android:id="@+id/etOnlineAmount"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="numberDecimal" />
+                        android:inputType="numberDecimal"
+                        android:imeOptions="actionDone" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 

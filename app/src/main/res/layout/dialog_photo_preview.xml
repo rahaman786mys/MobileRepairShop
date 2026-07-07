@@ -10,7 +10,8 @@
         android:id="@+id/ivPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        android:contentDescription="Photo preview" />
 
     <ImageButton
         android:id="@+id/btnClosePreview"
@@ -21,7 +22,7 @@
         android:background="@android:color/transparent"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         android:contentDescription="Close preview"
-        app:tint="@color/white" />
+        app:tint="@color/muzzu_text_on_dark" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -39,8 +40,8 @@
             android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Retake Photo"
-            app:strokeColor="@color/white"
-            android:textColor="@color/white" />
+            app:strokeColor="@color/muzzu_text_on_dark"
+            android:textColor="@color/muzzu_text_on_dark" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDelete"
@@ -51,7 +52,7 @@
             android:text="Delete"
             android:layout_marginStart="16dp"
             app:backgroundTint="@color/muzzu_error"
-            android:textColor="@color/white"
+            android:textColor="@color/muzzu_text_on_dark"
             app:icon="@android:drawable/ic_menu_delete" />
     </LinearLayout>
 

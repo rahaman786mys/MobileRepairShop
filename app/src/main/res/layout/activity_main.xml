@@ -13,7 +13,7 @@
         android:background="@color/muzzu_primary"
         android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
         app:title="@string/app_name"
-        app:titleTextColor="@color/white"
+        app:titleTextColor="@color/muzzu_text_on_dark"
         app:elevation="0dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

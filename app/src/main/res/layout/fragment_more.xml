@@ -32,6 +32,7 @@
                     android:src="@drawable/ic_dashboard"
                     android:padding="12dp"
                     android:background="@drawable/bg_circle_sunken"
+                    android:contentDescription="Profile avatar"
                     app:tint="@color/muzzu_accent" />
 
                 <LinearLayout
@@ -120,7 +121,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- Customers -->
                 <LinearLayout
@@ -155,7 +156,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- Suppliers -->
                 <LinearLayout
@@ -190,7 +191,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- Common Faults -->
                 <LinearLayout
@@ -225,7 +226,7 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- Inventory -->
                 <LinearLayout
@@ -253,7 +254,7 @@
                         android:textColor="@color/muzzu_text_main" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- Payroll -->
                 <LinearLayout
@@ -281,7 +282,7 @@
                         android:textColor="@color/muzzu_text_main" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- Expenses -->
                 <LinearLayout
@@ -378,7 +379,7 @@
                         app:tint="@color/muzzu_accent" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- Local Backup -->
                 <LinearLayout
@@ -406,7 +407,7 @@
                         android:textColor="@color/muzzu_text_main" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginLeft="16dp" android:layout_marginRight="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- Local Restore -->
                 <LinearLayout

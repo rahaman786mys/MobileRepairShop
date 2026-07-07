@@ -133,6 +133,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
+                    android:imeOptions="actionNext"
                     style="@style/TextAppearance.MuZZu.Body"
                     android:textStyle="bold"
                     android:textSize="18sp" />
@@ -164,11 +165,12 @@
                     android:id="@+id/etNote"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/TextAppearance.MuZZu.Body" />
-            </com.google.android.material.textfield.TextInputLayout>
+                            style="@style/TextAppearance.MuZZu.Body"
+                            android:imeOptions="actionDone" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRecordPayment"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRecordPayment"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:layout_marginTop="32dp"

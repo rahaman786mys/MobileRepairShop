@@ -49,8 +49,8 @@
             android:layout_height="64dp"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp">
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp">
 
             <ImageView
                 android:layout_width="24dp"

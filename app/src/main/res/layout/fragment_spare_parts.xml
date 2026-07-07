@@ -89,7 +89,8 @@
                             android:id="@+id/etPartName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textCapWords" />
+                            android:inputType="textCapWords"
+                            android:imeOptions="actionNext" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <LinearLayout
@@ -109,7 +110,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="number"
-                                android:text="1" />
+                                android:text="1"
+                                android:imeOptions="actionNext" />
                         </com.google.android.material.textfield.TextInputLayout>
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="0dp"
@@ -123,7 +125,8 @@
                                 android:id="@+id/etPurchasePrice"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="numberDecimal" />
+                                android:inputType="numberDecimal"
+                                android:imeOptions="actionNext" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 

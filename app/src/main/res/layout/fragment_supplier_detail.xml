@@ -34,7 +34,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Supplier Name"
-                        android:textColor="@color/white"
+                        android:textColor="@color/muzzu_text_on_dark"
                         style="@style/TextAppearance.MuZZu.Display"
                         android:textSize="24sp" />
                     <TextView
@@ -43,13 +43,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="9999912345"
-                        android:textColor="#B0C4DE"
+                        android:textColor="@color/muzzu_text_on_dark"
                         style="@style/TextAppearance.MuZZu.Body" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#33FFFFFF"
+                        android:background="@color/muzzu_text_on_dark"
+                        android:alpha="0.2"
                         android:layout_marginVertical="16dp" />
 
                     <TextView
@@ -57,13 +58,13 @@
                         android:layout_height="wrap_content"
                         android:text="OUTSTANDING BALANCE"
                         style="@style/TextAppearance.MuZZu.Caption"
-                        android:textColor="#B0C4DE" />
+                        android:textColor="@color/muzzu_text_on_dark" />
                     <TextView
                         android:id="@+id/tvBalanceDue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₹ 0"
-                        android:textColor="@color/white"
+                        android:textColor="@color/muzzu_text_on_dark"
                         style="@style/TextAppearance.MuZZu.Display"
                         android:textSize="32sp" />
                 </LinearLayout>

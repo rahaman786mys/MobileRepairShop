@@ -41,6 +41,7 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:scaleType="centerCrop"
 android:src="@drawable/ic_dashboard"
+android:contentDescription="Profile photo"
 app:tint="@color/muzzu_border" />
 </com.google.android.material.card.MaterialCardView>
 
@@ -62,7 +63,8 @@ style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
                         android:id="@+id/etProfileName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPersonName" />
+                        android:inputType="textPersonName"
+                        android:imeOptions="actionNext" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -75,7 +77,8 @@ style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
                         android:id="@+id/etProfileEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress" />
+                        android:inputType="textEmailAddress"
+                        android:imeOptions="actionNext" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.gms.common.SignInButton
@@ -97,8 +100,9 @@ android:id="@+id/etProfilePhone"
 android:layout_width="match_parent"
 android:layout_height="wrap_content"
 android:hint="10-digit Mobile Number"
-android:inputType="phone"
-android:maxLength="10" />
+                    android:inputType="phone"
+                    android:maxLength="10"
+                    android:imeOptions="actionNext" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -111,39 +115,42 @@ android:maxLength="10" />
                         android:id="@+id/etShopName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textCapWords" />
+                        android:inputType="textCapWords"
+                        android:imeOptions="actionNext" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-<com.google.android.material.textfield.TextInputLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_marginTop="12dp"
-android:hint="Shop Address"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Shop Address"
 style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 <com.google.android.material.textfield.TextInputEditText
 android:id="@+id/etShopAddress"
 android:layout_width="match_parent"
 android:layout_height="wrap_content"
-android:inputType="textMultiLine"
-android:maxLines="3" />
-</com.google.android.material.textfield.TextInputLayout>
+                    android:inputType="textMultiLine"
+                    android:maxLines="3"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-<com.google.android.material.textfield.TextInputLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_marginTop="12dp"
-android:hint="Shop GST Number (Optional)"
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="Shop GST Number (Optional)"
 style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 <com.google.android.material.textfield.TextInputEditText
 android:id="@+id/etShopGst"
 android:layout_width="match_parent"
 android:layout_height="wrap_content"
-android:inputType="text"
-android:textColor="@color/muzzu_text_main" />
-</com.google.android.material.textfield.TextInputLayout>
+                    android:inputType="text"
+                    android:imeOptions="actionDone"
+                    android:textColor="@color/muzzu_text_main" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-<com.google.android.material.button.MaterialButton
-android:id="@+id/btnSaveProfile"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveProfile"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="24dp"
