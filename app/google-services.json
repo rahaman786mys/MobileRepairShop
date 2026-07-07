@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "816690590049",
+    "project_id": "mobile-shop-7922a",
+    "storage_bucket": "mobile-shop-7922a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816690590049:android:3affa77bc0a9b900e09520",
+        "android_client_info": {
+          "package_name": "com.app.muzzutech"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "816690590049-csagvpo4493k7pcclj97stvh4mda3tu9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.muzzutech",
+            "certificate_hash": "0599516e661467f8bd4946397eaf2bddee2a1da6"
+          }
+        },
+        {
+          "client_id": "816690590049-efj39799qqgl18qs17kr10iutfiqhv18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-5-9Kn1mgbJC8SSVv3mpwf6BBjxxpuoA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
