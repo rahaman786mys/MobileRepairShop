@@ -6,7 +6,6 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.utils.AIAdvisor
 import com.app.muzzutech.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -102,11 +101,6 @@ class DashboardViewModel : ViewModel() {
                         it.personType == "SUPPLIER" && it.amount > 0L
                     }.sumOf { it.amount }
 
-                    // Cash in from supplier refunds (part returns)
-                    val supplierRefunds = c.filter {
-                        it.personType == "SUPPLIER_REFUND" && it.amount > 0L
-                    }.sumOf { it.amount }
-
                     val partPurchases = d.sumOf { it.purchasePrice * it.quantity }
 
                     ProfitAggregate(
@@ -122,11 +116,9 @@ class DashboardViewModel : ViewModel() {
                         salaryPayouts = salaries.sumOf { it.paidAmount },
                         salaryLiability = salaries.sumOf { it.dueAmount }
                     )
-                }.combine(database.partReturnDao().getReturnsByDateRangeQuery(todayStart, todayEnd)) { agg, returns ->
-                    agg.copy(partReturnRefunds = returns.sumOf { it.refundAmount })
                 }.collect { agg ->
-                    // Cash-basis revenue: all cash in from customers/dealers + direct sales + supplier refunds
-                    val totalRevenue = agg.customerCashIn + agg.saleRevenue + agg.partReturnRefunds
+                    // Cash-basis revenue: all cash in from customers/dealers + direct sales
+                    val totalRevenue = agg.customerCashIn + agg.saleRevenue
                     // Cost: parts bought + shop expenses + salaries paid + supplier payments
                     // supplier refunds INCREASE profit (cost recovery), so they increase revenue not decrease cost
                     val totalCost = agg.partPurchases + agg.shopExpenses + agg.salaryPayouts + agg.supplierPayments
