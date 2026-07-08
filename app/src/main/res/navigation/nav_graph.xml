@@ -40,17 +40,6 @@
         tools:layout="@layout/fragment_sale" />
 
     <fragment
-        android:id="@+id/inspectionFragment"
-        android:name="com.app.muzzutech.ui.inspection.InspectionFragment"
-        android:label="Inspection"
-        tools:layout="@layout/fragment_inspection">
-        <argument
-            android:name="entryId"
-            app:argType="long"
-            android:defaultValue="0L" />
-    </fragment>
-
-    <fragment
         android:id="@+id/quotationFragment"
         android:name="com.app.muzzutech.ui.quotation.QuotationFragment"
         android:label="Quotation"

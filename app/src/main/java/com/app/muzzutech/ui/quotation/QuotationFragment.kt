@@ -19,7 +19,6 @@ import com.app.muzzutech.utils.NotificationUtils
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlin.math.roundToLong
 
 class QuotationFragment : Fragment(R.layout.fragment_quotation) {
 
@@ -51,9 +50,6 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
         faultAdapter = CommonFaultAdapter { fault ->
             selectedFault = fault.faultName
             binding.tvFaultDetected.text = "Selected: $selectedFault"
-            if (fault.defaultCharge > 0L && binding.etChargeAmount.text.isNullOrBlank()) {
-                binding.etChargeAmount.setText((fault.defaultCharge / 100.0).toString())
-            }
         }
         binding.rvCommonFaults.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -95,18 +91,7 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
     }
 
     private fun saveQuotation() {
-        val chargeText = binding.etChargeAmount.text.toString().trim()
-        val advanceText = binding.etAdvanceAmount.text.toString().trim()
-
-        if (chargeText.isEmpty()) {
-            Snackbar.make(binding.root, "Please enter charge amount", Snackbar.LENGTH_SHORT).show()
-            return
-        }
-
-        val charge = ((chargeText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
-        val advance = ((advanceText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
-
-        viewModel.saveQuotation(entryId, charge, advance, selectedFault)
+        viewModel.saveQuotation(entryId, selectedFault)
     }
 
     override fun onDestroyView() {

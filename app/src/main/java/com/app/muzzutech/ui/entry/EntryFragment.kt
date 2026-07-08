@@ -35,6 +35,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 import java.io.File
 
 class EntryFragment : Fragment(R.layout.fragment_entry) {
@@ -365,6 +366,11 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             serviceMenList[selectedPos - 1].id
         } else 0L
 
+        val chargeText = binding.etChargeAmount.text.toString().trim()
+        val advanceText = binding.etAdvanceAmount.text.toString().trim()
+        val chargeAmount = ((chargeText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        val advanceAmount = ((advanceText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+
         viewModel.saveEntry(
             photoPath = viewModel.photo1Path.value ?: "",
             photoPath2 = viewModel.photo2Path.value ?: "",
@@ -376,6 +382,8 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             brand = brand,
             model = model,
             extraItems = collectExtraItems(),
+            chargeAmount = chargeAmount,
+            advanceAmount = advanceAmount,
             isDraft = isDraft
         )
     }
@@ -419,7 +427,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
                         viewModel.resetSaveState()
                         Snackbar.make(binding.root, "Entry Registered!", Snackbar.LENGTH_SHORT).show()
                         val bundle = Bundle().apply { putLong("entryId", id) }
-                        findNavController().navigate(R.id.inspectionFragment, bundle)
+                        findNavController().navigate(R.id.quotationFragment, bundle)
                     }
                 }
             }

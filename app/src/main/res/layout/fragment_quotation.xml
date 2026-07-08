@@ -27,7 +27,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Step 4 of 5: Quotation"
+                    android:text="Step 2 of 4: Quotation"
                     style="@style/TextAppearance.MuZZu.Label"
                     android:textColor="@color/muzzu_primary" />
                 <LinearLayout
@@ -76,39 +76,6 @@
                         style="@style/TextAppearance.MuZZu.Title" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Repair Charge (₹)"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                app:boxBackgroundColor="@color/muzzu_surface"
-                app:prefixText="₹ ">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etChargeAmount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:imeOptions="actionNext"
-                    style="@style/TextAppearance.MuZZu.Body" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Advance Amount (Optional)"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                app:boxBackgroundColor="@color/muzzu_surface"
-                app:prefixText="₹ ">
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etAdvanceAmount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:imeOptions="actionDone"
-                    style="@style/TextAppearance.MuZZu.Body" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveQuotation"

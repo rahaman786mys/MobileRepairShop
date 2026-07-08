@@ -95,6 +95,8 @@ class EntryViewModel : ViewModel() {
         brand: String,
         model: String,
         extraItems: String = "",
+        chargeAmount: Long = 0L,
+        advanceAmount: Long = 0L,
         isDraft: Boolean = false
     ) {
         if (mobile.isBlank()) {
@@ -157,9 +159,49 @@ class EntryViewModel : ViewModel() {
                         deviceModel = safeModel,
                         entryDate = System.currentTimeMillis(),
                         faultDescription = safeExtraItems,
+                        chargeAmount = chargeAmount,
+                        advanceAmount = advanceAmount,
                         isDraft = isDraft
                     )
                     val id = repository.insert(entry)
+
+                    if (advanceAmount > 0L) {
+                        val personMobile = if (!isDealer) mobile else ""
+                        val personName = if (!isDealer) safeName else ""
+                        val personType = if (!isDealer) "CUSTOMER" else "DEALER"
+                        val advanceTxnId = db.paymentTransactionDao().insert(
+                            PaymentTransaction(
+                                paymentId = null,
+                                personType = personType,
+                                personMobile = personMobile,
+                                personName = personName,
+                                amount = advanceAmount,
+                                paymentMode = "CASH",
+                                note = "Advance for $safeBrand $safeModel"
+                            )
+                        )
+                        val paymentId = db.paymentDao().insert(
+                            com.app.muzzutech.data.model.Payment(
+                                personType = personType,
+                                personMobile = personMobile,
+                                personName = personName,
+                                description = "Advance for $safeBrand $safeModel",
+                                totalAmount = chargeAmount,
+                                paidAmount = advanceAmount,
+                                dueAmount = (chargeAmount - advanceAmount).coerceAtLeast(0L),
+                                status = if (advanceAmount >= chargeAmount) "PAID" else "PARTIAL",
+                                linkedEntryId = id
+                            )
+                        )
+                        db.paymentTransactionDao().getTransactionById(advanceTxnId)?.let { txn ->
+                            db.paymentTransactionDao().update(txn.copy(paymentId = paymentId))
+                        }
+                        repository.update(
+                            repository.getEntryById(id)!!.copy(
+                                advancePaymentTransactionId = advanceTxnId
+                            )
+                        )
+                    }
 
                     if (isDraft) {
                         draftEntryIds[mobile] = id

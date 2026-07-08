@@ -66,10 +66,6 @@ class EntryDetailFragment : Fragment(R.layout.fragment_entry_detail) {
         }
 
         // Workflow buttons
-        binding.btnInspect.setOnClickListener {
-            val bundle = Bundle().apply { putLong("entryId", entryId) }
-            findNavController().navigate(R.id.inspectionFragment, bundle)
-        }
         binding.btnQuotation.setOnClickListener {
             val bundle = Bundle().apply { putLong("entryId", entryId) }
             findNavController().navigate(R.id.quotationFragment, bundle)

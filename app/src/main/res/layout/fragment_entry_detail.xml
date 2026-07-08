@@ -184,20 +184,12 @@
                     android:layout_marginBottom="8dp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnInspect"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="4dp"
-                    android:text="1. Inspection" />
-
-                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnQuotation"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="4dp"
-                    android:text="2. Quotation" />
+                    android:text="1. Quotation" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSpareParts"
@@ -205,7 +197,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="4dp"
-                    android:text="3. Spare Parts" />
+                    android:text="2. Spare Parts" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnHandover"
@@ -213,7 +205,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="4dp"
-                    android:text="4. Handover" />
+                    android:text="3. Handover" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
