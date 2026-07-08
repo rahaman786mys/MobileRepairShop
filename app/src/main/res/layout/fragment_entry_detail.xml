@@ -1,213 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/muzzu_bg">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="32dp">
 
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MuZZu.Card">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBack"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="Back"
+                android:textAllCaps="false" />
+
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/tvDetailCustomer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Customer: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_main" />
-                <TextView
-                    android:id="@+id/tvDetailMobile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mobile: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_main" />
-                <TextView
-                    android:id="@+id/tvDetailCity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="City: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_main" />
-                <TextView
-                    android:id="@+id/tvDetailDealer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Dealer: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_main" />
-                <TextView
-                    android:id="@+id/tvDetailServiceMan"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Service Man: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_main" />
-                <TextView
-                    android:id="@+id/tvDetailDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Date: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_sub" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Repair Photos"
-                    style="@style/TextAppearance.MuZZu.Label" />
-
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MuZZu.Card">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="120dp"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="4dp"
-                        app:cardCornerRadius="8dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="@color/muzzu_border">
-                        <ImageView
-                            android:id="@+id/ivDetailPhoto1"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_dashboard"
-                            app:tint="@color/muzzu_border" />
-                    </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Customer Details"
+                        android:textColor="@color/muzzu_primary"
+                        style="@style/TextAppearance.MuZZu.Title" />
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="120dp"
-                        android:layout_weight="1"
-                        android:layout_marginHorizontal="4dp"
-                        app:cardCornerRadius="8dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="@color/muzzu_border">
-                        <ImageView
-                            android:id="@+id/ivDetailPhoto2"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_dashboard"
-                            app:tint="@color/muzzu_border" />
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="120dp"
-                        android:layout_weight="1"
-                        android:layout_marginStart="4dp"
-                        app:cardCornerRadius="8dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="@color/muzzu_border">
-                        <ImageView
-                            android:id="@+id/ivDetailPhotoInsp"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_dashboard"
-                            app:tint="@color/muzzu_border" />
-                    </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:id="@+id/tvDetailCustomer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Customer: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvDetailMobile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mobile: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvDetailCity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="City: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvDetailDealer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dealer: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvDetailServiceMan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Service Man: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvDetailDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Entry: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvDetailFault"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fault: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvDetailCharge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Charge: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
+                    <TextView
+                        android:id="@+id/tvDetailStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status: -"
+                        style="@style/TextAppearance.MuZZu.Body" />
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/muzzu_border" />
-
-                <TextView
-                    android:id="@+id/tvDetailFault"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Fault: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_main"
-                    android:textStyle="bold" />
-                <TextView
-                    android:id="@+id/tvDetailCharge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Charge: ₹ 0"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_main" />
-                <TextView
-                    android:id="@+id/tvDetailStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Status: -"
-                    style="@style/TextAppearance.MuZZu.Body"
-                    android:textColor="@color/muzzu_text_main" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.MuZZu.Card"
-            android:layout_marginTop="16dp">
-
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MuZZu.Card">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Workflow"
-                    android:textAppearance="@style/TextAppearance.MuZZu.Title"
-                    android:textColor="@color/muzzu_primary"
-                    android:layout_marginBottom="8dp" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnQuotation"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="4dp"
-                    android:text="1. Quotation" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Workflow"
+                        android:textAppearance="@style/TextAppearance.MuZZu.Title"
+                        android:textColor="@color/muzzu_primary"
+                        android:layout_marginBottom="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSpareParts"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="4dp"
-                    android:text="2. Spare Parts" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSpareParts"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="4dp"
+                        android:text="Spare Parts" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnHandover"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="4dp"
-                    android:text="3. Handover" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnHandover"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="4dp"
+                        android:text="Handover" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

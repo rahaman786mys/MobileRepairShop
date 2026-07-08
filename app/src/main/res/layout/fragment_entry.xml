@@ -27,7 +27,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Step 1 of 4: Registration"
+                    android:text="Step 1 of 3: Registration"
                     style="@style/TextAppearance.MuZZu.Label"
                     android:textColor="@color/muzzu_primary" />
                 <LinearLayout
@@ -35,10 +35,8 @@
                     android:layout_height="4dp"
                     android:layout_marginTop="8dp"
                     android:orientation="horizontal"
-                    android:weightSum="5">
+                    android:weightSum="3">
                     <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/muzzu_primary" android:layout_marginEnd="2dp" />
-                    <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/muzzu_border" android:layout_marginHorizontal="2dp" />
-                    <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/muzzu_border" android:layout_marginHorizontal="2dp" />
                     <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/muzzu_border" android:layout_marginHorizontal="2dp" />
                     <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/muzzu_border" android:layout_marginStart="2dp" />
                 </LinearLayout>

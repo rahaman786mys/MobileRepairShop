@@ -17,7 +17,6 @@ import java.io.IOException
         RepairEntry::class,
         ServiceMan::class,
         Supplier::class,
-        CommonFault::class,
         SparePartPurchase::class,
         Customer::class,
         Dealer::class,
@@ -31,7 +30,7 @@ import java.io.IOException
         Expense::class,
         LedgerAlert::class
     ],
-    version = 16, // Bumped from 15: Double→Long (paise) refactor, gstAmount/discountAmount on repair_entries
+    version = 17, // Bumped from 16: drop common_faults table; remove Inspection + Quotation flows
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -39,7 +38,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun repairEntryDao(): RepairEntryDao
     abstract fun serviceManDao(): ServiceManDao
     abstract fun supplierDao(): SupplierDao
-    abstract fun commonFaultDao(): CommonFaultDao
     abstract fun sparePartPurchaseDao(): SparePartPurchaseDao
     abstract fun customerDao(): CustomerDao
     abstract fun dealerDao(): DealerDao
@@ -289,6 +287,15 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration 16 -> 17: drop common_faults table (Inspection + Quotation flows removed).
+         */
+        val MIGRATION_16_17: Migration = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS common_faults")
+            }
+        }
+
         fun getDatabase(context: Context, passphrase: ByteArray? = null): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val dbFile = context.getDatabasePath("mobile_repair_shop_db")
@@ -302,7 +309,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "mobile_repair_shop_db"
                 )
                     .apply { if (factory != null) openHelperFactory(factory) }
-                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17)
                     .build()
                 INSTANCE = instance
                 instance

@@ -183,7 +183,6 @@ class MainActivity : AppCompatActivity() {
         TestLauncherActivity.DEST_EXPENSES -> R.id.expensesFragment
         TestLauncherActivity.DEST_SUPPLIERS -> R.id.supplierListFragment
         TestLauncherActivity.DEST_CUSTOMERS -> R.id.customerListFragment
-        TestLauncherActivity.DEST_FAULTS -> R.id.commonFaultsFragment
         TestLauncherActivity.DEST_INVENTORY -> R.id.inventoryFragment
         TestLauncherActivity.DEST_PROFILE -> R.id.profileFragment
         else -> null

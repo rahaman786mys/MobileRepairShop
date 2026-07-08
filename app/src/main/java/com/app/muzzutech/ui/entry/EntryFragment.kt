@@ -427,7 +427,7 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
                         viewModel.resetSaveState()
                         Snackbar.make(binding.root, "Entry Registered!", Snackbar.LENGTH_SHORT).show()
                         val bundle = Bundle().apply { putLong("entryId", id) }
-                        findNavController().navigate(R.id.quotationFragment, bundle)
+                        findNavController().navigate(R.id.sparePartsFragment, bundle)
                     }
                 }
             }

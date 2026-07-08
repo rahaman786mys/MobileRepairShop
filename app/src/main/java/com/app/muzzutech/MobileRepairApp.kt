@@ -42,21 +42,6 @@ class MobileRepairApp : Application() {
         // Using a controlled scope instead of GlobalScope
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 1. Common Faults
-                val faultDao = db.commonFaultDao()
-                val existingFaults = faultDao.getAllFaults().first()
-                if (existingFaults.isEmpty()) {
-                    val defaults = listOf(
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Display Replacement", category = "Display", defaultCharge = 250000L, sortOrder = 1),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Battery Replacement", category = "Battery", defaultCharge = 120000L, sortOrder = 2),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Charging Port Fix", category = "Charging", defaultCharge = 80000L, sortOrder = 3),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Mic/Speaker Problem", category = "Audio", defaultCharge = 60000L, sortOrder = 4),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Software/Flashing", category = "Software", defaultCharge = 50000L, sortOrder = 5),
-                        com.app.muzzutech.data.model.CommonFault(faultName = "Dead/Water Damage", category = "Motherboard", defaultCharge = 350000L, sortOrder = 6)
-                    )
-                    faultDao.insertAll(defaults)
-                }
-
                 // 2. Demo data for easier testing in debug builds if DB is empty
                 if (com.app.muzzutech.BuildConfig.DEBUG) {
                     if (db.supplierDao().getCount() == 0) {

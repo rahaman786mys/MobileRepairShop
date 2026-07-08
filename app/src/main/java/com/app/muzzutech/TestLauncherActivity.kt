@@ -28,7 +28,6 @@ class TestLauncherActivity : AppCompatActivity() {
         const val DEST_EXPENSES = "expenses"
         const val DEST_SUPPLIERS = "suppliers"
         const val DEST_CUSTOMERS = "customers"
-        const val DEST_FAULTS = "faults"
         const val DEST_INVENTORY = "inventory"
         const val DEST_PROFILE = "profile"
     }

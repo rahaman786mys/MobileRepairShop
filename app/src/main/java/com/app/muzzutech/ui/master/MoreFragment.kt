@@ -51,9 +51,6 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         binding.cardSuppliers.setOnClickListener {
             findNavController().navigate(R.id.supplierListFragment)
         }
-        binding.cardCommonFaults.setOnClickListener {
-            findNavController().navigate(R.id.commonFaultsFragment)
-        }
         binding.cardInventory.setOnClickListener {
             findNavController().navigate(R.id.inventoryFragment)
         }
@@ -113,11 +110,6 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         viewLifecycleOwner.lifecycleScope.launch {
             MobileRepairApp.instance.database.supplierDao().getAllSuppliers().collectLatest { list ->
                 binding.tvSuppliersCount.text = "${list.size} suppliers"
-            }
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            MobileRepairApp.instance.database.commonFaultDao().getAllFaults().collectLatest { list ->
-                binding.tvFaultsCount.text = "${list.size} fault types"
             }
         }
 

@@ -7,7 +7,6 @@ import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
-import com.app.muzzutech.data.model.CommonFault
 import com.app.muzzutech.data.model.RepairEntry
 import kotlinx.coroutines.tasks.await
 
@@ -20,7 +19,7 @@ object AIAnalyzer {
     /**
      * Analyze phone photo to suggest possible faults using ML Kit
      */
-    suspend fun suggestFaultsFromPhoto(bitmap: Bitmap?, knownFaults: List<CommonFault>): List<String> {
+    suspend fun suggestFaultsFromPhoto(bitmap: Bitmap?): List<String> {
         val suggestions = mutableListOf<String>()
         if (bitmap == null) return suggestions
 
@@ -101,16 +100,7 @@ object AIAnalyzer {
     /**
      * Estimate repair cost based on fault type
      */
-    fun estimateRepairCost(
-        fault: String,
-        commonFaults: List<CommonFault>
-    ): Long {
-        val matchedFault = commonFaults.find {
-            it.faultName.contains(fault, ignoreCase = true) ||
-            fault.contains(it.faultName, ignoreCase = true)
-        }
-        return matchedFault?.defaultCharge ?: 0L
-    }
+    fun estimateRepairCost(fault: String): Long = 0L
 
     /**
      * Generate repair time estimate in days
