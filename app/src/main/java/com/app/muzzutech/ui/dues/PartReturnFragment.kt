@@ -50,7 +50,7 @@ class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
                 val adapter = ArrayAdapter(
                     requireContext(),
                     android.R.layout.simple_spinner_item,
-                    list.map { "${it.partName} (₹${it.purchasePrice}) - ${it.supplierName}" }
+                    list.map { "${it.partName} (${com.app.muzzutech.utils.PriceUtils.formatPrice(it.purchasePrice)}) - ${it.supplierName}" }
                 )
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 binding.spinnerSelectPart.adapter = adapter

@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.app.muzzutech.R
 import com.app.muzzutech.data.model.SparePartPurchase
 import com.app.muzzutech.databinding.ItemAddedPartBinding
+import com.app.muzzutech.utils.PriceUtils
 import java.io.File
 
 class AddedPartAdapter(private val onDeleteClick: (SparePartPurchase) -> Unit) :
@@ -33,7 +34,7 @@ class AddedPartAdapter(private val onDeleteClick: (SparePartPurchase) -> Unit) :
         fun bind(part: SparePartPurchase) {
             binding.tvPartName.text = part.partName
             binding.tvSupplier.text = "Supplier: ${part.supplierName}"
-            binding.tvPrice.text = "₹${part.purchasePrice}"
+            binding.tvPrice.text = PriceUtils.formatPrice(part.purchasePrice)
 
             if (part.partPhotoPath.isNotEmpty()) {
                 Glide.with(binding.ivPartImage.context)
