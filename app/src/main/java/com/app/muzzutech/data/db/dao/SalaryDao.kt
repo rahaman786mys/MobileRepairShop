@@ -24,7 +24,7 @@ interface SalaryDao {
     fun getByMonth(start: Long, end: Long): Flow<List<SalaryPayment>>
 
     @Query("SELECT * FROM salary_payments WHERE servicemanId = :smId AND monthStart = :monthStart LIMIT 1")
-    suspend fun getByServiceManAndMonth(smId: Long, monthStart: Long): SalaryPayment??
+    suspend fun getByServiceManAndMonth(smId: Long, monthStart: Long): SalaryPayment?
 
     @Query("SELECT * FROM salary_payments WHERE id = :id")
     suspend fun getById(id: Long): SalaryPayment?

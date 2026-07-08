@@ -35,7 +35,7 @@ interface PaymentTransactionDao {
     suspend fun getTransactionById(id: Long): PaymentTransaction?
 
     @Query("SELECT * FROM payment_transactions WHERE expenseId = :expenseId LIMIT 1")
-    suspend fun getTransactionByExpenseId(expenseId: Long): PaymentTransaction??
+    suspend fun getTransactionByExpenseId(expenseId: Long): PaymentTransaction?
 
     @Query("SELECT * FROM payment_transactions WHERE personMobile = :mobile AND paymentId IS NULL AND amount = :amount LIMIT 1")
     suspend fun findUnlinkedByMobileAndAmount(mobile: String, amount: Long): PaymentTransaction?

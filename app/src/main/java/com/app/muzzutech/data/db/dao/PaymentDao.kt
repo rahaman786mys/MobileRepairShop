@@ -53,10 +53,10 @@ interface PaymentDao {
     fun getPaymentCountByTypeAndDate(type: String, startDate: Long, endDate: Long): Flow<Int>
 
     @Query("""
-        UPDATE payments 
-        SET paidAmount = paidAmount + :amount, 
+        UPDATE payments
+        SET paidAmount = paidAmount + :amount,
             dueAmount = dueAmount - :amount,
-            status = CASE WHEN (dueAmount - :amount) <= 0 THEN 'PAID' ELSE 'PARTIAL' END,
+            status = CASE WHEN (paidAmount + :amount) >= totalAmount THEN 'PAID' WHEN (paidAmount + :amount) > 0 THEN 'PARTIAL' ELSE 'UNPAID' END,
             updatedAt = :now
         WHERE id = :paymentId AND dueAmount >= :amount
     """)

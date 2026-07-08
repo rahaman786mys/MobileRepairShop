@@ -89,7 +89,6 @@ class DashboardViewModel : ViewModel() {
                 val partsFlow = database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd)
 
                 combine(handoverFlow, salesFlow, txnFlow, partsFlow) { a, b, c, d ->
-                    val handoverRevenue = a.sumOf { it.finalAmount }
                     val saleRevenue = b.sumOf { it.salePrice }
 
                     // Cash in from customers/dealers: advances (paymentId=null) + due collections (paymentId!=null)
@@ -111,10 +110,8 @@ class DashboardViewModel : ViewModel() {
                     val partPurchases = d.sumOf { it.purchasePrice * it.quantity }
 
                     ProfitAggregate(
-                        handoverRevenue = handoverRevenue,
                         saleRevenue = saleRevenue,
                         customerCashIn = customerCashIn,
-                        partReturnRefunds = supplierRefunds,
                         partPurchases = partPurchases,
                         supplierPayments = supplierPayments
                     )
@@ -203,10 +200,8 @@ class DashboardViewModel : ViewModel() {
     }
 
     private data class ProfitAggregate(
-        val handoverRevenue: Long = 0L,
         val saleRevenue: Long = 0L,
         val customerCashIn: Long = 0L,
-        val partReturnRefunds: Long = 0L,
         val partPurchases: Long = 0L,
         val shopExpenses: Long = 0L,
         val salaryPayouts: Long = 0L,

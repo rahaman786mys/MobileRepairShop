@@ -167,20 +167,21 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
             quantity = quantity,
             supplierId = supplier?.mobile ?: "",
             supplierName = supplier?.name ?: "",
-            payLater = payLater
+            payLater = payLater,
+            onComplete = {
+                binding.etPartName.text?.clear()
+                binding.etPurchasePrice.text?.clear()
+                binding.etQuantity.text?.clear()
+                binding.ivPartPhoto.setImageResource(R.drawable.ic_add)
+                photoFile = null
+                isAddingPart = false
+                Snackbar.make(
+                    binding.root,
+                    if (payLater) "Part added! Due recorded for supplier." else "Part added! Marked as paid.",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
         )
-
-        binding.etPartName.text?.clear()
-        binding.etPurchasePrice.text?.clear()
-        binding.etQuantity.text?.clear()
-        binding.ivPartPhoto.setImageResource(R.drawable.ic_add)
-        photoFile = null
-        isAddingPart = false
-        Snackbar.make(
-            binding.root,
-            if (payLater) "Part added! Due recorded for supplier." else "Part added! Marked as paid.",
-            Snackbar.LENGTH_SHORT
-        ).show()
     }
 
     private fun observeViewModel() {

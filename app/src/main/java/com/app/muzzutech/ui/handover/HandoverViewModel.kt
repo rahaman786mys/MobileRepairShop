@@ -100,7 +100,7 @@ class HandoverViewModel : ViewModel() {
                     workDone = true,
                     completionDate = System.currentTimeMillis()
                 )
-                repository.update(updated)
+                repository.forceUpdate(updated)
                 _entry.value = updated
 
                 val isPayLater = paymentMode == "Pay Later"
