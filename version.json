@@ -1,7 +1,7 @@
 {
-  "versionCode": 25,
-  "versionName": "1.5.7",
-  "releaseNotes": "What's New in v1.5.7:\n• Fixed supplier transaction orphan bug (sale accounting)\n• Fixed duplicate payroll expense records\n• Fixed part return refund not recording cash-in\n• Fixed zero-advance incorrectly linking transactions\n• Fixed AI Advisor overcounting restock costs\n• Fixed unpaid expenses counted as cash loss\n• Added real-time update progress bar\n• Added What's New screen after updates\n• Improved supplier, customer and dealer balance accuracy\n• 12 financial accounting bugs fixed\n• 20,000+ automated test scenarios passing",
-  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.7/app-release.apk",
+  "versionCode": 1005008,
+  "versionName": "1.5.8",
+  "releaseNotes": "What's New in v1.5.8:\n• Premium dashboard with gradient hero header\n• TODAT'S OVERVIEW & QUICK ACTIONS now in 3D cards\n• Splash screen fade-in animation\n• Staggered entrance animation for dashboard content\n• Enlarged KPI cards with colored icons\n• Fixed price formatting (paise → ₹ format)\n• UI modernized for 6 screens\n• Bug fixes and performance improvements",
+  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.8/app-debug.apk",
   "forceUpdate": false
 }
