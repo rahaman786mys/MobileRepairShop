@@ -18,6 +18,7 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentMoreBinding
 import com.app.muzzutech.utils.BackupManager
+import com.app.muzzutech.utils.UpdateManager
 import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import kotlinx.coroutines.flow.collectLatest
@@ -65,6 +66,11 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         }
         binding.cardLogout.setOnClickListener {
             logout()
+        }
+
+        binding.btnCheckUpdate.setOnClickListener {
+            Toast.makeText(requireContext(), "Checking for updates...", Toast.LENGTH_SHORT).show()
+            UpdateManager.checkForUpdates(requireActivity() as androidx.appcompat.app.AppCompatActivity)
         }
 
         binding.cardCloudSync.setOnClickListener {

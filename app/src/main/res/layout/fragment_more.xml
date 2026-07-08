@@ -458,6 +458,17 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Check for Updates -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCheckUpdate"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:text="Check for Updates"
+            app:backgroundTint="@color/muzzu_primary"
+            android:textColor="@android:color/white"
+            style="@style/Widget.MuZZu.Button" />
+
         <!-- Logout Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/cardLogout"
