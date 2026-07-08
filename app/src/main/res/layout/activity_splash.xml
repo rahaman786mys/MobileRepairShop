@@ -9,6 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerInside"
-        android:src="@drawable/splash_banner" />
+        android:src="@drawable/splash_banner"
+        android:alpha="0.0"
+        android:scaleX="0.85"
+        android:scaleY="0.85" />
 
 </FrameLayout>

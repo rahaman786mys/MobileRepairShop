@@ -1,10 +1,12 @@
 package com.app.muzzutech
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
@@ -12,9 +14,6 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.app.muzzutech.utils.update.UpdateRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity() {
 
@@ -26,7 +25,29 @@ class SplashActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
+        animateSplashLogo()
+
         checkBiometrics()
+    }
+
+    private fun animateSplashLogo() {
+        val splash = findViewById<android.widget.ImageView>(R.id.ivSplash) ?: return
+        val fadeIn = ObjectAnimator.ofFloat(splash, "alpha", 0f, 1f).apply {
+            duration = 600
+            interpolator = DecelerateInterpolator()
+        }
+        val scaleX = ObjectAnimator.ofFloat(splash, "scaleX", 0.85f, 1f).apply {
+            duration = 600
+            interpolator = DecelerateInterpolator()
+        }
+        val scaleY = ObjectAnimator.ofFloat(splash, "scaleY", 0.85f, 1f).apply {
+            duration = 600
+            interpolator = DecelerateInterpolator()
+        }
+        AnimatorSet().apply {
+            playTogether(fadeIn, scaleX, scaleY)
+            start()
+        }
     }
 
     private fun checkBiometrics() {

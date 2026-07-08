@@ -82,20 +82,27 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
   private fun observeData() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        viewModel.pendingCount.collectLatest { count -> binding.tvPendingCount.text = count.toString() }
+        viewModel.pendingCount.collectLatest { count ->
+          binding.tvPendingCount.text = count.toString()
+          binding.tvPendingCount2.text = count.toString()
+        }
       }
     }
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.dailyProfit.collectLatest { profit ->
-          binding.tvTodayProfit.text = com.app.muzzutech.utils.PriceUtils.formatPrice(profit)
+          val formatted = com.app.muzzutech.utils.PriceUtils.formatPrice(profit)
+          binding.tvTodayProfit.text = formatted
+          binding.tvTodayProfit2.text = formatted
         }
       }
     }
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.dailyInvest.collectLatest { invest ->
-          binding.tvTodayInvest.text = com.app.muzzutech.utils.PriceUtils.formatPrice(invest)
+          val formatted = com.app.muzzutech.utils.PriceUtils.formatPrice(invest)
+          binding.tvTodayInvest.text = formatted
+          binding.tvTodayInvest2.text = formatted
         }
       }
     }
