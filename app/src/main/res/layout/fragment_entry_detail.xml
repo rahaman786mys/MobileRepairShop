@@ -116,6 +116,43 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Photos"
+                        android:textAppearance="@style/TextAppearance.MuZZu.Title"
+                        android:textColor="@color/muzzu_primary" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="2"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:id="@+id/ivDetailPhoto1"
+                            android:layout_width="0dp"
+                            android:layout_height="160dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            android:scaleType="centerCrop"
+                            android:background="@color/muzzu_surface"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone" />
+
+                        <ImageView
+                            android:id="@+id/ivDetailPhoto2"
+                            android:layout_width="0dp"
+                            android:layout_height="160dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:background="@color/muzzu_surface"
+                            android:scaleType="centerCrop"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Workflow"
                         android:textAppearance="@style/TextAppearance.MuZZu.Title"
                         android:textColor="@color/muzzu_primary"

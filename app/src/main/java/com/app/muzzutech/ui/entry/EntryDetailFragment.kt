@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -13,8 +14,10 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentEntryDetailBinding
 import com.app.muzzutech.utils.DateUtils
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
 
 class EntryDetailFragment : Fragment(R.layout.fragment_entry_detail) {
 
@@ -44,6 +47,10 @@ class EntryDetailFragment : Fragment(R.layout.fragment_entry_detail) {
                         binding.tvDetailFault.text = "Fault: ${entry.faultDetected.ifEmpty { "Not inspected" }}"
                         binding.tvDetailCharge.text = "Charge: ${com.app.muzzutech.utils.PriceUtils.formatPrice(entry.chargeAmount)}"
                         binding.tvDetailStatus.text = "Status: ${entry.workStatus}"
+
+                        // Load photos
+                        loadPhoto(binding.ivDetailPhoto1, entry.entryPhotoPath)
+                        loadPhoto(binding.ivDetailPhoto2, entry.entryPhotoPath2)
                     }
                 }
             }
@@ -58,6 +65,21 @@ class EntryDetailFragment : Fragment(R.layout.fragment_entry_detail) {
             val bundle = Bundle().apply { putLong("entryId", entryId) }
             findNavController().navigate(R.id.handoverFragment, bundle)
         }
+    }
+
+    private fun loadPhoto(imageView: android.widget.ImageView, path: String) {
+        if (path.isNotEmpty()) {
+            val file = File(path)
+            if (file.exists() && file.length() > 0L) {
+                imageView.isVisible = true
+                Glide.with(this)
+                    .load(file)
+                    .centerCrop()
+                    .into(imageView)
+                return
+            }
+        }
+        imageView.isVisible = false
     }
 
     override fun onDestroyView() {
