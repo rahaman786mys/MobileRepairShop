@@ -1,7 +1,7 @@
 {
-  "versionCode": 1005009,
-  "versionName": "1.5.9",
-  "releaseNotes": "What's New in v1.5.9:\n• Compact hero header with 3D shadow\n• Time-based greeting (Morning/Afternoon/Evening)\n• Removed duplicate counters from hero\n• Compact horizontal KPI & quick action cards\n• Dashboard UI cleanup",
-  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.9/app-debug-v1.5.9.apk",
+  "versionCode": 1005010,
+  "versionName": "1.5.10",
+  "releaseNotes": "What's New in v1.5.10:\n• Inspection page removed — registration now has charge + advance built in\n• Flow: New Entry → Quotation → Spare Parts → Handover\n• Advance auto-creates Payment + PaymentTransaction records\n• Fix: APK install on Android 8+ (REQUEST_INSTALL_PACKAGES, ACTION_INSTALL_PACKAGE)",
+  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.10/app-debug-v1.5.10.apk",
   "forceUpdate": false
 }
