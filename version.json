@@ -1,7 +1,7 @@
 {
-  "versionCode": 1005008,
-  "versionName": "1.5.8",
-  "releaseNotes": "What's New in v1.5.8:\n• Premium dashboard with gradient hero header\n• TODAT'S OVERVIEW & QUICK ACTIONS now in 3D cards\n• Splash screen fade-in animation\n• Staggered entrance animation for dashboard content\n• Enlarged KPI cards with colored icons\n• Fixed price formatting (paise → ₹ format)\n• UI modernized for 6 screens\n• Bug fixes and performance improvements",
-  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.8/app-debug.apk",
+  "versionCode": 1005009,
+  "versionName": "1.5.9",
+  "releaseNotes": "What's New in v1.5.9:\n• Compact hero header with 3D shadow\n• Time-based greeting (Morning/Afternoon/Evening)\n• Removed duplicate counters from hero\n• Compact horizontal KPI & quick action cards\n• Dashboard UI cleanup",
+  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.9/app-debug.apk",
   "forceUpdate": false
 }
