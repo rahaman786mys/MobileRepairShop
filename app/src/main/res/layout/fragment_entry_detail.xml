@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,7 +14,8 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardElevation="4dp">
+            style="@style/Widget.MuZZu.Card">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -68,9 +69,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:text="Repair Photos"
-                    style="@style/TextAppearance.MuZZu.Label"
-                    android:layout_marginTop="16dp" />
+                    style="@style/TextAppearance.MuZZu.Label" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -135,7 +136,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="12dp"
-                    android:background="@color/grey_200" />
+                    android:background="@color/muzzu_border" />
 
                 <TextView
                     android:id="@+id/tvDetailFault"
@@ -162,47 +163,59 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Workflow Actions -->
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Workflow"
-            android:textColor="@color/muzzu_primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            style="@style/Widget.MuZZu.Card"
+            android:layout_marginTop="16dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnInspect"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
-            android:text="1. Inspection"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnQuotation"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="4dp"
-            android:text="2. Quotation"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Workflow"
+                    android:textAppearance="@style/TextAppearance.MuZZu.Title"
+                    android:textColor="@color/muzzu_primary"
+                    android:layout_marginBottom="8dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSpareParts"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="4dp"
-            android:text="3. Spare Parts"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnInspect"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="4dp"
+                    android:text="1. Inspection" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnHandover"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="4dp"
-            android:text="4. Handover"
-            style="@style/Widget.Material3.Button.OutlinedButton" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnQuotation"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="4dp"
+                    android:text="2. Quotation" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSpareParts"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="4dp"
+                    android:text="3. Spare Parts" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHandover"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="4dp"
+                    android:text="4. Handover" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

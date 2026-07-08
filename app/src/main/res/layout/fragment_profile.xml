@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -15,8 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            style="@style/Widget.MuZZu.Card">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -24,41 +23,44 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-<com.google.android.material.card.MaterialCardView
-android:id="@+id/cardProfilePhoto"
-android:layout_width="80dp"
-android:layout_height="80dp"
-app:cardCornerRadius="40dp"
-app:cardElevation="2dp"
-app:strokeColor="@color/muzzu_border"
-app:strokeWidth="1dp"
-android:layout_gravity="center_horizontal"
-android:layout_marginTop="8dp"
-android:layout_marginBottom="16dp">
-<androidx.appcompat.widget.AppCompatImageView
-android:id="@+id/ivProfilePhoto"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:scaleType="centerCrop"
-android:src="@drawable/ic_dashboard"
-android:contentDescription="Profile photo"
-app:tint="@color/muzzu_border" />
-</com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardProfilePhoto"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="40dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/muzzu_border"
+                    app:strokeWidth="1dp">
 
-<com.google.android.material.button.MaterialButton
-android:id="@+id/btnTakeProfilePhoto"
-style="@style/Widget.Material3.Button.TonalButton"
-android:layout_width="match_parent"
-android:layout_height="40dp"
-android:text="Take / Upload Profile Photo"
-android:textAllCaps="false"
-app:icon="@android:drawable/ic_menu_camera" />
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivProfilePhoto"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_dashboard"
+                        android:contentDescription="Profile photo"
+                        app:tint="@color/muzzu_border" />
+                </com.google.android.material.card.MaterialCardView>
 
-<com.google.android.material.textfield.TextInputLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:hint="Full Name"
-style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTakeProfilePhoto"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="Take / Upload Profile Photo"
+                    android:textAllCaps="false"
+                    app:icon="@android:drawable/ic_menu_camera" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:hint="Full Name">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etProfileName"
                         android:layout_width="match_parent"
@@ -68,11 +70,12 @@ style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="Email ID"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    android:hint="Email ID">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etProfileEmail"
                         android:layout_width="match_parent"
@@ -88,29 +91,31 @@ style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
                     android:layout_marginTop="8dp"
                     android:layout_gravity="center_horizontal" />
 
-<com.google.android.material.textfield.TextInputLayout
-android:id="@+id/tilProfilePhone"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_marginTop="12dp"
-android:hint="Phone Number"
-style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-<com.google.android.material.textfield.TextInputEditText
-android:id="@+id/etProfilePhone"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:hint="10-digit Mobile Number"
-                    android:inputType="phone"
-                    android:maxLength="10"
-                    android:imeOptions="actionNext" />
-                </com.google.android.material.textfield.TextInputLayout>
-
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilProfilePhone"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="Shop Name"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    android:hint="Phone Number">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etProfilePhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="10-digit Mobile Number"
+                        android:inputType="phone"
+                        android:maxLength="10"
+                        android:imeOptions="actionNext" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Shop Name">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etShopName"
                         android:layout_width="match_parent"
@@ -120,37 +125,39 @@ android:hint="10-digit Mobile Number"
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="Shop Address"
-style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-<com.google.android.material.textfield.TextInputEditText
-android:id="@+id/etShopAddress"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:maxLines="3"
-                    android:imeOptions="actionNext" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:hint="Shop Address">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Shop GST Number (Optional)"
-style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-<com.google.android.material.textfield.TextInputEditText
-android:id="@+id/etShopGst"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:imeOptions="actionDone"
-                    android:textColor="@color/muzzu_text_main" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etShopAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:maxLines="3"
+                        android:imeOptions="actionNext" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveProfile"
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="Shop GST Number (Optional)">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etShopGst"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:imeOptions="actionDone" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveProfile"
+                    style="@style/Widget.MuZZu.Button"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="24dp"
@@ -159,7 +166,5 @@ android:layout_height="wrap_content"
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-
-
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
