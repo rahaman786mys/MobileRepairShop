@@ -151,7 +151,7 @@ class UpdateRepository(private val context: Context) {
                 val assetList = json["assets"] as? List<Map<String, Any>>
                 val size = assetList?.firstOrNull()?.get("size") as? Double
                 val downloadUrl = assetList?.firstOrNull()?.get("browser_download_url") as? String
-                    ?: "https://github.com/rahaman786mys/MobileRepairShop/releases/latest/download/app-release.apk"
+                    ?: "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.9/app-debug-v1.5.9.apk"
                 Log.i(TAG, "fetchReleaseFromGitHubApi: tag=$tagName versionCode=$versionCode name=$vName url=$downloadUrl")
                 Result.success(
                     VersionInfo(

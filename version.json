@@ -2,6 +2,6 @@
   "versionCode": 1005009,
   "versionName": "1.5.9",
   "releaseNotes": "What's New in v1.5.9:\n• Compact hero header with 3D shadow\n• Time-based greeting (Morning/Afternoon/Evening)\n• Removed duplicate counters from hero\n• Compact horizontal KPI & quick action cards\n• Dashboard UI cleanup",
-  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.9/app-debug.apk",
+  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.9/app-debug-v1.5.9.apk",
   "forceUpdate": false
 }

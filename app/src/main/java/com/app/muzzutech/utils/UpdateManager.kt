@@ -193,13 +193,15 @@ object UpdateManager {
 
   fun installApk(context: Context, apkFile: File, launcher: androidx.activity.result.ActivityResultLauncher<Intent>? = null) {
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", apkFile)
-    val intent = Intent(Intent.ACTION_VIEW).apply {
-      setDataAndType(uri, "application/vnd.android.package-archive")
-      addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+      data = uri
+      putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+      putExtra(Intent.EXTRA_RETURN_RESULT, true)
       addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+      addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
     try {
-      context.startActivity(intent)
+      launcher?.launch(intent) ?: context.startActivity(intent)
     } catch (e: Exception) {
       Toast.makeText(
           context,
