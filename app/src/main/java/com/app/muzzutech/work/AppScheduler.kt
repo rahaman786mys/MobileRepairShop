@@ -20,10 +20,10 @@ import java.util.concurrent.TimeUnit
  */
 object AppScheduler {
 
-private const val WORK_REORDER_DAILY = "reorder_daily_alert"
-private const val WORK_SALARY_MONTHLY = "salary_monthly_reminder"
-private const val WORK_LEDGER_AUDIT = "ledger_daily_audit"
-private const val WORK_APP_UPDATE = "app_update_check"
+    private const val WORK_REORDER_DAILY = "reorder_daily_alert"
+    private const val WORK_SALARY_MONTHLY = "salary_monthly_reminder"
+    private const val WORK_LEDGER_AUDIT = "ledger_daily_audit"
+    private const val WORK_APP_UPDATE = "app_update_check"
 
     fun enqueueDailyJobs(context: Context) {
         val wm = WorkManager.getInstance(context)

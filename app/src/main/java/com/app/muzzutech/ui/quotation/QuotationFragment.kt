@@ -83,10 +83,13 @@ class QuotationFragment : Fragment(R.layout.fragment_quotation) {
     private fun observeSaveComplete() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.saveComplete.collect { id ->
-                NotificationUtils.sendRepairStartedWhatsApp(requireContext(), MobileRepairApp.instance.repairRepository.getEntryById(id)!!)
-                Snackbar.make(binding.root, "Work Started & Notified!", Snackbar.LENGTH_SHORT).show()
-                val bundle = Bundle().apply { putLong("entryId", id) }
-                findNavController().navigate(R.id.sparePartsFragment, bundle)
+                val entry = MobileRepairApp.instance.repairRepository.getEntryById(id)
+                if (entry != null) {
+                    NotificationUtils.sendRepairStartedWhatsApp(requireContext(), entry)
+                    Snackbar.make(binding.root, "Work Started & Notified!", Snackbar.LENGTH_SHORT).show()
+                    val bundle = Bundle().apply { putLong("entryId", id) }
+                    findNavController().navigate(R.id.sparePartsFragment, bundle)
+                }
             }
         }
     }

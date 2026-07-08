@@ -1,11 +1,7 @@
 package com.app.muzzutech.ui.update
 
 import android.app.Dialog
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -15,12 +11,9 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
+import com.app.muzzutech.BuildConfig
 import com.app.muzzutech.R
 import com.app.muzzutech.utils.UpdateManager
-import com.app.muzzutech.utils.update.VersionInfo
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Locale
 
@@ -69,19 +62,6 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
     private lateinit var btnUpdateNow: Button
     private lateinit var btnLater: Button
     private lateinit var btnRetry: Button
-
-    private val installPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        downloadFile?.let { file ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-                !requireContext().packageManager.canRequestPackageInstalls()
-            ) {
-                return@registerForActivityResult
-            }
-            UpdateManager.installApk(requireContext(), file)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -305,7 +285,7 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
                     tvProgress.visibility = View.GONE
                     tvFailed.visibility = View.GONE
                     Toast.makeText(ctx, R.string.download_complete, Toast.LENGTH_SHORT).show()
-                    UpdateManager.installApk(ctx, file, installPermissionLauncher)
+                    UpdateManager.installApk(ctx, file)
                 }
             },
             onFailed = { err ->
