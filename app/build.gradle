@@ -25,7 +25,7 @@ android {
         applicationId "com.app.muzzutech"
         minSdk 24
         targetSdk 34
-        versionCode 25
+        versionCode 1005007
         versionName "1.5.7"
         multiDexEnabled true
 
