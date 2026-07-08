@@ -40,6 +40,17 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     super.onViewCreated(view, savedInstanceState)
     setupClickListeners()
     observeData()
+    updateGreeting()
+  }
+
+  private fun updateGreeting() {
+    val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+    val greeting = when (hour) {
+      in 5..11 -> "Good Morning!"
+      in 12..16 -> "Good Afternoon!"
+      else -> "Good Evening!"
+    }
+    binding.tvGreeting.text = greeting
   }
 
   private fun setupClickListeners() {
@@ -83,7 +94,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.pendingCount.collectLatest { count ->
-          binding.tvPendingCount.text = count.toString()
           binding.tvPendingCount2.text = count.toString()
         }
       }
@@ -92,7 +102,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.dailyProfit.collectLatest { profit ->
           val formatted = com.app.muzzutech.utils.PriceUtils.formatPrice(profit)
-          binding.tvTodayProfit.text = formatted
           binding.tvTodayProfit2.text = formatted
         }
       }
@@ -101,7 +110,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.dailyInvest.collectLatest { invest ->
           val formatted = com.app.muzzutech.utils.PriceUtils.formatPrice(invest)
-          binding.tvTodayInvest.text = formatted
           binding.tvTodayInvest2.text = formatted
         }
       }
