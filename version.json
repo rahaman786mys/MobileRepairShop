@@ -1,7 +1,7 @@
 {
-  "versionCode": 1005010,
-  "versionName": "1.5.10",
-  "releaseNotes": "What's New in v1.5.10:\n• Inspection page removed — registration now has charge + advance built in\n• Flow: New Entry → Quotation → Spare Parts → Handover\n• Advance auto-creates Payment + PaymentTransaction records\n• Fix: APK install on Android 8+ (REQUEST_INSTALL_PACKAGES, ACTION_INSTALL_PACKAGE)",
+  "versionCode": 1005011,
+  "versionName": "1.5.11",
+  "releaseNotes": "What's New in v1.5.11:\n• Quotation page removed — flow now goes Entry → Spare Parts → Handover\n• Common Faults feature removed (database migrated)\n• 3-step progress bar\n• Minor bug fixes",
   "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.10/app-debug-v1.5.10.apk",
   "forceUpdate": false
 }
