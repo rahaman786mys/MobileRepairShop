@@ -27,6 +27,15 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_NAV_DEST = "extra_nav_dest"
+        const val RELEASES_NOTES_V1512 = """Welcome to v1.5.12!
+
+• What's New popup now appears after every update
+• Smooth flow Entry → Spare Parts → Handover
+• Quotation + Common Faults removed for simplicity
+• Charge + Advance captured at entry
+• Time-based greeting on dashboard
+
+Tap Let's Go to continue."""
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -119,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         val bundle = android.os.Bundle().apply {
             putString("version_name", versionName)
             putInt("version_code", versionCode)
-            putString("release_notes", "")
+            putString("release_notes", RELEASES_NOTES_V1512)
         }
 
         supportFragmentManager.beginTransaction()

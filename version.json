@@ -1,7 +1,7 @@
 {
-  "versionCode": 1005011,
-  "versionName": "1.5.11",
-  "releaseNotes": "What's New in v1.5.11:\n• Quotation page removed — flow now goes Entry → Spare Parts → Handover\n• Common Faults feature removed (database migrated)\n• 3-step progress bar\n• Minor bug fixes",
+  "versionCode": 1005012,
+  "versionName": "1.5.12",
+  "releaseNotes": "Welcome to v1.5.12!\n- What's New popup now appears after every update\n- Smooth flow Entry > Spare Parts > Handover\n- Quotation + Common Faults removed for simplicity\n- Charge + Advance captured at entry\n- Time-based greeting on dashboard\n\nTap Let's Go to continue.",
   "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.10/app-debug-v1.5.10.apk",
   "forceUpdate": false
 }
