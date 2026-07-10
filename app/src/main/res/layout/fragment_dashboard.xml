@@ -27,33 +27,45 @@
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
                     android:background="@drawable/bg_gradient_primary"
-                    android:orientation="vertical"
-                    android:gravity="center">
-                    <TextView
-                        android:id="@+id/tvGreeting"
-                        android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="24dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Good Morning!"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:textSize="12sp"
-                        android:alpha="0.8"
-                        android:includeFontPadding="false" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="MuZZu Repair Shop"
-                        android:textColor="@color/muzzu_text_on_dark"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:includeFontPadding="false" />
-                    <View
-                        android:layout_width="32dp"
-                        android:layout_height="2dp"
-                        android:layout_marginTop="6dp"
-                        android:background="@color/muzzu_text_on_dark"
-                        android:alpha="0.4" />
-            </LinearLayout>
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tvGreeting"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Good Morning!"
+                            android:textColor="@color/muzzu_text_on_dark"
+                            android:textSize="12sp"
+                            android:alpha="0.8"
+                            android:includeFontPadding="false" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="MuZZu Repair Shop"
+                            android:textColor="@color/muzzu_text_on_dark"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnUpdateAvailable"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:visibility="gone"
+                        app:icon="@android:drawable/stat_notify_sync"
+                        app:iconTint="@color/muzzu_accent"
+                        app:iconSize="28dp" />
+                </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
             <!-- Content Body -->
             <LinearLayout

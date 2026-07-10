@@ -67,29 +67,40 @@ object UpdateManager {
       Log.d(TAG, "checkForUpdates: remote=$info remoteVersionCode=${info.versionCode} localVersionCode=$currentCode")
       if (info.versionCode <= currentCode) {
         Log.i(TAG, "checkForUpdates: already up to date ($currentCode >= ${info.versionCode}), skipping")
+        com.app.muzzutech.utils.update.UpdateState.setAvailableUpdate(null)
         return@launch
       }
+      
+      com.app.muzzutech.utils.update.UpdateState.setAvailableUpdate(info)
+      
       val snoozed = prefs.getSnoozedVersion()
       Log.d(TAG, "checkForUpdates: snoozedVersion=$snoozed")
-      if (info.versionCode == snoozed) {
-        Log.i(TAG, "checkForUpdates: version ${info.versionCode} was snoozed, skipping")
+      
+      val sessionSnoozed = com.app.muzzutech.utils.update.UpdateState.isSnoozed.value
+      
+      if (info.versionCode == snoozed || sessionSnoozed) {
+        Log.i(TAG, "checkForUpdates: version ${info.versionCode} was snoozed, skipping dialog")
         return@launch
       }
 
       activity.runOnUiThread {
-        Log.i(TAG, "checkForUpdates: showing update dialog ${info.versionName}")
-        val sheet = UpdateBottomSheet.newInstance(
-          versionName = info.versionName,
-          currentVersionName = prefs.getCurrentVersionName(),
-          releaseNotes = info.releaseNotes,
-          sizeBytes = info.sizeBytes,
-          downloadUrl = info.downloadUrl,
-          versionCode = info.versionCode,
-          forceUpdate = info.forceUpdate
-        )
-        sheet.show(activity.supportFragmentManager, "update_sheet")
+        showUpdateDialog(activity, info)
       }
     }
+  }
+
+  fun showUpdateDialog(activity: AppCompatActivity, info: VersionInfo) {
+    val prefs = UpdateRepository(activity)
+    val sheet = UpdateBottomSheet.newInstance(
+      versionName = info.versionName,
+      currentVersionName = prefs.getCurrentVersionName(),
+      releaseNotes = info.releaseNotes,
+      sizeBytes = info.sizeBytes,
+      downloadUrl = info.downloadUrl,
+      versionCode = info.versionCode,
+      forceUpdate = info.forceUpdate
+    )
+    sheet.show(activity.supportFragmentManager, "update_sheet")
   }
 
   fun handleNotificationIntent(activity: AppCompatActivity, intent: Intent) {

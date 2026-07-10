@@ -39,9 +39,22 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:text="Retake Photo"
+            android:text="Retake"
             app:strokeColor="@color/muzzu_text_on_dark"
             android:textColor="@color/muzzu_text_on_dark" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMarkIssue"
+            style="@style/Widget.MuZZu.Button.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:text="Mark"
+            android:layout_marginStart="12dp"
+            app:strokeColor="@color/muzzu_accent"
+            android:textColor="@color/muzzu_accent"
+            app:icon="@android:drawable/ic_menu_edit"
+            app:iconTint="@color/muzzu_accent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDelete"
@@ -50,10 +63,9 @@
             android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Delete"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="12dp"
             app:backgroundTint="@color/muzzu_error"
-            android:textColor="@color/muzzu_text_on_dark"
-            app:icon="@android:drawable/ic_menu_delete" />
+            android:textColor="@color/muzzu_text_on_dark" />
     </LinearLayout>
 
 </FrameLayout>

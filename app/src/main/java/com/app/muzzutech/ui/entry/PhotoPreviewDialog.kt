@@ -43,12 +43,26 @@ class PhotoPreviewDialog : DialogFragment() {
 
         val path = requireArguments().getString(ARG_PATH) ?: ""
         val slot = requireArguments().getInt(ARG_SLOT)
+        val file = java.io.File(path)
 
-        Glide.with(this).load(path).centerInside().into(root.findViewById(R.id.ivPreview))
+        Glide.with(this)
+            .load(file)
+            .signature(com.bumptech.glide.signature.ObjectKey(file.lastModified()))
+            .centerInside()
+            .into(root.findViewById(R.id.ivPreview))
 
         root.findViewById<Button>(R.id.btnRetake).setOnClickListener {
             val fragment = parentFragment as? EntryFragment
             fragment?.openCameraForSlot(slot)
+            dismiss()
+        }
+
+        root.findViewById<Button>(R.id.btnMarkIssue).setOnClickListener {
+            val fragment = parentFragment as? EntryFragment
+            fragment?.let { 
+                val bundle = Bundle().apply { putString("imagePath", path) }
+                androidx.navigation.fragment.NavHostFragment.findNavController(it).navigate(R.id.imageEditorFragment, bundle)
+            }
             dismiss()
         }
 

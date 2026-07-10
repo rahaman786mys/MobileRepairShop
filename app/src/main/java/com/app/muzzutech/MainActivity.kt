@@ -123,12 +123,13 @@ Tap Let's Go to continue."""
         if (!repo.shouldShowWhatsNew()) return
         val versionName = repo.getCurrentVersionName()
         val versionCode = repo.getCurrentVersionCode()
+        val savedNotes = repo.getSavedReleaseNotes()
         repo.markWhatsNewShown()
 
         val bundle = android.os.Bundle().apply {
             putString("version_name", versionName)
             putInt("version_code", versionCode)
-            putString("release_notes", RELEASES_NOTES_V1512)
+            putString("release_notes", savedNotes.ifEmpty { RELEASES_NOTES_V1512 })
         }
 
         supportFragmentManager.beginTransaction()

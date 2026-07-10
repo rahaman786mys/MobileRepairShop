@@ -201,4 +201,13 @@
         android:name="com.app.muzzutech.ui.expenses.ExpensesFragment"
         android:label="Expenses" />
 
+    <fragment
+        android:id="@+id/imageEditorFragment"
+        android:name="com.app.muzzutech.ui.editor.ImageEditorFragment"
+        android:label="Mark Issue">
+        <argument
+            android:name="imagePath"
+            app:argType="string" />
+    </fragment>
+
 </navigation>

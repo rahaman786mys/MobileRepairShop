@@ -70,8 +70,13 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     binding.cardReportsGrid?.setOnClickListener { findNavController().navigate(R.id.reportsFragment) }
     binding.cardMoreGrid?.setOnClickListener { findNavController().navigate(R.id.moreFragment) }
     binding.btnFixMissingInfo.setOnClickListener { findNavController().navigate(R.id.profileFragment) }
-    // binding.cardInvest removed from new design grid, using a simple listener if re-added
-    // binding.cardReportsGrid removed from new design grid
+    
+    binding.btnUpdateAvailable.setOnClickListener {
+        val info = com.app.muzzutech.utils.update.UpdateState.availableUpdate.value
+        if (info != null) {
+            UpdateManager.showUpdateDialog(requireActivity() as AppCompatActivity, info)
+        }
+    }
   }
 
   private fun showInvestDialog() {
@@ -143,6 +148,14 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         }
       }
     }
+    viewLifecycleOwner.lifecycleScope.launch {
+      viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        com.app.muzzutech.utils.update.UpdateState.availableUpdate.collectLatest { info ->
+          binding.btnUpdateAvailable.isVisible = info != null
+        }
+      }
+    }
+
     viewLifecycleOwner.lifecycleScope.launch {
       viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.businessHealth.collectLatest { health ->

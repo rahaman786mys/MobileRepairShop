@@ -14,6 +14,7 @@ import android.widget.Toast
 import com.app.muzzutech.BuildConfig
 import com.app.muzzutech.R
 import com.app.muzzutech.utils.UpdateManager
+import com.app.muzzutech.utils.update.UpdateRepository
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Locale
 
@@ -196,13 +197,22 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             LinearLayout.LayoutParams.WRAP_CONTENT
         ).apply { topMargin = 8 })
 
-        btnLater.setOnClickListener { dismiss() }
+        btnLater.setOnClickListener {
+            com.app.muzzutech.utils.update.UpdateState.snooze()
+            dismiss()
+        }
 
         btnUpdateNow.setOnClickListener {
+            val notes = requireArguments().getString(ARG_RELEASE_NOTES, "")
+            UpdateRepository(requireContext()).saveReleaseNotes(notes)
+
+            isCancelable = false
+            dialog?.setCanceledOnTouchOutside(false)
+            
             progressBar.visibility = View.VISIBLE
             tvProgress.visibility = View.VISIBLE
             btnUpdateNow.visibility = View.GONE
-            btnLater.isEnabled = false
+            btnLater.visibility = View.GONE
             btnRetry.visibility = View.GONE
             startDownload()
         }
@@ -226,6 +236,19 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
         Log.d(TAG, "onCreateDialog dialog created forceUpdate=$forceUpdate window=${dialog.window}")
         dialog.setCanceledOnTouchOutside(!forceUpdate)
         dialog.setCancelable(!forceUpdate)
+        
+        dialog.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == android.view.KeyEvent.KEYCODE_BACK && event.action == android.view.KeyEvent.ACTION_UP) {
+                if (!isCancelable) {
+                    true // Consume back press
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }
+
         Log.d(TAG, "onCreateDialog returning dialog")
         return dialog
     }
@@ -275,25 +298,38 @@ class UpdateBottomSheet : androidx.fragment.app.DialogFragment() {
             onProgress = { pct, mb ->
                 if (isAdded) {
                     progressBar.progress = pct
-                    tvProgress.text = "$pct%\n$mb"
+                    tvProgress.text = "Downloading: $pct%\n$mb"
                 }
             },
             onComplete = { file ->
                 if (isAdded) {
                     downloadFile = file
                     progressBar.visibility = View.GONE
-                    tvProgress.visibility = View.GONE
+                    tvProgress.text = "Download Complete"
                     tvFailed.visibility = View.GONE
-                    Toast.makeText(ctx, R.string.download_complete, Toast.LENGTH_SHORT).show()
+                    
+                    // Show Install button, keep it locked
+                    btnUpdateNow.text = "Install Now"
+                    btnUpdateNow.visibility = View.VISIBLE
+                    btnUpdateNow.setOnClickListener {
+                        UpdateManager.installApk(ctx, file)
+                    }
+                    
+                    // Auto trigger install
                     UpdateManager.installApk(ctx, file)
                 }
             },
             onFailed = { err ->
                 if (isAdded) {
+                    isCancelable = true
+                    dialog?.setCanceledOnTouchOutside(true)
+                    
                     progressBar.visibility = View.GONE
                     tvProgress.visibility = View.GONE
                     btnRetry.visibility = View.VISIBLE
+                    btnUpdateNow.text = "Update Now"
                     btnUpdateNow.visibility = View.VISIBLE
+                    btnLater.visibility = View.VISIBLE
                     btnLater.isEnabled = true
                     tvFailed.text = getString(R.string.download_failed_short, err)
                     tvFailed.visibility = View.VISIBLE

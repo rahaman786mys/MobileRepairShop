@@ -32,6 +32,7 @@ class UpdateRepository(private val context: Context) {
         const val KEY_LAST_SEEN_VERSION = "last_seen_version"
         const val KEY_SNOOZED_VERSION = "snoozed_update_version"
         const val KEY_LAST_CHECK_TS = "last_update_check_ts"
+        const val KEY_SAVED_RELEASE_NOTES = "saved_release_notes"
     }
 
     private val gson = Gson()
@@ -66,6 +67,14 @@ class UpdateRepository(private val context: Context) {
 
     fun setLastCheckTimestamp(ts: Long) {
         prefs.edit().putLong(KEY_LAST_CHECK_TS, ts).apply()
+    }
+
+    fun saveReleaseNotes(notes: String) {
+        prefs.edit().putString(KEY_SAVED_RELEASE_NOTES, notes).apply()
+    }
+
+    fun getSavedReleaseNotes(): String {
+        return prefs.getString(KEY_SAVED_RELEASE_NOTES, "") ?: ""
     }
 
     fun isSameSessionSnoozed(targetCode: Int): Boolean {

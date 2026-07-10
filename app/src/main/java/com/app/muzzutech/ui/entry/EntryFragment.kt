@@ -64,15 +64,34 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         Log.d(TAG, "Camera returned success=$success slot=$currentPhotoSlot")
         if (success) {
-            // Defer Glide load to next frame — ensures file is fully written by camera app
-            binding.ivEntryPhoto.post {
-                loadThumbnail(1, binding.ivEntryPhoto, viewModel.photo1Path.value)
+            val path = if (currentPhotoSlot == 1) viewModel.photo1Path.value else viewModel.photo2Path.value
+            if (path != null) {
+                showPostCaptureOptions(path, currentPhotoSlot)
             }
-            binding.ivEntryPhoto2.post {
-                loadThumbnail(2, binding.ivEntryPhoto2, viewModel.photo2Path.value)
-            }
-            updatePhotoButtonText()
         }
+    }
+
+    private fun showPostCaptureOptions(path: String, slot: Int) {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Photo Captured")
+            .setMessage("Highlight issues on the photo or retake?")
+            .setPositiveButton("Mark Issue") { _, _ ->
+                val bundle = Bundle().apply { putString("imagePath", path) }
+                findNavController().navigate(R.id.imageEditorFragment, bundle)
+            }
+            .setNeutralButton("Retake") { _, _ ->
+                openCameraForSlot(slot)
+            }
+            .setNegativeButton("Keep As Is") { _, _ ->
+                if (slot == 1) {
+                    loadThumbnail(1, binding.ivEntryPhoto, path)
+                } else {
+                    loadThumbnail(2, binding.ivEntryPhoto2, path)
+                }
+                updatePhotoButtonText()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -89,8 +108,10 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             return
         }
         imageView.setPadding(0, 0, 0, 0)
+        imageView.imageTintList = null
         Glide.with(this)
             .load(file)
+            .signature(com.bumptech.glide.signature.ObjectKey(file.lastModified()))
             .transform(MultiTransformation(CenterCrop()))
             .transition(DrawableTransitionOptions.withCrossFade(150))
             .into(imageView)
