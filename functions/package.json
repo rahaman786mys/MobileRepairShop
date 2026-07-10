@@ -1,0 +1,16 @@
+{
+  "name": "muzzutech-whatsapp-functions",
+  "version": "1.0.0",
+  "description": "MuZZu Tech WhatsApp Cloud API Cloud Functions",
+  "main": "index.js",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^4.5.0",
+    "axios": "^1.6.0"
+  },
+  "private": true
+}
