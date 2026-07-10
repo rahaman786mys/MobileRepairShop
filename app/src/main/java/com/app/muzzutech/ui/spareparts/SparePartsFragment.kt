@@ -28,6 +28,8 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.roundToLong
 
+import android.widget.Toast
+
 class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
 
     private var _binding: FragmentSparePartsBinding? = null
@@ -68,7 +70,9 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
 
     private fun setupRecyclerView() {
         partAdapter = com.app.muzzutech.adapter.AddedPartAdapter { part ->
-            viewModel.deletePart(part)
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.deletePart(part)
+            }
         }
         binding.rvAddedParts.apply {
             layoutManager = LinearLayoutManager(requireContext())

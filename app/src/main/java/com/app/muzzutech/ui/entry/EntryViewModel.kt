@@ -38,7 +38,6 @@ class EntryViewModel : ViewModel() {
     fun setPhoto1(path: String?) { _photo1Path.value = path }
     fun setPhoto2(path: String?) { _photo2Path.value = path }
 
-    // Track draft entry IDs by mobile to prevent duplicates from autoSaveDraft
     private val draftEntryIds = mutableMapOf<String, Long>()
 
     fun resetSaveState() {
@@ -46,7 +45,6 @@ class EntryViewModel : ViewModel() {
         _saveError.value = null
     }
 
-    /** Call when leaving the entry screen completely to clear draft tracking */
     fun clearDraftTracking() {
         draftEntryIds.clear()
     }
@@ -84,7 +82,7 @@ class EntryViewModel : ViewModel() {
         }
     }
 
-    fun saveEntry(
+    suspend fun saveEntry(
         photoPath: String,
         photoPath2: String = "",
         name: String,
@@ -112,146 +110,141 @@ class EntryViewModel : ViewModel() {
         val safeModel = model.take(50)
         val safeExtraItems = extraItems.take(200)
 
-        viewModelScope.launch {
-            _isSaving.value = true
-            _saveError.value = null
-            var savedId: Long? = null
-            try {
-                db.withTransaction {
-                    // Save/Update contact info
-                    if (isDealer) {
-                        dealerDao.insert(Dealer(mobile, safeName, safeCity))
-                    } else {
-                        customerDao.insert(Customer(mobile, safeName, safeCity))
+        _isSaving.value = true
+        _saveError.value = null
+        var savedId: Long? = null
+        try {
+            db.withTransaction {
+                if (isDealer) {
+                    dealerDao.insert(Dealer(mobile, safeName, safeCity))
+                } else {
+                    customerDao.insert(Customer(mobile, safeName, safeCity))
+                }
+
+                val existingDraftId = if (isDraft) draftEntryIds[mobile] else null
+
+                if (existingDraftId != null) {
+                    val existing = repository.getEntryById(existingDraftId)
+                    if (existing != null) {
+                        repository.update(existing.copy(
+                            entryPhotoPath = photoPath.ifEmpty { existing.entryPhotoPath },
+                            entryPhotoPath2 = photoPath2.ifEmpty { existing.entryPhotoPath2 },
+                            customerName = if (!isDealer) safeName else existing.customerName,
+                            customerMobile = if (!isDealer) mobile else existing.customerMobile,
+                            customerCity = safeCity,
+                            dealerName = if (isDealer) safeName else existing.dealerName,
+                            dealerMobile = if (isDealer) mobile else existing.dealerMobile,
+                            serviceManId = serviceManId,
+                            deviceBrand = safeBrand.ifEmpty { existing.deviceBrand },
+                            deviceModel = safeModel.ifEmpty { existing.deviceModel },
+                            faultDescription = safeExtraItems,
+                            isDraft = true
+                        ))
+                        return@withTransaction
                     }
+                }
 
-                    // If we already have a draft for this mobile, update it instead of creating duplicate
-                    val existingDraftId = if (isDraft) draftEntryIds[mobile] else null
+                val entry = RepairEntry(
+                    entryPhotoPath = photoPath,
+                    entryPhotoPath2 = photoPath2,
+                    customerName = if (!isDealer) safeName else "",
+                    customerMobile = if (!isDealer) mobile else "",
+                    customerCity = safeCity,
+                    dealerName = if (isDealer) safeName else "",
+                    dealerMobile = if (isDealer) mobile else "",
+                    serviceManId = serviceManId,
+                    deviceBrand = safeBrand,
+                    deviceModel = safeModel,
+                    entryDate = System.currentTimeMillis(),
+                    faultDescription = safeExtraItems,
+                    chargeAmount = chargeAmount,
+                    advanceAmount = advanceAmount,
+                    isDraft = isDraft
+                )
+                val id = repository.insert(entry)
 
-                    if (existingDraftId != null) {
-                        val existing = repository.getEntryById(existingDraftId)
-                        if (existing != null) {
-                            repository.update(existing.copy(
-                                entryPhotoPath = photoPath.ifEmpty { existing.entryPhotoPath },
-                                entryPhotoPath2 = photoPath2.ifEmpty { existing.entryPhotoPath2 },
-                                customerName = if (!isDealer) safeName else existing.customerName,
-                                customerMobile = if (!isDealer) mobile else existing.customerMobile,
-                                customerCity = safeCity,
-                                dealerName = if (isDealer) safeName else existing.dealerName,
-                                dealerMobile = if (isDealer) mobile else existing.dealerMobile,
-                                serviceManId = serviceManId,
-                                deviceBrand = safeBrand.ifEmpty { existing.deviceBrand },
-                                deviceModel = safeModel.ifEmpty { existing.deviceModel },
-                                faultDescription = safeExtraItems,
-                                isDraft = true
-                            ))
-                            return@withTransaction
-                        }
-                    }
+                if (advanceAmount > 0L) {
+                    val personMobile = mobile
+                    val personName = safeName
+                    val personType = if (!isDealer) "CUSTOMER" else "DEALER"
 
-                    val entry = RepairEntry(
-                        entryPhotoPath = photoPath,
-                        entryPhotoPath2 = photoPath2,
-                        customerName = if (!isDealer) safeName else "",
-                        customerMobile = if (!isDealer) mobile else "",
-                        customerCity = safeCity,
-                        dealerName = if (isDealer) safeName else "",
-                        dealerMobile = if (isDealer) mobile else "",
-                        serviceManId = serviceManId,
-                        deviceBrand = safeBrand,
-                        deviceModel = safeModel,
-                        entryDate = System.currentTimeMillis(),
-                        faultDescription = safeExtraItems,
-                        chargeAmount = chargeAmount,
-                        advanceAmount = advanceAmount,
-                        isDraft = isDraft
-                    )
-                    val id = repository.insert(entry)
-
-                    if (advanceAmount > 0L) {
-                        val personMobile = mobile
-                        val personName = safeName
-                        val personType = if (!isDealer) "CUSTOMER" else "DEALER"
-
-                        val paymentId = db.paymentDao().insert(
-                            com.app.muzzutech.data.model.Payment(
-                                personType = personType,
-                                personMobile = personMobile,
-                                personName = personName,
-                                description = "Repair: $safeBrand $safeModel",
-                                totalAmount = chargeAmount,
-                                paidAmount = advanceAmount,
-                                dueAmount = (chargeAmount - advanceAmount).coerceAtLeast(0L),
-                                status = if (advanceAmount >= chargeAmount) "PAID" else "PARTIAL",
-                                linkedEntryId = id
-                            )
+                    val paymentId = db.paymentDao().insert(
+                        com.app.muzzutech.data.model.Payment(
+                            personType = personType,
+                            personMobile = personMobile,
+                            personName = personName,
+                            description = "Repair: $safeBrand $safeModel",
+                            totalAmount = chargeAmount,
+                            paidAmount = advanceAmount,
+                            dueAmount = (chargeAmount - advanceAmount).coerceAtLeast(0L),
+                            status = if (advanceAmount >= chargeAmount) "PAID" else "PARTIAL",
+                            linkedEntryId = id
                         )
+                    )
 
-                        if (advanceMode == "BOTH") {
-                            if (advCash > 0) {
-                                db.paymentTransactionDao().insert(
-                                    PaymentTransaction(
-                                        paymentId = paymentId,
-                                        personType = personType,
-                                        personMobile = personMobile,
-                                        personName = personName,
-                                        amount = advCash,
-                                        direction = "IN",
-                                        transactionType = "REVENUE",
-                                        paymentMode = "CASH",
-                                        note = "Advance (Cash) for $safeBrand $safeModel"
-                                    )
-                                )
-                            }
-                            if (advOnline > 0) {
-                                db.paymentTransactionDao().insert(
-                                    PaymentTransaction(
-                                        paymentId = paymentId,
-                                        personType = personType,
-                                        personMobile = personMobile,
-                                        personName = personName,
-                                        amount = advOnline,
-                                        direction = "IN",
-                                        transactionType = "REVENUE",
-                                        paymentMode = "ONLINE",
-                                        note = "Advance (Online) for $safeBrand $safeModel"
-                                    )
-                                )
-                            }
-                        } else {
+                    if (advanceMode == "BOTH") {
+                        if (advCash > 0) {
                             db.paymentTransactionDao().insert(
                                 PaymentTransaction(
                                     paymentId = paymentId,
                                     personType = personType,
                                     personMobile = personMobile,
                                     personName = personName,
-                                    amount = advanceAmount,
+                                    amount = advCash,
                                     direction = "IN",
                                     transactionType = "REVENUE",
-                                    paymentMode = advanceMode,
-                                    note = "Advance ($advanceMode) for $safeBrand $safeModel"
+                                    paymentMode = "CASH",
+                                    note = "Advance (Cash) for $safeBrand $safeModel"
                                 )
                             )
                         }
-                    }
-
-                    if (isDraft) {
-                        draftEntryIds[mobile] = id
+                        if (advOnline > 0) {
+                            db.paymentTransactionDao().insert(
+                                PaymentTransaction(
+                                    paymentId = paymentId,
+                                    personType = personType,
+                                    personMobile = personMobile,
+                                    personName = personName,
+                                    amount = advOnline,
+                                    direction = "IN",
+                                    transactionType = "REVENUE",
+                                    paymentMode = "ONLINE",
+                                    note = "Advance (Online) for $safeBrand $safeModel"
+                                )
+                            )
+                        }
                     } else {
-                        draftEntryIds.remove(mobile)
-                        savedId = id
+                        db.paymentTransactionDao().insert(
+                            PaymentTransaction(
+                                paymentId = paymentId,
+                                personType = personType,
+                                personMobile = personMobile,
+                                personName = personName,
+                                amount = advanceAmount,
+                                direction = "IN",
+                                transactionType = "REVENUE",
+                                paymentMode = advanceMode,
+                                note = "Advance ($advanceMode) for $safeBrand $safeModel"
+                            )
+                        )
                     }
                 }
-                // Update UI state outside the transaction (after commit)
-                if (!isDraft && savedId != null) {
-                    _saveSuccess.value = savedId
+
+                if (isDraft) {
+                    draftEntryIds[mobile] = id
+                } else {
+                    draftEntryIds.remove(mobile)
+                    savedId = id
                 }
-            } catch (e: Exception) {
-                _saveError.value = e.message ?: "Failed to save entry"
-                android.util.Log.e("EntryViewModel", "saveEntry failed", e)
-            } finally {
-                _isSaving.value = false
             }
+            if (!isDraft && savedId != null) {
+                _saveSuccess.value = savedId
+            }
+        } catch (e: Exception) {
+            _saveError.value = e.message ?: "Failed to save entry"
+            android.util.Log.e("EntryViewModel", "saveEntry failed", e)
+        } finally {
+            _isSaving.value = false
         }
     }
 }

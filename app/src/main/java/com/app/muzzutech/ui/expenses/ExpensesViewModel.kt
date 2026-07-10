@@ -68,7 +68,7 @@ class ExpensesViewModel : ViewModel() {
         _monthStart.value = DateUtils.addMonths(_monthStart.value, 1)
     }
 
-    fun addExpense(
+    suspend fun addExpense(
         title: String,
         amount: Long,
         category: String,
@@ -76,83 +76,76 @@ class ExpensesViewModel : ViewModel() {
         recurring: Boolean,
         paid: Boolean,
         note: String,
-        onDone: () -> Unit
+        onDone: () -> Unit = {}
     ) {
         if (title.isBlank() || amount <= 0L) return
-        viewModelScope.launch {
-            val db = MobileRepairApp.instance.database
-            db.withTransaction {
-                val expenseId = dao.insert(
-                    Expense(
-                        title = title,
+        val db = MobileRepairApp.instance.database
+        db.withTransaction {
+            val expenseId = dao.insert(
+                Expense(
+                    title = title,
+                    amount = amount,
+                    category = category,
+                    date = date,
+                    isRecurring = recurring,
+                    paid = paid,
+                    note = note
+                )
+            )
+
+            if (paid) {
+                db.paymentTransactionDao().insert(
+                    com.app.muzzutech.data.model.PaymentTransaction(
+                        paymentId = null,
+                        expenseId = expenseId,
+                        personType = "EXPENSE",
+                        personMobile = "SHOP",
+                        personName = category,
                         amount = amount,
-                        category = category,
-                        date = date,
-                        isRecurring = recurring,
-                        paid = paid,
-                        note = note
+                        direction = "OUT",
+                        transactionType = "EXPENSE",
+                        paymentMode = "CASH",
+                        note = "Paid: $title"
                     )
                 )
-
-                // If paid, record a cash transaction for accounting/tally matching
-                if (paid) {
-                    db.paymentTransactionDao().insert(
-                        com.app.muzzutech.data.model.PaymentTransaction(
-                            paymentId = null,
-                            expenseId = expenseId,
-                            personType = "EXPENSE",
-                            personMobile = "SHOP",
-                            personName = category,
-                            amount = amount,
-                            direction = "OUT",
-                            transactionType = "EXPENSE",
-                            paymentMode = "CASH",
-                            note = "Paid: $title"
-                        )
-                    )
-                }
             }
-            onDone()
+        }
+        onDone()
+    }
+
+    suspend fun deleteExpense(id: Long) {
+        val db = MobileRepairApp.instance.database
+        db.withTransaction {
+            db.paymentTransactionDao().getTransactionByExpenseId(id)?.let { txn ->
+                db.paymentTransactionDao().delete(txn)
+            }
+            dao.deleteById(id)
         }
     }
 
-    fun deleteExpense(id: Long) {
-        viewModelScope.launch {
-            val db = MobileRepairApp.instance.database
-            db.withTransaction {
-                db.paymentTransactionDao().getTransactionByExpenseId(id)?.let { txn ->
+    suspend fun togglePaid(expense: Expense) {
+        val db = MobileRepairApp.instance.database
+        db.withTransaction {
+            val newPaid = !expense.paid
+            dao.update(expense.copy(paid = newPaid))
+            if (newPaid) {
+                db.paymentTransactionDao().insert(
+                    com.app.muzzutech.data.model.PaymentTransaction(
+                        paymentId = null,
+                        expenseId = expense.id,
+                        personType = "EXPENSE",
+                        personMobile = "SHOP",
+                        personName = expense.category,
+                        amount = expense.amount,
+                        direction = "OUT",
+                        transactionType = "EXPENSE",
+                        paymentMode = "CASH",
+                        note = "Paid: ${expense.title}"
+                    )
+                )
+            } else {
+                db.paymentTransactionDao().getTransactionByExpenseId(expense.id)?.let { txn ->
                     db.paymentTransactionDao().delete(txn)
-                }
-                dao.deleteById(id)
-            }
-        }
-    }
-
-    fun togglePaid(expense: Expense) {
-        viewModelScope.launch {
-            val db = MobileRepairApp.instance.database
-            db.withTransaction {
-                val newPaid = !expense.paid
-                dao.update(expense.copy(paid = newPaid))
-                if (newPaid) {
-                    db.paymentTransactionDao().insert(
-                        com.app.muzzutech.data.model.PaymentTransaction(
-                            paymentId = null,
-                            expenseId = expense.id,
-                            personType = "EXPENSE",
-                            personMobile = "SHOP",
-                            personName = expense.category,
-                            amount = expense.amount,
-                            direction = "OUT",
-                            transactionType = "EXPENSE",
-                            paymentMode = "CASH",
-                            note = "Paid: ${expense.title}"
-                        )
-                    )
-                } else {
-                    db.paymentTransactionDao().getTransactionByExpenseId(expense.id)?.let { txn ->
-                        db.paymentTransactionDao().delete(txn)
-                    }
                 }
             }
         }

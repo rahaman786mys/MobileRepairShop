@@ -66,6 +66,7 @@ import com.app.muzzutech.ui.compose.SuccessGreen
 import com.app.muzzutech.ui.compose.composeView
 import com.app.muzzutech.utils.DateUtils
 import com.app.muzzutech.utils.PriceUtils
+import kotlinx.coroutines.launch
 import kotlin.math.roundToLong
 
 class ExpensesFragment : Fragment() {
@@ -91,6 +92,7 @@ private fun ExpensesScreen(vm: ExpensesViewModel) {
     val totalThisMonth by vm.totalThisMonth.collectAsStateWithLifecycle()
     val categoryTotals by vm.categoryTotals.collectAsStateWithLifecycle()
     var showAddDialog by remember { mutableStateOf(false) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
 
     val monthEnd = DateUtils.getEndOfMonth(monthStart)
     val monthExpenses = expenses.filter { it.date in monthStart..monthEnd }
@@ -174,8 +176,8 @@ private fun ExpensesScreen(vm: ExpensesViewModel) {
                     items(monthExpenses, key = { it.id }) { e ->
                         ExpenseRow(
                             expense = e,
-                            onDelete = { vm.deleteExpense(e.id) },
-                            onTogglePaid = { vm.togglePaid(e) }
+                            onDelete = { scope.launch { vm.deleteExpense(e.id) } },
+                            onTogglePaid = { scope.launch { vm.togglePaid(e) } }
                         )
                     }
                     item { Spacer(Modifier.height(80.dp)) }
@@ -188,15 +190,18 @@ private fun ExpensesScreen(vm: ExpensesViewModel) {
         AddExpenseDialog(
             onDismiss = { showAddDialog = false },
             onConfirm = { title, amount, category, recurring, paid, note ->
-                vm.addExpense(
-                    title = title,
-                    amount = amount,
-                    category = category,
-                    date = System.currentTimeMillis(),
-                    recurring = recurring,
-                    paid = paid,
-                    note = note
-                ) { showAddDialog = false }
+                scope.launch {
+                    vm.addExpense(
+                        title = title,
+                        amount = amount,
+                        category = category,
+                        date = System.currentTimeMillis(),
+                        recurring = recurring,
+                        paid = paid,
+                        note = note
+                    )
+                    showAddDialog = false
+                }
             }
         )
     }

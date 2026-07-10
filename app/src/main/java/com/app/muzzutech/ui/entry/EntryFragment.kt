@@ -420,24 +420,26 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             return
         }
 
-        viewModel.saveEntry(
-            photoPath = viewModel.photo1Path.value ?: "",
-            photoPath2 = viewModel.photo2Path.value ?: "",
-            name = name,
-            mobile = mobile,
-            city = city,
-            isDealer = isDealer,
-            serviceManId = serviceManId,
-            brand = brand,
-            model = model,
-            extraItems = collectExtraItems(),
-            chargeAmount = chargeAmount,
-            advanceAmount = advanceAmount,
-            advanceMode = advanceMode,
-            advCash = advCash,
-            advOnline = advOnline,
-            isDraft = isDraft
-        )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.saveEntry(
+                photoPath = viewModel.photo1Path.value ?: "",
+                photoPath2 = viewModel.photo2Path.value ?: "",
+                name = name,
+                mobile = mobile,
+                city = city,
+                isDealer = isDealer,
+                serviceManId = serviceManId,
+                brand = brand,
+                model = model,
+                extraItems = collectExtraItems(),
+                chargeAmount = chargeAmount,
+                advanceAmount = advanceAmount,
+                advanceMode = advanceMode,
+                advCash = advCash,
+                advOnline = advOnline,
+                isDraft = isDraft
+            )
+        }
     }
 
     private fun collectExtraItems(): String {

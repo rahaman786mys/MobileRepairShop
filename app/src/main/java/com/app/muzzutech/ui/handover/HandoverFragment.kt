@@ -84,9 +84,11 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
     }
 
     private fun cancelWork() {
-        viewModel.cancelWork(entryId) {
-            Toast.makeText(requireContext(), "Work Cancelled — advance refunded", Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack(R.id.dashboardFragment, false)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.cancelWork(entryId) {
+                Toast.makeText(requireContext(), "Work Cancelled — advance refunded", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack(R.id.dashboardFragment, false)
+            }
         }
     }
 
