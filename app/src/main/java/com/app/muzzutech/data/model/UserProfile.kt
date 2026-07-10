@@ -17,5 +17,6 @@ data class UserProfile(
   val gstNo: String = "", // Optional GST number
   val profilePhotoPath: String = "", // Local path to profile photo
   val lastSyncTimestamp: Long = 0,
-  val lastSyncStatus: String = "" // SUCCESS, FAILED, or empty
+  val lastSyncStatus: String = "", // SUCCESS, FAILED, or empty
+  val lastSyncEmail: String = "" // Google account email used for last sync
 )

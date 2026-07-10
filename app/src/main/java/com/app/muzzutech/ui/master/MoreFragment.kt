@@ -18,9 +18,15 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.databinding.FragmentMoreBinding
 import com.app.muzzutech.utils.BackupManager
+import com.app.muzzutech.utils.DateUtils
 import com.app.muzzutech.utils.UpdateManager
 import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.Scope
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -29,9 +35,30 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
     private var _binding: FragmentMoreBinding? = null
     private val binding get() = _binding!!
 
+    private var currentGoogleAccount: GoogleSignInAccount? = null
+
     private val restorePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             restoreBackup(uri)
+        }
+    }
+
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            currentGoogleAccount = account
+            startSync()
+        } catch (e: ApiException) {
+            val msg = when (e.statusCode) {
+                10 -> "Configuration Error (Code 10). SHA-1 not registered."
+                7 -> "Network error. Check internet."
+                12501 -> "Sign-in cancelled."
+                else -> "Sign-in failed (Code: ${e.statusCode})"
+            }
+            Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
         }
     }
 
@@ -74,7 +101,11 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         }
 
         binding.cardCloudSync.setOnClickListener {
-            Toast.makeText(requireContext(), "Google Drive sync coming soon", Toast.LENGTH_SHORT).show()
+            showSyncOptions()
+        }
+
+        binding.btnDoSync.setOnClickListener {
+            ensureGoogleAccountAndSync()
         }
 
         binding.cardBackupLocal.setOnClickListener { showBackupOptions() }
@@ -82,18 +113,17 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             restorePicker.launch("*/*")
         }
 
-        // Load profile and counts
+        // Load profile and sync status
         viewLifecycleOwner.lifecycleScope.launch {
             MobileRepairApp.instance.database.userProfileDao().getUserProfileFlow().collectLatest { profile ->
                 if (profile != null) {
                     binding.tvProfileName.text = profile.name.ifEmpty { "Your Account" }
                     binding.tvProfileEmail.text = profile.email.ifEmpty { "Manage your shop details" }
-                    
-                    // Update sync status
+
                     val statusText = when (profile.lastSyncStatus) {
-                        "SUCCESS" -> "Last synced: ${com.app.muzzutech.utils.DateUtils.formatDateTime(profile.lastSyncTimestamp)}"
+                        "SUCCESS" -> "Last synced: ${DateUtils.formatDateTime(profile.lastSyncTimestamp)}"
                         "FAILED" -> "Last sync failed"
-                        else -> "Never synced"
+                        else -> getString(R.string.sync_never)
                     }
                     binding.tvSyncStatus.text = statusText
                 }
@@ -131,11 +161,10 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
 
     private fun setupSettings() {
         val prefs = SecurePrefs.appSettings(requireContext())
-        
-        // Initial values
+
         val isBio = prefs.getBoolean("biometric_enabled", false)
         val isDark = prefs.getBoolean("dark_mode", false)
-        
+
         binding.switchBiometric.isChecked = isBio
         binding.switchDarkMode.isChecked = isDark
 
@@ -153,13 +182,170 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
                 if (isChecked != current) {
                     prefs.edit().putBoolean("dark_mode", isChecked).apply()
                     AppCompatDelegate.setDefaultNightMode(
-                        if (isChecked) AppCompatDelegate.MODE_NIGHT_YES 
+                        if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
                         else AppCompatDelegate.MODE_NIGHT_NO
                     )
                 }
             }
         }
     }
+
+    // ── Google Drive Sync ─────────────────────────────────────────────────
+
+    private fun showSyncOptions() {
+        val options = arrayOf(
+            getString(R.string.sync_btn_now),
+            getString(R.string.sync_btn_restore)
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.ui_google_cloud_sync))
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> ensureGoogleAccountAndSync()
+                    1 -> ensureGoogleAccountAndRestore()
+                }
+            }
+            .show()
+    }
+
+    private fun ensureGoogleAccountAndSync() {
+        val account = GoogleSignIn.getLastSignedInAccount(requireContext())
+        if (account != null) {
+            currentGoogleAccount = account
+            ensureDriveScopeAndExecute { startSync() }
+        } else {
+            signInWithGoogle()
+        }
+    }
+
+    private fun ensureGoogleAccountAndRestore() {
+        val account = GoogleSignIn.getLastSignedInAccount(requireContext())
+        if (account != null) {
+            currentGoogleAccount = account
+            ensureDriveScopeAndExecute { startRestore() }
+        } else {
+            signInWithGoogle(restoreAfterSignIn = true)
+        }
+    }
+
+    private var pendingRestore = false
+
+    private fun signInWithGoogle(restoreAfterSignIn: Boolean = false) {
+        pendingRestore = restoreAfterSignIn
+        val webClientId = getString(R.string.default_web_client_id)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestIdToken(webClientId)
+            .requestScopes(Scope("https://www.googleapis.com/auth/drive.appdata"))
+            .build()
+        val client = GoogleSignIn.getClient(requireActivity(), gso)
+        client.signOut().addOnCompleteListener {
+            googleSignInLauncher.launch(client.signInIntent)
+        }
+    }
+
+    private fun ensureDriveScopeAndExecute(onReady: () -> Unit) {
+        val account = currentGoogleAccount ?: return
+        val hasDriveScope = account.grantedScopes?.any {
+            it.scopeUri == "https://www.googleapis.com/auth/drive.appdata"
+        } ?: false
+
+        if (!hasDriveScope) {
+            GoogleSignIn.requestScopes(account, Scope("https://www.googleapis.com/auth/drive.appdata"))
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        onReady()
+                    } else {
+                        Snackbar.make(binding.root, R.string.drive_scope_message, Snackbar.LENGTH_LONG).show()
+                    }
+                }
+        } else {
+            onReady()
+        }
+    }
+
+    private fun startSync() {
+        val account = currentGoogleAccount ?: return
+        val email = account.email ?: ""
+
+        binding.syncProgress.visibility = View.VISIBLE
+        binding.btnDoSync.visibility = View.GONE
+        binding.tvSyncStatus.text = getString(R.string.sync_in_progress)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val token = BackupManager.getAccessToken(requireContext(), account)
+                if (token == null) {
+                    binding.tvSyncStatus.text = getString(R.string.sync_failed_message, "auth error")
+                    Snackbar.make(binding.root, "Failed to get access token", Snackbar.LENGTH_LONG).show()
+                    return@launch
+                }
+
+                val (success, detail) = BackupManager.syncWithGoogleDrive(requireContext(), email, token)
+                binding.tvSyncStatus.text = if (success) {
+                    val ts = MobileRepairApp.instance.database.userProfileDao()
+                        .getUserProfile()?.lastSyncTimestamp ?: 0
+                    getString(R.string.sync_success, DateUtils.formatDateTime(ts))
+                } else {
+                    getString(R.string.sync_failed_message, detail)
+                }
+
+                Snackbar.make(
+                    binding.root,
+                    if (success) R.string.sync_success_message else R.string.sync_failed_message,
+                    Snackbar.LENGTH_LONG
+                ).show()
+            } catch (e: Exception) {
+                binding.tvSyncStatus.text = getString(R.string.sync_failed_message, e.message ?: "error")
+                Snackbar.make(binding.root, "Sync failed: ${e.message}", Snackbar.LENGTH_LONG).show()
+            } finally {
+                binding.syncProgress.visibility = View.GONE
+                binding.btnDoSync.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun startRestore() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.sync_confirm_restore)
+            .setMessage(R.string.sync_confirm_restore_message)
+            .setPositiveButton("Restore") { _, _ ->
+                val account = currentGoogleAccount ?: return@setPositiveButton
+
+                binding.syncProgress.visibility = View.VISIBLE
+                binding.btnDoSync.visibility = View.GONE
+                binding.tvSyncStatus.text = getString(R.string.sync_restore_in_progress)
+
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        val token = BackupManager.getAccessToken(requireContext(), account)
+                        if (token == null) {
+                            Snackbar.make(binding.root, "Failed to get access token", Snackbar.LENGTH_LONG).show()
+                            return@launch
+                        }
+
+                        val (success, detail) = BackupManager.restoreFromGoogleDrive(requireContext(), token)
+                        if (success) {
+                            Toast.makeText(requireContext(), R.string.restore_success_message, Toast.LENGTH_LONG).show()
+                            findNavController().navigate(R.id.dashboardFragment)
+                        } else {
+                            binding.tvSyncStatus.text = getString(R.string.restore_failed_message, detail)
+                            Snackbar.make(binding.root, "Restore failed: $detail", Snackbar.LENGTH_LONG).show()
+                        }
+                    } catch (e: Exception) {
+                        binding.tvSyncStatus.text = getString(R.string.restore_failed_message, e.message ?: "error")
+                        Snackbar.make(binding.root, "Restore failed: ${e.message}", Snackbar.LENGTH_LONG).show()
+                    } finally {
+                        binding.syncProgress.visibility = View.GONE
+                        binding.btnDoSync.visibility = View.VISIBLE
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    // ── Local Backup ──────────────────────────────────────────────────────
 
     private fun showBackupOptions() {
         val options = arrayOf("Save to Downloads (Locally)", "Share Backup to Other Apps")

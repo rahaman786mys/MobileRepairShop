@@ -30,7 +30,7 @@ import java.io.IOException
         Expense::class,
         LedgerAlert::class
     ],
-    version = 18, // Bumped from 17: add direction and transactionType to payment_transactions
+    version = 19, // Bumped from 18: add lastSyncEmail to user_profile
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -304,9 +304,18 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE payment_transactions ADD COLUMN direction TEXT NOT NULL DEFAULT 'IN'")
                 db.execSQL("ALTER TABLE payment_transactions ADD COLUMN transactionType TEXT NOT NULL DEFAULT 'REVENUE'")
-                
+
                 // Backfill direction for old records based on personType
                 db.execSQL("UPDATE payment_transactions SET direction = 'OUT', transactionType = 'EXPENSE' WHERE personType IN ('EXPENSE', 'SALARY', 'SUPPLIER')")
+            }
+        }
+
+        /**
+         * Migration 18 -> 19: adds lastSyncEmail to user_profile for Google Drive sync tracking.
+         */
+        val MIGRATION_18_19: Migration = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE user_profile ADD COLUMN lastSyncEmail TEXT NOT NULL DEFAULT ''")
             }
         }
 
@@ -323,7 +332,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "mobile_repair_shop_db"
                 )
                     .apply { if (factory != null) openHelperFactory(factory) }
-                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17, MIGRATION_17_18)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19)
                     .build()
                 INSTANCE = instance
                 instance

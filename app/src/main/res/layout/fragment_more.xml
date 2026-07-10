@@ -333,15 +333,32 @@
                             style="@style/TextAppearance.MuZZu.Label"
                             android:textSize="11sp" />
                     </LinearLayout>
-                    <ImageButton
-                        android:id="@+id/btnDoSync"
+                    <FrameLayout
                         android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:padding="8dp"
-                        android:background="@android:color/transparent"
-                        android:src="@android:drawable/ic_menu_rotate"
-                        android:contentDescription="Sync now"
-                        app:tint="@color/muzzu_accent" />
+                        android:layout_height="48dp">
+
+                        <ImageButton
+                            android:id="@+id/btnDoSync"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center"
+                            android:padding="8dp"
+                            android:background="@android:color/transparent"
+                            android:src="@android:drawable/ic_menu_rotate"
+                            android:contentDescription="Sync now"
+                            app:tint="@color/muzzu_accent" />
+
+                        <com.google.android.material.progressindicator.CircularProgressIndicator
+                            android:id="@+id/syncProgress"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:visibility="gone"
+                            android:indeterminate="true"
+                            app:indicatorSize="22dp"
+                            app:trackThickness="3dp"
+                            app:indicatorColor="@color/muzzu_accent" />
+                    </FrameLayout>
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />

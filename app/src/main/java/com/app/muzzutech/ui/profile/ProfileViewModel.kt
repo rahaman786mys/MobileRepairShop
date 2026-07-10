@@ -31,10 +31,15 @@ fun saveProfile(name: String, phone: String, shopName: String, shopAddress: Stri
   }
 }
 
-    fun updateSyncTimestamp() {
+    fun updateSyncTimestamp(status: String = "SUCCESS") {
         viewModelScope.launch {
             val existing = userProfileDao.getUserProfile() ?: UserProfile(id = 1)
-            userProfileDao.insertOrUpdate(existing.copy(lastSyncTimestamp = System.currentTimeMillis()))
+            userProfileDao.insertOrUpdate(
+                existing.copy(
+                    lastSyncTimestamp = System.currentTimeMillis(),
+                    lastSyncStatus = status
+                )
+            )
         }
     }
 }

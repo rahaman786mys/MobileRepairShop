@@ -22,6 +22,8 @@
 
 # Google Sign-In
 -keep class com.google.android.gms.auth.** { *; }
+-keep class com.google.android.gms.auth.GoogleAuthUtil { *; }
+-keep class com.google.android.gms.auth.UserRecoverableAuthException { *; }
 -keep class com.google.android.gms.common.** { *; }
 
 # OkHttp

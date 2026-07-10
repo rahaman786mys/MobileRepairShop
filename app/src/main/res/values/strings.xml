@@ -141,4 +141,22 @@
     <string name="install_now_action">Install Now</string>
     <string name="update_installing">Installing update…</string>
     <string name="dark_mode">Dark Mode</string>
+
+    <!-- Google Drive Sync -->
+    <string name="sync_never">Never synced</string>
+    <string name="sync_success">Last synced: %s</string>
+    <string name="sync_failed">Last sync failed</string>
+    <string name="sync_in_progress">Syncing to Google Drive…</string>
+    <string name="sync_restore_in_progress">Restoring from Google Drive…</string>
+    <string name="drive_scope_required">Google Drive access needed</string>
+    <string name="drive_scope_message">MuZZu Tech needs permission to store backups in your Google Drive app folder. This folder is private and does not count against your storage quota.</string>
+    <string name="sync_success_message">Backup uploaded to Google Drive</string>
+    <string name="sync_failed_message">Sync failed: %s</string>
+    <string name="restore_success_message">Data restored from Google Drive. Restarting app…</string>
+    <string name="restore_failed_message">Restore failed: %s</string>
+    <string name="sync_confirm_restore">Restore from Cloud?</string>
+    <string name="sync_confirm_restore_message">This will replace ALL current data with the latest cloud backup. Current data will be lost. Continue?</string>
+    <string name="sync_no_backup_found">No cloud backup found</string>
+    <string name="sync_btn_now">Sync Now</string>
+    <string name="sync_btn_restore">Restore from Cloud</string>
 </resources>
