@@ -42,19 +42,24 @@ jobs:
 
       - name: Update version.json on Master
         run: |
-          APK_NAME=$(ls app/build/outputs/apk/debug/*.apk | head -n 1 | xargs basename)
-          echo "{
-            \"versionCode\": $(grep "versionCode" app/build.gradle | awk '{print $2}'),
-            \"versionName\": \"$(grep "versionName" app/build.gradle | cut -d'\"' -f2)\",
-            \"downloadUrl\": \"https://github.com/${{ github.repository }}/raw/master/builds/app-debug.apk\",
-            \"releaseNotes\": \"Immediate deployment: Automatic build from master branch. Includes latest features and fixes.\"
-          }" > version.json
-          
+          # Use force add to bypass .gitignore for the builds folder
           mkdir -p builds
           cp app/build/outputs/apk/debug/*.apk builds/app-debug.apk
           
+          # Safely extract values without complex pipes that fail in shell
+          V_CODE=$(grep "versionCode" app/build.gradle | awk '{print $2}')
+          V_NAME=$(grep "versionName" app/build.gradle | awk -F'"' '{print $2}')
+          
+          echo "{
+            \"versionCode\": $V_CODE,
+            \"versionName\": \"$V_NAME\",
+            \"downloadUrl\": \"https://github.com/${{ github.repository }}/raw/master/builds/app-debug.apk\",
+            \"releaseNotes\": \"Strong Update: Automatic build from master branch. Includes latest features and fixes.\"
+          }" > version.json
+          
           git config --global user.email "bot@muzzutech.com"
           git config --global user.name "MuZZu Build Bot"
-          git add version.json builds/app-debug.apk
-          git commit -m "Auto-deploy: Update APK and version.json [skip ci]"
+          git add version.json
+          git add -f builds/app-debug.apk
+          git commit -m "Auto-deploy: v$V_NAME (build $V_CODE) [skip ci]"
           git push origin master
