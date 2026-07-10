@@ -8,28 +8,23 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import com.app.muzzutech.BuildConfig
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.content.FileProvider
-import androidx.work.BackoffPolicy
-import androidx.work.Constraints
-import androidx.work.Data
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import androidx.lifecycle.Observer
 import com.app.muzzutech.R
 import com.app.muzzutech.ui.update.UpdateBottomSheet
 import com.app.muzzutech.utils.update.PlayUpdateHelper
 import com.app.muzzutech.utils.update.UpdateRepository
 import com.app.muzzutech.utils.update.VersionInfo
-import com.app.muzzutech.work.DownloadWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 
 object UpdateManager {
@@ -37,7 +32,6 @@ object UpdateManager {
   private const val UPDATE_CHANNEL_ID = "app_updates"
   private const val NOTIF_ID_UPDATE = 7701
   private const val TAG = "UpdateManager"
-  private var downloadFile: java.io.File? = null
 
   fun checkForUpdates(activity: AppCompatActivity) {
     PlayUpdateHelper.tryImmediateUpdate(activity) { checkFallbackForUpdates(activity) }
@@ -153,6 +147,19 @@ object UpdateManager {
     }
   }
 
+  private val downloadScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+  private val downloadClient: OkHttpClient by lazy {
+    OkHttpClient.Builder()
+      .connectTimeout(30, TimeUnit.SECONDS)
+      .readTimeout(120, TimeUnit.SECONDS)
+      .writeTimeout(120, TimeUnit.SECONDS)
+      .followRedirects(true)
+      .followSslRedirects(true)
+      .retryOnConnectionFailure(true)
+      .build()
+  }
+
   fun downloadAndInstall(
     context: Context,
     url: String,
@@ -161,45 +168,78 @@ object UpdateManager {
     onFailed: (String) -> Unit,
   ) {
     val appContext = context.applicationContext
-    val work =
-      OneTimeWorkRequestBuilder<DownloadWorker>()
-        .setInputData(Data.Builder().putString(DownloadWorker.KEY_URL, url).build())
-        .setConstraints(
-          Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
-            .setRequiresStorageNotLow(true)
-            .build()
-        )
-        .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
-        .build()
+    val optimizedUrl = url.replace("https://github.com/", "https://raw.githubusercontent.com/")
+      .replace("/raw/", "/")
 
-    WorkManager.getInstance(appContext).enqueue(work)
-    val workManager = WorkManager.getInstance(appContext)
-    val liveData = workManager.getWorkInfoByIdLiveData(work.id)
-    lateinit var observer: Observer<WorkInfo>
-    observer = Observer { info ->
-      if (info == null) return@Observer
-      val progress = info.progress.getInt(DownloadWorker.KEY_PROGRESS, 0)
-      val progressText = info.progress.getString(DownloadWorker.KEY_PROGRESS_TEXT).orEmpty()
-      if (progress > 0) onProgress(progress, progressText)
-      if (info.state.isFinished) {
-        liveData.removeObserver(observer)
-        if (info.state == androidx.work.WorkInfo.State.SUCCEEDED) {
-          val path = info.outputData.getString(DownloadWorker.KEY_FILE_PATH)
-          if (path != null) {
-            val file = File(path)
-            downloadFile = file
-            onComplete(file)
-          } else {
-            onFailed(context.getString(R.string.download_failed, "missing file"))
+    downloadScope.launch {
+      try {
+        val request = Request.Builder().url(optimizedUrl)
+          .header("Cache-Control", "no-cache")
+          .build()
+
+        val response = downloadClient.newCall(request).execute()
+        if (!response.isSuccessful) {
+          withContext(Dispatchers.Main) {
+            onFailed("HTTP ${response.code}")
           }
-        } else {
-          onFailed(context.getString(R.string.download_failed, info.state.name.lowercase()))
+          return@launch
+        }
+
+        val body = response.body ?: run {
+          withContext(Dispatchers.Main) { onFailed("Empty response") }
+          return@launch
+        }
+
+        val destDir = File(appContext.filesDir, "updates")
+        if (!destDir.exists()) destDir.mkdirs()
+        val apkFile = File(destDir, "update.apk")
+
+        val totalBytes = body.contentLength()
+        var downloadedBytes = 0L
+        var lastUpdateMillis = 0L
+        var lastProgress = 0
+
+        body.byteStream().use { input ->
+          FileOutputStream(apkFile).use { output ->
+            val buffer = ByteArray(128 * 1024)
+            var bytesRead: Int
+            while (input.read(buffer).also { bytesRead = it } != -1) {
+              output.write(buffer, 0, bytesRead)
+              downloadedBytes += bytesRead
+
+              val now = System.currentTimeMillis()
+              if (totalBytes > 0 && now - lastUpdateMillis > 300L) {
+                val pct = ((downloadedBytes * 100) / totalBytes).toInt()
+                if (pct != lastProgress) {
+                  lastProgress = pct
+                  val text = formatBytes(downloadedBytes, totalBytes)
+                  lastUpdateMillis = now
+                  withContext(Dispatchers.Main) { onProgress(pct, text) }
+                }
+              }
+            }
+          }
+        }
+
+        Log.i(TAG, "Download complete: ${apkFile.absolutePath} (${downloadedBytes} bytes)")
+        withContext(Dispatchers.Main) { onComplete(apkFile) }
+
+      } catch (e: Exception) {
+        Log.e(TAG, "Download failed", e)
+        withContext(Dispatchers.Main) {
+          onFailed(e.message ?: "Connection error")
         }
       }
     }
-    liveData.observeForever(observer)
+  }
+
+  private fun formatBytes(downloaded: Long, total: Long): String {
+    return String.format(
+      java.util.Locale.getDefault(),
+      "%.1f / %.1f MB",
+      downloaded / (1024.0 * 1024.0),
+      total / (1024.0 * 1024.0)
+    )
   }
 
   fun installApk(context: Context, apkFile: File, launcher: androidx.activity.result.ActivityResultLauncher<Intent>? = null) {

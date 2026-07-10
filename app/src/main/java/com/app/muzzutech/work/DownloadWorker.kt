@@ -9,7 +9,12 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.TimeUnit
 
+/**
+ * Downloads APK from a URL. Reports progress via WorkManager's setProgress().
+ * Retries up to 3 times with exponential backoff on failure.
+ */
 class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     companion object {
@@ -18,6 +23,17 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
         const val KEY_FILE_PATH = "file_path"
         const val KEY_PROGRESS = "progress"
         const val KEY_PROGRESS_TEXT = "progress_text"
+
+        private val client by lazy {
+            OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(120, TimeUnit.SECONDS)
+                .writeTimeout(120, TimeUnit.SECONDS)
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .retryOnConnectionFailure(true)
+                .build()
+        }
     }
 
     override suspend fun doWork(): Result {
@@ -27,10 +43,6 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
         val apkFile = File(destDir, "update.apk")
 
         return try {
-            val client = OkHttpClient.Builder()
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .build()
             val request = Request.Builder().url(url).build()
             val response = client.newCall(request).execute()
             if (!response.isSuccessful) {
@@ -44,15 +56,14 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
 
             body.byteStream().use { input ->
                 FileOutputStream(apkFile).use { output ->
-                    val buffer = ByteArray(64 * 1024) // Increased buffer size to 64KB
+                    val buffer = ByteArray(128 * 1024)
                     var bytesRead: Int
                     while (input.read(buffer).also { bytesRead = it } != -1) {
                         output.write(buffer, 0, bytesRead)
                         downloadedBytes += bytesRead
-                        
+
                         val now = System.currentTimeMillis()
-                        // Throttle progress updates to max once per second to reduce overhead
-                        if (totalBytes > 0 && now - lastUpdateMillis > 1000L) {
+                        if (totalBytes > 0 && now - lastUpdateMillis > 500L) {
                             val progress = ((downloadedBytes * 100) / totalBytes).toInt()
                             setProgress(
                                 Data.Builder()
@@ -66,10 +77,11 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
                 }
             }
             val outputData = Data.Builder().putString(KEY_FILE_PATH, apkFile.absolutePath).build()
+            Log.i(TAG, "Download complete: ${apkFile.absolutePath} (${downloadedBytes} bytes)")
             Result.success(outputData)
         } catch (e: Exception) {
-            Log.e(TAG, "Download error", e)
-            if (runAttemptCount < 3) Result.retry() else Result.failure()
+            Log.e(TAG, "Download error (attempt ${runAttemptCount + 1})", e)
+            if (runAttemptCount < 2) Result.retry() else Result.failure()
         }
     }
 
