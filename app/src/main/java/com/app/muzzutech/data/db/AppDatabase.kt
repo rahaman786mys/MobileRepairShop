@@ -30,7 +30,7 @@ import java.io.IOException
         Expense::class,
         LedgerAlert::class
     ],
-    version = 17, // Bumped from 16: drop common_faults table; remove Inspection + Quotation flows
+    version = 18, // Bumped from 17: add direction and transactionType to payment_transactions
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -296,6 +296,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Migration 17 -> 18: adds direction and transactionType to payment_transactions
+         * for the Unified Ledger logic.
+         */
+        val MIGRATION_17_18: Migration = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE payment_transactions ADD COLUMN direction TEXT NOT NULL DEFAULT 'IN'")
+                db.execSQL("ALTER TABLE payment_transactions ADD COLUMN transactionType TEXT NOT NULL DEFAULT 'REVENUE'")
+                
+                // Backfill direction for old records based on personType
+                db.execSQL("UPDATE payment_transactions SET direction = 'OUT', transactionType = 'EXPENSE' WHERE personType IN ('EXPENSE', 'SALARY', 'SUPPLIER')")
+            }
+        }
+
         fun getDatabase(context: Context, passphrase: ByteArray? = null): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val dbFile = context.getDatabasePath("mobile_repair_shop_db")
@@ -309,7 +323,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "mobile_repair_shop_db"
                 )
                     .apply { if (factory != null) openHelperFactory(factory) }
-                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17, MIGRATION_17_18)
                     .build()
                 INSTANCE = instance
                 instance

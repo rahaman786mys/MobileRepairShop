@@ -275,6 +275,8 @@ class PayrollViewModel : ViewModel() {
                                 personMobile = sm.mobile,
                                 personName = sm.name,
                                 amount = paidAmount,
+                                direction = "OUT",
+                                transactionType = "EXPENSE",
                                 paymentMode = paymentMode,
                                 note = "Salary: ${DateUtils.formatDateTime(monthStart)} [$paymentMode]"
                             )

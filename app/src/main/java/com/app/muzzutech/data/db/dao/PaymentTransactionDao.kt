@@ -19,6 +19,9 @@ interface PaymentTransactionDao {
     @Query("SELECT * FROM payment_transactions WHERE paymentId = :paymentId ORDER BY transactionDate DESC")
     fun getTransactionsByPayment(paymentId: Long): Flow<List<PaymentTransaction>>
 
+    @Query("SELECT * FROM payment_transactions WHERE paymentId = :paymentId ORDER BY transactionDate DESC")
+    suspend fun getTransactionsByPaymentList(paymentId: Long): List<PaymentTransaction>
+
     @Query("SELECT * FROM payment_transactions WHERE personMobile = :mobile ORDER BY transactionDate DESC")
     fun getTransactionsByMobile(mobile: String): Flow<List<PaymentTransaction>>
 

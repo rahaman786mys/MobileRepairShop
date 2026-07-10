@@ -196,6 +196,8 @@ class EntryViewModel : ViewModel() {
                                         personMobile = personMobile,
                                         personName = personName,
                                         amount = advCash,
+                                        direction = "IN",
+                                        transactionType = "REVENUE",
                                         paymentMode = "CASH",
                                         note = "Advance (Cash) for $safeBrand $safeModel"
                                     )
@@ -209,6 +211,8 @@ class EntryViewModel : ViewModel() {
                                         personMobile = personMobile,
                                         personName = personName,
                                         amount = advOnline,
+                                        direction = "IN",
+                                        transactionType = "REVENUE",
                                         paymentMode = "ONLINE",
                                         note = "Advance (Online) for $safeBrand $safeModel"
                                     )
@@ -222,6 +226,8 @@ class EntryViewModel : ViewModel() {
                                     personMobile = personMobile,
                                     personName = personName,
                                     amount = advanceAmount,
+                                    direction = "IN",
+                                    transactionType = "REVENUE",
                                     paymentMode = advanceMode,
                                     note = "Advance ($advanceMode) for $safeBrand $safeModel"
                                 )

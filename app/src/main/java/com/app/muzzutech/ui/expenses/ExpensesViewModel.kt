@@ -104,6 +104,8 @@ class ExpensesViewModel : ViewModel() {
                             personMobile = "SHOP",
                             personName = category,
                             amount = amount,
+                            direction = "OUT",
+                            transactionType = "EXPENSE",
                             paymentMode = "CASH",
                             note = "Paid: $title"
                         )
@@ -141,6 +143,8 @@ class ExpensesViewModel : ViewModel() {
                             personMobile = "SHOP",
                             personName = expense.category,
                             amount = expense.amount,
+                            direction = "OUT",
+                            transactionType = "EXPENSE",
                             paymentMode = "CASH",
                             note = "Paid: ${expense.title}"
                         )

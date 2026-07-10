@@ -137,6 +137,8 @@ class DuesViewModel : ViewModel() {
                     personMobile = payment.personMobile,
                     personName = payment.personName,
                     amount = amount,
+                    direction = "IN",
+                    transactionType = "REVENUE",
                     paymentMode = mode,
                     note = note
                 )

@@ -25,13 +25,15 @@ import androidx.room.PrimaryKey
 data class PaymentTransaction(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val paymentId: Long? = null,     // Links to Payment (nullable: salary/expense/sale txs have no parent Payment)
-    val expenseId: Long? = null,     // Links to Expense (nullable: most txs have no parent Expense)
-    val salaryPaymentId: Long? = null, // Links to SalaryPayment (nullable: non-salary txs)
+    val paymentId: Long? = null,     // Links to Payment
+    val expenseId: Long? = null,     // Links to Expense
+    val salaryPaymentId: Long? = null, // Links to SalaryPayment
     val personType: String,          // "DEALER", "SUPPLIER", "CUSTOMER", "EXPENSE", "SALARY"
     val personMobile: String,
     val personName: String = "",
-    val amount: Long = 0L,
+    val amount: Long = 0L,           // Always positive magnitude
+    val direction: String = "IN",    // "IN" (Money Received), "OUT" (Money Paid)
+    val transactionType: String = "REVENUE", // "REVENUE", "EXPENSE", "REFUND", "ADJUSTMENT"
     val paymentMode: String = "CASH", // "CASH", "ONLINE", "UPI"
     val note: String = "",
     val transactionDate: Long = System.currentTimeMillis()

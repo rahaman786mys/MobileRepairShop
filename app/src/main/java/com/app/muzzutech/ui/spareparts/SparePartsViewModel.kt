@@ -103,6 +103,8 @@ class SparePartsViewModel : ViewModel() {
                                 personMobile = supplierId,
                                 personName = supplierName,
                                 amount = totalCost,
+                                direction = "OUT",
+                                transactionType = "EXPENSE",
                                 paymentMode = "CASH",
                                 note = "Immediate payment for $partName x $quantity"
                             )

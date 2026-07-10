@@ -116,6 +116,8 @@ class SaleViewModel : ViewModel() {
                             personMobile = "DIRECT_SALE",
                             personName = "Cash Customer",
                             amount = salePrice,
+                            direction = "IN",
+                            transactionType = "REVENUE",
                             paymentMode = "CASH",
                             note = "Direct Sale: $safeItemName"
                         )
@@ -130,6 +132,8 @@ class SaleViewModel : ViewModel() {
                                 personMobile = supplier.mobile,
                                 personName = supplier.name,
                                 amount = purchasePrice,
+                                direction = "OUT",
+                                transactionType = "EXPENSE",
                                 paymentMode = "CASH",
                                 note = "Purchase for Direct Sale: $itemName"
                             )

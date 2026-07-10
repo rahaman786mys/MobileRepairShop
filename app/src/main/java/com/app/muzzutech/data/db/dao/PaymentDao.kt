@@ -58,7 +58,7 @@ interface PaymentDao {
             dueAmount = dueAmount - :amount,
             status = CASE WHEN (paidAmount + :amount) >= totalAmount THEN 'PAID' WHEN (paidAmount + :amount) > 0 THEN 'PARTIAL' ELSE 'UNPAID' END,
             updatedAt = :now
-        WHERE id = :paymentId AND dueAmount >= :amount
+        WHERE id = :paymentId
     """)
     suspend fun atomicAddPayment(paymentId: Long, amount: Long, now: Long): Int
 }

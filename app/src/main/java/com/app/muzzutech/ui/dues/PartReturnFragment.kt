@@ -120,6 +120,8 @@ class PartReturnFragment : Fragment(R.layout.fragment_part_return) {
                                     personMobile = linkedPayment.personMobile,
                                     personName = "${linkedPayment.personName} (Refund)",
                                     amount = refund,
+                                    direction = "IN",
+                                    transactionType = "REFUND",
                                     paymentMode = "CASH",
                                     note = "Part return refund: $partName (Return #$partReturnId)"
                                 )

@@ -49,7 +49,9 @@ class HandoverViewModel : ViewModel() {
                                 personType = advanceTxn.personType,
                                 personMobile = advanceTxn.personMobile,
                                 personName = advanceTxn.personName,
-                                amount = -advanceTxn.amount,
+                                amount = advanceTxn.amount,
+                                direction = "OUT",
+                                transactionType = "REFUND",
                                 paymentMode = "REFUND",
                                 note = "Refund of advance for cancelled repair #${entry.id}: ${entry.deviceBrand} ${entry.deviceModel}"
                             )
@@ -161,6 +163,8 @@ class HandoverViewModel : ViewModel() {
                                 personMobile = personMobile,
                                 personName = personName,
                                 amount = cashAmount,
+                                direction = "IN",
+                                transactionType = "REVENUE",
                                 paymentMode = "CASH",
                                 note = "Received during handover"
                             )
@@ -174,6 +178,8 @@ class HandoverViewModel : ViewModel() {
                                 personMobile = personMobile,
                                 personName = personName,
                                 amount = onlineAmount,
+                                direction = "IN",
+                                transactionType = "REVENUE",
                                 paymentMode = "ONLINE",
                                 note = "Received during handover"
                             )
