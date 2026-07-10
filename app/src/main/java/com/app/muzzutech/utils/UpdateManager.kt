@@ -44,19 +44,19 @@ object UpdateManager {
   }
 
   private fun checkFallbackForUpdates(activity: AppCompatActivity) {
-    Log.d(TAG, "checkForUpdates: starting update check, currentVersionCode=${UpdateRepository(activity).getCurrentVersionCode()}")
+    Log.d(TAG, "checkForUpdates: starting update check")
     CoroutineScope(Dispatchers.IO).launch {
       val prefs = UpdateRepository(activity)
-      // Prioritize GitHub Releases API for the real source of truth
-      val result = prefs.fetchReleaseFromGitHubApi()
+      
+      // FORCED PRIORITY: Always check version.json on master branch first for "Suddenly" updates
+      val result = prefs.fetchLatestVersion() 
       var info = result.getOrNull()
-      Log.d(TAG, "checkForUpdates: GitHub API result=${result.isSuccess} info=$info")
       
       if (info == null) {
-        Log.w(TAG, "checkForUpdates: GitHub API null, trying version.json fallback")
-        info = prefs.fetchLatestVersion().getOrNull()
-        Log.d(TAG, "checkForUpdates: version.json fallback=$info")
+        Log.w(TAG, "checkForUpdates: version.json failed, trying GitHub Releases")
+        info = prefs.fetchReleaseFromGitHubApi().getOrNull()
       }
+
       prefs.setLastCheckTimestamp(System.currentTimeMillis())
 
       if (info == null) {

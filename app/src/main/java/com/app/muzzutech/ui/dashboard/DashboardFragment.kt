@@ -41,6 +41,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     setupClickListeners()
     observeData()
     updateGreeting()
+    
+    // Auto-check for updates every time Dashboard is opened to ensure "Suddenly" updates
+    UpdateManager.checkForUpdates(requireActivity() as AppCompatActivity)
   }
 
   private fun updateGreeting() {
