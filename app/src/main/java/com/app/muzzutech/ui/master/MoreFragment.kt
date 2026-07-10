@@ -131,8 +131,13 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
 
     private fun setupSettings() {
         val prefs = SecurePrefs.appSettings(requireContext())
-        binding.switchBiometric.isChecked = prefs.getBoolean("biometric_enabled", false)
-        binding.switchDarkMode.isChecked = prefs.getBoolean("dark_mode", false)
+        
+        // Initial values
+        val isBio = prefs.getBoolean("biometric_enabled", false)
+        val isDark = prefs.getBoolean("dark_mode", false)
+        
+        binding.switchBiometric.isChecked = isBio
+        binding.switchDarkMode.isChecked = isDark
 
         binding.switchBiometric.setOnCheckedChangeListener { _, isChecked ->
             if (isAdded) {
@@ -144,10 +149,14 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
 
         binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
             if (isAdded) {
-                prefs.edit().putBoolean("dark_mode", isChecked).apply()
-                AppCompatDelegate.setDefaultNightMode(
-                    if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-                )
+                val current = prefs.getBoolean("dark_mode", false)
+                if (isChecked != current) {
+                    prefs.edit().putBoolean("dark_mode", isChecked).apply()
+                    AppCompatDelegate.setDefaultNightMode(
+                        if (isChecked) AppCompatDelegate.MODE_NIGHT_YES 
+                        else AppCompatDelegate.MODE_NIGHT_NO
+                    )
+                }
             }
         }
     }

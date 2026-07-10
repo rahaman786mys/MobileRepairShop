@@ -35,6 +35,16 @@ class MobileRepairApp : Application() {
             android.util.Log.w("MobileRepairApp", "WorkManager init skipped: ${e.message}")
         }
         initializeStaticData()
+        applySavedTheme()
+    }
+
+    private fun applySavedTheme() {
+        val prefs = com.app.muzzutech.utils.crpto.SecurePrefs.appSettings(this)
+        val isDarkMode = prefs.getBoolean("dark_mode", false)
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
+            if (isDarkMode) androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+            else androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+        )
     }
 
     private fun initializeStaticData() {

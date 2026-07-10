@@ -42,6 +42,13 @@ Tap Let's Go to continue."""
     @Volatile private var pendingNavDestId: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val appPrefs = com.app.muzzutech.utils.crpto.SecurePrefs.appSettings(this)
+        val isDarkMode = appPrefs.getBoolean("dark_mode", false)
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
+            if (isDarkMode) androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+            else androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+        )
+
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = Color.TRANSPARENT

@@ -7,6 +7,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
@@ -46,18 +47,22 @@ private val DarkColors = darkColorScheme(
 
 @Composable
 fun MuzzuTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = isAppInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) DarkColors else LightColors
     val view = LocalView.current
     if (!view.isInEditMode) {
-        LaunchedEffect(Unit) {
+        LaunchedEffect(darkTheme) {
             val window = (view.context as? Activity)?.window
             if (window != null) {
                 WindowCompat.setDecorFitsSystemWindows(window, false)
                 window.statusBarColor = android.graphics.Color.TRANSPARENT
                 window.navigationBarColor = android.graphics.Color.TRANSPARENT
+                
+                val controller = WindowCompat.getInsetsController(window, view)
+                controller.isAppearanceLightStatusBars = !darkTheme
+                controller.isAppearanceLightNavigationBars = !darkTheme
             }
         }
     }
@@ -66,4 +71,12 @@ fun MuzzuTheme(
         typography = MuzzuTypography,
         content = content
     )
+}
+
+@Composable
+fun isAppInDarkTheme(): Boolean {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember { com.app.muzzutech.utils.crpto.SecurePrefs.appSettings(context) }
+    val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
+    return remember(isSystemDark) { prefs.getBoolean("dark_mode", isSystemDark) }
 }
