@@ -40,14 +40,19 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
             val body = response.body ?: return Result.failure()
             val totalBytes = body.contentLength()
             var downloadedBytes = 0L
+            var lastUpdateMillis = 0L
+
             body.byteStream().use { input ->
                 FileOutputStream(apkFile).use { output ->
-                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    val buffer = ByteArray(64 * 1024) // Increased buffer size to 64KB
                     var bytesRead: Int
                     while (input.read(buffer).also { bytesRead = it } != -1) {
                         output.write(buffer, 0, bytesRead)
                         downloadedBytes += bytesRead
-                        if (totalBytes > 0) {
+                        
+                        val now = System.currentTimeMillis()
+                        // Throttle progress updates to max once per second to reduce overhead
+                        if (totalBytes > 0 && now - lastUpdateMillis > 1000L) {
                             val progress = ((downloadedBytes * 100) / totalBytes).toInt()
                             setProgress(
                                 Data.Builder()
@@ -55,6 +60,7 @@ class DownloadWorker(context: Context, params: WorkerParameters) : CoroutineWork
                                     .putString(KEY_PROGRESS_TEXT, formatProgress(downloadedBytes, totalBytes))
                                     .build()
                             )
+                            lastUpdateMillis = now
                         }
                     }
                 }
