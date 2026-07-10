@@ -77,27 +77,38 @@ class SupplierDetailFragment : Fragment(R.layout.fragment_supplier_detail) {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                db.sparePartPurchaseDao().getPurchasesBySupplier(mobile).collectLatest { purchases ->
-                    val totalBought = purchases.sumOf { it.purchasePrice * it.quantity }
+                db.paymentDao().getPaymentsByMobile(mobile).collectLatest { payments ->
+                    val totalBought = payments.sumOf { it.totalAmount }
+                    val totalPaid = payments.sumOf { it.paidAmount }
+                    val totalDue = payments.sumOf { it.dueAmount }
+
                     binding.tvTotalBought.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalBought)
-                    
-                    db.paymentDao().getPaymentsByMobile(mobile).collectLatest { payments ->
-                        val totalDue = payments.sumOf { it.dueAmount }
-                        val totalPaid = totalBought - totalDue
-                        
-                        binding.tvTotalPaid.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalPaid)
-                        binding.tvBalanceDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalDue)
-                    }
-                    
-                    db.paymentTransactionDao().getTransactionsByMobile(mobile).collectLatest { transactions ->
-                        setupPaymentHistory(transactions)
-                    }
+                    binding.tvTotalPaid.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalPaid)
+                    binding.tvBalanceDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalDue)
+                }
+            }
+        }
 
-                    db.saleDao().getSalesBySupplier(mobile).collectLatest { sales ->
-                        setupSalesList(sales)
-                    }
-
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                db.sparePartPurchaseDao().getPurchasesBySupplier(mobile).collectLatest { purchases ->
                     setupPurchasesList(purchases)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                db.paymentTransactionDao().getTransactionsByMobile(mobile).collectLatest { transactions ->
+                    setupPaymentHistory(transactions)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                db.saleDao().getSalesBySupplier(mobile).collectLatest { sales ->
+                    setupSalesList(sales)
                 }
             }
         }

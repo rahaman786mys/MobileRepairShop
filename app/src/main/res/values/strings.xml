@@ -46,7 +46,6 @@
     <string name="entry_dealer_mobile">Dealer Mobile</string>
     <string name="entry_service_man">Assign Service Man</string>
     <string name="entry_save">Save Entry</string>
-    <string name="entry_next">Next → Inspection</string>
     <string name="entry_device_info">Device Information</string>
     <string name="entry_select_brand">Select Brand</string>
     <string name="entry_model_name">Model Name (e.g. Galaxy S21)</string>
@@ -67,11 +66,6 @@
     <string name="report_pending">Pending</string>
     <string name="report_supplier_purchase">Supplier Purchases</string>
 
-    <!-- Quotation Screen -->
-    <string name="quotation_title">Quotation</string>
-    <string name="quotation_charge">Repair Charge (₹)</string>
-    <string name="quotation_advance">Advance Amount (₹)</string>
-    <string name="quotation_save">Save Quotation</string>
 
     <!-- Handover Screen -->
     <string name="handover_title">Handover</string>
@@ -87,16 +81,9 @@
     <!-- More / Master Data -->
     <string name="more_service_men">Service Men</string>
     <string name="more_suppliers">Suppliers</string>
-    <string name="more_common_faults">Common Faults</string>
     <string name="more_add_service_man">Add Service Man</string>
     <string name="more_add_supplier">Add Supplier</string>
-    <string name="more_add_fault">Add Fault</string>
 
-    <!-- AI -->
-    <string name="ai_analyze">AI Analyze</string>
-    <string name="ai_suggestions">AI Suggestions</string>
-    <string name="ai_estimate">AI Cost Estimate</string>
-    <string name="ai_trends">AI Trends Analysis</string>
 
     <!-- General -->
     <string name="save">Save</string>
@@ -105,7 +92,6 @@
     <string name="edit">Edit</string>
     <string name="save_details">Save Details</string>
     <string name="update_supplier">Update Supplier</string>
-    <string name="inspection_photo">Inspection Photo (Optional)</string>
     <string name="repair_photos">Repair Photos</string>
     <string name="total_bought">TOTAL BOUGHT</string>
     <string name="total_paid">TOTAL PAID</string>

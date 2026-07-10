@@ -88,26 +88,22 @@ class DashboardViewModel : ViewModel() {
                 val partsFlow = database.sparePartPurchaseDao().getPurchasesByDateRange(todayStart, todayEnd)
 
                 combine(handoverFlow, salesFlow, txnFlow, partsFlow) { a, b, c, d ->
-                    val saleRevenue = b.sumOf { it.salePrice }
-
-                    // Cash in from customers/dealers: advances (paymentId=null) + due collections (paymentId!=null)
-                    val customerCashIn = c.filter {
-                        (it.personType == "CUSTOMER" || it.personType == "DEALER") &&
-                                it.amount > 0L
+                    // Revenue: Cash in from customers/dealers + supplier refunds
+                    val revenueCash = c.filter {
+                        it.personType == "CUSTOMER" || it.personType == "DEALER" || it.personType == "SUPPLIER_REFUND"
                     }.sumOf { it.amount }
 
-                    // Actual cash out to suppliers (not refunds — refunds have personType SUPPLIER_REFUND)
-                    val supplierPayments = c.filter {
-                        it.personType == "SUPPLIER" && it.amount > 0L
+                    // Expense: Cash out to suppliers + direct expense/salary payouts
+                    val expenseCash = c.filter {
+                        (it.personType == "SUPPLIER" || it.personType == "EXPENSE" || it.personType == "SALARY") && it.amount > 0L
                     }.sumOf { it.amount }
 
-                    val partPurchases = d.sumOf { it.purchasePrice * it.quantity }
+                    val partPurchasesValue = d.sumOf { it.purchasePrice * it.quantity }
 
                     ProfitAggregate(
-                        saleRevenue = saleRevenue,
-                        customerCashIn = customerCashIn,
-                        partPurchases = partPurchases,
-                        supplierPayments = supplierPayments
+                        customerCashIn = revenueCash,
+                        supplierPayments = expenseCash,
+                        partPurchases = partPurchasesValue
                     )
                 }.combine(database.expenseDao().getByDateRange(todayStart, todayEnd)) { agg, expenses ->
                     agg.copy(shopExpenses = expenses.sumOf { it.amount })
@@ -117,15 +113,16 @@ class DashboardViewModel : ViewModel() {
                         salaryLiability = salaries.sumOf { it.dueAmount }
                     )
                 }.collect { agg ->
-                    // Cash-basis revenue: all cash in from customers/dealers + direct sales
-                    val totalRevenue = agg.customerCashIn + agg.saleRevenue
-                    // Cost: parts bought + shop expenses + salaries paid + supplier payments
-                    // supplier refunds INCREASE profit (cost recovery), so they increase revenue not decrease cost
-                    val totalCost = agg.partPurchases + agg.shopExpenses + agg.salaryPayouts + agg.supplierPayments
+                    // Consistently Cash-basis for Revenue and Profit
+                    val totalRevenue = agg.customerCashIn
+                    val totalCost = agg.supplierPayments
+                    
                     _dailyRevenue.value = totalRevenue
                     _dailyProfit.value = totalRevenue - totalCost
                     _dailyInvest.value = agg.partPurchases
-                    _dailyPaidInvest.value = agg.supplierPayments
+                    
+                    // Paid vs Due portion of today's investment
+                    _dailyPaidInvest.value = agg.supplierPayments.coerceAtMost(agg.partPurchases)
                     _dailyDueInvest.value = (agg.partPurchases - agg.supplierPayments).coerceAtLeast(0L)
                     _salaryLiability.value = agg.salaryLiability
                 }

@@ -213,6 +213,21 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
                 binding.layoutRepairFields.isVisible = false
             }
         }
+
+        binding.etAdvanceAmount.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val amt = s.toString().toDoubleOrNull() ?: 0.0
+                binding.layoutAdvancePaymentMode.isVisible = amt > 0.0
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        binding.toggleGroupAdvanceMode.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                binding.layoutAdvanceSplit.isVisible = checkedId == R.id.btnAdvanceBoth
+            }
+        }
     }
 
     fun openCameraForSlot(slot: Int) {
@@ -371,6 +386,19 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
         val chargeAmount = ((chargeText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
         val advanceAmount = ((advanceText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
 
+        val advanceMode = when (binding.toggleGroupAdvanceMode.checkedButtonId) {
+            R.id.btnAdvanceOnline -> "ONLINE"
+            R.id.btnAdvanceBoth -> "BOTH"
+            else -> "CASH"
+        }
+        val advCash = ((binding.etAdvanceCashAmount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        val advOnline = ((binding.etAdvanceOnlineAmount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+
+        if (!isDraft && advanceAmount > 0 && advanceMode == "BOTH" && (advCash + advOnline) != advanceAmount) {
+            Snackbar.make(binding.root, "Cash + Online must equal total advance", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
         viewModel.saveEntry(
             photoPath = viewModel.photo1Path.value ?: "",
             photoPath2 = viewModel.photo2Path.value ?: "",
@@ -384,6 +412,9 @@ class EntryFragment : Fragment(R.layout.fragment_entry) {
             extraItems = collectExtraItems(),
             chargeAmount = chargeAmount,
             advanceAmount = advanceAmount,
+            advanceMode = advanceMode,
+            advCash = advCash,
+            advOnline = advOnline,
             isDraft = isDraft
         )
     }

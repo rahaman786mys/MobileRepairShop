@@ -97,6 +97,9 @@ class EntryViewModel : ViewModel() {
         extraItems: String = "",
         chargeAmount: Long = 0L,
         advanceAmount: Long = 0L,
+        advanceMode: String = "CASH",
+        advCash: Long = 0L,
+        advOnline: Long = 0L,
         isDraft: Boolean = false
     ) {
         if (mobile.isBlank()) {
@@ -166,26 +169,16 @@ class EntryViewModel : ViewModel() {
                     val id = repository.insert(entry)
 
                     if (advanceAmount > 0L) {
-                        val personMobile = if (!isDealer) mobile else ""
-                        val personName = if (!isDealer) safeName else ""
+                        val personMobile = mobile
+                        val personName = safeName
                         val personType = if (!isDealer) "CUSTOMER" else "DEALER"
-                        val advanceTxnId = db.paymentTransactionDao().insert(
-                            PaymentTransaction(
-                                paymentId = null,
-                                personType = personType,
-                                personMobile = personMobile,
-                                personName = personName,
-                                amount = advanceAmount,
-                                paymentMode = "CASH",
-                                note = "Advance for $safeBrand $safeModel"
-                            )
-                        )
+
                         val paymentId = db.paymentDao().insert(
                             com.app.muzzutech.data.model.Payment(
                                 personType = personType,
                                 personMobile = personMobile,
                                 personName = personName,
-                                description = "Advance for $safeBrand $safeModel",
+                                description = "Repair: $safeBrand $safeModel",
                                 totalAmount = chargeAmount,
                                 paidAmount = advanceAmount,
                                 dueAmount = (chargeAmount - advanceAmount).coerceAtLeast(0L),
@@ -193,14 +186,47 @@ class EntryViewModel : ViewModel() {
                                 linkedEntryId = id
                             )
                         )
-                        db.paymentTransactionDao().getTransactionById(advanceTxnId)?.let { txn ->
-                            db.paymentTransactionDao().update(txn.copy(paymentId = paymentId))
-                        }
-                        repository.update(
-                            repository.getEntryById(id)!!.copy(
-                                advancePaymentTransactionId = advanceTxnId
+
+                        if (advanceMode == "BOTH") {
+                            if (advCash > 0) {
+                                db.paymentTransactionDao().insert(
+                                    PaymentTransaction(
+                                        paymentId = paymentId,
+                                        personType = personType,
+                                        personMobile = personMobile,
+                                        personName = personName,
+                                        amount = advCash,
+                                        paymentMode = "CASH",
+                                        note = "Advance (Cash) for $safeBrand $safeModel"
+                                    )
+                                )
+                            }
+                            if (advOnline > 0) {
+                                db.paymentTransactionDao().insert(
+                                    PaymentTransaction(
+                                        paymentId = paymentId,
+                                        personType = personType,
+                                        personMobile = personMobile,
+                                        personName = personName,
+                                        amount = advOnline,
+                                        paymentMode = "ONLINE",
+                                        note = "Advance (Online) for $safeBrand $safeModel"
+                                    )
+                                )
+                            }
+                        } else {
+                            db.paymentTransactionDao().insert(
+                                PaymentTransaction(
+                                    paymentId = paymentId,
+                                    personType = personType,
+                                    personMobile = personMobile,
+                                    personName = personName,
+                                    amount = advanceAmount,
+                                    paymentMode = advanceMode,
+                                    note = "Advance ($advanceMode) for $safeBrand $safeModel"
+                                )
                             )
-                        )
+                        }
                     }
 
                     if (isDraft) {

@@ -82,6 +82,7 @@ class HandoverViewModel : ViewModel() {
     suspend fun completeHandover(
         entryId: Long,
         finalAmount: Long,
+        discountAmount: Long,
         paymentMode: String,
         cashAmount: Long,
         onlineAmount: Long
@@ -91,6 +92,7 @@ class HandoverViewModel : ViewModel() {
             repository.getEntryById(entryId)?.let { entry ->
                 val updated = entry.copy(
                     finalAmount = finalAmount,
+                    discountAmount = discountAmount,
                     paymentMode = paymentMode,
                     cashAmount = cashAmount,
                     onlineAmount = onlineAmount,

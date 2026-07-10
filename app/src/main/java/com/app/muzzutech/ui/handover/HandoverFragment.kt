@@ -59,6 +59,14 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
 
         binding.btnCompleteHandover.setOnClickListener { completeHandover() }
 
+        binding.etDiscount.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                recomputeBalance()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
         binding.btnCancelWork.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("Cancel & Delete Work?")
@@ -106,7 +114,19 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
                 viewModel.entry.collectLatest { entry ->
                     if (entry != null) {
                         binding.tvSummaryFault.text = "Fault: ${entry.faultDetected}"
-                        binding.tvSummaryCharge.text = "Charge: ${com.app.muzzutech.utils.PriceUtils.formatPrice(entry.chargeAmount)}"
+                        binding.tvSummaryCharge.text = "Service Charge: ${com.app.muzzutech.utils.PriceUtils.formatPrice(entry.chargeAmount)}"
+                        
+                        val totalParts = entry.sparePartPurchasePrice
+                        val totalCost = entry.chargeAmount + totalParts
+                        val advance = entry.advanceAmount
+                        val outstanding = totalCost - advance
+
+                        binding.tvHandoverTotal.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalCost)
+                        binding.tvHandoverAdvance.text = com.app.muzzutech.utils.PriceUtils.formatPrice(advance)
+                        binding.tvHandoverOutstanding.text = com.app.muzzutech.utils.PriceUtils.formatPrice(outstanding)
+                        
+                        // Default balance to receive (assuming 0 discount)
+                        binding.etFinalAmount.setText((outstanding / 100.0).toString())
                     }
                 }
             }
@@ -121,16 +141,33 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
         }
     }
 
+    private fun recomputeBalance() {
+        val entry = viewModel.entry.value ?: return
+        val totalCost = entry.chargeAmount + entry.sparePartPurchasePrice
+        val advance = entry.advanceAmount
+        val discount = ((binding.etDiscount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        
+        val netBalance = (totalCost - advance - discount).coerceAtLeast(0L)
+        binding.etFinalAmount.setText((netBalance / 100.0).toString())
+    }
+
     private fun completeHandover() {
         if (isCompleting) return
         val entry = viewModel.entry.value ?: return
         val finalAmountText = binding.etFinalAmount.text.toString().trim()
+        val discountText = binding.etDiscount.text.toString().trim()
+        
         if (finalAmountText.isEmpty()) {
             Snackbar.make(binding.root, "Please enter final amount", Snackbar.LENGTH_LONG).show()
             return
         }
 
-        val finalAmount = ((finalAmountText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        val balanceToReceive = ((finalAmountText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        val discountAmount = ((discountText.toDoubleOrNull() ?: 0.0) * 100).roundToLong()
+        
+        // Total bill for accounting = Total Estimate - Discount
+        val totalBill = (entry.chargeAmount + entry.sparePartPurchasePrice - discountAmount).coerceAtLeast(0L)
+
         val selectedPaymentId = binding.radioGroupPayment.checkedRadioButtonId
         val paymentMode = when (selectedPaymentId) {
             R.id.radioCash -> "Cash"
@@ -144,33 +181,27 @@ class HandoverFragment : Fragment(R.layout.fragment_handover) {
         }
 
         val isPayLater = paymentMode == "Pay Later"
-        val remainingAfterAdvance = (finalAmount - entry.advanceAmount).coerceAtLeast(0L)
         val cashAmount = if (!isPayLater && paymentMode == "Both") {
             ((binding.etCashAmount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
-        } else if (!isPayLater && paymentMode == "Cash") remainingAfterAdvance else 0L
+        } else if (!isPayLater && paymentMode == "Cash") balanceToReceive else 0L
 
         val onlineAmount = if (!isPayLater && paymentMode == "Both") {
             ((binding.etOnlineAmount.text.toString().toDoubleOrNull() ?: 0.0) * 100).roundToLong()
-        } else if (!isPayLater && paymentMode == "Online") remainingAfterAdvance else 0L
+        } else if (!isPayLater && paymentMode == "Online") balanceToReceive else 0L
 
         if (paymentMode == "Both") {
             val combined = cashAmount + onlineAmount
-            if (combined != finalAmount) {
-                Snackbar.make(binding.root, "Cash + Online must equal Total (₹${finalAmount / 100.0})", Snackbar.LENGTH_LONG).show()
+            if (combined != balanceToReceive) {
+                Snackbar.make(binding.root, "Cash + Online must equal Balance (₹${balanceToReceive / 100.0})", Snackbar.LENGTH_LONG).show()
                 return
             }
-        }
-
-        if (finalAmount < 0L) {
-            Snackbar.make(binding.root, "Final amount cannot be negative", Snackbar.LENGTH_LONG).show()
-            return
         }
 
         isCompleting = true
         binding.btnCompleteHandover.isEnabled = false
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.completeHandover(entryId, finalAmount, paymentMode, cashAmount, onlineAmount)
+            viewModel.completeHandover(entryId, totalBill, discountAmount, paymentMode, cashAmount, onlineAmount)
             binding.btnGenerateInvoice.visibility = View.VISIBLE
             Snackbar.make(binding.root, "✅ Handover Complete!", Snackbar.LENGTH_LONG).show()
             findNavController().popBackStack(R.id.dashboardFragment, false)
