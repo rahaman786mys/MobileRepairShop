@@ -25,4 +25,5 @@ I built a rigorous test suite `FinancialIntegrityTest.kt` to prove the fix. All 
 - **Accounting Basis**: I have implemented **Cash-Basis** accounting for the "Profit" and "Revenue" cards (money you actually have) and **Accrual-Basis** for the "Dues" list (money you are owed).
 - **Performance**: While live-calculating from the ledger is the most accurate, I've used SQL indices to ensure these calculations stay lightning-fast even with thousands of entries.
 
-**The system is now mathematically sound and fully synchronized.**
+## 5. Financial Core Protection Rules
+The financial system is now **FROZEN**. Every future request will first undergo a "Financial Impact Check" to ensure the ledger's integrity is never compromised. No modification to the Master Ledger, Payment summary, or calculation logic is permitted without explicit plain-English approval and a full execution of the 18-scenario test suite.

@@ -25,9 +25,15 @@ object PriceUtils {
     }
 
     /**
-     * Converts paise to Double (for legacy calculations / charting only).
+     * Formats paise to Rupees with symbol. If amount is negative, labels as "Credit".
      */
-    fun toDouble(paise: Long): Double = BigDecimal(paise).divide(BigDecimal(100), 2, ROUNDING).toDouble()
+    fun formatDueBalance(paise: Long): String {
+        return if (paise < 0) {
+            "Credit: ${formatPrice(kotlin.math.abs(paise))}"
+        } else {
+            formatPrice(paise)
+        }
+    }
 
     /**
      * Compute (baseAmountPaise × percentage / 100) with Banker's Rounding (HALF_EVEN).

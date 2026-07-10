@@ -113,37 +113,33 @@ class DuesViewModel : ViewModel() {
         }
     }
 
-    fun recordPayment(payment: Payment, amount: Long, mode: String, note: String) {
-        viewModelScope.launch {
-            val db = MobileRepairApp.instance.database
-            db.withTransaction {
-                // Atomic SQL: increment paidAmount, decrement dueAmount in one statement
-                // The WHERE dueAmount >= :amount guard prevents overpayment atomically.
-                val rowsAffected = paymentDao.atomicAddPayment(
-                    paymentId = payment.id,
-                    amount = amount,
-                    now = System.currentTimeMillis()
-                )
-                if (rowsAffected == 0) {
-                    val current = paymentDao.getPaymentById(payment.id)
-                    val due = if (current != null) current.totalAmount - current.paidAmount else 0L
-                    _paymentError.emit("Payment of ${com.app.muzzutech.utils.PriceUtils.formatPrice(amount)} exceeds due amount of ${com.app.muzzutech.utils.PriceUtils.formatPrice(due)}")
-                    return@withTransaction
-                }
-
-                val transaction = PaymentTransaction(
-                    paymentId = payment.id,
-                    personType = payment.personType,
-                    personMobile = payment.personMobile,
-                    personName = payment.personName,
-                    amount = amount,
-                    direction = "IN",
-                    transactionType = "REVENUE",
-                    paymentMode = mode,
-                    note = note
-                )
-                transactionDao.insert(transaction)
+    suspend fun recordPayment(payment: Payment, amount: Long, mode: String, note: String) {
+        val db = MobileRepairApp.instance.database
+        db.withTransaction {
+            val rowsAffected = paymentDao.atomicAddPayment(
+                paymentId = payment.id,
+                amount = amount,
+                now = System.currentTimeMillis()
+            )
+            if (rowsAffected == 0) {
+                val current = paymentDao.getPaymentById(payment.id)
+                val due = if (current != null) current.totalAmount - current.paidAmount else 0L
+                _paymentError.emit("Payment of ${com.app.muzzutech.utils.PriceUtils.formatPrice(amount)} exceeds due amount of ${com.app.muzzutech.utils.PriceUtils.formatPrice(due)}")
+                return@withTransaction
             }
+
+            val transaction = PaymentTransaction(
+                paymentId = payment.id,
+                personType = payment.personType,
+                personMobile = payment.personMobile,
+                personName = payment.personName,
+                amount = amount,
+                direction = if (payment.personType == "SUPPLIER" || payment.personType == "EXPENSE" || payment.personType == "SALARY") "OUT" else "IN",
+                transactionType = if (payment.personType == "SUPPLIER" || payment.personType == "EXPENSE" || payment.personType == "SALARY") "EXPENSE" else "REVENUE",
+                paymentMode = mode,
+                note = note
+            )
+            transactionDao.insert(transaction)
         }
     }
 }

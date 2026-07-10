@@ -20,26 +20,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToLong
 
-/**
- * Pure-Kotlin payroll logic — kept in an object for unit testing without Android.
- */
 object PayrollMath {
-
-    /** Compute worked-days weight: half-day counts 0.5, full-present 1.0, absent 0. */
     fun computeWorkedDays(fullPresent: Int, halfPresent: Int, absent: Int): Double {
         require(fullPresent >= 0 && halfPresent >= 0 && absent >= 0) { "negative counts invalid" }
         return fullPresent + halfPresent * 0.5
     }
 
-    /**
-     * Compute payable salary for a tech given worked days.
-     *
-     * Rule (per product owner):
-     *  - If monthlySalary > 0, use monthlySalary + (extra overtime not implemented).
-     *    Actually the contract is: per-day-rate × worked-days, with per-day rate
-     *    derived from monthlySalary / 30 if explicit perDaySalary is 0.
-     *  - If only perDaySalary is set (and monthly is 0), use perDaySalary × workedDays.
-     */
     fun computePayable(monthlySalary: Long, perDaySalary: Long, workedDays: Double): Long {
         val effectivePerDay = when {
             perDaySalary > 0L -> perDaySalary.toDouble()
@@ -49,7 +35,6 @@ object PayrollMath {
         return (effectivePerDay * workedDays).roundToLong()
     }
 
-    /** Build a SalaryPayment snapshot row. */
     fun buildSalaryPayment(
         smId: Long,
         smName: String,
@@ -83,16 +68,6 @@ object PayrollMath {
     }
 }
 
-/**
- * ViewModel for the Payroll screens (attendance + salary summary).
- *
- * State:
- *  - [viewMode] = month overview vs daily attendance
- *  - [monthStart] = the displayed month's first-millisecond
- *  - [servicemen] = list of active techs
- *  - [attendanceBySm] = per-tech attendance counts for the month (full / half / absent)
- *  - [salaryPayments] = persisted salary slips for the month, keyed by servicemanId
- */
 class PayrollViewModel : ViewModel() {
 
     private val db: AppDatabase = MobileRepairApp.instance.database
@@ -144,7 +119,6 @@ class PayrollViewModel : ViewModel() {
         viewModelScope.launch {
             smDao.getAllServiceMen().collect { list ->
                 _servicemen.value = list.filter { it.isActive || list.all { !it.isActive } }
-                // Kick off month refresh now that servicemen data is available
                 val ms = _monthStart.value
                 refreshMonthStats(ms, DateUtils.getEndOfMonth(ms))
             }
@@ -155,7 +129,6 @@ class PayrollViewModel : ViewModel() {
         viewModelScope.launch {
             _monthStart.collect { monthStart ->
                 val monthEnd = DateUtils.getEndOfMonth(monthStart)
-                // Only refresh if servicemen list is already loaded (guard against race)
                 if (_servicemen.value.isNotEmpty()) {
                     refreshMonthStats(monthStart, monthEnd)
                 }
@@ -164,21 +137,19 @@ class PayrollViewModel : ViewModel() {
         }
     }
 
-    private fun refreshMonthStats(monthStart: Long, monthEnd: Long) {
-        viewModelScope.launch {
-            val list = _servicemen.value
-            val stats = mutableMapOf<Long, MonthStats>()
-            for (sm in list) {
-                val full = withContext(Dispatchers.IO) { attendanceDao.getFullPresentDays(sm.id, monthStart, monthEnd) }
-                val half = withContext(Dispatchers.IO) { attendanceDao.getHalfPresentDays(sm.id, monthStart, monthEnd) }
-                val all = withContext(Dispatchers.IO) { attendanceDao.getByServiceManInRangeList(sm.id, monthStart, monthEnd) }
-                val totalDays = all.size
-                val absent = totalDays - full - half
-                val worked = PayrollMath.computeWorkedDays(full, half, absent.coerceAtLeast(0))
-                stats[sm.id] = MonthStats(sm.id, full, half, absent.coerceAtLeast(0), worked)
-            }
-            _monthStats.value = stats
+    suspend fun refreshMonthStats(monthStart: Long, monthEnd: Long) {
+        val list = _servicemen.value
+        val stats = mutableMapOf<Long, MonthStats>()
+        for (sm in list) {
+            val full = withContext(Dispatchers.IO) { attendanceDao.getFullPresentDays(sm.id, monthStart, monthEnd) }
+            val half = withContext(Dispatchers.IO) { attendanceDao.getHalfPresentDays(sm.id, monthStart, monthEnd) }
+            val all = withContext(Dispatchers.IO) { attendanceDao.getByServiceManInRangeList(sm.id, monthStart, monthEnd) }
+            val totalDays = all.size
+            val absent = totalDays - full - half
+            val worked = PayrollMath.computeWorkedDays(full, half, absent.coerceAtLeast(0))
+            stats[sm.id] = MonthStats(sm.id, full, half, absent.coerceAtLeast(0), worked)
         }
+        _monthStats.value = stats
     }
 
     private fun refreshSalaryPayments(monthStart: Long) {
@@ -191,108 +162,102 @@ class PayrollViewModel : ViewModel() {
         }
     }
 
-    /** Toggle attendance for a service man on a specific day (or today if date=0). */
-    fun setAttendance(smId: Long, day: Long, present: Boolean, halfDay: Boolean = false, note: String = "") {
+    suspend fun setAttendance(smId: Long, day: Long, present: Boolean, halfDay: Boolean = false, note: String = "") {
         val date = if (day <= 0) DateUtils.getStartOfDay() else DateUtils.getStartOfDay(day)
-        viewModelScope.launch {
-            _busy.value = true
-            try {
-                attendanceDao.upsert(
-                    Attendance(
-                        servicemanId = smId,
-                        date = date,
-                        present = present,
-                        halfDay = halfDay,
-                        note = note
-                    )
+        _busy.value = true
+        try {
+            attendanceDao.upsert(
+                Attendance(
+                    servicemanId = smId,
+                    date = date,
+                    present = present,
+                    halfDay = halfDay,
+                    note = note
                 )
-                // refresh stats
-                val ms = _monthStart.value
-                refreshMonthStats(ms, DateUtils.getEndOfMonth(ms))
-            } finally {
-                _busy.value = false
-            }
+            )
+            val ms = _monthStart.value
+            refreshMonthStats(ms, DateUtils.getEndOfMonth(ms))
+        } finally {
+            _busy.value = false
         }
     }
 
-    /**
-     * Generate or refresh the salary slip for a serviceman for the current month.
-     * Computes worked days from attendance and snapshots the per-day/monthly salary
-     * from the current ServiceMan settings.
-     */
-    fun generateOrUpdateSalary(smId: Long, paidAmount: Long, note: String = "", paymentMode: String = "CASH") {
-        viewModelScope.launch {
-            _busy.value = true
-            try {
-                db.withTransaction {
-                    val sm = smDao.getServiceManById(smId) ?: return@withTransaction
-                    val stats = _monthStats.value[smId] ?: return@withTransaction
-                    val monthStart = _monthStart.value
-                    val slip = PayrollMath.buildSalaryPayment(
-                        smId = sm.id,
-                        smName = sm.name,
-                        monthStart = monthStart,
-                        workedDays = stats.workedDays,
-                        monthlySalary = sm.monthlySalary,
-                        perDaySalary = sm.perDaySalary,
-                        paidAmount = paidAmount,
-                        note = note
-                    )
-                    val existing = salaryDao.getByServiceManAndMonth(smId, monthStart)
-                    val slipToSave = if (existing != null) slip.copy(id = existing.id) else slip
-                    val salaryId = salaryDao.insert(slipToSave)
+    suspend fun generateOrUpdateSalary(smId: Long, paidAmount: Long, note: String = "", paymentMode: String = "CASH") {
+        _busy.value = true
+        try {
+            db.withTransaction {
+                val sm = smDao.getServiceManById(smId) ?: return@withTransaction
+                val stats = _monthStats.value[smId] ?: MonthStats(smId) 
+                val monthStart = _monthStart.value
+                val slip = PayrollMath.buildSalaryPayment(
+                    smId = sm.id,
+                    smName = sm.name,
+                    monthStart = monthStart,
+                    workedDays = stats.workedDays,
+                    monthlySalary = sm.monthlySalary,
+                    perDaySalary = sm.perDaySalary,
+                    paidAmount = paidAmount,
+                    note = note
+                )
+                val existing = salaryDao.getByServiceManAndMonth(smId, monthStart)
+                val slipToSave = if (existing != null) slip.copy(id = existing.id) else slip
+                val salaryId = salaryDao.insert(slipToSave)
 
-                    if (paidAmount > 0L) {
-                        val monthEnd = DateUtils.getEndOfMonth(monthStart)
-                        val oldExpenses = db.expenseDao().getByDateRange(monthStart, monthEnd).first().filter {
-                            it.category == com.app.muzzutech.data.model.Expense.CATEGORY_SALARY &&
-                            it.title == "Salary: ${sm.name}"
-                        }
-                        for (oldExp in oldExpenses) {
-                            db.paymentTransactionDao().getTransactionByExpenseId(oldExp.id)?.let { txn ->
-                                db.paymentTransactionDao().delete(txn)
-                            }
-                            db.expenseDao().deleteById(oldExp.id)
-                        }
-
-                        val expenseId = db.expenseDao().insert(
-                            com.app.muzzutech.data.model.Expense(
-                                title = "Salary: ${sm.name}",
-                                amount = paidAmount,
-                                category = com.app.muzzutech.data.model.Expense.CATEGORY_SALARY,
-                                date = System.currentTimeMillis(),
-                                paid = true,
-                                note = "Salary for ${DateUtils.formatDateTime(monthStart)}",
-                                salaryPaymentId = salaryId
-                            )
-                        )
-                        db.paymentTransactionDao().insert(
-                            com.app.muzzutech.data.model.PaymentTransaction(
-                                paymentId = null,
-                                expenseId = expenseId,
-                                salaryPaymentId = salaryId,
-                                personType = "SALARY",
-                                personMobile = sm.mobile,
-                                personName = sm.name,
-                                amount = paidAmount,
-                                direction = "OUT",
-                                transactionType = "EXPENSE",
-                                paymentMode = paymentMode,
-                                note = "Salary: ${DateUtils.formatDateTime(monthStart)} [$paymentMode]"
-                            )
-                        )
+                if (paidAmount > 0L) {
+                    val monthEnd = DateUtils.getEndOfMonth(monthStart)
+                    val oldExpenses = db.expenseDao().getByDateRange(monthStart, monthEnd).first().filter {
+                        it.category == com.app.muzzutech.data.model.Expense.CATEGORY_SALARY &&
+                        it.title == "Salary: ${sm.name}"
                     }
+                    for (oldExp in oldExpenses) {
+                        db.paymentTransactionDao().getTransactionByExpenseId(oldExp.id)?.let { txn ->
+                            db.paymentTransactionDao().delete(txn)
+                        }
+                        db.expenseDao().deleteById(oldExp.id)
+                    }
+
+                    val expenseId = db.expenseDao().insert(
+                        com.app.muzzutech.data.model.Expense(
+                            title = "Salary: ${sm.name}",
+                            amount = paidAmount,
+                            category = com.app.muzzutech.data.model.Expense.CATEGORY_SALARY,
+                            date = System.currentTimeMillis(),
+                            paid = true,
+                            note = "Salary for ${DateUtils.formatDateTime(monthStart)}",
+                            salaryPaymentId = salaryId
+                        )
+                    )
+                    db.paymentTransactionDao().insert(
+                        com.app.muzzutech.data.model.PaymentTransaction(
+                            paymentId = null,
+                            expenseId = expenseId,
+                            salaryPaymentId = salaryId,
+                            personType = "SALARY",
+                            personMobile = sm.mobile,
+                            personName = sm.name,
+                            amount = paidAmount,
+                            direction = "OUT",
+                            transactionType = "EXPENSE",
+                            paymentMode = paymentMode,
+                            note = "Salary: ${DateUtils.formatDateTime(monthStart)} [$paymentMode]"
+                        )
+                    )
                 }
-            } finally {
-                _busy.value = false
             }
+        } finally {
+            _busy.value = false
         }
     }
 
-    fun paySalary(smId: Long, paymentMode: String = "CASH") {
-        val sm = _servicemen.value.find { it.id == smId } ?: return
-        val stats = _monthStats.value[smId] ?: return
+    suspend fun paySalary(smId: Long, paymentMode: String = "CASH") {
+        val sm = smDao.getServiceManById(smId) ?: return
         val monthStart = _monthStart.value
+        val monthEnd = DateUtils.getEndOfMonth(monthStart)
+        
+        // Ensure stats are current
+        refreshMonthStats(monthStart, monthEnd)
+        val stats = _monthStats.value[smId] ?: MonthStats(smId)
+
         val computedAmount = PayrollMath.computePayable(sm.monthlySalary, sm.perDaySalary, stats.workedDays)
         generateOrUpdateSalary(smId, computedAmount, "", paymentMode)
     }

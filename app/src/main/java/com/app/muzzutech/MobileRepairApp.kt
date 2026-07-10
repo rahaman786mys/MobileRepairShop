@@ -10,12 +10,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class MobileRepairApp : Application() {
+open class MobileRepairApp : Application() {
 
     @Volatile
-    private var _database: AppDatabase? = null
+    internal var _database: AppDatabase? = null
 
-    val database: AppDatabase
+    open val database: AppDatabase
         get() = _database ?: synchronized(this) {
             val passphrase = DatabasePassphraseProvider.getOrCreatePassphrase(this)
             _database ?: AppDatabase.getDatabase(this, passphrase).also { _database = it }
@@ -71,11 +71,15 @@ class MobileRepairApp : Application() {
 
     companion object {
         @Volatile
-        lateinit var instance: MobileRepairApp
-            private set
+        var instance: MobileRepairApp = MobileRepairApp()
+            internal set
 
         fun resetDatabaseInstance() {
             instance._database = null
         }
+    }
+
+    fun setTestDatabase(testDb: AppDatabase) {
+        _database = testDb
     }
 }

@@ -108,7 +108,9 @@ class SaleFragment : Fragment(R.layout.fragment_sale) {
 
         binding.btnSaveSale.isEnabled = false // Prevent double tap
         val supplier = suppliersList[selectedPos - 1]
-        viewModel.saveSale(itemName, purchasePrice, salePrice, supplier)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.saveSale(itemName, purchasePrice, salePrice, supplier)
+        }
     }
 
     override fun onDestroyView() {

@@ -159,29 +159,31 @@ class SparePartsFragment : Fragment(R.layout.fragment_spare_parts) {
         val payLater = binding.radioPayLater.isChecked
 
         isAddingPart = true
-        viewModel.addPart(
-            repairEntryId = entryId,
-            partName = partName,
-            photoPath = photoFile?.absolutePath ?: "",
-            price = price,
-            quantity = quantity,
-            supplierId = supplier?.mobile ?: "",
-            supplierName = supplier?.name ?: "",
-            payLater = payLater,
-            onComplete = {
-                binding.etPartName.text?.clear()
-                binding.etPurchasePrice.text?.clear()
-                binding.etQuantity.text?.clear()
-                binding.ivPartPhoto.setImageResource(R.drawable.ic_add)
-                photoFile = null
-                isAddingPart = false
-                Snackbar.make(
-                    binding.root,
-                    if (payLater) "Part added! Due recorded for supplier." else "Part added! Marked as paid.",
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            }
-        )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.addPart(
+                repairEntryId = entryId,
+                partName = partName,
+                photoPath = photoFile?.absolutePath ?: "",
+                price = price,
+                quantity = quantity,
+                supplierId = supplier?.mobile ?: "",
+                supplierName = supplier?.name ?: "",
+                payLater = payLater,
+                onComplete = {
+                    binding.etPartName.text?.clear()
+                    binding.etPurchasePrice.text?.clear()
+                    binding.etQuantity.text?.clear()
+                    binding.ivPartPhoto.setImageResource(R.drawable.ic_add)
+                    photoFile = null
+                    isAddingPart = false
+                    Toast.makeText(
+                        requireContext(),
+                        if (payLater) "Part added! Due recorded for supplier." else "Part added! Marked as paid.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            )
+        }
     }
 
     private fun observeViewModel() {

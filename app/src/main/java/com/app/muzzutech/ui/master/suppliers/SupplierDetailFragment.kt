@@ -84,7 +84,7 @@ class SupplierDetailFragment : Fragment(R.layout.fragment_supplier_detail) {
 
                     binding.tvTotalBought.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalBought)
                     binding.tvTotalPaid.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalPaid)
-                    binding.tvBalanceDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalDue)
+                    binding.tvBalanceDue.text = com.app.muzzutech.utils.PriceUtils.formatDueBalance(totalDue)
                 }
             }
         }

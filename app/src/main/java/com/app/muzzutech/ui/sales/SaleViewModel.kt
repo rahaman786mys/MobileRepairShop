@@ -13,21 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for the direct sale flow.
- *
- * Responsibilities:
- *  1. Load active suppliers for the supplier picker.
- *  2. Persist a sale atomically with its accounting side-effects:
- *     - The Sale row itself.
- *     - A SUPPLIER Payment row with [Payment.linkedSaleId] populated (this is the gap
- *       that was previously missing: supplier dues from direct sales were never visible
- *       in the Dues / Reports screens because no Payment record was created).
- *     - A CUSTOMER cash-in PaymentTransaction (revenue).
- *     - A SUPPLIER cash-out PaymentTransaction (expense) if purchasePrice > 0.
- *
- * All writes happen inside a single [androidx.room.withTransaction] block.
- */
 class SaleViewModel : ViewModel() {
 
     private val database = MobileRepairApp.instance.database
@@ -57,12 +42,7 @@ class SaleViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Persist a direct sale. Caller passes the supplier picked by the user.
-     *
-     * @param supplier the supplier whose item is being sold (must be selected).
-     */
-    fun saveSale(
+    suspend fun saveSale(
         itemName: String,
         purchasePrice: Long,
         salePrice: Long,
@@ -75,77 +55,70 @@ class SaleViewModel : ViewModel() {
         }
 
         val safeItemName = itemName.take(100)
-        viewModelScope.launch {
-            _isSaving.value = true
-            try {
-                database.withTransaction {
-                    // 1. Sale row
-                    val sale = Sale(
-                        itemName = safeItemName,
-                        supplierId = supplier.mobile,
-                        supplierName = supplier.name,
-                        purchasePrice = purchasePrice,
-                        salePrice = salePrice,
-                        paidToSupplier = purchasePrice,
-                        supplierDue = 0L,
-                        customerPaid = salePrice,
-                        customerDue = 0L
-                    )
-                    val saleId = saleDao.insert(sale)
+        _isSaving.value = true
+        try {
+            database.withTransaction {
+                val sale = Sale(
+                    itemName = safeItemName,
+                    supplierId = supplier.mobile,
+                    supplierName = supplier.name,
+                    purchasePrice = purchasePrice,
+                    salePrice = salePrice,
+                    paidToSupplier = purchasePrice,
+                    supplierDue = 0L,
+                    customerPaid = salePrice,
+                    customerDue = 0L
+                )
+                val saleId = saleDao.insert(sale)
 
-                    // 2. SUPPLIER Payment row — fixes the linkedSaleId gap.
-                    //    Surfaces the supplier obligation in Dues/Reports screens.
-                    val supplierPayment = Payment(
-                        personType = "SUPPLIER",
-                        personMobile = supplier.mobile,
-                        personName = supplier.name,
-                        description = "Direct Sale: $safeItemName",
-                        totalAmount = purchasePrice,
-                        paidAmount = purchasePrice,
-                        dueAmount = 0L,
-                        status = "PAID",
-                        linkedSaleId = saleId
-                    )
-                    val supplierPaymentId = paymentDao.insert(supplierPayment)
+                val supplierPayment = Payment(
+                    personType = "SUPPLIER",
+                    personMobile = supplier.mobile,
+                    personName = supplier.name,
+                    description = "Direct Sale: $safeItemName",
+                    totalAmount = purchasePrice,
+                    paidAmount = purchasePrice,
+                    dueAmount = 0L,
+                    status = "PAID",
+                    linkedSaleId = saleId
+                )
+                val supplierPaymentId = paymentDao.insert(supplierPayment)
 
-                    // 3. Cash inflow (revenue from cash customer)
+                paymentTransactionDao.insert(
+                    PaymentTransaction(
+                        paymentId = null,
+                        personType = "CUSTOMER",
+                        personMobile = "DIRECT_SALE",
+                        personName = "Cash Customer",
+                        amount = salePrice,
+                        direction = "IN",
+                        transactionType = "REVENUE",
+                        paymentMode = "CASH",
+                        note = "Direct Sale: $safeItemName"
+                    )
+                )
+
+                if (purchasePrice > 0L) {
                     paymentTransactionDao.insert(
                         PaymentTransaction(
-                            paymentId = null,
-                            personType = "CUSTOMER",
-                            personMobile = "DIRECT_SALE",
-                            personName = "Cash Customer",
-                            amount = salePrice,
-                            direction = "IN",
-                            transactionType = "REVENUE",
+                            paymentId = supplierPaymentId,
+                            personType = "SUPPLIER",
+                            personMobile = supplier.mobile,
+                            personName = supplier.name,
+                            amount = purchasePrice,
+                            direction = "OUT",
+                            transactionType = "EXPENSE",
                             paymentMode = "CASH",
-                            note = "Direct Sale: $safeItemName"
+                            note = "Purchase for Direct Sale: $itemName"
                         )
                     )
-
-                    // 4. Cash outflow (supplier payment) — only if we actually paid
-                    if (purchasePrice > 0L) {
-                        paymentTransactionDao.insert(
-                            PaymentTransaction(
-                                paymentId = supplierPaymentId,
-                                personType = "SUPPLIER",
-                                personMobile = supplier.mobile,
-                                personName = supplier.name,
-                                amount = purchasePrice,
-                                direction = "OUT",
-                                transactionType = "EXPENSE",
-                                paymentMode = "CASH",
-                                note = "Purchase for Direct Sale: $itemName"
-                            )
-                        )
-                    }
                 }
-                _saveResult.value = SaveResult.Success
-            } catch (e: Exception) {
-                _saveResult.value = SaveResult.Error(e.message ?: "Failed to save sale")
-            } finally {
-                _isSaving.value = false
             }
+            _saveResult.value = SaveResult.Success
+        } catch (e: Exception) {
+            _saveResult.value = SaveResult.Error(e.message ?: "Failed to save sale")
+        } finally {
+            _isSaving.value = false
         }
     }
 

@@ -117,7 +117,7 @@ class DuesFragment : Fragment(R.layout.fragment_dues) {
                 holder.itemView.findViewById<TextView>(R.id.tvPersonName).text = p.personName.ifEmpty { p.personMobile }
                 holder.itemView.findViewById<TextView>(R.id.tvPersonMobile).text = p.personMobile
                 holder.itemView.findViewById<TextView>(R.id.tvDueAmount).text = 
-                    com.app.muzzutech.utils.PriceUtils.formatPrice(p.dueAmount)
+                    com.app.muzzutech.utils.PriceUtils.formatDueBalance(p.dueAmount)
                 holder.itemView.findViewById<TextView>(R.id.tvDescription).text = p.description
                 
                 holder.itemView.findViewById<TextView>(R.id.tvStatus).apply {

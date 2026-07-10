@@ -41,7 +41,7 @@ class SparePartsViewModel : ViewModel() {
         }
     }
 
-    fun addPart(
+    suspend fun addPart(
         repairEntryId: Long,
         partName: String,
         photoPath: String,
@@ -52,89 +52,82 @@ class SparePartsViewModel : ViewModel() {
         payLater: Boolean,
         onComplete: () -> Unit = {}
     ) {
-        viewModelScope.launch {
-            try {
-                val entry = repairRepository.getEntryById(repairEntryId)
-                if (entry != null && (entry.workStatus == "Done" || entry.handoverDone)) {
-                    _addError.value = "Cannot add parts: repair already completed/handed over"
-                    return@launch
+        try {
+            val entry = repairRepository.getEntryById(repairEntryId)
+            if (entry != null && (entry.workStatus == "Done" || entry.handoverDone)) {
+                _addError.value = "Cannot add parts: repair already completed/handed over"
+                return
+            }
+            database.withTransaction {
+                val safePartName = partName.take(100)
+                val part = SparePartPurchase(
+                    repairEntryId = repairEntryId,
+                    partName = safePartName,
+                    partPhotoPath = photoPath,
+                    purchasePrice = price,
+                    quantity = quantity,
+                    supplierId = supplierId.take(20),
+                    supplierName = supplierName.take(100)
+                )
+                val partId = purchaseDao.insert(part)
+                val totalCost = price * quantity
+
+                if (entry != null) {
+                    repairRepository.update(entry.copy(
+                        sparePartName = safePartName,
+                        sparePartPurchasePrice = totalCost.coerceAtMost(entry.sparePartPurchasePrice + totalCost)
+                    ))
                 }
-                database.withTransaction {
-                    val safePartName = partName.take(100)
-                    val part = SparePartPurchase(
-                        repairEntryId = repairEntryId,
-                        partName = safePartName,
-                        partPhotoPath = photoPath,
-                        purchasePrice = price,
-                        quantity = quantity,
-                        supplierId = supplierId.take(20),
-                        supplierName = supplierName.take(100)
+
+                if (totalCost > 0L && supplierId.isNotEmpty()) {
+                    val payment = Payment(
+                        personType = "SUPPLIER",
+                        personMobile = supplierId,
+                        personName = supplierName,
+                        description = "Parts: $partName x $quantity (Repair #$repairEntryId)",
+                        totalAmount = totalCost,
+                        paidAmount = if (payLater) 0L else totalCost,
+                        dueAmount = if (payLater) totalCost else 0L,
+                        status = if (payLater) "UNPAID" else "PAID",
+                        linkedPartId = partId
                     )
-                    val partId = purchaseDao.insert(part)
-                    val totalCost = price * quantity
+                    val paymentId = paymentDao.insert(payment)
 
-                    // Atomically update the RepairEntry with the latest part info
-                    if (entry != null) {
-                        repairRepository.update(entry.copy(
-                            sparePartName = safePartName,
-                            sparePartPurchasePrice = totalCost.coerceAtMost(entry.sparePartPurchasePrice + totalCost)
-                        ))
-                    }
-
-                    if (totalCost > 0L && supplierId.isNotEmpty()) {
-                        val payment = Payment(
+                    if (!payLater) {
+                        val transaction = com.app.muzzutech.data.model.PaymentTransaction(
+                            paymentId = paymentId,
                             personType = "SUPPLIER",
                             personMobile = supplierId,
                             personName = supplierName,
-                            description = "Parts: $partName x $quantity (Repair #$repairEntryId)",
-                            totalAmount = totalCost,
-                            paidAmount = if (payLater) 0L else totalCost,
-                            dueAmount = if (payLater) totalCost else 0L,
-                            status = if (payLater) "UNPAID" else "PAID",
-                            linkedPartId = partId
+                            amount = totalCost,
+                            direction = "OUT",
+                            transactionType = "EXPENSE",
+                            paymentMode = "CASH",
+                            note = "Immediate payment for $partName x $quantity"
                         )
-                        val paymentId = paymentDao.insert(payment)
-
-                        // If paid immediately, create a transaction record
-                        if (!payLater) {
-                            val transaction = com.app.muzzutech.data.model.PaymentTransaction(
-                                paymentId = paymentId,
-                                personType = "SUPPLIER",
-                                personMobile = supplierId,
-                                personName = supplierName,
-                                amount = totalCost,
-                                direction = "OUT",
-                                transactionType = "EXPENSE",
-                                paymentMode = "CASH",
-                                note = "Immediate payment for $partName x $quantity"
-                            )
-                            database.paymentTransactionDao().insert(transaction)
-                        }
+                        database.paymentTransactionDao().insert(transaction)
                     }
                 }
-            } finally {
-                onComplete()
             }
+        } finally {
+            onComplete()
         }
     }
 
-    fun deletePart(part: SparePartPurchase) {
-        viewModelScope.launch {
-            val repairId = part.repairEntryId ?: return@launch
-            database.withTransaction {
-                val entry = repairRepository.getEntryById(repairId)
-                val partCost = part.purchasePrice * part.quantity
-                purchaseDao.delete(part)
-                val linkedPayment = paymentDao.getPaymentByLinkedPartId(part.id)
-                if (linkedPayment != null) {
-                    paymentDao.delete(linkedPayment)
-                }
-                // Subtract deleted part cost from the RepairEntry aggregate
-                if (entry != null && partCost > 0L) {
-                    repairRepository.update(entry.copy(
-                        sparePartPurchasePrice = (entry.sparePartPurchasePrice - partCost).coerceAtLeast(0L)
-                    ))
-                }
+    suspend fun deletePart(part: SparePartPurchase) {
+        val repairId = part.repairEntryId ?: return
+        database.withTransaction {
+            val entry = repairRepository.getEntryById(repairId)
+            val partCost = part.purchasePrice * part.quantity
+            purchaseDao.delete(part)
+            val linkedPayment = paymentDao.getPaymentByLinkedPartId(part.id)
+            if (linkedPayment != null) {
+                paymentDao.delete(linkedPayment)
+            }
+            if (entry != null && partCost > 0L) {
+                repairRepository.update(entry.copy(
+                    sparePartPurchasePrice = (entry.sparePartPurchasePrice - partCost).coerceAtLeast(0L)
+                ))
             }
         }
     }

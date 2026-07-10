@@ -87,7 +87,7 @@ class CustomerDetailFragment : Fragment(R.layout.fragment_customer_detail) {
                     
                     db.paymentDao().getPaymentsByMobile(mobile).collectLatest { payments ->
                         val totalDue = payments.sumOf { it.dueAmount }
-                        binding.tvBalanceDue.text = com.app.muzzutech.utils.PriceUtils.formatPrice(totalDue)
+                        binding.tvBalanceDue.text = com.app.muzzutech.utils.PriceUtils.formatDueBalance(totalDue)
                     }
 
                     db.paymentTransactionDao().getTransactionsByMobile(mobile).collectLatest { transactions ->

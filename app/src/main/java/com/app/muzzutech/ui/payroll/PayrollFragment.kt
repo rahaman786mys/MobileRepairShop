@@ -66,6 +66,8 @@ import com.app.muzzutech.utils.DateUtils
 import com.app.muzzutech.utils.PriceUtils
 import kotlin.math.roundToLong
 
+import kotlinx.coroutines.launch
+
 class PayrollFragment : Fragment() {
 
     private val viewModel: PayrollViewModel by viewModels()
@@ -92,6 +94,7 @@ private fun PayrollScreen(vm: PayrollViewModel) {
     val salaries by vm.salaryPayments.collectAsStateWithLifecycle()
     val busy by vm.busy.collectAsStateWithLifecycle()
     var payingSm by remember { mutableStateOf<ServiceMan?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
 
     Scaffold(
         containerColor = Color.Transparent
@@ -167,6 +170,24 @@ private fun PayrollScreen(vm: PayrollViewModel) {
                     item { Spacer(Modifier.height(40.dp)) }
                 }
             }
+        }
+
+        payingSm?.let { sm ->
+            val smStats = stats[sm.id]
+            val salary = salaries[sm.id]
+            PaySalaryDialog(
+                serviceman = sm,
+                workedDays = smStats?.workedDays ?: 0.0,
+                computedAmount = salary?.computedAmount ?: PayrollMath.computePayable(sm.monthlySalary, sm.perDaySalary, smStats?.workedDays ?: 0.0),
+                currentPaid = salary?.paidAmount ?: 0L,
+                onDismiss = { payingSm = null },
+                onConfirm = { amount, mode ->
+                    scope.launch {
+                        vm.generateOrUpdateSalary(sm.id, amount, "Salary payout", mode)
+                        payingSm = null
+                    }
+                }
+            )
         }
     }
 }

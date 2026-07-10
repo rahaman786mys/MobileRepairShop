@@ -90,7 +90,7 @@ class PayDuesFragment : Fragment(R.layout.fragment_pay_dues) {
                 if (payment != null) {
                     val modeStr = when (mode) { 1 -> "ONLINE"; 2 -> "ONLINE"; else -> "CASH" }
                     viewModel.recordPayment(payment, amount, modeStr, note)
-                    Snackbar.make(binding.root, "Payment recorded!", Snackbar.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Payment recorded!", Toast.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 }
             }
