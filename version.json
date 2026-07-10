@@ -1,7 +1,7 @@
 {
-  "versionCode": 1005012,
-  "versionName": "1.5.12",
-  "releaseNotes": "Welcome to v1.5.12!\n- What's New popup now appears after every update\n- Smooth flow Entry > Spare Parts > Handover\n- Quotation + Common Faults removed for simplicity\n- Charge + Advance captured at entry\n- Time-based greeting on dashboard\n\nTap Let's Go to continue.",
-  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/releases/download/v1.5.10/app-debug-v1.5.10.apk",
-  "forceUpdate": false
+  "versionCode": 1783650626,
+  "versionName": "1.5.14-b1783650626
+mapping-${variant.versionName}.txt",
+  "downloadUrl": "https://github.com/rahaman786mys/MobileRepairShop/raw/master/builds/app-debug.apk",
+  "releaseNotes": "Strong Update: Automatic build from master branch. Includes latest features and fixes."
 }
