@@ -203,17 +203,42 @@ object UpdateManager {
   }
 
   fun installApk(context: Context, apkFile: File, launcher: androidx.activity.result.ActivityResultLauncher<Intent>? = null) {
-    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", apkFile)
-    val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-      data = uri
-      putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-      putExtra(Intent.EXTRA_RETURN_RESULT, true)
-      addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-      addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    if (!apkFile.exists()) {
+        Toast.makeText(context, "Update file not found", Toast.LENGTH_SHORT).show()
+        return
     }
+
+    // Check for "Install Unknown Apps" permission on Android 8.0+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (!context.packageManager.canRequestPackageInstalls()) {
+            Toast.makeText(context, "Please allow 'Install Unknown Apps' for MuZZu Tech", Toast.LENGTH_LONG).show()
+            val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                data = android.net.Uri.parse("package:${context.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+            return
+        }
+    }
+
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", apkFile)
+    
+    // Modern installation intent (works better on API 30+)
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, "application/vnd.android.package-archive")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    }
+    
+    // Explicitly target the system package installer to avoid any "ambiguous intent" errors
+    // Note: On some devices, there might be multiple installers, but let's try this first
+    // Actually, setting the type should be enough for the system to pick the right one.
+    
     try {
       launcher?.launch(intent) ?: context.startActivity(intent)
     } catch (e: Exception) {
+      Log.e(TAG, "Installation failed", e)
       Toast.makeText(
           context,
           context.getString(R.string.installation_failed, e.message),

@@ -27,9 +27,9 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          VERSION_NAME="1.5.14"
-          VERSION_CODE=$(date +%s)
-          sed -i "s/versionCode [0-9]*/versionCode $VERSION_CODE/" app/build.gradle
+          TIMESTAMP=$(date +%s)
+          VERSION_NAME="1.5.14-b$TIMESTAMP"
+          sed -i "s/versionCode [0-9]*/versionCode $TIMESTAMP/" app/build.gradle
           sed -i "s/versionName \".*\"/versionName \"$VERSION_NAME\"/" app/build.gradle
           ./gradlew assembleDebug
 
