@@ -50,7 +50,7 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         try {
             val account = task.getResult(ApiException::class.java)
             currentGoogleAccount = account
-            startSync()
+            if (pendingRestore) startRestore() else startSync()
         } catch (e: ApiException) {
             val msg = when (e.statusCode) {
                 10 -> "Configuration Error (Code 10). SHA-1 not registered."
@@ -251,14 +251,8 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         } ?: false
 
         if (!hasDriveScope) {
-            GoogleSignIn.requestScopes(account, Scope("https://www.googleapis.com/auth/drive.appdata"))
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        onReady()
-                    } else {
-                        Snackbar.make(binding.root, R.string.drive_scope_message, Snackbar.LENGTH_LONG).show()
-                    }
-                }
+            pendingRestore = onReady == ::startRestore
+            signInWithGoogle(restoreAfterSignIn = pendingRestore)
         } else {
             onReady()
         }

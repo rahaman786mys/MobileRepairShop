@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.sqlcipher.database.SupportFactory
 import okhttp3.Headers
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -251,7 +251,7 @@ object BackupManager {
         accessToken: String,
         fileName: String,
         file: File
-    ): Pair<String?, String> = withContext(Dispatchers.IO) {
+    ): Pair<Boolean, String> = withContext(Dispatchers.IO) {
         try {
             val metadata = JSONObject().apply {
                 put("name", fileName)
@@ -259,20 +259,14 @@ object BackupManager {
             }
 
             val multipartBody = MultipartBody.Builder()
-                .setType(MediaType.parse("multipart/related"))
+                .setType("multipart/related".toMediaType())
                 .addPart(
-                    Headers.of("Content-Type", "application/json; charset=UTF-8"),
-                    RequestBody.create(
-                        MediaType.parse("application/json; charset=UTF-8"),
-                        metadata.toString()
-                    )
+                    Headers.headersOf("Content-Type", "application/json; charset=UTF-8"),
+                    RequestBody.create("application/json; charset=UTF-8".toMediaType(), metadata.toString())
                 )
                 .addPart(
-                    Headers.of("Content-Type", "application/octet-stream"),
-                    RequestBody.create(
-                        MediaType.parse("application/octet-stream"),
-                        file
-                    )
+                    Headers.headersOf("Content-Type", "application/octet-stream"),
+                    RequestBody.create("application/octet-stream".toMediaType(), file)
                 )
                 .build()
 
@@ -285,14 +279,13 @@ object BackupManager {
             val response = driveClient.newCall(request).execute()
             val body = response.body?.string() ?: ""
             if (response.isSuccessful) {
-                val fileId = JSONObject(body).optString("id", null)
-                Pair(fileId, null)
+                Pair(true, "Upload successful")
             } else {
-                Pair(null, "Upload failed: HTTP ${response.code} - $body")
+                Pair(false, "Upload failed: HTTP ${response.code} - $body")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Upload to Drive failed", e)
-            Pair(null, e.message ?: "Upload error")
+            Pair(false, e.message ?: "Upload error")
         }
     }
 
