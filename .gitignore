@@ -43,3 +43,7 @@ debug_keystore_base64.txt
 # Large dumps / heap snapshots
 *.hprof
 *.prof
+
+# Founder Console — LOCAL ONLY, NEVER PUSH
+founder-dashboard.html
+start-server.bat

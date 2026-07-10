@@ -28,9 +28,11 @@ import java.io.IOException
         Attendance::class,
         SalaryPayment::class,
         Expense::class,
-        LedgerAlert::class
+        LedgerAlert::class,
+        Owner::class,
+        AuthSession::class
     ],
-    version = 19, // Bumped from 18: add lastSyncEmail to user_profile
+    version = 20,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -50,6 +52,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun salaryDao(): SalaryDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun ledgerAlertDao(): LedgerAlertDao
+    abstract fun ownerDao(): OwnerDao
+    abstract fun authSessionDao(): AuthSessionDao
 
     companion object {
         @Volatile
@@ -319,6 +323,36 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_19_20: Migration = object : Migration(19, 20) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""CREATE TABLE IF NOT EXISTS owners (
+                    id TEXT NOT NULL PRIMARY KEY,
+                    businessName TEXT NOT NULL DEFAULT '',
+                    ownerName TEXT NOT NULL DEFAULT '',
+                    phoneNumber TEXT NOT NULL DEFAULT '',
+                    email TEXT NOT NULL DEFAULT '',
+                    googleAccountId TEXT,
+                    createdAt INTEGER NOT NULL,
+                    subscriptionTier TEXT NOT NULL DEFAULT 'FREE',
+                    subscriptionExpiresAt INTEGER
+                )""".trimIndent())
+                db.execSQL("""CREATE TABLE IF NOT EXISTS auth_sessions (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    userId TEXT NOT NULL DEFAULT '',
+                    userType TEXT NOT NULL DEFAULT '',
+                    firebaseUid TEXT NOT NULL DEFAULT '',
+                    loginTimestamp INTEGER NOT NULL,
+                    isActive INTEGER NOT NULL DEFAULT 1
+                )""".trimIndent())
+                db.execSQL("ALTER TABLE service_men ADD COLUMN ownerId TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE service_men ADD COLUMN passwordHash TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE service_men ADD COLUMN workerAuthUid TEXT")
+                db.execSQL("ALTER TABLE service_men ADD COLUMN canLogin INTEGER NOT NULL DEFAULT 1")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_service_men_ownerId ON service_men(ownerId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_auth_sessions_firebaseUid ON auth_sessions(firebaseUid)")
+            }
+        }
+
         fun getDatabase(context: Context, passphrase: ByteArray? = null): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val dbFile = context.getDatabasePath("mobile_repair_shop_db")
@@ -332,7 +366,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "mobile_repair_shop_db"
                 )
                     .apply { if (factory != null) openHelperFactory(factory) }
-                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20)
                     .build()
                 INSTANCE = instance
                 instance

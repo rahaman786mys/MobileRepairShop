@@ -30,4 +30,16 @@ interface ServiceManDao {
 
     @Query("SELECT COUNT(*) FROM service_men")
     suspend fun getCount(): Int
+
+    @Query("SELECT * FROM service_men WHERE ownerId = :ownerId AND mobile = :phone")
+    suspend fun getWorkerByPhone(ownerId: String, phone: String): ServiceMan?
+
+    @Query("SELECT * FROM service_men WHERE ownerId = :ownerId AND canLogin = 1 ORDER BY name ASC")
+    fun getActiveWorkersByOwner(ownerId: String): Flow<List<ServiceMan>>
+
+    @Query("SELECT COUNT(*) FROM service_men WHERE ownerId = :ownerId")
+    suspend fun getWorkerCountByOwner(ownerId: String): Int
+
+    @Query("SELECT * FROM service_men WHERE mobile = :phone")
+    suspend fun findByPhone(phone: String): ServiceMan?
 }
