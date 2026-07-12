@@ -1,112 +1,72 @@
 package com.app.muzzutech.utils
 
 import android.util.Log
-import com.app.muzzutech.BuildConfig
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
+import com.app.muzzutech.auth.WhatsAppApiManager
+import com.app.muzzutech.utils.crpto.SecurePrefs
+import kotlin.random.Random
 
 /**
- * Real OTP Integration using otp.dev
+ * OTP generation, sending (via Fast2SMS SMS), and local verification.
+ * No external OTP service needed.
  */
 object OtpManager {
 
-    private const val API_KEY = BuildConfig.OTP_API_KEY
-    private const val SENDER_ID = BuildConfig.OTP_SENDER_ID
-    private const val TEMPLATE_ID = BuildConfig.OTP_TEMPLATE_ID
-    private const val BASE_URL = "https://api.otp.dev/v1"
+    private const val TAG = "OtpManager"
+    private const val OTP_LENGTH = 4
+    private const val OTP_VALIDITY_MS = 5 * 60 * 1000L // 5 minutes
 
-    private val client = OkHttpClient()
-    private val JSON = "application/json; charset=utf-8".toMediaType()
-    private val gson = Gson()
-
-    @Volatile
-    private var currentVerificationId: String? = null
+    private var currentOtp: String? = null
+    private var otpGeneratedAt: Long = 0
+    private var currentPhone: String? = null
 
     fun sendOtp(phone: String, callback: (Boolean, String?) -> Unit) {
-        // Format phone: ensuring it starts with country code without +
-        val formattedPhone = if (phone.startsWith("+")) phone.substring(1) else if (phone.length == 10) "91$phone" else phone
+        val formattedPhone = if (phone.startsWith("+91")) phone.removePrefix("+")
+            else if (phone.length == 10) "91$phone"
+            else phone
 
-        val dataObj = JsonObject().apply {
-            addProperty("channel", "sms")
-            addProperty("sender", SENDER_ID)
-            addProperty("phone", formattedPhone)
-            addProperty("template", TEMPLATE_ID)
-            addProperty("code_length", 4)
-        }
+        // Generate 4-digit OTP
+        val otp = String.format("%04d", Random.nextInt(10000))
+        currentOtp = otp
+        currentPhone = formattedPhone
+        otpGeneratedAt = System.currentTimeMillis()
 
-        val rootObj = JsonObject().apply {
-            add("data", dataObj)
-        }
+        Log.d(TAG, "Generated OTP for $formattedPhone: $otp")
 
-        val request = Request.Builder()
-            .url("$BASE_URL/verifications")
-            .post(rootObj.toString().toRequestBody(JSON))
-            .addHeader("X-OTP-Key", API_KEY)
-            .addHeader("accept", "application/json")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e("OtpManager", "Failed to send OTP", e)
-                callback(false, "Network Error: ${e.message}")
+        // Send via WhatsApp/SMS
+        WhatsAppApiManager.sendOtp("+$formattedPhone", otp) { success, provider ->
+            if (success) {
+                Log.d(TAG, "OTP sent via $provider")
+                callback(true, null)
+            } else {
+                Log.e(TAG, "Failed to send OTP via any provider")
+                callback(false, "Failed to send OTP. Check network and messaging config.")
             }
-
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                if (response.isSuccessful && body != null) {
-                    try {
-                        val jsonResponse = gson.fromJson(body, JsonObject::class.java)
-                        val verification = jsonResponse.getAsJsonObject("data")
-                        currentVerificationId = verification.get("id").asString
-                        callback(true, null)
-                    } catch (e: Exception) {
-                        callback(false, "Parsing Error")
-                    }
-                } else {
-                    callback(false, "API Error: ${response.code}")
-                }
-            }
-        })
+        }
     }
 
     fun verifyOtp(code: String, callback: (Boolean, String?) -> Unit) {
-        val verificationId = currentVerificationId
-        if (verificationId == null) {
-            callback(false, "No active verification found")
+        val storedOtp = currentOtp
+        val storedPhone = currentPhone
+        val generatedAt = otpGeneratedAt
+
+        if (storedOtp == null || storedPhone == null) {
+            callback(false, "No OTP was sent. Request a new one.")
             return
         }
 
-        val dataObj = JsonObject().apply {
-            addProperty("code", code)
+        if (System.currentTimeMillis() - generatedAt > OTP_VALIDITY_MS) {
+            currentOtp = null
+            callback(false, "OTP expired. Request a new one.")
+            return
         }
 
-        val rootObj = JsonObject().apply {
-            add("data", dataObj)
+        if (code == storedOtp) {
+            currentOtp = null // invalidate after successful verification
+            callback(true, null)
+        } else {
+            callback(false, "Invalid OTP. Try again.")
         }
-
-        val request = Request.Builder()
-            .url("$BASE_URL/verifications/$verificationId/verify")
-            .post(rootObj.toString().toRequestBody(JSON))
-            .addHeader("X-OTP-Key", API_KEY)
-            .addHeader("accept", "application/json")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback(false, "Network Error")
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    callback(true, null)
-                } else {
-                    callback(false, "Invalid OTP Code")
-                }
-            }
-        })
     }
+
+    fun getCurrentPhone(): String? = currentPhone
 }

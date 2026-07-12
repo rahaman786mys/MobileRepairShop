@@ -104,7 +104,14 @@ class SplashActivity : AppCompatActivity() {
 
     private fun proceedToMain() {
         handler.postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
+            val prefs = SecurePrefs.authPrefs(this)
+            val isLoggedIn = prefs.getBoolean("is_logged_in", false)
+            val intent = if (isLoggedIn) {
+                Intent(this, MainActivity::class.java)
+            } else {
+                Intent(this, MainActivity::class.java) // nav graph will show login as start
+            }
+            startActivity(intent)
             finish()
         }, 300)
     }

@@ -60,6 +60,16 @@ android {
         def updateCheckUrl = props.getProperty('update.check.url',
             'https://raw.githubusercontent.com/rahaman786mys/MobileRepairShop/master/version.json')
         buildConfigField "String", "UPDATE_CHECK_URL", "\"$updateCheckUrl\""
+
+        // AiSensy WhatsApp API
+        def aisensyApiKey = props.getProperty('aisensy.api.key', '')
+        buildConfigField "String", "AISENSY_API_KEY", "\"$aisensyApiKey\""
+        def aisensyCampaign = props.getProperty('aisensy.campaign.name', '')
+        buildConfigField "String", "AISENSY_CAMPAIGN_NAME", "\"$aisensyCampaign\""
+
+        // Fast2SMS SMS API
+        def fast2smsApiKey = props.getProperty('fast2sms.api.key', '')
+        buildConfigField "String", "FAST2SMS_API_KEY", "\"$fast2smsApiKey\""
     }
 
     signingConfigs {

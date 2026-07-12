@@ -1,179 +1,377 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/muzzu_surface"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="32dp">
+    android:background="@color/muzzu_surface">
 
-    <!-- Premium Branding Icon -->
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/ivLogo"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:background="@drawable/bg_circle_sunken"
-        android:padding="16dp"
-        android:src="@drawable/ic_service_premium"
-        android:contentDescription="MuZZu Tech logo"
-        app:tint="@color/muzzu_accent"
-        android:layout_marginBottom="24dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MuZZu Tech"
-        style="@style/TextAppearance.MuZZu.Display"
-        android:textSize="32sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="The Professional Repair Suite"
-        style="@style/TextAppearance.MuZZu.Label"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="48dp" />
-
-    <!-- Google Login Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/btnGoogleSync"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        style="@style/Widget.MuZZu.Card">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp">
 
-        <LinearLayout
+        <!-- Logo -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="@drawable/bg_circle_sunken"
+            android:padding="14dp"
+            android:src="@drawable/ic_service_premium"
+            android:contentDescription="MuZZu Tech logo"
+            app:tint="@color/muzzu_accent"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MuZZu Tech"
+            style="@style/TextAppearance.MuZZu.Display"
+            android:textSize="30sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="The Professional Repair Suite"
+            style="@style/TextAppearance.MuZZu.Label"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="28dp" />
+
+        <!-- Register / Login Toggle -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleAuthMode"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp">
+            android:layout_height="48dp"
+            android:layout_marginBottom="28dp"
+            app:singleSelection="true"
+            app:checkedButton="@id/btnToggleRegister">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_google" />
+            <Button
+                android:id="@+id/btnToggleRegister"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Register" />
+
+            <Button
+                android:id="@+id/btnToggleLogin"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Login" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- === GOOGLE === -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnGoogleSync"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:clickable="true"
+            android:focusable="true"
+            style="@style/Widget.MuZZu.Card"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_google" />
+
+                <TextView
+                    android:id="@+id/tvGoogleLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Continue with Google"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textStyle="bold"
+                    android:textColor="@color/muzzu_text_main" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === WHATSAPP (disabled) === -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnWhatsApp"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:alpha="0.5"
+            style="@style/Widget.MuZZu.Card"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
+
+                <TextView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:gravity="center"
+                    android:text="&#xf232;"
+                    android:textSize="18sp"
+                    android:textColor="#25D366" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="14dp">
+
+                    <TextView
+                        android:id="@+id/tvWhatsAppLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="WhatsApp"
+                        style="@style/TextAppearance.MuZZu.Body"
+                        android:textStyle="bold"
+                        android:textColor="@color/muzzu_text_main" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Coming soon"
+                        style="@style/TextAppearance.MuZZu.Label"
+                        android:textSize="11sp"
+                        android:textColor="#999999" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === PHONE OTP === -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnPhoneOtp"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:clickable="true"
+            android:focusable="true"
+            style="@style/Widget.MuZZu.Card"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
+
+                <TextView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:gravity="center"
+                    android:text="📱"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvPhoneOtpLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Phone Number OTP"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textStyle="bold"
+                    android:textColor="@color/muzzu_text_main" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === WORKER SECTION (Login mode only) === -->
+        <LinearLayout
+            android:id="@+id/layoutWorker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:text="— OR WORKER LOGIN —"
+                style="@style/TextAppearance.MuZZu.Label"
+                android:textSize="10sp"
+                android:textColor="#888888" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilWorkerPhone"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email or Phone"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeColor="@color/muzzu_border">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etWorkerPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilWorkerPassword"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="Password"
+                app:passwordToggleEnabled="true"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeColor="@color/muzzu_border">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etWorkerPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWorkerLogin"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:text="Login as Worker"
+                style="@style/Widget.MuZZu.Button" />
+        </LinearLayout>
+
+        <!-- === PHONE INPUT SECTION (when Phone OTP is clicked) === -->
+        <LinearLayout
+            android:id="@+id/layoutPhoneInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:text="— ENTER PHONE NUMBER —"
+                style="@style/TextAppearance.MuZZu.Label"
+                android:textSize="10sp"
+                android:textColor="#888888" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilMobileNumber"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mobile Number"
+                app:prefixText="+91 "
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeColor="@color/muzzu_border">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMobileNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:maxLength="10" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSendOtp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:text="Send OTP"
+                style="@style/Widget.MuZZu.Button" />
+        </LinearLayout>
+
+        <!-- === OTP VERIFICATION SECTION === -->
+        <LinearLayout
+            android:id="@+id/layoutOtpInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvOtpSentTo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Sign in with Google"
-                style="@style/TextAppearance.MuZZu.Body"
-                android:textStyle="bold"
-                android:textColor="@color/muzzu_text_main" />
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="OTP sent"
+                style="@style/TextAppearance.MuZZu.Body" />
+
+            <TextView
+                android:id="@+id/tvOtpPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
+                android:text=""
+                style="@style/TextAppearance.MuZZu.Label"
+                android:textSize="14sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter 4-digit code"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeColor="@color/muzzu_border">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etOtp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:textAlignment="center"
+                    android:letterSpacing="0.2"
+                    android:textSize="20sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVerifyOtp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:text="Verify &amp; Continue"
+                style="@style/Widget.MuZZu.Button" />
+
+            <TextView
+                android:id="@+id/tvResendOtp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:text="Resend Code"
+                style="@style/TextAppearance.MuZZu.Label"
+                android:textColor="@color/muzzu_accent" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="32dp"
-        android:text="— OR ACCESS VIA WHATSAPP —"
-        style="@style/TextAppearance.MuZZu.Label"
-        android:textSize="10sp" />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            android:indeterminateTint="@color/muzzu_accent"/>
 
-    <!-- WhatsApp / Phone Input -->
-    <LinearLayout
-        android:id="@+id/layoutMobileInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilMobileNumber"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="WhatsApp Number"
-            app:prefixText="+91 "
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeColor="@color/muzzu_border">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etMobileNumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone"
-                android:maxLength="10" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSendOtp"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="16dp"
-            android:text="Send Secure OTP"
-            style="@style/Widget.MuZZu.Button"
-            app:backgroundTint="@color/muzzu_bg"
-            android:textColor="@color/muzzu_text_main" />
     </LinearLayout>
-
-    <!-- OTP Section (Hidden) -->
-    <LinearLayout
-        android:id="@+id/layoutOtpInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/tvOtpSentTo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="16dp"
-            android:text="Secure code sent"
-            style="@style/TextAppearance.MuZZu.Body" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter 6-digit code"
-            app:boxStrokeWidth="1dp"
-            app:boxStrokeColor="@color/muzzu_border">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOtp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLength="6"
-                android:textAlignment="center"
-                android:letterSpacing="0.2"
-                android:textSize="20sp" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnVerifyOtp"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="16dp"
-            android:text="Verify &amp; Enter"
-            style="@style/Widget.MuZZu.Button" />
-
-        <TextView
-            android:id="@+id/tvResendOtp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="24dp"
-            android:text="Resend Code"
-            style="@style/TextAppearance.MuZZu.Label"
-            android:textColor="@color/muzzu_accent" />
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginTop="32dp"
-        android:visibility="gone"
-        android:indeterminateTint="@color/muzzu_accent"/>
-
-</LinearLayout>
+</ScrollView>
