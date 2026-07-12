@@ -38,8 +38,13 @@ object OtpManager {
                 Log.d(TAG, "OTP sent via $provider")
                 callback(true, null)
             } else {
-                Log.e(TAG, "Failed to send OTP via any provider")
-                callback(false, "Failed to send OTP. Check network and messaging config.")
+                val errMsg = if (provider == "unconfigured") {
+                    "SMS not configured. Add Fast2SMS API key in settings."
+                } else {
+                    "Failed to send. Check Fast2SMS balance/api key."
+                }
+                Log.e(TAG, errMsg)
+                callback(false, errMsg)
             }
         }
     }

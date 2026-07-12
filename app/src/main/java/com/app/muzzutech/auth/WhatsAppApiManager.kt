@@ -211,12 +211,27 @@ object WhatsAppApiManager {
     ) {
         val cleanPhone = phone.replace("+", "").replace(" ", "")
 
+        // Try transactional route first, fallback to promotional
+        trySendSms(cleanPhone, message, "t") { ok ->
+            if (ok) onResult(true)
+            else trySendSms(cleanPhone, message, "p") { ok2 ->
+                onResult(ok2)
+            }
+        }
+    }
+
+    private fun trySendSms(
+        numbers: String,
+        message: String,
+        route: String,
+        onResult: (success: Boolean) -> Unit
+    ) {
         val json = JSONObject().apply {
             put("sender_id", "FSTSMS")
             put("message", message)
             put("language", "english")
-            put("route", "p")
-            put("numbers", cleanPhone)
+            put("route", route)
+            put("numbers", numbers)
         }
 
         val request = Request.Builder()
@@ -228,15 +243,16 @@ object WhatsAppApiManager {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "Fast2SMS failed", e)
+                Log.e(TAG, "Fast2SMS route=$route failed", e)
                 onResult(false)
             }
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body?.string()
-                Log.d(TAG, "Fast2SMS: $body")
-                // Fast2SMS returns {"return":true,...} on success
                 val success = try {
-                    JSONObject(body ?: "{}").optBoolean("return", false)
+                    val obj = JSONObject(body ?: "{}")
+                    val ret = obj.optBoolean("return", false)
+                    if (!ret) Log.w(TAG, "Fast2SMS route=$route returned false: ${obj.optString("message", "")}")
+                    ret
                 } catch (e: Exception) {
                     response.isSuccessful
                 }
