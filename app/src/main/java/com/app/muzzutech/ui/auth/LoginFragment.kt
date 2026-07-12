@@ -260,11 +260,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
                 db.ownerDao().upsert(owner)
 
-                if (firebaseUid.isNotEmpty()) {
-                    FirestoreSyncManager.syncOwner(owner)
-                    FirestoreSyncManager.logLoginEvent(phone, "owner", ownerId, "success", "phone_otp", "Phone Register")
-                } else {
-                    Log.w("LoginFragment", "Firestore sync skipped — not authenticated")
+                FirestoreSyncManager.syncOwner(owner)
+                FirestoreSyncManager.logLoginEvent(phone, "owner", ownerId, "success", "phone_otp", "Phone Register")
+                activity?.runOnUiThread {
+                    val status = if (firebaseUid.isNotEmpty()) "Synced to cloud" else "Saved locally"
+                    Toast.makeText(requireContext(), "Registration $status", Toast.LENGTH_SHORT).show()
                 }
 
                 val prefs = SecurePrefs.authPrefs(requireContext())
