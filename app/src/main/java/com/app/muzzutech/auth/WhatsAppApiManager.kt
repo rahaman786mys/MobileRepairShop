@@ -212,26 +212,28 @@ object WhatsAppApiManager {
         val cleanPhone = phone.replace("+", "").replace(" ", "")
 
         val json = JSONObject().apply {
-            put("phone", cleanPhone)
             put("message", message)
-            put("key", "textbelt")
+            put("route", "q")
+            put("numbers", cleanPhone)
         }
 
         val request = Request.Builder()
-            .url("https://textbelt.com/text")
+            .url("https://www.fast2sms.com/dev/bulkV2")
             .post(json.toString().toRequestBody(JSON_MEDIA))
+            .addHeader("Authorization", fast2smsKey)
+            .addHeader("Content-Type", "application/json")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "TextBelt failed", e)
+                Log.e(TAG, "Fast2SMS failed", e)
                 onResult(false)
             }
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body?.string()
-                Log.d(TAG, "TextBelt: $body")
                 val success = try {
-                    JSONObject(body ?: "{}").optBoolean("success", false)
+                    val obj = JSONObject(body ?: "{}")
+                    obj.optBoolean("return", false)
                 } catch (e: Exception) {
                     response.isSuccessful
                 }

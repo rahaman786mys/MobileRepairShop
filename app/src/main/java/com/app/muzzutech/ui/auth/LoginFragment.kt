@@ -94,19 +94,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
 
         binding.tvResendOtp.setOnClickListener {
-            val act = activity ?: return@setOnClickListener
-            binding.progressBar.isVisible = true
-            OtpManager.resendOtp(act) { success, error ->
-                activity?.runOnUiThread {
-                    if (!isAdded) return@runOnUiThread
-                    binding.progressBar.isVisible = false
-                    if (success) {
-                        Toast.makeText(requireContext(), "OTP resent", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), error ?: "Resend failed", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
+            val phone = binding.etMobileNumber.text.toString().trim()
+            if (phone.length == 10) sendOtp(phone)
         }
 
         binding.btnWorkerLogin.setOnClickListener { workerLogin() }
@@ -143,11 +132,10 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun sendOtp(mobile: String) {
-        val act = activity ?: return
         binding.progressBar.isVisible = true
         binding.btnSendOtp.isEnabled = false
         binding.tilMobileNumber.error = null
-        OtpManager.sendOtp(act, mobile) { success, error ->
+        OtpManager.sendOtp(mobile) { success, error ->
             activity?.runOnUiThread {
                 if (!isAdded) return@runOnUiThread
                 binding.progressBar.isVisible = false
