@@ -211,48 +211,27 @@ object WhatsAppApiManager {
     ) {
         val cleanPhone = phone.replace("+", "").replace(" ", "")
 
-        // Try transactional route first, fallback to promotional
-        trySendSms(cleanPhone, message, "t") { ok ->
-            if (ok) onResult(true)
-            else trySendSms(cleanPhone, message, "p") { ok2 ->
-                onResult(ok2)
-            }
-        }
-    }
-
-    private fun trySendSms(
-        numbers: String,
-        message: String,
-        route: String,
-        onResult: (success: Boolean) -> Unit
-    ) {
         val json = JSONObject().apply {
-            put("sender_id", "FSTSMS")
+            put("phone", cleanPhone)
             put("message", message)
-            put("language", "english")
-            put("route", route)
-            put("numbers", numbers)
+            put("key", "textbelt")
         }
 
         val request = Request.Builder()
-            .url("https://www.fast2sms.com/dev/bulkV2")
+            .url("https://textbelt.com/text")
             .post(json.toString().toRequestBody(JSON_MEDIA))
-            .addHeader("authorization", fast2smsKey)
-            .addHeader("Content-Type", "application/json")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "Fast2SMS route=$route failed", e)
+                Log.e(TAG, "TextBelt failed", e)
                 onResult(false)
             }
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body?.string()
+                Log.d(TAG, "TextBelt: $body")
                 val success = try {
-                    val obj = JSONObject(body ?: "{}")
-                    val ret = obj.optBoolean("return", false)
-                    if (!ret) Log.w(TAG, "Fast2SMS route=$route returned false: ${obj.optString("message", "")}")
-                    ret
+                    JSONObject(body ?: "{}").optBoolean("success", false)
                 } catch (e: Exception) {
                     response.isSuccessful
                 }
