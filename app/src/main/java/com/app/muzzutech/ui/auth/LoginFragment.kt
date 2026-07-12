@@ -15,6 +15,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.app.muzzutech.BuildConfig
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.auth.AuthManager
@@ -28,7 +29,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
@@ -146,7 +149,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private fun sendOtp(mobile: String) {
         pendingPhone = mobile
-        // Request SMS permission if not granted
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.SEND_SMS)
             != PackageManager.PERMISSION_GRANTED
         ) {
@@ -154,6 +156,24 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             return
         }
 
+        if (isRegisterMode) {
+            lifecycleScope.launch {
+                val db = MobileRepairApp.instance.database
+                val existing = db.ownerDao().getOwnerByPhone("91$mobile")
+                if (existing != null) {
+                    activity?.runOnUiThread {
+                        Toast.makeText(requireContext(), "Number already registered. Please login.", Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
+                }
+                proceedWithOtp(mobile)
+            }
+        } else {
+            proceedWithOtp(mobile)
+        }
+    }
+
+    private fun proceedWithOtp(mobile: String) {
         binding.progressBar.isVisible = true
         binding.btnSendOtp.isEnabled = false
         binding.tilMobileNumber.error = null
@@ -186,7 +206,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     if (isRegisterMode) {
                         registerWithPhone(phone)
                     } else {
-                        loginSuccess(phone)
+                        loginWithPhone(phone)
                     }
                 } else {
                     Toast.makeText(requireContext(), error ?: "Invalid OTP", Toast.LENGTH_SHORT).show()
@@ -198,21 +218,86 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun registerWithPhone(phone: String) {
         lifecycleScope.launch {
             try {
-                val ownerId = "phone_${phone}_${System.currentTimeMillis()}"
+                val db = MobileRepairApp.instance.database
+                val existingOwner = db.ownerDao().getOwnerByPhone(phone)
+                if (existingOwner != null) {
+                    activity?.runOnUiThread {
+                        Toast.makeText(requireContext(), "Number already registered. Please login.", Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
+                }
+
+                val auth = FirebaseAuth.getInstance()
+                val authEmail = "phone_${phone}@muzzutech.online"
+                val authPass = phone.substring(phone.length.coerceAtLeast(8) - 8)
+
+                var firebaseUid = ""
+                try {
+                    val authResult = auth.signInWithEmailAndPassword(authEmail, authPass).await()
+                    firebaseUid = authResult.user?.uid ?: ""
+                } catch (e1: Exception) {
+                    try {
+                        val authResult = auth.createUserWithEmailAndPassword(authEmail, authPass).await()
+                        firebaseUid = authResult.user?.uid ?: ""
+                    } catch (e2: Exception) {
+                        try {
+                            val authResult = auth.signInAnonymously().await()
+                            firebaseUid = authResult.user?.uid ?: ""
+                        } catch (e3: Exception) {
+                            Log.w("LoginFragment", "All Firebase Auth methods failed — continuing local: $e3")
+                        }
+                    }
+                }
+
+                val ownerId = if (firebaseUid.isNotEmpty()) firebaseUid else "phone_${phone}_${System.currentTimeMillis()}"
                 val owner = Owner(
                     id = ownerId,
                     ownerName = "User",
                     phoneNumber = phone,
+                    email = authEmail,
                     createdAt = System.currentTimeMillis()
                 )
-                val db = MobileRepairApp.instance.database
+
                 db.ownerDao().upsert(owner)
-                FirestoreSyncManager.syncOwner(owner)
-                FirestoreSyncManager.logLoginEvent(phone, "owner", ownerId, "success", "phone_otp", "Phone Register")
+
+                if (firebaseUid.isNotEmpty()) {
+                    FirestoreSyncManager.syncOwner(owner)
+                    FirestoreSyncManager.logLoginEvent(phone, "owner", ownerId, "success", "phone_otp", "Phone Register")
+                } else {
+                    Log.w("LoginFragment", "Firestore sync skipped — not authenticated")
+                }
+
+                val prefs = SecurePrefs.authPrefs(requireContext())
+                prefs.edit().putString("phone_auth_email", authEmail)
+                    .putString("phone_auth_pass", authPass).apply()
+
                 loginSuccess(phone, ownerId)
             } catch (e: Exception) {
                 activity?.runOnUiThread {
                     Toast.makeText(requireContext(), "Registration failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun loginWithPhone(phone: String) {
+        lifecycleScope.launch {
+            try {
+                val auth = FirebaseAuth.getInstance()
+                val prefs = SecurePrefs.authPrefs(requireContext())
+                val authEmail = prefs.getString("phone_auth_email", "") ?: ""
+                val authPass = prefs.getString("phone_auth_pass", "") ?: ""
+
+                if (authEmail.isNotEmpty() && authPass.isNotEmpty()) {
+                    try {
+                        auth.signInWithEmailAndPassword(authEmail, authPass).await()
+                    } catch (e: Exception) { }
+                }
+
+                loginSuccess(phone, auth.currentUser?.uid ?: "")
+            } catch (e: Exception) {
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "Login failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
