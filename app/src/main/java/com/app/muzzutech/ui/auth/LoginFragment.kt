@@ -51,6 +51,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private var pendingPhone: String? = null
     private var pendingRegPhone: String? = null
     private var profilePhotoBase64: String = ""
+    private var emailVerifiedByGoogle = false
 
     private val smsPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {
@@ -66,7 +67,16 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val account = task.getResult(ApiException::class.java)
             val email = account?.email ?: ""
             if (email.isNotEmpty()) {
-                loginSuccess(email)
+                if (isRegisterMode && binding.layoutRegistrationDetails.isVisible) {
+                    binding.etEmail.setText(email)
+                    binding.etEmail.isEnabled = false
+                    emailVerifiedByGoogle = true
+                    binding.btnVerifyEmailGoogle.text = "✓ Verified: $email"
+                    binding.btnVerifyEmailGoogle.isEnabled = false
+                    Toast.makeText(requireContext(), "Email verified via Google", Toast.LENGTH_SHORT).show()
+                } else {
+                    loginSuccess(email)
+                }
             } else {
                 Snackbar.make(binding.root, "No email returned", Snackbar.LENGTH_LONG).show()
             }
@@ -150,6 +160,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.btnTakePhoto.setOnClickListener { takePhoto() }
         binding.btnUploadPhoto.setOnClickListener { uploadPhoto() }
         binding.btnCreateAccount.setOnClickListener { submitRegistration() }
+        binding.btnVerifyEmailGoogle.setOnClickListener { signInWithGoogleForEmail() }
     }
 
     private fun updateUiForMode() {
@@ -169,6 +180,18 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun showPhoneInput() {
         hideAllInputs()
         binding.layoutPhoneInput.isVisible = true
+    }
+
+    private fun signInWithGoogleForEmail() {
+        val webClientId = getString(R.string.default_web_client_id)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestIdToken(webClientId)
+            .build()
+        val client = GoogleSignIn.getClient(requireActivity(), gso)
+        client.signOut().addOnCompleteListener {
+            googleSignInLauncher.launch(client.signInIntent)
+        }
     }
 
     private fun signInWithGoogle() {
@@ -314,8 +337,10 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         val gst = binding.etGst.text.toString().trim()
 
         if (name.isEmpty()) { binding.tilFullName.error = "Required"; return }
-        if (email.isEmpty()) { binding.tilEmail.error = "Required"; return }
-        if (!email.matches(Regex("^[a-zA-Z0-9._%+-]+@gmail\\.com$"))) { binding.tilEmail.error = "Enter a valid @gmail.com address"; return }
+        if (!emailVerifiedByGoogle) {
+            Toast.makeText(requireContext(), "Verify your email via Google Sign-In first", Toast.LENGTH_LONG).show()
+            return
+        }
         if (shopName.isEmpty()) { binding.tilShopName.error = "Required"; return }
         if (address.isEmpty()) { binding.tilShopAddress.error = "Required"; return }
 
