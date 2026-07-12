@@ -82,6 +82,14 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
+    private val cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            launchCamera()
+        } else {
+            Toast.makeText(requireContext(), "Camera permission needed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private var photoUri: Uri? = null
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success && photoUri != null) {
@@ -252,9 +260,24 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun takePhoto() {
-        val photoFile = File(requireContext().cacheDir, "profile_${System.currentTimeMillis()}.jpg")
-        photoUri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", photoFile)
-        cameraLauncher.launch(photoUri!!)
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            return
+        }
+        launchCamera()
+    }
+
+    private fun launchCamera() {
+        try {
+            val photoFile = File(requireContext().cacheDir, "profile_${System.currentTimeMillis()}.jpg")
+            photoFile.parentFile?.mkdirs()
+            photoUri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", photoFile)
+            cameraLauncher.launch(photoUri!!)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Camera error: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun uploadPhoto() {
@@ -292,7 +315,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
         if (name.isEmpty()) { binding.tilFullName.error = "Required"; return }
         if (email.isEmpty()) { binding.tilEmail.error = "Required"; return }
-        if (!email.contains("@gmail.com")) { binding.tilEmail.error = "Gmail only"; return }
+        if (!email.matches(Regex("^[a-zA-Z0-9._%+-]+@gmail\\.com$"))) { binding.tilEmail.error = "Enter a valid @gmail.com address"; return }
         if (shopName.isEmpty()) { binding.tilShopName.error = "Required"; return }
         if (address.isEmpty()) { binding.tilShopAddress.error = "Required"; return }
 
