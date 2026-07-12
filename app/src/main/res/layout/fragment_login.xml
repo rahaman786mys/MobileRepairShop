@@ -420,7 +420,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="Email Address * (Gmail)"
+                    android:hint="Email"
                     app:boxStrokeWidth="1dp"
                     app:boxStrokeColor="@color/muzzu_border">
 
@@ -428,7 +428,10 @@
                         android:id="@+id/etEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress" />
+                        android:inputType="textEmailAddress"
+                        android:focusable="false"
+                        android:cursorVisible="false"
+                        android:clickable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -436,7 +439,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_marginTop="4dp"
-                    android:text="✓ Verify Email via Google Sign-In"
+                    android:text="🔵 Verify Email via Google Sign-In"
                     android:textSize="12sp"
                     style="@style/Widget.MuZZu.Button" />
 

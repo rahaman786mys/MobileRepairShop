@@ -69,7 +69,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             if (email.isNotEmpty()) {
                 if (isRegisterMode && binding.layoutRegistrationDetails.isVisible) {
                     binding.etEmail.setText(email)
-                    binding.etEmail.isEnabled = false
                     emailVerifiedByGoogle = true
                     binding.btnVerifyEmailGoogle.text = "✓ Verified: $email"
                     binding.btnVerifyEmailGoogle.isEnabled = false
@@ -278,6 +277,16 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun showRegistrationForm(phone: String) {
         binding.layoutOtpInput.isVisible = false
         binding.tvRegPhone.text = "+91 $phone"
+        emailVerifiedByGoogle = false
+        profilePhotoBase64 = ""
+        binding.etEmail.setText("")
+        binding.etEmail.isEnabled = false
+        binding.etEmail.isFocusable = false
+        binding.etEmail.isClickable = false
+        binding.etEmail.isCursorVisible = false
+        binding.btnVerifyEmailGoogle.text = "🔵 Verify Email via Google Sign-In"
+        binding.btnVerifyEmailGoogle.isEnabled = true
+        binding.ivProfilePreview.isVisible = false
         hideAllInputs()
         binding.layoutRegistrationDetails.isVisible = true
     }
@@ -337,8 +346,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         val gst = binding.etGst.text.toString().trim()
 
         if (name.isEmpty()) { binding.tilFullName.error = "Required"; return }
-        if (!emailVerifiedByGoogle) {
-            Toast.makeText(requireContext(), "Verify your email via Google Sign-In first", Toast.LENGTH_LONG).show()
+        if (!emailVerifiedByGoogle || email.isEmpty()) {
+            Toast.makeText(requireContext(), "Please verify your email via Google Sign-In first", Toast.LENGTH_LONG).show()
             return
         }
         if (shopName.isEmpty()) { binding.tilShopName.error = "Required"; return }
