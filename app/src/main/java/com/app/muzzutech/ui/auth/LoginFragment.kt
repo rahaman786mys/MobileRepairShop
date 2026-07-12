@@ -12,8 +12,11 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.auth.AuthManager
+import com.app.muzzutech.auth.FirestoreSyncManager
+import com.app.muzzutech.data.model.Owner
 import com.app.muzzutech.databinding.FragmentLoginBinding
 import com.app.muzzutech.utils.OtpManager
 import com.app.muzzutech.utils.crpto.SecurePrefs
@@ -158,9 +161,36 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 binding.progressBar.isVisible = false
                 if (success) {
                     val phone = OtpManager.getCurrentPhone() ?: ""
-                    loginSuccess(phone)
+                    if (isRegisterMode) {
+                        registerWithPhone(phone)
+                    } else {
+                        loginSuccess(phone)
+                    }
                 } else {
                     Toast.makeText(requireContext(), error ?: "Invalid OTP", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun registerWithPhone(phone: String) {
+        lifecycleScope.launch {
+            try {
+                val ownerId = "phone_${phone}_${System.currentTimeMillis()}"
+                val owner = Owner(
+                    id = ownerId,
+                    ownerName = "User",
+                    phoneNumber = phone,
+                    createdAt = System.currentTimeMillis()
+                )
+                val db = MobileRepairApp.instance.database
+                db.ownerDao().upsert(owner)
+                FirestoreSyncManager.syncOwner(owner)
+                FirestoreSyncManager.logLoginEvent(phone, "owner", ownerId, "success", "phone_otp", "Phone Register")
+                loginSuccess(phone, ownerId)
+            } catch (e: Exception) {
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "Registration failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
