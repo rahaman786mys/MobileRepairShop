@@ -1,6 +1,8 @@
 package com.app.muzzutech.ui.auth
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +19,7 @@ import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.auth.AuthManager
 import com.app.muzzutech.auth.FirestoreSyncManager
+import com.app.muzzutech.auth.SmsGateway
 import com.app.muzzutech.data.model.Owner
 import com.app.muzzutech.databinding.FragmentLoginBinding
 import com.app.muzzutech.utils.OtpManager
@@ -32,6 +36,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private val binding get() = _binding!!
 
     private var isRegisterMode = true
+    private var pendingPhone: String? = null
+
+    private val smsPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            pendingPhone?.let { sendOtp(it) }
+        } else {
+            Toast.makeText(requireContext(), "SMS permission needed for OTP", Toast.LENGTH_LONG).show()
+        }
+    }
 
     private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
@@ -132,6 +145,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun sendOtp(mobile: String) {
+        pendingPhone = mobile
+        // Request SMS permission if not granted
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.SEND_SMS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            smsPermissionLauncher.launch(Manifest.permission.SEND_SMS)
+            return
+        }
+
         binding.progressBar.isVisible = true
         binding.btnSendOtp.isEnabled = false
         binding.tilMobileNumber.error = null

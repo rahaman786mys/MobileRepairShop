@@ -33,8 +33,13 @@ object OtpManager {
                 Log.d(TAG, "OTP sent via $provider")
                 callback(true, null)
             } else {
-                Log.e(TAG, "Failed to send OTP")
-                callback(false, "Failed to send. Check Fast2SMS balance.")
+                val msg = when (provider) {
+                    "unconfigured" -> "No SMS method available. Grant SMS permission or configure Fast2SMS."
+                    "SMS permission not granted" -> "Grant SMS permission in settings to send OTP."
+                    else -> "Failed to send: $provider"
+                }
+                Log.e(TAG, msg)
+                callback(false, msg)
             }
         }
     }
