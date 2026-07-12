@@ -22,7 +22,7 @@ class SplashActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
 
-    private val smsPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
+    private val permissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { _ ->
         proceedToMain()
     }
 
@@ -37,11 +37,17 @@ class SplashActivity : AppCompatActivity() {
         checkBiometrics()
     }
 
-    private fun requestSmsPermissionIfNeeded() {
+    private fun requestAllPermissions() {
+        val needed = mutableListOf<String>()
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
             != PackageManager.PERMISSION_GRANTED
-        ) {
-            smsPermissionLauncher.launch(Manifest.permission.SEND_SMS)
+        ) needed.add(Manifest.permission.SEND_SMS)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) needed.add(Manifest.permission.CAMERA)
+
+        if (needed.isNotEmpty()) {
+            permissionsLauncher.launch(needed.toTypedArray())
         } else {
             proceedToMain()
         }
@@ -72,7 +78,7 @@ class SplashActivity : AppCompatActivity() {
         val isBiometricEnabled = prefs.getBoolean("biometric_enabled", false)
 
         if (!isBiometricEnabled) {
-            requestSmsPermissionIfNeeded()
+            requestAllPermissions()
             return
         }
 
@@ -81,7 +87,7 @@ class SplashActivity : AppCompatActivity() {
 
         when (biometricManager.canAuthenticate(authenticators)) {
             BiometricManager.BIOMETRIC_SUCCESS -> showBiometricPrompt()
-            else -> requestSmsPermissionIfNeeded()
+            else -> requestAllPermissions()
         }
     }
 
@@ -102,7 +108,7 @@ class SplashActivity : AppCompatActivity() {
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
-                    requestSmsPermissionIfNeeded()
+                    requestAllPermissions()
                 }
 
                 override fun onAuthenticationFailed() {
