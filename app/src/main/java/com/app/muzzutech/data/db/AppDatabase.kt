@@ -32,7 +32,7 @@ import java.io.IOException
         Owner::class,
         AuthSession::class
     ],
-    version = 20,
+    version = 21,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -323,6 +323,14 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_20_21: Migration = object : Migration(20, 21) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE owners ADD COLUMN shopAddress TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE owners ADD COLUMN gstNumber TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE owners ADD COLUMN profilePhotoBase64 TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         val MIGRATION_19_20: Migration = object : Migration(19, 20) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""CREATE TABLE IF NOT EXISTS owners (
@@ -366,7 +374,8 @@ abstract class AppDatabase : RoomDatabase() {
                     "mobile_repair_shop_db"
                 )
                     .apply { if (factory != null) openHelperFactory(factory) }
-                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20)
+                    .addMigrations(MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21)
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance

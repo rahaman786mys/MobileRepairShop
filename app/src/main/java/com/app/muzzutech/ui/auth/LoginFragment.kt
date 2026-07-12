@@ -3,7 +3,12 @@ package com.app.muzzutech.ui.auth
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,11 +16,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.app.muzzutech.BuildConfig
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
 import com.app.muzzutech.auth.AuthManager
@@ -30,8 +35,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
@@ -40,6 +49,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private var isRegisterMode = true
     private var pendingPhone: String? = null
+    private var pendingRegPhone: String? = null
+    private var profilePhotoBase64: String = ""
 
     private val smsPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {
@@ -68,6 +79,18 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             }
             Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
             Log.e("LoginFragment", "Google Sign-In Error: ${e.statusCode} - ${e.message}")
+        }
+    }
+
+    private var photoUri: Uri? = null
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && photoUri != null) {
+            encodePhoto(photoUri!!)
+        }
+    }
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            encodePhoto(uri)
         }
     }
 
@@ -115,6 +138,10 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
 
         binding.btnWorkerLogin.setOnClickListener { workerLogin() }
+
+        binding.btnTakePhoto.setOnClickListener { takePhoto() }
+        binding.btnUploadPhoto.setOnClickListener { uploadPhoto() }
+        binding.btnCreateAccount.setOnClickListener { submitRegistration() }
     }
 
     private fun updateUiForMode() {
@@ -128,6 +155,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun hideAllInputs() {
         binding.layoutPhoneInput.isVisible = false
         binding.layoutOtpInput.isVisible = false
+        binding.layoutRegistrationDetails.isVisible = false
     }
 
     private fun showPhoneInput() {
@@ -204,7 +232,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 if (success) {
                     val phone = OtpManager.getCurrentPhone() ?: ""
                     if (isRegisterMode) {
-                        registerWithPhone(phone)
+                        pendingRegPhone = phone
+                        showRegistrationForm(phone)
                     } else {
                         loginWithPhone(phone)
                     }
@@ -215,7 +244,63 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
-    private fun registerWithPhone(phone: String) {
+    private fun showRegistrationForm(phone: String) {
+        binding.layoutOtpInput.isVisible = false
+        binding.tvRegPhone.text = "+91 $phone"
+        hideAllInputs()
+        binding.layoutRegistrationDetails.isVisible = true
+    }
+
+    private fun takePhoto() {
+        val photoFile = File(requireContext().cacheDir, "profile_${System.currentTimeMillis()}.jpg")
+        photoUri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", photoFile)
+        cameraLauncher.launch(photoUri!!)
+    }
+
+    private fun uploadPhoto() {
+        galleryLauncher.launch("image/*")
+    }
+
+    private fun encodePhoto(uri: Uri) {
+        lifecycleScope.launch {
+            try {
+                val bitmap = withContext(Dispatchers.IO) {
+                    val input = requireContext().contentResolver.openInputStream(uri)
+                    val bmp = BitmapFactory.decodeStream(input)
+                    input?.close()
+                    val ratio = minOf(300.0 / bmp.width, 300.0 / bmp.height)
+                    Bitmap.createScaledBitmap(bmp, (bmp.width * ratio).toInt(), (bmp.height * ratio).toInt(), true)
+                }
+                val output = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, output)
+                profilePhotoBase64 = Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+                binding.ivProfilePreview.setImageBitmap(bitmap)
+                binding.ivProfilePreview.isVisible = true
+                Toast.makeText(requireContext(), "Photo added", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Failed to load photo", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun submitRegistration() {
+        val name = binding.etFullName.text.toString().trim()
+        val email = binding.etEmail.text.toString().trim()
+        val shopName = binding.etShopName.text.toString().trim()
+        val address = binding.etShopAddress.text.toString().trim()
+        val gst = binding.etGst.text.toString().trim()
+
+        if (name.isEmpty()) { binding.tilFullName.error = "Required"; return }
+        if (email.isEmpty()) { binding.tilEmail.error = "Required"; return }
+        if (!email.contains("@gmail.com")) { binding.tilEmail.error = "Gmail only"; return }
+        if (shopName.isEmpty()) { binding.tilShopName.error = "Required"; return }
+        if (address.isEmpty()) { binding.tilShopAddress.error = "Required"; return }
+
+        val phone = pendingRegPhone ?: return
+        registerWithPhone(phone, name, email, shopName, address, gst, profilePhotoBase64)
+    }
+
+    private fun registerWithPhone(phone: String, name: String = "", email: String = "", shopName: String = "", address: String = "", gst: String = "", photoBase64: String = "") {
         lifecycleScope.launch {
             try {
                 val db = MobileRepairApp.instance.database
@@ -252,16 +337,20 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 val ownerId = if (firebaseUid.isNotEmpty()) firebaseUid else "phone_${phone}_${System.currentTimeMillis()}"
                 val owner = Owner(
                     id = ownerId,
-                    ownerName = "User",
+                    ownerName = name.ifEmpty { "User" },
                     phoneNumber = phone,
-                    email = authEmail,
+                    email = email.ifEmpty { authEmail },
+                    businessName = shopName,
+                    shopAddress = address,
+                    gstNumber = gst,
+                    profilePhotoBase64 = photoBase64,
                     createdAt = System.currentTimeMillis()
                 )
 
                 db.ownerDao().upsert(owner)
 
                 FirestoreSyncManager.syncOwner(owner)
-                FirestoreSyncManager.logLoginEvent(phone, "owner", ownerId, "success", "phone_otp", "Phone Register")
+                FirestoreSyncManager.logLoginEvent(phone, "owner", ownerId, "success", "phone_otp", shopName)
                 activity?.runOnUiThread {
                     val status = if (firebaseUid.isNotEmpty()) "Synced to cloud" else "Saved locally"
                     Toast.makeText(requireContext(), "Registration $status", Toast.LENGTH_SHORT).show()
