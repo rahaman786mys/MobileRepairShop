@@ -27,8 +27,10 @@ captures/
 *.dex
 *.class
 
-# Keystore (injected via GitHub Secrets)
-app/debug.keystore
+# Debug keystore is committed intentionally so local + CI builds share ONE
+# signing identity whose SHA-1 is registered in Firebase (fixes Google Sign-In
+# code 10 on CI-distributed builds). This is a DEBUG keystore only.
+# app/debug.keystore
 .kotlin/
 *.msi
 
