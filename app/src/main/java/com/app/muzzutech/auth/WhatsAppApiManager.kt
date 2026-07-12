@@ -1,5 +1,6 @@
 package com.app.muzzutech.auth
 
+import android.content.Context
 import android.util.Log
 import com.app.muzzutech.BuildConfig
 import okhttp3.*
@@ -125,7 +126,7 @@ object WhatsAppApiManager {
             whatsResult = ok; whatsDone = true; checkDone()
         }
 
-        sendViaSms(phone, message) { ok ->
+        sendViaFast2Sms(phone, message) { ok ->
             smsResult = ok; smsDone = true; checkDone()
         }
     }
@@ -157,12 +158,17 @@ object WhatsAppApiManager {
         type: String,
         onResult: (success: Boolean, provider: String) -> Unit
     ) {
-        if (fast2smsEnabled) {
-            sendViaSms(phone, message) { success ->
-                onResult(success, if (success) "sms" else "failed")
+        val ctx = com.app.muzzutech.MobileRepairApp.instance
+        if (SmsGateway.isAvailable(ctx)) {
+            SmsGateway.sendSms(ctx, phone, message) { success, error ->
+                onResult(success, if (success) "sms" else error ?: "failed")
+            }
+            } else if (fast2smsEnabled) {
+            sendViaFast2Sms(phone, message) { success ->
+                onResult(success, if (success) "fast2sms" else "failed")
             }
         } else {
-            Log.w(TAG, "No messaging provider configured (AiSensy or Fast2SMS)")
+            Log.w(TAG, "No SMS method available")
             onResult(false, "unconfigured")
         }
     }
@@ -204,7 +210,7 @@ object WhatsAppApiManager {
 
     // ===================== Fast2SMS (SMS) =====================
 
-    private fun sendViaSms(
+    private fun sendViaFast2Sms(
         phone: String,
         message: String,
         onResult: (success: Boolean) -> Unit
