@@ -1,13 +1,16 @@
 package com.app.muzzutech
 
+import android.Manifest
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.animation.DecelerateInterpolator
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -19,6 +22,10 @@ class SplashActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
 
+    private val smsPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
+        proceedToMain()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -28,6 +35,16 @@ class SplashActivity : AppCompatActivity() {
         animateSplashLogo()
 
         checkBiometrics()
+    }
+
+    private fun requestSmsPermissionIfNeeded() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            smsPermissionLauncher.launch(Manifest.permission.SEND_SMS)
+        } else {
+            proceedToMain()
+        }
     }
 
     private fun animateSplashLogo() {
@@ -55,7 +72,7 @@ class SplashActivity : AppCompatActivity() {
         val isBiometricEnabled = prefs.getBoolean("biometric_enabled", false)
 
         if (!isBiometricEnabled) {
-            proceedToMain()
+            requestSmsPermissionIfNeeded()
             return
         }
 
@@ -64,7 +81,7 @@ class SplashActivity : AppCompatActivity() {
 
         when (biometricManager.canAuthenticate(authenticators)) {
             BiometricManager.BIOMETRIC_SUCCESS -> showBiometricPrompt()
-            else -> proceedToMain()
+            else -> requestSmsPermissionIfNeeded()
         }
     }
 
@@ -85,7 +102,7 @@ class SplashActivity : AppCompatActivity() {
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
-                    proceedToMain()
+                    requestSmsPermissionIfNeeded()
                 }
 
                 override fun onAuthenticationFailed() {
