@@ -209,7 +209,8 @@ object WhatsAppApiManager {
         message: String,
         onResult: (success: Boolean) -> Unit
     ) {
-        val cleanPhone = phone.replace("+", "").replace(" ", "")
+        // Fast2SMS expects 10-digit Indian numbers (no country code)
+        val cleanPhone = phone.replace("+", "").replace(" ", "").takeLast(10)
 
         val json = JSONObject().apply {
             put("message", message)
