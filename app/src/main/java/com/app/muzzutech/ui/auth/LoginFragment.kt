@@ -41,6 +41,8 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.ViewCompat
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
@@ -155,6 +157,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
 
         binding.btnWorkerLogin.setOnClickListener { workerLogin() }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            v.setPadding(0, 0, 0, ime.bottom)
+            insets
+        }
 
         binding.btnTakePhoto.setOnClickListener { takePhoto() }
         binding.btnUploadPhoto.setOnClickListener { uploadPhoto() }
