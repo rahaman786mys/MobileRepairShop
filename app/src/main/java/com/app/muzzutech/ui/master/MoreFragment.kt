@@ -381,10 +381,32 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
     }
 
     private fun logout() {
-        val prefs = SecurePrefs.authPrefs(requireContext())
-        prefs.edit().putBoolean("is_logged_in", false).apply()
+        // End the local session (keep the owner's data; this is a session logout).
+        SecurePrefs.authPrefs(requireContext()).edit()
+            .putBoolean("is_logged_in", false)
+            .remove("logged_in_identifier")
+            .remove("logged_in_firebase_uid")
+            .apply()
+
+        // End the Firebase + Google sessions so the next sign-in is a fresh choice.
+        try { com.google.firebase.auth.FirebaseAuth.getInstance().signOut() } catch (_: Exception) {}
+        try {
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+            GoogleSignIn.getClient(requireActivity(), gso).signOut()
+        } catch (_: Exception) {}
+
         Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
-        findNavController().navigate(R.id.dashboardFragment)
+
+        // Go to the login screen and clear the entire back stack so Back can't
+        // re-enter the app after logout.
+        val navController = findNavController()
+        navController.navigate(
+            R.id.loginFragment,
+            null,
+            androidx.navigation.NavOptions.Builder()
+                .setPopUpTo(navController.graph.startDestinationId, true)
+                .build()
+        )
     }
 
     override fun onDestroyView() {
