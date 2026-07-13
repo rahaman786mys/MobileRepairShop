@@ -338,12 +338,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     Snackbar.make(binding.root, "Submitting ticket...", Snackbar.LENGTH_SHORT).show()
     viewLifecycleOwner.lifecycleScope.launch {
       // Tickets require an authenticated session (Firestore rules) — establish one if missing.
-      FirestoreSyncManager.ensureSignedIn(requireContext(), phone)
+      val ensured = FirestoreSyncManager.ensureSignedIn(requireContext(), phone)
       if (!isAdded) return@launch
-
-      if (cat.type == "phone_change") {
-        ProfileEditLimits.increment(requireContext(), ProfileEditLimits.KEY_PHONE_CHANGE)
-      }
+      val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+      val diag = "v${com.app.muzzutech.BuildConfig.VERSION_NAME} · auth=${uid?.take(6) ?: "NONE"} · ensured=$ensured"
 
       FirestoreSyncManager.submitTicket(
         subject = subject,
@@ -359,13 +357,25 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         activity?.runOnUiThread {
           if (!isAdded) return@runOnUiThread
           if (ok) {
+            if (cat.type == "phone_change") {
+              ProfileEditLimits.increment(requireContext(), ProfileEditLimits.KEY_PHONE_CHANGE)
+            }
             Snackbar.make(binding.root, "Ticket submitted. We'll review it soon.", Snackbar.LENGTH_LONG).show()
           } else {
-            Snackbar.make(binding.root, "Failed to submit ticket: $msg", Snackbar.LENGTH_LONG).show()
+            showTicketError("$msg\n\n[$diag]")
           }
         }
       }
     }
+  }
+
+  private fun showTicketError(detail: String) {
+    if (!isAdded) return
+    AlertDialog.Builder(requireContext())
+      .setTitle("Ticket failed")
+      .setMessage(detail)
+      .setPositiveButton("OK", null)
+      .show()
   }
 
   override fun onDestroyView() {
