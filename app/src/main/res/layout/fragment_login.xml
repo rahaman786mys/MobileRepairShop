@@ -20,31 +20,20 @@
             android:paddingTop="48dp"
             android:paddingBottom="32dp">
 
-            <!-- ===== TOP LOGO with rotating gradient ring ===== -->
+            <!-- ===== ANIMATED LOGO (pop-in, checkmark draw, wrench wiggle, glow pulse, sparkle twinkle) ===== -->
             <FrameLayout
-                android:layout_width="110dp"
-                android:layout_height="110dp"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
                 android:layout_marginBottom="12dp">
 
                 <ImageView
-                    android:id="@+id/ivLogoRing"
-                    android:layout_width="110dp"
-                    android:layout_height="110dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/bg_logo_ring"
-                    android:contentDescription="" />
-
-                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/ivLogo"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/bg_circle_sunken"
-                    android:padding="16dp"
-                    android:src="@drawable/ic_service_premium"
+                    android:src="@drawable/ic_logo_vector"
                     android:contentDescription="MuZZu Tech logo"
-                    app:tint="@color/muzzu_accent"
-                    android:elevation="4dp" />
+                    android:scaleType="fitCenter" />
             </FrameLayout>
 
             <TextView
