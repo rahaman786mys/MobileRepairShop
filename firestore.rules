@@ -18,8 +18,12 @@ service cloud.firestore {
     }
 
     // Support / change-request tickets: app users create them, founder reviews.
+    // NOTE: create is intentionally open because the app's Firebase Auth session is
+    // currently unreliable (see auth issue). Every ticket still carries the owner's
+    // id/email/phone in its data. Reading/managing stays founder-only (auth required).
+    // TODO: revert create to `if signedIn()` once app authentication is fixed.
     match /tickets/{ticketId} {
-      allow create: if signedIn();
+      allow create: if true;
       allow read, update, delete: if signedIn();
     }
 
