@@ -335,28 +335,34 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     val email = loadedProfile?.email?.ifBlank { ownerRef?.email ?: "" } ?: ownerRef?.email ?: ""
     val phone = loadedProfile?.phone?.ifBlank { ownerRef?.phoneNumber ?: "" } ?: ownerRef?.phoneNumber ?: ""
 
-    if (cat.type == "phone_change") {
-      ProfileEditLimits.increment(requireContext(), ProfileEditLimits.KEY_PHONE_CHANGE)
-    }
-
     Snackbar.make(binding.root, "Submitting ticket...", Snackbar.LENGTH_SHORT).show()
-    FirestoreSyncManager.submitTicket(
-      subject = subject,
-      summary = summary,
-      type = cat.type,
-      ownerId = ownerId,
-      userName = name,
-      businessName = biz,
-      email = email,
-      phone = phone,
-      category = cat.label
-    ) { ok, msg ->
-      activity?.runOnUiThread {
-        if (!isAdded) return@runOnUiThread
-        if (ok) {
-          Snackbar.make(binding.root, "Ticket submitted. We'll review it soon.", Snackbar.LENGTH_LONG).show()
-        } else {
-          Snackbar.make(binding.root, "Failed to submit ticket: $msg", Snackbar.LENGTH_LONG).show()
+    viewLifecycleOwner.lifecycleScope.launch {
+      // Tickets require an authenticated session (Firestore rules) — establish one if missing.
+      FirestoreSyncManager.ensureSignedIn(requireContext(), phone)
+      if (!isAdded) return@launch
+
+      if (cat.type == "phone_change") {
+        ProfileEditLimits.increment(requireContext(), ProfileEditLimits.KEY_PHONE_CHANGE)
+      }
+
+      FirestoreSyncManager.submitTicket(
+        subject = subject,
+        summary = summary,
+        type = cat.type,
+        ownerId = ownerId,
+        userName = name,
+        businessName = biz,
+        email = email,
+        phone = phone,
+        category = cat.label
+      ) { ok, msg ->
+        activity?.runOnUiThread {
+          if (!isAdded) return@runOnUiThread
+          if (ok) {
+            Snackbar.make(binding.root, "Ticket submitted. We'll review it soon.", Snackbar.LENGTH_LONG).show()
+          } else {
+            Snackbar.make(binding.root, "Failed to submit ticket: $msg", Snackbar.LENGTH_LONG).show()
+          }
         }
       }
     }

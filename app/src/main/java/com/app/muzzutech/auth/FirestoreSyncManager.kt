@@ -5,6 +5,8 @@ import android.util.Log
 import com.app.muzzutech.data.model.AuthSession
 import com.app.muzzutech.data.model.Owner
 import com.app.muzzutech.data.model.ServiceMan
+import com.app.muzzutech.utils.crpto.SecurePrefs
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +50,50 @@ object FirestoreSyncManager {
                 Log.w(TAG, "Error logging login event", e)
             }
         }
+    }
+
+    /**
+     * Firestore rules require an authenticated user. Some login paths (e.g. Google
+     * login when the owner already exists locally, or a lapsed session after a
+     * reinstall) can leave no active session. Establish one before a write:
+     * reuse the current session, else the stored phone credentials, else anonymous.
+     * Returns true if a session is active afterwards.
+     */
+    suspend fun ensureSignedIn(context: Context, phoneHint: String? = null): Boolean {
+        val auth = FirebaseAuth.getInstance()
+        if (auth.currentUser != null) return true
+
+        val prefs = SecurePrefs.authPrefs(context)
+        var email = prefs.getString("phone_auth_email", "") ?: ""
+        var pass = prefs.getString("phone_auth_pass", "") ?: ""
+
+        // No stored credentials? Reconstruct them from the phone (same formula as
+        // registration) so a Google-logged-in user can still authenticate for writes.
+        if ((email.isEmpty() || pass.isEmpty()) && !phoneHint.isNullOrBlank()) {
+            val digits = phoneHint.filter { it.isDigit() }
+            if (digits.length >= 8) {
+                email = "phone_${digits}@muzzutech.online"
+                pass = digits.takeLast(8)
+            }
+        }
+
+        if (email.isNotEmpty() && pass.isNotEmpty()) {
+            try {
+                auth.signInWithEmailAndPassword(email, pass).await()
+                if (auth.currentUser != null) return true
+            } catch (_: Exception) {}
+            try {
+                auth.createUserWithEmailAndPassword(email, pass).await()
+                if (auth.currentUser != null) return true
+            } catch (_: Exception) {}
+        }
+
+        try {
+            auth.signInAnonymously().await()
+        } catch (e: Exception) {
+            Log.w(TAG, "ensureSignedIn: anonymous sign-in failed", e)
+        }
+        return auth.currentUser != null
     }
 
     /**
