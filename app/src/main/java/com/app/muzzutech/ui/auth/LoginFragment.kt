@@ -158,14 +158,14 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     }
 
     private fun startPhonePulseAnimation() {
-        val pulse = ObjectAnimator.ofFloat(binding.ivLogo, View.SCALE_X, 1f, 1.08f).apply {
-            duration = 1200
+        val pulse = ObjectAnimator.ofFloat(binding.ivLogo, View.SCALE_X, 1f, 1.06f).apply {
+            duration = 1600
             interpolator = AccelerateDecelerateInterpolator()
             repeatCount = 1000
             repeatMode = ObjectAnimator.REVERSE
         }
-        val pulseY = ObjectAnimator.ofFloat(binding.ivLogo, View.SCALE_Y, 1f, 1.08f).apply {
-            duration = 1200
+        val pulseY = ObjectAnimator.ofFloat(binding.ivLogo, View.SCALE_Y, 1f, 1.06f).apply {
+            duration = 1600
             interpolator = AccelerateDecelerateInterpolator()
             repeatCount = 1000
             repeatMode = ObjectAnimator.REVERSE
@@ -173,6 +173,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         AnimatorSet().apply {
             playTogether(pulse, pulseY)
             start()
+        }
+        val ring = binding.root.findViewById<View>(R.id.ivLogoRing)
+        if (ring != null) {
+            ObjectAnimator.ofFloat(ring, View.ROTATION, 0f, 360f).apply {
+                duration = 4000
+                interpolator = AccelerateDecelerateInterpolator()
+                repeatCount = 1000
+                start()
+            }
         }
     }
 
