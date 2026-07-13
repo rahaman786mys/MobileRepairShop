@@ -214,7 +214,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun onGoogleSignInResult(accountEmail: String, idToken: String?) {
         binding.progressBar.isVisible = true
         lifecycleScope.launch {
-            firebaseSignInWithGoogle(idToken)
+            val authError = firebaseSignInWithGoogle(idToken)
             if (!isAdded || _binding == null) return@launch
             binding.progressBar.isVisible = false
 
@@ -222,7 +222,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val email = (user?.email ?: accountEmail).trim()
             val uid = user?.uid ?: ""
             if (email.isEmpty() || uid.isEmpty()) {
-                Snackbar.make(binding.root, "Could not verify your Google account. Please try again.", Snackbar.LENGTH_LONG).show()
+                // Surface the REAL reason instead of a generic message so config
+                // problems (unregistered SHA-1, Google provider disabled) are visible.
+                val reason = authError ?: if (idToken.isNullOrEmpty())
+                    "Google returned no ID token — this build's signing SHA-1 is not registered in Firebase."
+                else "Firebase did not establish a session."
+                Snackbar.make(binding.root, "Google verify failed: $reason", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("OK") { }
+                    .show()
+                Log.e("LoginFragment", "Google verify failed. idTokenPresent=${!idToken.isNullOrEmpty()} reason=$reason")
                 return@launch
             }
 
@@ -231,13 +239,17 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
-    private suspend fun firebaseSignInWithGoogle(idToken: String?) {
-        if (idToken.isNullOrEmpty()) return
-        try {
+    /** Returns null on success, or a human-readable failure reason. */
+    private suspend fun firebaseSignInWithGoogle(idToken: String?): String? {
+        if (idToken.isNullOrEmpty()) return "No ID token from Google (SHA-1 / web client config)."
+        return try {
             val cred = GoogleAuthProvider.getCredential(idToken, null)
             FirebaseAuth.getInstance().signInWithCredential(cred).await()
+            null
         } catch (e: Exception) {
-            Log.w("LoginFragment", "Firebase Google sign-in failed: ${e.message}")
+            val code = (e as? com.google.firebase.auth.FirebaseAuthException)?.errorCode
+            Log.e("LoginFragment", "signInWithCredential failed code=$code", e)
+            (if (code != null) "$code: " else "") + (e.message ?: "Firebase auth error")
         }
     }
 
