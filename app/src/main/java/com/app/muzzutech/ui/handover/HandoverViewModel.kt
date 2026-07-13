@@ -51,7 +51,10 @@ class HandoverViewModel : ViewModel() {
                             amount = advanceTxn.amount,
                             direction = "OUT",
                             transactionType = "REFUND",
-                            paymentMode = "REFUND",
+                            // Refund via the SAME channel the advance came in on, so the
+                            // cash/online balance nets back correctly (a "REFUND" mode
+                            // would be invisible to balance calculations).
+                            paymentMode = advanceTxn.paymentMode,
                             note = "Refund of advance for cancelled repair #${entry.id}: ${entry.deviceBrand} ${entry.deviceModel}"
                         )
                     )

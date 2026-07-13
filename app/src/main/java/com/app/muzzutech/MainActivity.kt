@@ -79,8 +79,17 @@ Tap Let's Go to continue."""
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavigation.setupWithNavController(navController)
 
-        if (AuthManager(this).isWorkerLoggedIn()) {
+        val authManager = AuthManager(this)
+        if (authManager.isWorkerLoggedIn()) {
             binding.bottomNavigation.menu.removeItem(R.id.reportsFragment)
+        }
+
+        // Owner: listen for worker entries in real time so they appear instantly.
+        if (authManager.isOwnerLoggedIn()) {
+            val ownerId = authManager.getLoggedInFirebaseUid()
+            if (ownerId.isNotEmpty()) {
+                com.app.muzzutech.auth.FirestoreSyncManager.startRepairEntriesListener(ownerId)
+            }
         }
 
         val navDest = intent.getStringExtra(EXTRA_NAV_DEST)

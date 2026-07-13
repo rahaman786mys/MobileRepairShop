@@ -22,6 +22,10 @@ interface RepairEntryDao {
     @Query("SELECT * FROM repair_entries WHERE id = :id")
     suspend fun getEntryById(id: Long): RepairEntry?
 
+    // Used for dedup when pulling remote (worker) entries into the owner's DB.
+    @Query("SELECT * FROM repair_entries WHERE createdAt = :createdAt LIMIT 1")
+    suspend fun getEntryByCreatedAt(createdAt: Long): RepairEntry?
+
     @Query("SELECT * FROM repair_entries WHERE id = :id")
     fun getEntryByIdFlow(id: Long): Flow<RepairEntry?>
 

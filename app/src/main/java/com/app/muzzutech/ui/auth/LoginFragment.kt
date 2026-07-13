@@ -554,7 +554,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 if (!isAdded) return@runOnUiThread
                 binding.progressBar.isVisible = false
                 binding.btnWorkerLogin.isEnabled = true
-                if (result.success) loginSuccess(phone, result.firebaseUid)
+                if (result.success) loginSuccess(phone, result.firebaseUid, "WORKER")
                 else Snackbar.make(binding.root, result.message, Snackbar.LENGTH_LONG).show()
             }
         }
@@ -562,13 +562,24 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     // ── Session + cloud restore ──────────────────────────────────────────────
 
-    private fun loginSuccess(identifier: String = "", firebaseUid: String = "") {
+    private fun loginSuccess(identifier: String = "", firebaseUid: String = "", userType: String = "OWNER") {
         val ctx = context ?: return
         SecurePrefs.authPrefs(ctx).edit().apply {
             putBoolean("is_logged_in", true)
             if (identifier.isNotEmpty()) putString("logged_in_identifier", identifier)
             if (firebaseUid.isNotEmpty()) putString("logged_in_firebase_uid", firebaseUid)
             apply()
+        }
+        // Also set appSettings so AuthManager.isLoggedIn()/isWorkerLoggedIn()/isOwnerLoggedIn() work
+        SecurePrefs.appSettings(ctx).edit().apply {
+            putBoolean("auth_logged_in", true)
+            putString("auth_user_type", userType)
+            if (firebaseUid.isNotEmpty()) putString("auth_firebase_uid", firebaseUid)
+            apply()
+        }
+        // Owner: start real-time listener so worker entries appear instantly.
+        if (userType == "OWNER" && firebaseUid.isNotEmpty()) {
+            FirestoreSyncManager.startRepairEntriesListener(firebaseUid)
         }
         if (isAdded) findNavController().navigate(R.id.action_loginFragment_to_dashboardFragment)
     }

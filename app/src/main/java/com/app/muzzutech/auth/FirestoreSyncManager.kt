@@ -4,10 +4,12 @@ import android.content.Context
 import android.util.Log
 import com.app.muzzutech.data.model.AuthSession
 import com.app.muzzutech.data.model.Owner
+import com.app.muzzutech.data.model.RepairEntry
 import com.app.muzzutech.data.model.ServiceMan
 import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,6 +20,8 @@ object FirestoreSyncManager {
     private const val TAG = "FirestoreSync"
     private val firestore by lazy { FirebaseFirestore.getInstance() }
     private val scope = CoroutineScope(Dispatchers.IO)
+
+    private var repairsListener: ListenerRegistration? = null
 
     fun logLoginEvent(
         email: String,
@@ -391,5 +395,124 @@ object FirestoreSyncManager {
                 Log.w(TAG, "Error deleting worker from Firestore", e)
             }
         }
+    }
+
+    /**
+     * Sync a repair entry to Firestore under the owner's collection.
+     * Uses ownerId as document path: /owners/{ownerId}/repairs/{repairId}
+     * Includes workerId if created by a worker for admin visibility.
+     */
+    fun syncRepairEntry(repair: RepairEntry, ownerId: String, workerId: Long? = null) {
+        scope.launch {
+            try {
+                val data = hashMapOf<String, Any>(
+                    "customerName" to repair.customerName,
+                    "phone" to repair.customerMobile,
+                    "customerCity" to repair.customerCity,
+                    "dealerName" to repair.dealerName,
+                    "dealerMobile" to repair.dealerMobile,
+                    "serviceManId" to repair.serviceManId,
+                    "serviceManName" to repair.serviceManName,
+                    "deviceBrand" to repair.deviceBrand,
+                    "deviceModel" to repair.deviceModel,
+                    "faultDetected" to repair.faultDetected,
+                    "problem" to repair.faultDescription,
+                    "chargeAmount" to repair.chargeAmount,
+                    "advanceAmount" to repair.advanceAmount,
+                    "finalAmount" to repair.finalAmount,
+                    "workStatus" to repair.workStatus,
+                    "workDone" to repair.workDone,
+                    "handoverDone" to repair.handoverDone,
+                    "isDraft" to repair.isDraft,
+                    "entryDate" to com.google.firebase.Timestamp(repair.entryDate / 1000, 0),
+                    "createdAt" to com.google.firebase.Timestamp(repair.createdAt / 1000, 0),
+                    "updatedAt" to com.google.firebase.Timestamp.now(),
+                    "ownerId" to ownerId,
+                    "workerId" to (workerId?.toString() ?: "")
+                )
+                firestore.collection("owners")
+                    .document(ownerId)
+                    .collection("repairs")
+                    .document(repair.id.toString())
+                    .set(data)
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Repair synced: ${repair.id}")
+                    }
+                    .addOnFailureListener { e -> Log.w(TAG, "Failed to sync repair", e) }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error syncing repair entry", e)
+            }
+        }
+    }
+
+    /**
+     * Start listening for repair entries under the owner's collection so worker
+     * entries appear in the admin/owner app in real time. Incoming docs are
+     * upserted into the owner's local Room DB (deduped by createdAt), which
+     * drives the UI Flows automatically.
+     */
+    fun startRepairEntriesListener(ownerId: String) {
+        if (ownerId.isEmpty()) return
+        // Avoid stacking multiple listeners
+        repairsListener?.remove()
+        repairsListener = firestore.collection("owners")
+            .document(ownerId)
+            .collection("repairs")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.w(TAG, "Repairs listener error", error)
+                    return@addSnapshotListener
+                }
+                if (snapshot == null) return@addSnapshotListener
+                scope.launch {
+                    val dao = com.app.muzzutech.MobileRepairApp.instance.database.repairEntryDao()
+                    for (doc in snapshot.documents) {
+                        try {
+                            val createdAtSeconds =
+                                doc.getTimestamp("createdAt")?.seconds ?: continue
+                            val createdAtMillis = createdAtSeconds * 1000
+                            val entryDateMillis =
+                                (doc.getTimestamp("entryDate")?.seconds?.let { it * 1000 })
+                                    ?: createdAtMillis
+                            val remote = RepairEntry(
+                                deviceBrand = doc.getString("deviceBrand") ?: "",
+                                deviceModel = doc.getString("deviceModel") ?: "",
+                                customerName = doc.getString("customerName") ?: "",
+                                customerMobile = doc.getString("phone") ?: "",
+                                customerCity = doc.getString("customerCity") ?: "",
+                                dealerName = doc.getString("dealerName") ?: "",
+                                dealerMobile = doc.getString("dealerMobile") ?: "",
+                                serviceManId = doc.getLong("serviceManId") ?: 0L,
+                                serviceManName = doc.getString("serviceManName") ?: "",
+                                faultDetected = doc.getString("faultDetected") ?: "",
+                                faultDescription = doc.getString("problem") ?: "",
+                                chargeAmount = doc.getLong("chargeAmount") ?: 0L,
+                                advanceAmount = doc.getLong("advanceAmount") ?: 0L,
+                                finalAmount = doc.getLong("finalAmount") ?: 0L,
+                                workStatus = doc.getString("workStatus") ?: "Pending",
+                                workDone = doc.getBoolean("workDone") ?: false,
+                                handoverDone = doc.getBoolean("handoverDone") ?: false,
+                                isDraft = doc.getBoolean("isDraft") ?: false,
+                                createdAt = createdAtMillis,
+                                updatedAt = createdAtMillis,
+                                entryDate = entryDateMillis
+                            )
+                            val existing = dao.getEntryByCreatedAt(createdAtMillis)
+                            if (existing == null) {
+                                dao.insert(remote)
+                            } else {
+                                dao.update(remote.copy(id = existing.id))
+                            }
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Failed to apply remote repair", e)
+                        }
+                    }
+                }
+            }
+    }
+
+    fun stopRepairEntriesListener() {
+        repairsListener?.remove()
+        repairsListener = null
     }
 }

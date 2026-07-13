@@ -33,6 +33,13 @@ service cloud.firestore {
     match /owners/{ownerId} {
       allow read: if signedIn();
       allow write: if true;
+
+      // Repair entries synced from workers/owner devices. Workers write without a
+      // reliable auth session and the owner app reads them in real time, so this
+      // subcollection is intentionally open (app auth is currently unreliable).
+      match /repairs/{repairId} {
+        allow read, write: if true;
+      }
     }
 
     // Workers, login audit, sessions — same rationale (app writes without auth).

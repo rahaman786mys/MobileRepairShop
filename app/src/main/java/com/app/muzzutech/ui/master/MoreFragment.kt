@@ -164,8 +164,10 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
     private fun applyRoleBasedVisibility() {
         if (AuthManager(requireContext()).isWorkerLoggedIn()) {
             binding.cardServiceMen.visibility = View.GONE
+            binding.cardWorkerLogins.visibility = View.GONE
             binding.cardPayroll.visibility = View.GONE
             binding.cardExpenses.visibility = View.GONE
+            binding.cardCloudSync.visibility = View.GONE
         }
     }
 
@@ -397,6 +399,17 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
             .remove("logged_in_identifier")
             .remove("logged_in_firebase_uid")
             .apply()
+
+        // Also clear appSettings used by AuthManager (auth_logged_in, auth_user_type, etc.)
+        SecurePrefs.appSettings(requireContext()).edit()
+            .putBoolean("auth_logged_in", false)
+            .remove("auth_user_type")
+            .remove("auth_firebase_uid")
+            .remove("auth_user_id")
+            .apply()
+
+        // Stop the real-time repairs listener so it doesn't leak into the next session.
+        try { com.app.muzzutech.auth.FirestoreSyncManager.stopRepairEntriesListener() } catch (_: Exception) {}
 
         // End the Firebase + Google sessions so the next sign-in is a fresh choice.
         try { com.google.firebase.auth.FirebaseAuth.getInstance().signOut() } catch (_: Exception) {}

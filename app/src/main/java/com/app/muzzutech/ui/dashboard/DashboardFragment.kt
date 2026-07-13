@@ -50,12 +50,19 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
   }
 
   private fun applyRoleBasedVisibility() {
-    if (AuthManager(requireContext()).isWorkerLoggedIn()) {
+    val isWorker = AuthManager(requireContext()).isWorkerLoggedIn()
+    if (isWorker) {
+      // Hide financial KPIs (profit, revenue, dues)
       binding.cardProfitKpi.visibility = View.GONE
       binding.cardInvest.visibility = View.GONE
       binding.cardDuesKpi.visibility = View.GONE
+      // Hide financial action cards
       binding.cardDuesGrid.visibility = View.GONE
       binding.cardReportsGrid.visibility = View.GONE
+      // Hide AI advisor (financial insights)
+      binding.cardAiAdvisor.visibility = View.GONE
+      // Hide ledger alert (financial)
+      binding.cardLedgerAlert.visibility = View.GONE
     }
   }
 

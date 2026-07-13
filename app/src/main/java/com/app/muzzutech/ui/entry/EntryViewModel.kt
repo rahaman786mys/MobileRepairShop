@@ -1,15 +1,18 @@
 package com.app.muzzutech.ui.entry
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
 import com.app.muzzutech.MobileRepairApp
+import com.app.muzzutech.auth.AuthManager
+import com.app.muzzutech.auth.FirestoreSyncManager
 import com.app.muzzutech.data.model.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class EntryViewModel : ViewModel() {
+class EntryViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository by lazy { MobileRepairApp.instance.repairRepository }
     private val db by lazy { MobileRepairApp.instance.database }
@@ -162,6 +165,29 @@ class EntryViewModel : ViewModel() {
                     isDraft = isDraft
                 )
                 val id = repository.insert(entry)
+
+                // Sync to Firestore so admin sees worker entries instantly
+                viewModelScope.launch {
+                    val application = getApplication<MobileRepairApp>()
+                    val authManager = AuthManager(application)
+                    val ownerId: String
+                    if (authManager.isOwnerLoggedIn()) {
+                        ownerId = authManager.getLoggedInFirebaseUid()
+                    } else if (authManager.isWorkerLoggedIn()) {
+                        val worker = db.serviceManDao().getServiceManById(authManager.getLoggedInUserId())
+                        ownerId = worker?.ownerId ?: ""
+                    } else {
+                        ownerId = ""
+                    }
+                    if (ownerId.isNotEmpty()) {
+                        val workerId = if (authManager.isWorkerLoggedIn()) authManager.getLoggedInUserId() else null
+                        FirestoreSyncManager.syncRepairEntry(
+                            entry.copy(id = id),
+                            ownerId,
+                            workerId
+                        )
+                    }
+                }
 
                 if (advanceAmount > 0L) {
                     val personMobile = mobile
