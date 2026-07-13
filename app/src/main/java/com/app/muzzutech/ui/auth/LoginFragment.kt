@@ -69,15 +69,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val account = task.getResult(ApiException::class.java)
             val email = account?.email ?: ""
             if (email.isNotEmpty()) {
-                if (isRegisterMode && binding.layoutRegistrationDetails.isVisible) {
-                    binding.etEmail.setText(email)
-                    emailVerifiedByGoogle = true
-                    binding.btnVerifyEmailGoogle.text = "✓ Verified: $email"
-                    binding.btnVerifyEmailGoogle.isEnabled = false
-                    Toast.makeText(requireContext(), "Email verified via Google", Toast.LENGTH_SHORT).show()
-                } else {
-                    loginSuccess(email)
-                }
+                handleGoogleEmail(email)
             } else {
                 Snackbar.make(binding.root, "No email returned", Snackbar.LENGTH_LONG).show()
             }
@@ -224,12 +216,10 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
         if (isRegisterMode) {
             lifecycleScope.launch {
-                val db = MobileRepairApp.instance.database
-                val existing = db.ownerDao().getOwnerByPhone("91$mobile")
+                val existing = findOwnerByPhoneVariants(mobile)
                 if (existing != null) {
-                    activity?.runOnUiThread {
-                        Toast.makeText(requireContext(), "Number already registered. Please login.", Toast.LENGTH_LONG).show()
-                    }
+                    if (!isAdded) return@launch
+                    promptAlreadyRegistered("phone number (+91 $mobile)", mobile)
                     return@launch
                 }
                 proceedWithOtp(mobile)
@@ -369,10 +359,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         lifecycleScope.launch {
             try {
                 val db = MobileRepairApp.instance.database
-                val existingOwner = db.ownerDao().getOwnerByPhone(phone)
-                if (existingOwner != null) {
+                val existingByPhone = db.ownerDao().getOwnerByPhone(phone)
+                val existingByEmail = if (email.isNotEmpty()) db.ownerDao().getOwnerByEmail(email) else null
+                if (existingByPhone != null || existingByEmail != null) {
                     activity?.runOnUiThread {
-                        Toast.makeText(requireContext(), "Number already registered. Please login.", Toast.LENGTH_LONG).show()
+                        val via = if (existingByPhone != null) "phone number" else "email address"
+                        promptAlreadyRegistered(via)
                     }
                     return@launch
                 }
@@ -497,6 +489,92 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
         if (isAdded) {
             findNavController().navigate(R.id.action_loginFragment_to_dashboardFragment)
+        }
+    }
+
+    /**
+     * Decides what to do with a Google-verified email:
+     *  - During the phone-registration form: verify the email (or block if it already exists).
+     *  - Fresh "Register with Google": log an existing user in, else guide them to register.
+     *  - Login mode: log in.
+     */
+    private fun handleGoogleEmail(email: String) {
+        lifecycleScope.launch {
+            val existingOwner = MobileRepairApp.instance.database.ownerDao().getOwnerByEmail(email)
+            if (!isAdded || _binding == null) return@launch
+            when {
+                isRegisterMode && binding.layoutRegistrationDetails.isVisible -> {
+                    if (existingOwner != null) {
+                        promptAlreadyRegistered("email address ($email)", to10Digit(existingOwner.phoneNumber))
+                    } else {
+                        binding.etEmail.setText(email)
+                        emailVerifiedByGoogle = true
+                        binding.btnVerifyEmailGoogle.text = "✓ Verified: $email"
+                        binding.btnVerifyEmailGoogle.isEnabled = false
+                        Toast.makeText(requireContext(), "Email verified via Google", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                isRegisterMode -> {
+                    if (existingOwner != null) {
+                        Toast.makeText(requireContext(), "Welcome back! You're already registered — logging you in.", Toast.LENGTH_LONG).show()
+                        loginSuccess(email)
+                    } else {
+                        promptRegisterViaOtp(email)
+                    }
+                }
+                else -> loginSuccess(email)
+            }
+        }
+    }
+
+    /** Owner phone is stored as "91XXXXXXXXXX"; check the common variants to be safe. */
+    private suspend fun findOwnerByPhoneVariants(mobile10: String): Owner? {
+        val dao = MobileRepairApp.instance.database.ownerDao()
+        return dao.getOwnerByPhone("91$mobile10")
+            ?: dao.getOwnerByPhone(mobile10)
+            ?: dao.getOwnerByPhone("+91$mobile10")
+    }
+
+    private fun to10Digit(phone: String): String {
+        val digits = phone.filter { it.isDigit() }
+        return if (digits.length > 10) digits.takeLast(10) else digits
+    }
+
+    private fun promptAlreadyRegistered(via: String, prefillPhone: String = "") {
+        if (!isAdded || _binding == null) return
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Already Registered")
+            .setMessage("This $via is already registered with MuZZu Tech.\n\nPlease log in using your phone number, WhatsApp, or email.")
+            .setCancelable(false)
+            .setPositiveButton("Go to Login") { d, _ ->
+                switchToLogin(prefillPhone)
+                d.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun promptRegisterViaOtp(email: String) {
+        if (!isAdded || _binding == null) return
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("No account found")
+            .setMessage("We couldn't find an account for $email.\n\nTo create your account, please register using Phone OTP.")
+            .setPositiveButton("Register with Phone OTP") { d, _ ->
+                showPhoneInput()
+                d.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    /** Switch the UI to Login mode and open the phone-login input (optionally prefilled). */
+    private fun switchToLogin(prefillPhone: String = "") {
+        if (_binding == null) return
+        isRegisterMode = false
+        binding.toggleAuthMode.check(R.id.btnToggleLogin)
+        showPhoneInput()
+        if (prefillPhone.isNotEmpty()) {
+            binding.etMobileNumber.setText(prefillPhone)
         }
     }
 
