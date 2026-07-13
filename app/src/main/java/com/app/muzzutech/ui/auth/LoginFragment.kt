@@ -1,6 +1,8 @@
 package com.app.muzzutech.ui.auth
 
 import android.Manifest
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -11,6 +13,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -59,6 +62,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private var isRegisterMode = true
     private var isWorkerMode = false
+    private var isLoginPhoneMode = false
 
     // Registration verification state — owner is written only when all are set + unique.
     private var regGoogleEmail: String? = null
@@ -115,6 +119,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         updateUiForMode()
+        startPhonePulseAnimation()
 
         binding.toggleAuthMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
@@ -152,6 +157,25 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.btnVerifyEmailGoogle.setOnClickListener { signInWithGoogle() }
     }
 
+    private fun startPhonePulseAnimation() {
+        val pulse = ObjectAnimator.ofFloat(binding.ivLogo, View.SCALE_X, 1f, 1.08f).apply {
+            duration = 1200
+            interpolator = AccelerateDecelerateInterpolator()
+            repeatCount = 1000
+            repeatMode = ObjectAnimator.REVERSE
+        }
+        val pulseY = ObjectAnimator.ofFloat(binding.ivLogo, View.SCALE_Y, 1f, 1.08f).apply {
+            duration = 1200
+            interpolator = AccelerateDecelerateInterpolator()
+            repeatCount = 1000
+            repeatMode = ObjectAnimator.REVERSE
+        }
+        AnimatorSet().apply {
+            playTogether(pulse, pulseY)
+            start()
+        }
+    }
+
     private fun updateUiForMode() {
         if (isWorkerMode) {
             binding.btnGoogleSync.isVisible = false
@@ -163,16 +187,18 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
         binding.layoutWorker.isVisible = false
         binding.btnGoogleSync.isVisible = true
-        binding.btnPhoneOtp.isVisible = isRegisterMode
+        binding.btnPhoneOtp.isVisible = true
         binding.btnWorkerCard.isVisible = false
         if (isRegisterMode) {
             binding.tvGoogleLabel.text = "Continue with Google"
-            binding.tvPhoneOtpLabel.text = "Continue with Phone Number"
+            binding.tvPhoneOtpLabel.text = "Verify with Phone Number"
         } else {
             binding.tvGoogleLabel.text = "Sign in with Google"
+            binding.tvPhoneOtpLabel.text = "Sign in with Phone Number"
         }
         hideAllInputs()
         resetRegistrationState()
+        isLoginPhoneMode = false
     }
 
     private fun hideAllInputs() {
@@ -191,6 +217,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private fun showPhoneInput() {
         hideAllInputs()
+        isLoginPhoneMode = !isRegisterMode
         binding.layoutPhoneInput.isVisible = true
     }
 
@@ -330,12 +357,34 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 binding.progressBar.isVisible = false
                 if (success) {
                     val phone = OtpManager.getCurrentPhone() ?: ""
-                    regPhone = phone
-                    binding.layoutOtpInput.isVisible = false
-                    evaluateRegistration()
+                    if (isLoginPhoneMode) {
+                        binding.layoutOtpInput.isVisible = false
+                        handlePhoneLogin(phone)
+                    } else {
+                        regPhone = phone
+                        binding.layoutOtpInput.isVisible = false
+                        evaluateRegistration()
+                    }
                 } else {
                     Toast.makeText(requireContext(), error ?: "Invalid OTP", Toast.LENGTH_SHORT).show()
                 }
+            }
+        }
+    }
+
+    private fun handlePhoneLogin(phone: String) {
+        lifecycleScope.launch {
+            val owner = findOwnerByPhoneVariants(to10Digit(phone))
+                ?: FirestoreSyncManager.fetchOwnerByPhone(phone)
+                ?: FirestoreSyncManager.fetchOwnerByPhone("91${to10Digit(phone)}")
+            if (!isAdded || _binding == null) return@launch
+            if (owner != null) {
+                cacheOwnerLocally(owner)
+                FirestoreSyncManager.logLoginEvent(owner.email, "owner", owner.id, "success", "phone_otp", owner.businessName)
+                loginSuccess(owner.email, owner.id)
+            } else {
+                Snackbar.make(binding.root, "No account found for this number. Please register first.", Snackbar.LENGTH_LONG).show()
+                binding.toggleAuthMode.check(R.id.btnToggleRegister)
             }
         }
     }

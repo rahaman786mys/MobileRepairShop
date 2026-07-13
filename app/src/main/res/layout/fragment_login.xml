@@ -20,17 +20,16 @@
             android:paddingTop="48dp"
             android:paddingBottom="32dp">
 
-            <!-- ===== TOP LOGO ===== -->
+            <!-- ===== TOP LOGO (phone icon with ring animation) ===== -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivLogo"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
                 android:background="@drawable/bg_circle_sunken"
-                android:padding="16dp"
-                android:src="@drawable/ic_service_premium"
-                android:contentDescription="MuZZu Tech logo"
-                app:tint="@color/muzzu_accent"
-                android:elevation="4dp"
+                android:padding="20dp"
+                android:src="@drawable/ic_phone_animated"
+                android:contentDescription="MuZZu Tech phone"
+                android:elevation="6dp"
                 android:layout_marginBottom="12dp" />
 
             <TextView
