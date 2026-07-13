@@ -495,6 +495,41 @@
             </LinearLayout>
         </ScrollView>
 
+        <!-- === REGISTER / LOGIN TOGGLE === -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleAuthMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            app:singleSelection="true"
+            app:checkedButton="@id/btnToggleRegister">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggleRegister"
+                style="@style/Widget.MuZZu.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Register"
+                android:textSize="13sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggleLogin"
+                style="@style/Widget.MuZZu.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Log In"
+                android:textSize="13sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnToggleWorker"
+                style="@style/Widget.MuZZu.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Worker"
+                android:textSize="13sp" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="28dp"

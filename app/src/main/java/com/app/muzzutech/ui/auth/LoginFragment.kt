@@ -57,6 +57,9 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
+    private var isRegisterMode = true
+    private var isWorkerMode = false
+
     // Registration verification state — owner is written only when all are set + unique.
     private var regGoogleEmail: String? = null
     private var regGoogleUid: String? = null
@@ -111,15 +114,18 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        updateUiForMode()
+
+        binding.toggleAuthMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                isRegisterMode = checkedId == R.id.btnToggleRegister
+                isWorkerMode = checkedId == R.id.btnToggleWorker
+                updateUiForMode()
+            }
+        }
 
         binding.btnGoogleSync.setOnClickListener { signInWithGoogle() }
         binding.btnPhoneOtp.setOnClickListener { showPhoneInput() }
-
-        binding.btnWorkerCard.setOnClickListener {
-            val showing = binding.layoutWorker.isVisible
-            hideAllInputs()
-            binding.layoutWorker.isVisible = !showing
-        }
 
         binding.btnSendOtp.setOnClickListener {
             val phone = binding.etMobileNumber.text.toString().trim()
@@ -144,6 +150,29 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.btnUploadPhoto.setOnClickListener { uploadPhoto() }
         binding.btnCreateAccount.setOnClickListener { submitRegistration() }
         binding.btnVerifyEmailGoogle.setOnClickListener { signInWithGoogle() }
+    }
+
+    private fun updateUiForMode() {
+        if (isWorkerMode) {
+            binding.btnGoogleSync.isVisible = false
+            binding.btnPhoneOtp.isVisible = false
+            binding.btnWorkerCard.isVisible = false
+            hideAllInputs()
+            binding.layoutWorker.isVisible = true
+            return
+        }
+        binding.layoutWorker.isVisible = false
+        binding.btnGoogleSync.isVisible = true
+        binding.btnPhoneOtp.isVisible = isRegisterMode
+        binding.btnWorkerCard.isVisible = false
+        if (isRegisterMode) {
+            binding.tvGoogleLabel.text = "Continue with Google"
+            binding.tvPhoneOtpLabel.text = "Continue with Phone Number"
+        } else {
+            binding.tvGoogleLabel.text = "Sign in with Google"
+        }
+        hideAllInputs()
+        resetRegistrationState()
     }
 
     private fun hideAllInputs() {
@@ -195,8 +224,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val email = (user?.email ?: accountEmail).trim()
             val uid = user?.uid ?: ""
             if (email.isEmpty() || uid.isEmpty()) {
-                // Surface the REAL reason instead of a generic message so config
-                // problems (unregistered SHA-1, Google provider disabled) are visible.
                 val reason = authError ?: if (idToken.isNullOrEmpty())
                     "Google returned no ID token — this build's signing SHA-1 is not registered in Firebase."
                 else "Firebase did not establish a session."
@@ -207,7 +234,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 return@launch
             }
 
-            handleGoogleResult(email, uid)
+            if (isRegisterMode) handleRegisterResult(email, uid)
+            else handleLoginResult(email, uid)
         }
     }
 
@@ -225,13 +253,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
     }
 
-    private fun handleRegisterGoogle(email: String, uid: String) {
+    /** Registration pathway: save Google info → evaluate dual-verify */
+    private fun handleRegisterResult(email: String, uid: String) {
         regGoogleEmail = email
         regGoogleUid = uid
         evaluateRegistration()
     }
 
-    private suspend fun handleGoogleResult(email: String, uid: String) {
+    /** Login pathway: find owner → login. No registration, no dual-verify. */
+    private suspend fun handleLoginResult(email: String, uid: String) {
         val db = MobileRepairApp.instance.database
         val owner = db.ownerDao().getOwnerById(uid)
             ?: db.ownerDao().getOwnerByEmail(email)
@@ -239,10 +269,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         if (!isAdded || _binding == null) return
         if (owner != null) {
             cacheOwnerLocally(owner)
+            FirestoreSyncManager.logLoginEvent(email, "owner", uid, "success", "google", owner.businessName)
             loginSuccess(email, owner.id)
         } else {
-            // No account → auto-start registration: save Google info, prompt phone OTP
-            handleRegisterGoogle(email, uid)
+            Snackbar.make(binding.root, "No account found for $email. Please register first.", Snackbar.LENGTH_LONG).show()
+            binding.toggleAuthMode.check(R.id.btnToggleRegister)
         }
     }
 
@@ -555,9 +586,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         if (!isAdded || _binding == null) return
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Already Registered")
-            .setMessage("This $via already exists. Please sign in with Google instead.")
-            .setCancelable(true)
-            .setPositiveButton("OK", null)
+            .setMessage("This $via already exists. Please log in instead.")
+            .setCancelable(false)
+            .setPositiveButton("Go to Login") { _, _ ->
+                binding.toggleAuthMode.check(R.id.btnToggleLogin)
+            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 

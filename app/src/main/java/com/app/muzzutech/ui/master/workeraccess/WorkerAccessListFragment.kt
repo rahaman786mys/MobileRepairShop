@@ -83,11 +83,16 @@ class WorkerAccessListFragment : Fragment(R.layout.fragment_worker_access) {
             hint = "Phone number (this is the Worker ID)"
             inputType = InputType.TYPE_CLASS_PHONE
         }
+        val roleInput = EditText(ctx).apply {
+            hint = "Role (e.g. Technician, Sales)"
+            inputType = InputType.TYPE_TEXT_FLAG_CAP_WORDS
+        }
         val container = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(pad, pad / 2, pad, 0)
             addView(nameInput)
             addView(phoneInput)
+            addView(roleInput)
         }
 
         AlertDialog.Builder(ctx)
@@ -96,20 +101,21 @@ class WorkerAccessListFragment : Fragment(R.layout.fragment_worker_access) {
             .setPositiveButton("Create Login") { _, _ ->
                 val name = nameInput.text.toString().trim()
                 val phone = phoneInput.text.toString().trim()
+                val role = roleInput.text.toString().trim()
                 if (name.isEmpty() || phone.isEmpty()) {
                     Snackbar.make(binding.root, "Name and phone number are required", Snackbar.LENGTH_LONG).show()
                     return@setPositiveButton
                 }
-                createWorker(name, phone)
+                createWorker(name, phone, role)
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun createWorker(name: String, phone: String) {
+    private fun createWorker(name: String, phone: String, role: String = "") {
         val ownerId = currentOwnerId()
         viewLifecycleOwner.lifecycleScope.launch {
-            val credential = manager.addWorker(ownerId, name, phone)
+            val credential = manager.addWorker(ownerId, name, phone, role)
             if (!isAdded || _binding == null) return@launch
             if (credential == null) {
                 Snackbar.make(

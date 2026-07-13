@@ -40,7 +40,7 @@ class WorkerCredentialManager(
      * Returns null if the phone is blank, already used (phone must be unique
      * since it is the login id), or the owner is at the worker limit.
      */
-    suspend fun addWorker(ownerId: String, name: String, phone: String): Credential? {
+    suspend fun addWorker(ownerId: String, name: String, phone: String, role: String = ""): Credential? {
         val cleanPhone = phone.trim()
         if (cleanPhone.isEmpty()) return null
         if (workers.findByPhone(cleanPhone) != null) return null
@@ -51,6 +51,7 @@ class WorkerCredentialManager(
             name = name.trim(),
             mobile = cleanPhone,
             ownerId = ownerId,
+            designation = role.ifBlank { "Technician" },
             passwordHash = PasswordHasher.hash(password),
             canLogin = true,
             isActive = true
