@@ -27,20 +27,26 @@ service cloud.firestore {
       allow read, update, delete: if signedIn();
     }
 
-    // Owner + shop records (registration, profile restore, founder console).
+    // Owner + shop records. The app writes these WITHOUT an auth session (its
+    // Firebase auth is currently unreliable), so writes are open; reads stay
+    // founder-only. TODO: require signedIn() for writes once app auth is fixed.
     match /owners/{ownerId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow write: if true;
     }
 
-    // Workers, login audit, sessions.
+    // Workers, login audit, sessions — same rationale (app writes without auth).
     match /workers/{workerId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow write: if true;
     }
     match /login_logs/{logId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow write: if true;
     }
     match /auth_sessions/{sessionId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow write: if true;
     }
 
     // Monetization + operations (managed from the Founder Console).
