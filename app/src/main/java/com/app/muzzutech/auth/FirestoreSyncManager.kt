@@ -148,6 +148,45 @@ object FirestoreSyncManager {
         }
     }
 
+    /**
+     * Write a fully-verified owner record to /owners/{id} at the end of the
+     * dual-verification registration. Includes googleVerified/phoneVerified flags.
+     * [onResult] runs on the main thread.
+     */
+    fun registerOwner(owner: Owner, onResult: (Boolean, String) -> Unit = { _, _ -> }) {
+        try {
+            val data = hashMapOf<String, Any>(
+                "email" to owner.email,
+                "businessName" to owner.businessName,
+                "ownerName" to owner.ownerName,
+                "phone" to owner.phoneNumber,
+                "shopAddress" to owner.shopAddress,
+                "gstNumber" to owner.gstNumber,
+                "profilePhotoBase64" to owner.profilePhotoBase64,
+                "googleAccountId" to (owner.googleAccountId ?: ""),
+                "googleVerified" to true,
+                "phoneVerified" to true,
+                "subscriptionTier" to owner.subscriptionTier,
+                "createdAt" to com.google.firebase.Timestamp(owner.createdAt / 1000, 0),
+                "updatedAt" to com.google.firebase.Timestamp.now()
+            )
+            firestore.collection("owners")
+                .document(owner.id)
+                .set(data)
+                .addOnSuccessListener {
+                    Log.d(TAG, "Owner registered: ${owner.id}")
+                    onResult(true, owner.id)
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Owner registration write failed", e)
+                    onResult(false, e.message ?: "Failed to save account")
+                }
+        } catch (e: Exception) {
+            Log.w(TAG, "Owner registration error", e)
+            onResult(false, e.message ?: "Failed to save account")
+        }
+    }
+
     fun syncOwner(owner: Owner) {
         scope.launch {
             try {

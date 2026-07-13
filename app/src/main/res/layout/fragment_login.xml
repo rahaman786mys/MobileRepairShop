@@ -65,6 +65,19 @@
                 android:text="Login" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
+        <!-- Dual-verification progress (registration only) -->
+        <TextView
+            android:id="@+id/tvVerifyStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:text=""
+            android:textSize="12sp"
+            android:textColor="@color/muzzu_accent"
+            android:visibility="gone"
+            style="@style/TextAppearance.MuZZu.Label" />
+
         <!-- === GOOGLE === -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnGoogleSync"
