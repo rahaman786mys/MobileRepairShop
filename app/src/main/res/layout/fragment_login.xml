@@ -39,46 +39,7 @@
             android:layout_marginTop="2dp"
             android:layout_marginBottom="28dp" />
 
-        <!-- Register / Login Toggle -->
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggleAuthMode"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="28dp"
-            app:singleSelection="true"
-            app:checkedButton="@id/btnToggleRegister">
-
-            <Button
-                android:id="@+id/btnToggleRegister"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Register" />
-
-            <Button
-                android:id="@+id/btnToggleLogin"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Login" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-        <!-- Dual-verification progress (registration only) -->
-        <TextView
-            android:id="@+id/tvVerifyStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:text=""
-            android:textSize="12sp"
-            android:textColor="@color/muzzu_accent"
-            android:visibility="gone"
-            style="@style/TextAppearance.MuZZu.Label" />
-
-        <!-- === GOOGLE === -->
+        <!-- === GOOGLE (Owner login/register) === -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnGoogleSync"
             android:layout_width="match_parent"
@@ -106,30 +67,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:text="Continue with Google"
+                    android:text="Continue with Google (Owner)"
                     style="@style/TextAppearance.MuZZu.Body"
                     android:textStyle="bold"
                     android:textColor="@color/muzzu_text_main" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- WhatsApp option removed from the UI. Kept hidden so existing view
-             bindings still resolve without touching LoginFragment. -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/btnWhatsApp"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:visibility="gone"
-            style="@style/Widget.MuZZu.Card">
-
-            <TextView
-                android:id="@+id/tvWhatsAppLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="WhatsApp" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- === PHONE OTP === -->
+        <!-- === PHONE OTP (Owner registration) === -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnPhoneOtp"
             android:layout_width="match_parent"
@@ -159,14 +104,51 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:text="Phone Number OTP"
+                    android:text="Register with Phone OTP"
                     style="@style/TextAppearance.MuZZu.Body"
                     android:textStyle="bold"
                     android:textColor="@color/muzzu_text_main" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- === WORKER SECTION (Login mode only) === -->
+        <!-- === WORKER LOGIN === -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnWorkerCard"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:clickable="true"
+            android:focusable="true"
+            style="@style/Widget.MuZZu.Card"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
+
+                <TextView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:gravity="center"
+                    android:text="👤"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvWorkerLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Worker Login"
+                    style="@style/TextAppearance.MuZZu.Body"
+                    android:textStyle="bold"
+                    android:textColor="@color/muzzu_text_main" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- === WORKER LOGIN FIELDS (shown when Worker card is tapped) === -->
         <LinearLayout
             android:id="@+id/layoutWorker"
             android:layout_width="match_parent"
@@ -174,23 +156,12 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="12dp"
-                android:gravity="center"
-                android:text="— OR WORKER LOGIN —"
-                style="@style/TextAppearance.MuZZu.Label"
-                android:textSize="10sp"
-                android:textColor="#888888" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilWorkerPhone"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email or Phone"
+                android:hint="Worker ID (Phone)"
                 app:boxStrokeWidth="1dp"
                 app:boxStrokeColor="@color/muzzu_border">
 
@@ -198,7 +169,7 @@
                     android:id="@+id/etWorkerPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="phone" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout

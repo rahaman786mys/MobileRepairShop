@@ -57,8 +57,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
-    private var isRegisterMode = true
-
     // Registration verification state — owner is written only when all are set + unique.
     private var regGoogleEmail: String? = null
     private var regGoogleUid: String? = null
@@ -113,17 +111,15 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        updateUiForMode()
-
-        binding.toggleAuthMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                isRegisterMode = checkedId == R.id.btnToggleRegister
-                updateUiForMode()
-            }
-        }
 
         binding.btnGoogleSync.setOnClickListener { signInWithGoogle() }
         binding.btnPhoneOtp.setOnClickListener { showPhoneInput() }
+
+        binding.btnWorkerCard.setOnClickListener {
+            val showing = binding.layoutWorker.isVisible
+            hideAllInputs()
+            binding.layoutWorker.isVisible = !showing
+        }
 
         binding.btnSendOtp.setOnClickListener {
             val phone = binding.etMobileNumber.text.toString().trim()
@@ -147,20 +143,14 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.btnTakePhoto.setOnClickListener { takePhoto() }
         binding.btnUploadPhoto.setOnClickListener { uploadPhoto() }
         binding.btnCreateAccount.setOnClickListener { submitRegistration() }
-        // Email is verified up-front (before this form), so this button just re-triggers Google if needed.
         binding.btnVerifyEmailGoogle.setOnClickListener { signInWithGoogle() }
     }
 
-    private fun updateUiForMode() {
-        binding.tvGoogleLabel.text = if (isRegisterMode) "Register with Google" else "Login with Google"
-        binding.tvWhatsAppLabel.text = "WhatsApp"
-        binding.tvPhoneOtpLabel.text = "Register with Phone Number"
-        // Owner login is Google-only for now; phone is a registration factor only.
-        binding.btnPhoneOtp.isVisible = isRegisterMode
-        binding.layoutWorker.isVisible = !isRegisterMode
-        resetRegistrationState()
-        hideAllInputs()
-        updateVerifyStatus()
+    private fun hideAllInputs() {
+        binding.layoutPhoneInput.isVisible = false
+        binding.layoutOtpInput.isVisible = false
+        binding.layoutRegistrationDetails.isVisible = false
+        binding.layoutWorker.isVisible = false
     }
 
     private fun resetRegistrationState() {
@@ -168,23 +158,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         regGoogleUid = null
         regPhone = null
         profilePhotoBase64 = ""
-    }
-
-    private fun hideAllInputs() {
-        binding.layoutPhoneInput.isVisible = false
-        binding.layoutOtpInput.isVisible = false
-        binding.layoutRegistrationDetails.isVisible = false
-    }
-
-    private fun updateVerifyStatus() {
-        if (!isRegisterMode) {
-            binding.tvVerifyStatus.isVisible = false
-            return
-        }
-        val g = if (regGoogleEmail != null) "✓" else "•"
-        val p = if (regPhone != null) "✓" else "•"
-        binding.tvVerifyStatus.text = "Registration needs BOTH:  $g Google   $p Phone"
-        binding.tvVerifyStatus.isVisible = true
     }
 
     private fun showPhoneInput() {
@@ -234,8 +207,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 return@launch
             }
 
-            if (isRegisterMode) handleRegisterGoogle(email, uid)
-            else handleLoginGoogle(email, uid)
+            handleGoogleResult(email, uid)
         }
     }
 
@@ -256,22 +228,21 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
     private fun handleRegisterGoogle(email: String, uid: String) {
         regGoogleEmail = email
         regGoogleUid = uid
-        updateVerifyStatus()
         evaluateRegistration()
     }
 
-    private suspend fun handleLoginGoogle(email: String, uid: String) {
+    private suspend fun handleGoogleResult(email: String, uid: String) {
         val db = MobileRepairApp.instance.database
         val owner = db.ownerDao().getOwnerById(uid)
             ?: db.ownerDao().getOwnerByEmail(email)
             ?: FirestoreSyncManager.fetchOwnerByEmail(email)
         if (!isAdded || _binding == null) return
         if (owner != null) {
-            cacheOwnerLocally(owner) // pull full Founder record -> populate Profile
+            cacheOwnerLocally(owner)
             loginSuccess(email, owner.id)
         } else {
-            Snackbar.make(binding.root, "No account found for $email. Please register first.", Snackbar.LENGTH_LONG).show()
-            binding.toggleAuthMode.check(R.id.btnToggleRegister)
+            // No account → auto-start registration: save Google info, prompt phone OTP
+            handleRegisterGoogle(email, uid)
         }
     }
 
@@ -330,7 +301,6 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     val phone = OtpManager.getCurrentPhone() ?: ""
                     regPhone = phone
                     binding.layoutOtpInput.isVisible = false
-                    updateVerifyStatus()
                     evaluateRegistration()
                 } else {
                     Toast.makeText(requireContext(), error ?: "Invalid OTP", Toast.LENGTH_SHORT).show()
@@ -351,11 +321,11 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
             when (RegistrationDecider.decide(g != null, p != null, emailDup, phoneDup)) {
                 RegistrationDecider.Decision.BlockEmailExists -> {
-                    resetRegistrationState(); updateVerifyStatus()
+                    resetRegistrationState()
                     promptAlreadyExists("account")
                 }
                 RegistrationDecider.Decision.BlockPhoneExists -> {
-                    resetRegistrationState(); updateVerifyStatus()
+                    resetRegistrationState()
                     promptAlreadyExists("phone number")
                 }
                 RegistrationDecider.Decision.NeedGoogle -> {
@@ -423,7 +393,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             if (emailExists(email) || phoneExists(phone)) {
                 if (!isAdded) return@launch
                 promptAlreadyExists("account")
-                resetRegistrationState(); updateVerifyStatus()
+                resetRegistrationState()
                 return@launch
             }
 
@@ -585,13 +555,9 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         if (!isAdded || _binding == null) return
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Already Registered")
-            .setMessage("This $via already exists. Please log in instead.")
-            .setCancelable(false)
-            .setPositiveButton("Go to Login") { d, _ ->
-                binding.toggleAuthMode.check(R.id.btnToggleLogin)
-                d.dismiss()
-            }
-            .setNegativeButton("Cancel", null)
+            .setMessage("This $via already exists. Please sign in with Google instead.")
+            .setCancelable(true)
+            .setPositiveButton("OK", null)
             .show()
     }
 
