@@ -10,6 +10,9 @@ interface OwnerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(owner: Owner)
 
+    @Query("SELECT * FROM owners ORDER BY createdAt ASC LIMIT 1")
+    suspend fun getFirstOwner(): Owner?
+
     @Query("SELECT * FROM owners WHERE id = :ownerId")
     suspend fun getOwnerById(ownerId: String): Owner?
 

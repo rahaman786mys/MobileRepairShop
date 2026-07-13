@@ -43,6 +43,22 @@ object PhotoUtils {
     }
 
     /**
+     * Decode a Base64-encoded image and persist it to a local file.
+     * Returns the absolute path, or null on failure.
+     */
+    fun saveBase64ToFile(context: Context, base64: String, prefix: String = "PROF_"): String? {
+        if (base64.isBlank()) return null
+        return try {
+            val bytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
+            val file = createPhotoFile(context, prefix)
+            FileOutputStream(file).use { it.write(bytes) }
+            file.absolutePath
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
      * Get a scaled bitmap from a file path
      */
     fun getScaledBitmap(filePath: String, maxWidth: Int = 1024, maxHeight: Int = 1024): Bitmap? {

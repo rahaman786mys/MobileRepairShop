@@ -49,6 +49,56 @@ object FirestoreSyncManager {
         }
     }
 
+    /**
+     * Submit a support / phone-change ticket to the "tickets" collection so the
+     * founder can review it in the Founder Console. The current app user's
+     * identity is auto-attached. [onResult] is invoked on the main thread.
+     */
+    fun submitTicket(
+        subject: String,
+        summary: String,
+        type: String,
+        ownerId: String,
+        userName: String,
+        businessName: String,
+        email: String,
+        phone: String,
+        extra: Map<String, Any> = emptyMap(),
+        onResult: (Boolean, String) -> Unit = { _, _ -> }
+    ) {
+        try {
+            val data = hashMapOf<String, Any>(
+                "subject" to subject,
+                "summary" to summary,
+                "type" to type,
+                "status" to "open",
+                "ownerId" to ownerId,
+                "userName" to userName,
+                "businessName" to businessName,
+                "email" to email,
+                "phone" to phone,
+                "appVersion" to com.app.muzzutech.BuildConfig.VERSION_NAME,
+                "platform" to "android",
+                "date" to java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date()),
+                "createdAt" to com.google.firebase.Timestamp.now()
+            )
+            data.putAll(extra)
+            firestore.collection("tickets")
+                .add(data)
+                .addOnSuccessListener { ref ->
+                    Log.d(TAG, "Ticket submitted: ${ref.id} ($type)")
+                    onResult(true, ref.id)
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Failed to submit ticket", e)
+                    onResult(false, e.message ?: "Failed to submit ticket")
+                }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error submitting ticket", e)
+            onResult(false, e.message ?: "Error submitting ticket")
+        }
+    }
+
     fun syncOwner(owner: Owner) {
         scope.launch {
             try {
