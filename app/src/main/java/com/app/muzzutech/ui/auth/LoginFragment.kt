@@ -27,8 +27,10 @@ import com.app.muzzutech.auth.AuthManager
 import com.app.muzzutech.auth.FirestoreSyncManager
 import com.app.muzzutech.auth.SmsGateway
 import com.app.muzzutech.data.model.Owner
+import com.app.muzzutech.data.model.UserProfile
 import com.app.muzzutech.databinding.FragmentLoginBinding
 import com.app.muzzutech.utils.OtpManager
+import com.app.muzzutech.utils.PhotoUtils
 import com.app.muzzutech.utils.crpto.SecurePrefs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -69,7 +71,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val account = task.getResult(ApiException::class.java)
             val email = account?.email ?: ""
             if (email.isNotEmpty()) {
-                handleGoogleEmail(email)
+                handleGoogleEmail(email, account?.idToken)
             } else {
                 Snackbar.make(binding.root, "No email returned", Snackbar.LENGTH_LONG).show()
             }
@@ -431,16 +433,28 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             try {
                 val auth = FirebaseAuth.getInstance()
                 val prefs = SecurePrefs.authPrefs(requireContext())
-                val authEmail = prefs.getString("phone_auth_email", "") ?: ""
-                val authPass = prefs.getString("phone_auth_pass", "") ?: ""
+                var authEmail = prefs.getString("phone_auth_email", "") ?: ""
+                var authPass = prefs.getString("phone_auth_pass", "") ?: ""
 
-                if (authEmail.isNotEmpty() && authPass.isNotEmpty()) {
-                    try {
-                        auth.signInWithEmailAndPassword(authEmail, authPass).await()
-                    } catch (e: Exception) { }
+                // Reconstruct the deterministic phone credentials so login also works
+                // on a fresh device (same formula used at registration).
+                if (authEmail.isEmpty()) {
+                    authEmail = "phone_${phone}@muzzutech.online"
+                    authPass = phone.substring(phone.length.coerceAtLeast(8) - 8)
                 }
 
-                loginSuccess(phone, auth.currentUser?.uid ?: "")
+                try {
+                    auth.signInWithEmailAndPassword(authEmail, authPass).await()
+                } catch (e: Exception) {
+                    // Account may not exist as email/password on this device — proceed anyway.
+                }
+                prefs.edit().putString("phone_auth_email", authEmail)
+                    .putString("phone_auth_pass", authPass).apply()
+
+                // Restore the owner's profile from the cloud so nothing must be re-typed.
+                val owner = fetchAndCacheOwnerByPhone(phone)
+
+                loginSuccess(phone, auth.currentUser?.uid ?: owner?.id ?: "")
             } catch (e: Exception) {
                 activity?.runOnUiThread {
                     Toast.makeText(requireContext(), "Login failed: ${e.message}", Toast.LENGTH_LONG).show()
@@ -498,14 +512,18 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
      *  - Fresh "Register with Google": log an existing user in, else guide them to register.
      *  - Login mode: log in.
      */
-    private fun handleGoogleEmail(email: String) {
+    private fun handleGoogleEmail(email: String, idToken: String?) {
         lifecycleScope.launch {
-            val existingOwner = MobileRepairApp.instance.database.ownerDao().getOwnerByEmail(email)
+            val dao = MobileRepairApp.instance.database.ownerDao()
+            val localOwner = dao.getOwnerByEmail(email)
             if (!isAdded || _binding == null) return@launch
             when {
                 isRegisterMode && binding.layoutRegistrationDetails.isVisible -> {
-                    if (existingOwner != null) {
-                        promptAlreadyRegistered("email address ($email)", to10Digit(existingOwner.phoneNumber))
+                    // Verifying email during phone registration — block if already used anywhere.
+                    val existing = localOwner ?: FirestoreSyncManager.fetchOwnerByEmail(email)
+                    if (!isAdded || _binding == null) return@launch
+                    if (existing != null) {
+                        promptAlreadyRegistered("email address ($email)", to10Digit(existing.phoneNumber))
                     } else {
                         binding.etEmail.setText(email)
                         emailVerifiedByGoogle = true
@@ -515,15 +533,43 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     }
                 }
                 isRegisterMode -> {
-                    if (existingOwner != null) {
-                        Toast.makeText(requireContext(), "Welcome back! You're already registered — logging you in.", Toast.LENGTH_LONG).show()
-                        loginSuccess(email)
+                    // Fresh "Register with Google": log an existing user in (restoring from
+                    // cloud if needed), otherwise guide a new user to register via OTP.
+                    val owner = localOwner ?: run {
+                        firebaseSignInWithGoogle(idToken) // auth context for the cloud read
+                        FirestoreSyncManager.fetchOwnerByEmail(email)
+                    }
+                    if (!isAdded || _binding == null) return@launch
+                    if (owner != null) {
+                        cacheOwnerLocally(owner)
+                        Toast.makeText(requireContext(), "Welcome back! Restoring your profile...", Toast.LENGTH_LONG).show()
+                        loginSuccess(email, owner.id)
                     } else {
                         promptRegisterViaOtp(email)
                     }
                 }
-                else -> loginSuccess(email)
+                else -> {
+                    // Login mode — restore the profile from the cloud if it isn't on this device.
+                    val owner = localOwner ?: run {
+                        firebaseSignInWithGoogle(idToken)
+                        FirestoreSyncManager.fetchOwnerByEmail(email)
+                    }
+                    if (!isAdded) return@launch
+                    if (owner != null) cacheOwnerLocally(owner)
+                    loginSuccess(email, owner?.id ?: "")
+                }
             }
+        }
+    }
+
+    /** Establish a Firebase Auth session from a Google ID token (for cloud reads on login). */
+    private suspend fun firebaseSignInWithGoogle(idToken: String?) {
+        if (idToken.isNullOrEmpty()) return
+        try {
+            val cred = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
+            FirebaseAuth.getInstance().signInWithCredential(cred).await()
+        } catch (e: Exception) {
+            Log.w("LoginFragment", "Firebase Google sign-in failed: ${e.message}")
         }
     }
 
@@ -533,6 +579,44 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         return dao.getOwnerByPhone("91$mobile10")
             ?: dao.getOwnerByPhone(mobile10)
             ?: dao.getOwnerByPhone("+91$mobile10")
+    }
+
+    /** Fetch the owner from the cloud by phone and cache it locally for profile restore. */
+    private suspend fun fetchAndCacheOwnerByPhone(phone: String): Owner? {
+        val owner = FirestoreSyncManager.fetchOwnerByPhone(phone)
+            ?: FirestoreSyncManager.fetchOwnerByPhone("91${to10Digit(phone)}")
+        if (owner != null) cacheOwnerLocally(owner)
+        return owner
+    }
+
+    /**
+     * Persist a fetched owner into the local database and, if the profile screen has
+     * no data yet, seed it so the returning user sees their details without re-typing.
+     */
+    private suspend fun cacheOwnerLocally(owner: Owner) {
+        val db = MobileRepairApp.instance.database
+        db.ownerDao().upsert(owner)
+
+        val existing = db.userProfileDao().getUserProfile()
+        val profileEmpty = existing == null ||
+            (existing.name.isBlank() && existing.shopName.isBlank() && existing.phone.isBlank())
+        if (profileEmpty) {
+            val photoPath = if (owner.profilePhotoBase64.isNotBlank()) {
+                PhotoUtils.saveBase64ToFile(MobileRepairApp.instance, owner.profilePhotoBase64) ?: ""
+            } else ""
+            db.userProfileDao().insertOrUpdate(
+                UserProfile(
+                    id = 1,
+                    email = owner.email,
+                    name = owner.ownerName,
+                    phone = owner.phoneNumber,
+                    shopName = owner.businessName,
+                    shopAddress = owner.shopAddress,
+                    gstNo = owner.gstNumber,
+                    profilePhotoPath = photoPath
+                )
+            )
+        }
     }
 
     private fun to10Digit(phone: String): String {

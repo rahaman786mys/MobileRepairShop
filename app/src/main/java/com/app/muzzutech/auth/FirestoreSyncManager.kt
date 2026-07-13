@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 object FirestoreSyncManager {
 
@@ -125,6 +126,54 @@ object FirestoreSyncManager {
                 Log.w(TAG, "Error syncing owner", e)
             }
         }
+    }
+
+    /**
+     * Fetch an owner record from Firestore so a returning user's profile can be
+     * restored on login (including on a fresh device). Returns null if not found.
+     */
+    suspend fun fetchOwnerByPhone(phone: String): Owner? {
+        return try {
+            val snap = firestore.collection("owners")
+                .whereEqualTo("phone", phone).limit(1).get().await()
+            snap.documents.firstOrNull()?.let { docToOwner(it.id, it.data) }
+        } catch (e: Exception) {
+            Log.w(TAG, "fetchOwnerByPhone failed", e); null
+        }
+    }
+
+    suspend fun fetchOwnerByEmail(email: String): Owner? {
+        return try {
+            val snap = firestore.collection("owners")
+                .whereEqualTo("email", email).limit(1).get().await()
+            snap.documents.firstOrNull()?.let { docToOwner(it.id, it.data) }
+        } catch (e: Exception) {
+            Log.w(TAG, "fetchOwnerByEmail failed", e); null
+        }
+    }
+
+    private fun docToOwner(id: String, d: Map<String, Any?>?): Owner? {
+        if (d == null) return null
+        val createdAt = when (val c = d["createdAt"]) {
+            is com.google.firebase.Timestamp -> c.toDate().time
+            is Number -> c.toLong()
+            else -> System.currentTimeMillis()
+        }
+        val subExp = (d["subscriptionExpiresAt"] as? Number)?.toLong()?.takeIf { it > 0L }
+        return Owner(
+            id = id,
+            businessName = d["businessName"] as? String ?: "",
+            ownerName = d["ownerName"] as? String ?: "",
+            phoneNumber = d["phone"] as? String ?: "",
+            email = d["email"] as? String ?: "",
+            shopAddress = d["shopAddress"] as? String ?: "",
+            gstNumber = d["gstNumber"] as? String ?: "",
+            profilePhotoBase64 = d["profilePhotoBase64"] as? String ?: "",
+            googleAccountId = (d["googleAccountId"] as? String)?.takeIf { it.isNotEmpty() },
+            createdAt = createdAt,
+            subscriptionTier = d["subscriptionTier"] as? String ?: "FREE",
+            subscriptionExpiresAt = subExp
+        )
     }
 
     fun syncWorker(worker: ServiceMan, ownerId: String) {
