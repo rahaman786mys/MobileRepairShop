@@ -1,0 +1,65 @@
+rules_version = '2';
+
+// Firestore security rules for project mobile-shop-7922a.
+//
+// Model: the app (shop owners + workers) and the Founder Console both authenticate
+// with Firebase Auth, then read/write the shared collections below. Every rule
+// therefore requires an authenticated user. This is intentionally broad for a
+// single-founder deployment; see the note at the bottom for per-tenant hardening.
+//
+// Deploy:  firebase deploy --only firestore:rules --project mobile-shop-7922a
+// Or paste the /tickets block into Firebase Console -> Firestore Database -> Rules.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Support / change-request tickets: app users create them, founder reviews.
+    match /tickets/{ticketId} {
+      allow create: if signedIn();
+      allow read, update, delete: if signedIn();
+    }
+
+    // Owner + shop records (registration, profile restore, founder console).
+    match /owners/{ownerId} {
+      allow read, write: if signedIn();
+    }
+
+    // Workers, login audit, sessions.
+    match /workers/{workerId} {
+      allow read, write: if signedIn();
+    }
+    match /login_logs/{logId} {
+      allow read, write: if signedIn();
+    }
+    match /auth_sessions/{sessionId} {
+      allow read, write: if signedIn();
+    }
+
+    // Monetization + operations (managed from the Founder Console).
+    match /licenses/{licenseId} {
+      allow read, write: if signedIn();
+    }
+    match /subscriptions/{subscriptionId} {
+      allow read, write: if signedIn();
+    }
+    match /payments/{paymentId} {
+      allow read, write: if signedIn();
+    }
+    match /repairs/{repairId} {
+      allow read, write: if signedIn();
+    }
+    match /whatsapp_logs/{logId} {
+      allow read, write: if signedIn();
+    }
+  }
+}
+
+// NOTE ON HARDENING: the rules above let any authenticated user read/write these
+// collections. For stricter multi-tenant isolation you would, for example, gate
+// licenses/subscriptions/payments and cross-owner reads behind a founder claim
+// (request.auth.token.founder == true) and restrict owners/{id} to the matching
+// user. Ask before tightening so existing app flows are not broken.

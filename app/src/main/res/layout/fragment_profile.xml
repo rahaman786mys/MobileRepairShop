@@ -85,13 +85,6 @@
                         android:imeOptions="actionNext" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.gms.common.SignInButton
-                    android:id="@+id/btnLinkGoogle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_gravity="center_horizontal" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilProfilePhone"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -109,18 +102,6 @@
                         android:maxLength="15"
                         android:imeOptions="actionNext" />
                 </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRequestPhoneChange"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Request phone number change"
-                    android:textAllCaps="false"
-                    android:textSize="12sp"
-                    app:icon="@android:drawable/ic_menu_edit"
-                    app:iconSize="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilShopName"

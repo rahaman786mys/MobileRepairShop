@@ -15,10 +15,36 @@
         android:text="Submitting as: -" />
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilTicketCategory"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Request type">
+
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+            android:id="@+id/acTicketCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none"
+            android:focusable="false" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tvTicketWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="?attr/colorError"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilTicketSubject"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:hint="Subject">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -36,7 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:hint="Summary">
+        android:hint="Details">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etTicketSummary"

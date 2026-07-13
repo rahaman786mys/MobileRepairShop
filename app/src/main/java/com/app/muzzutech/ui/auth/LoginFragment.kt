@@ -219,9 +219,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         if (isRegisterMode) {
             lifecycleScope.launch {
                 val existing = findOwnerByPhoneVariants(mobile)
+                if (!isAdded) return@launch
                 if (existing != null) {
-                    if (!isAdded) return@launch
-                    promptAlreadyRegistered("phone number (+91 $mobile)", mobile)
+                    // Already registered — switch to Login and send a login OTP for the same number.
+                    Snackbar.make(binding.root, "This number is already registered — logging you in.", Snackbar.LENGTH_LONG).show()
+                    switchToLogin(mobile)
+                    proceedWithOtp(mobile)
                     return@launch
                 }
                 proceedWithOtp(mobile)
@@ -517,47 +520,41 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             val dao = MobileRepairApp.instance.database.ownerDao()
             val localOwner = dao.getOwnerByEmail(email)
             if (!isAdded || _binding == null) return@launch
-            when {
-                isRegisterMode && binding.layoutRegistrationDetails.isVisible -> {
-                    // Verifying email during phone registration — block if already used anywhere.
-                    val existing = localOwner ?: FirestoreSyncManager.fetchOwnerByEmail(email)
-                    if (!isAdded || _binding == null) return@launch
-                    if (existing != null) {
-                        promptAlreadyRegistered("email address ($email)", to10Digit(existing.phoneNumber))
-                    } else {
+
+            if (isRegisterMode) {
+                // If this email already has an account (here or in the cloud), switch to
+                // logging them in and restore their profile — no re-registration.
+                val owner = localOwner ?: run {
+                    firebaseSignInWithGoogle(idToken) // auth context for the cloud read
+                    FirestoreSyncManager.fetchOwnerByEmail(email)
+                }
+                if (!isAdded || _binding == null) return@launch
+                when {
+                    owner != null -> {
+                        cacheOwnerLocally(owner)
+                        Toast.makeText(requireContext(), "This email is already registered — logging you in.", Toast.LENGTH_LONG).show()
+                        loginSuccess(email, owner.id)
+                    }
+                    // New email being verified during the registration form — accept it.
+                    binding.layoutRegistrationDetails.isVisible -> {
                         binding.etEmail.setText(email)
                         emailVerifiedByGoogle = true
                         binding.btnVerifyEmailGoogle.text = "✓ Verified: $email"
                         binding.btnVerifyEmailGoogle.isEnabled = false
                         Toast.makeText(requireContext(), "Email verified via Google", Toast.LENGTH_SHORT).show()
                     }
+                    // Fresh "Register with Google" tap with no account — guide to OTP.
+                    else -> promptRegisterViaOtp(email)
                 }
-                isRegisterMode -> {
-                    // Fresh "Register with Google": log an existing user in (restoring from
-                    // cloud if needed), otherwise guide a new user to register via OTP.
-                    val owner = localOwner ?: run {
-                        firebaseSignInWithGoogle(idToken) // auth context for the cloud read
-                        FirestoreSyncManager.fetchOwnerByEmail(email)
-                    }
-                    if (!isAdded || _binding == null) return@launch
-                    if (owner != null) {
-                        cacheOwnerLocally(owner)
-                        Toast.makeText(requireContext(), "Welcome back! Restoring your profile...", Toast.LENGTH_LONG).show()
-                        loginSuccess(email, owner.id)
-                    } else {
-                        promptRegisterViaOtp(email)
-                    }
+            } else {
+                // Login mode — restore the profile from the cloud if it isn't on this device.
+                val owner = localOwner ?: run {
+                    firebaseSignInWithGoogle(idToken)
+                    FirestoreSyncManager.fetchOwnerByEmail(email)
                 }
-                else -> {
-                    // Login mode — restore the profile from the cloud if it isn't on this device.
-                    val owner = localOwner ?: run {
-                        firebaseSignInWithGoogle(idToken)
-                        FirestoreSyncManager.fetchOwnerByEmail(email)
-                    }
-                    if (!isAdded) return@launch
-                    if (owner != null) cacheOwnerLocally(owner)
-                    loginSuccess(email, owner?.id ?: "")
-                }
+                if (!isAdded) return@launch
+                if (owner != null) cacheOwnerLocally(owner)
+                loginSuccess(email, owner?.id ?: "")
             }
         }
     }

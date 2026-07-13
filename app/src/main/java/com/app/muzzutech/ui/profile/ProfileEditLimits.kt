@@ -22,10 +22,15 @@ object ProfileEditLimits {
     const val MAX_ADDRESS = 2
     const val MAX_PHOTO = 3
 
+    // Number of self-service phone-number change requests before it becomes
+    // manual-review only. The last allowed request shows a "last attempt" warning.
+    const val MAX_PHONE_CHANGE = 2
+
     const val KEY_NAME = "pf_edits_name"
     const val KEY_SHOP_NAME = "pf_edits_shopname"
     const val KEY_ADDRESS = "pf_edits_address"
     const val KEY_PHOTO = "pf_edits_photo"
+    const val KEY_PHONE_CHANGE = "pf_phone_change_reqs"
 
     fun count(context: Context, key: String): Int =
         SecurePrefs.appSettings(context).getInt(key, 0)

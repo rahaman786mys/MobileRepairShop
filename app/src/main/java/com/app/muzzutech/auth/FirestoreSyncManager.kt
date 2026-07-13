@@ -64,6 +64,7 @@ object FirestoreSyncManager {
         businessName: String,
         email: String,
         phone: String,
+        category: String = "",
         extra: Map<String, Any> = emptyMap(),
         onResult: (Boolean, String) -> Unit = { _, _ -> }
     ) {
@@ -72,6 +73,7 @@ object FirestoreSyncManager {
                 "subject" to subject,
                 "summary" to summary,
                 "type" to type,
+                "category" to category.ifEmpty { type },
                 "status" to "open",
                 "ownerId" to ownerId,
                 "userName" to userName,
