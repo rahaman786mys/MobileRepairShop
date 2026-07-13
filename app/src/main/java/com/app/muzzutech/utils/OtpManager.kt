@@ -26,7 +26,8 @@ object OtpManager {
         currentPhone = formattedPhone
         otpGeneratedAt = System.currentTimeMillis()
 
-        Log.d(TAG, "Generated OTP for $formattedPhone: $otp")
+        // Never log the OTP or full phone number (sensitive). Mask to last 4 digits.
+        Log.d(TAG, "OTP generated for ***${formattedPhone.takeLast(4)}")
 
         WhatsAppApiManager.sendOtp("+$formattedPhone", otp) { success, provider ->
             if (success) {

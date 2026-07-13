@@ -40,3 +40,13 @@
 
 # Keep VersionInfo for Gson deserialization
 -keep class com.app.muzzutech.utils.update.VersionInfo { *; }
+
+# --- Security hardening ---
+# Strip verbose/debug/info logs from release builds so sensitive values
+# (phones, tokens, ids) never reach logcat on shipped builds. Warnings/errors
+# are kept for crash diagnostics.
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+}
