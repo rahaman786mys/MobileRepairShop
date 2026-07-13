@@ -547,14 +547,23 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                     else -> promptRegisterViaOtp(email)
                 }
             } else {
-                // Login mode — restore the profile from the cloud if it isn't on this device.
+                // Login mode — only allow entry if this email actually has an account.
+                // (Restore from cloud if it isn't on this device.)
                 val owner = localOwner ?: run {
                     firebaseSignInWithGoogle(idToken)
                     FirestoreSyncManager.fetchOwnerByEmail(email)
                 }
                 if (!isAdded) return@launch
-                if (owner != null) cacheOwnerLocally(owner)
-                loginSuccess(email, owner?.id ?: "")
+                if (owner != null) {
+                    cacheOwnerLocally(owner)
+                    loginSuccess(email, owner.id)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "No account found for $email. Please register first.",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
@@ -576,6 +585,13 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         return dao.getOwnerByPhone("91$mobile10")
             ?: dao.getOwnerByPhone(mobile10)
             ?: dao.getOwnerByPhone("+91$mobile10")
+    }
+
+    /** Push the local owner record to Firestore so it shows in the Founder Console. */
+    private suspend fun ensureOwnerInCloud() {
+        MobileRepairApp.instance.database.ownerDao().getFirstOwner()?.let {
+            FirestoreSyncManager.syncOwner(it)
+        }
     }
 
     /** Fetch the owner from the cloud by phone and cache it locally for profile restore. */

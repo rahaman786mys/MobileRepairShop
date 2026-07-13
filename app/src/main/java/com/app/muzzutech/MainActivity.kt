@@ -78,10 +78,21 @@ Tap Let's Go to continue."""
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavigation.setupWithNavController(navController)
 
-        val prefs = SecurePrefs.authPrefs(this)
-        prefs.edit().putBoolean("is_logged_in", true).apply()
-
         val navDest = intent.getStringExtra(EXTRA_NAV_DEST)
+
+        // If already logged in (and not a test-launcher deep link), skip the login
+        // screen and go straight to the dashboard, clearing login from the back stack
+        // so "back" doesn't return to it.
+        val loggedIn = SecurePrefs.authPrefs(this).getBoolean("is_logged_in", false)
+        if (loggedIn && navDest == null) {
+            navController.navigate(
+                R.id.dashboardFragment, null,
+                androidx.navigation.NavOptions.Builder()
+                    .setPopUpTo(R.id.loginFragment, true)
+                    .build()
+            )
+        }
+
         if (navDest != null) {
             val destId = navDest.toDestId()
             Log.d("TestLauncher", "Main.onCreate: navDest=$navDest destId=$destId")
