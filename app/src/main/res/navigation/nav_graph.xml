@@ -89,6 +89,12 @@
         tools:layout="@layout/fragment_service_man_list" />
 
     <fragment
+        android:id="@+id/workerAccessListFragment"
+        android:name="com.app.muzzutech.ui.master.workeraccess.WorkerAccessListFragment"
+        android:label="Worker Logins"
+        tools:layout="@layout/fragment_worker_access" />
+
+    <fragment
         android:id="@+id/serviceManAddFragment"
         android:name="com.app.muzzutech.ui.master.servicemen.ServiceManAddFragment"
         android:label="Add Service Man"

@@ -123,6 +123,39 @@
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
+                <!-- Worker Logins -->
+                <LinearLayout
+                    android:id="@+id/cardWorkerLogins"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_service_premium"
+                        app:tint="@color/muzzu_text_sub" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:text="Worker Logins"
+                        style="@style/TextAppearance.MuZZu.Body"
+                        android:textColor="@color/muzzu_text_main" />
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_add"
+                        app:tint="@color/muzzu_text_sub" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/muzzu_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+
                 <!-- Customers -->
                 <LinearLayout
                     android:id="@+id/cardCustomers"

@@ -18,6 +18,14 @@ interface AuthSessionDao {
     @Query("UPDATE auth_sessions SET isActive = 0 WHERE id = :sessionId")
     suspend fun deactivateSession(sessionId: Long)
 
+    // Worker sessions are keyed by userId (= worker id) + userType, because a
+    // worker's firebaseUid is empty. Terminate/validity checks use these.
+    @Query("UPDATE auth_sessions SET isActive = 0 WHERE userId = :userId AND userType = :userType")
+    suspend fun deactivateSessionsByUser(userId: String, userType: String)
+
+    @Query("SELECT COUNT(*) FROM auth_sessions WHERE userId = :userId AND userType = :userType AND isActive = 1")
+    suspend fun countActiveSessionsByUser(userId: String, userType: String): Int
+
     @Query("SELECT * FROM auth_sessions WHERE userId = :userId AND userType = :userType AND isActive = 1")
     suspend fun getActiveSessionsByUser(userId: String, userType: String): List<AuthSession>
 }

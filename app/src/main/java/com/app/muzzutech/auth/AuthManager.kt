@@ -100,14 +100,14 @@ class AuthManager(private val context: Context) {
 
     suspend fun workerLogin(phone: String, password: String): AuthResult {
         return try {
-            val worker = db.serviceManDao().findByPhone(phone)
-                ?: return AuthResult(false, "Worker not found")
-
-            if (!worker.canLogin) return AuthResult(false, "Account disabled by owner")
-            if (!worker.isActive) return AuthResult(false, "Account is inactive")
-            if (!PasswordHasher.verify(password, worker.passwordHash)) {
-                return AuthResult(false, "Incorrect password")
+            // Credential check is the single source of truth in WorkerCredentialManager
+            // (honours canLogin + isActive + password, so owner termination blocks login).
+            val outcome = WorkerCredentialManager(db).authenticate(phone, password)
+            if (!outcome.success) {
+                FirestoreSyncManager.logLoginEvent(phone, "worker", "", "failed", "phone_password")
+                return AuthResult(false, outcome.message)
             }
+            val worker = outcome.worker!!
 
             val firebaseUid = worker.workerAuthUid ?: ""
             createSession(firebaseUid, "WORKER", firebaseUid, worker.id.toString())

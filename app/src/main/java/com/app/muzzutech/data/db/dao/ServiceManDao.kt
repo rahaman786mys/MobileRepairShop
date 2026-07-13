@@ -37,6 +37,11 @@ interface ServiceManDao {
     @Query("SELECT * FROM service_men WHERE ownerId = :ownerId AND canLogin = 1 ORDER BY name ASC")
     fun getActiveWorkersByOwner(ownerId: String): Flow<List<ServiceMan>>
 
+    // All login workers for an owner, including ones whose login was revoked
+    // (canLogin = 0), so the owner can regenerate a password for them.
+    @Query("SELECT * FROM service_men WHERE ownerId = :ownerId ORDER BY name ASC")
+    fun getWorkersByOwner(ownerId: String): Flow<List<ServiceMan>>
+
     @Query("SELECT COUNT(*) FROM service_men WHERE ownerId = :ownerId")
     suspend fun getWorkerCountByOwner(ownerId: String): Int
 
