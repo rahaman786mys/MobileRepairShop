@@ -73,9 +73,6 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         binding.cardServiceMen.setOnClickListener {
             findNavController().navigate(R.id.serviceManListFragment)
         }
-        binding.cardWorkerLogins.setOnClickListener {
-            findNavController().navigate(R.id.workerAccessListFragment)
-        }
         binding.cardCustomers.setOnClickListener {
             findNavController().navigate(R.id.customerListFragment)
         }
