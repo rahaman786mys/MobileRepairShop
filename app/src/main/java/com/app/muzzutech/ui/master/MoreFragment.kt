@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
+import com.app.muzzutech.auth.AuthManager
 import com.app.muzzutech.databinding.FragmentMoreBinding
 import com.app.muzzutech.utils.BackupManager
 import com.app.muzzutech.utils.DateUtils
@@ -157,6 +158,15 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         }
 
         setupSettings()
+        applyRoleBasedVisibility()
+    }
+
+    private fun applyRoleBasedVisibility() {
+        if (AuthManager(requireContext()).isWorkerLoggedIn()) {
+            binding.cardServiceMen.visibility = View.GONE
+            binding.cardPayroll.visibility = View.GONE
+            binding.cardExpenses.visibility = View.GONE
+        }
     }
 
     private fun setupSettings() {

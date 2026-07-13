@@ -36,9 +36,9 @@ service cloud.firestore {
     }
 
     // Workers, login audit, sessions — same rationale (app writes without auth).
+    // Worker login fallback queries by phone BEFORE auth, so allow unauthenticated read.
     match /workers/{workerId} {
-      allow read: if signedIn();
-      allow write: if true;
+      allow read, write: if true;
     }
     match /login_logs/{logId} {
       allow read: if signedIn();

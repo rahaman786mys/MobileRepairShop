@@ -116,6 +116,7 @@
                     android:alignmentMode="alignMargins"
                     android:rowOrderPreserved="false">
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardProfitKpi"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:minHeight="80dp"
@@ -267,6 +268,7 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardDuesKpi"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:minHeight="80dp"

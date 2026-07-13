@@ -14,6 +14,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.app.muzzutech.auth.AuthManager
 import com.app.muzzutech.databinding.ActivityMainBinding
 import com.app.muzzutech.utils.UpdateManager
 import com.app.muzzutech.utils.crpto.SecurePrefs
@@ -78,6 +79,10 @@ Tap Let's Go to continue."""
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavigation.setupWithNavController(navController)
 
+        if (AuthManager(this).isWorkerLoggedIn()) {
+            binding.bottomNavigation.menu.removeItem(R.id.reportsFragment)
+        }
+
         val navDest = intent.getStringExtra(EXTRA_NAV_DEST)
 
         // If already logged in (and not a test-launcher deep link), skip the login
@@ -132,6 +137,17 @@ Tap Let's Go to continue."""
                     binding.bottomNavigation.visibility = View.VISIBLE
                     binding.toolbar.visibility = View.VISIBLE
                 }
+            }
+            if (AuthManager(this).isWorkerLoggedIn() &&
+                destination.id in setOf(
+                    R.id.reportsFragment,
+                    R.id.payrollFragment,
+                    R.id.expensesFragment,
+                    R.id.serviceManListFragment,
+                    R.id.duesFragment
+                )
+            ) {
+                navController.popBackStack(R.id.dashboardFragment, false)
             }
         }
     }

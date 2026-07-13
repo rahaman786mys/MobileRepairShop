@@ -347,6 +347,35 @@ object FirestoreSyncManager {
         }
     }
 
+    /**
+     * Fetch a worker document from Firestore by phone number.
+     * Returns null if no document is found or on error.
+     * The caller is responsible for saving the result to Room.
+     */
+    suspend fun fetchWorkerByPhoneFromFirestore(phone: String): ServiceMan? {
+        return try {
+            val docs = firestore.collection("workers")
+                .whereEqualTo("phone", phone)
+                .get()
+                .await()
+            val d = docs.firstOrNull() ?: return null
+            ServiceMan(
+                name = d.getString("name") ?: "",
+                mobile = d.getString("phone") ?: phone,
+                ownerId = d.getString("ownerId") ?: "",
+                designation = d.getString("role") ?: "Technician",
+                passwordHash = d.getString("passwordHash") ?: return null,
+                workerAuthUid = d.getString("workerAuthUid") ?: "",
+                canLogin = d.getBoolean("canLogin") ?: true,
+                isActive = d.getBoolean("isActive") ?: true,
+                email = d.getString("workerAuthEmail") ?: ""
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Error fetching worker from Firestore", e)
+            null
+        }
+    }
+
     fun deleteWorkerFromFirestore(phone: String) {
         scope.launch {
             try {

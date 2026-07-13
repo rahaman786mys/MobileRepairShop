@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.app.muzzutech.MobileRepairApp
 import com.app.muzzutech.R
+import com.app.muzzutech.auth.AuthManager
 import com.app.muzzutech.databinding.FragmentDashboardBinding
 import com.app.muzzutech.utils.UpdateManager
 import kotlinx.coroutines.flow.collectLatest
@@ -44,6 +45,18 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     
     // Auto-check for updates every time Dashboard is opened to ensure "Suddenly" updates
     UpdateManager.checkForUpdates(requireActivity() as AppCompatActivity)
+
+    applyRoleBasedVisibility()
+  }
+
+  private fun applyRoleBasedVisibility() {
+    if (AuthManager(requireContext()).isWorkerLoggedIn()) {
+      binding.cardProfitKpi.visibility = View.GONE
+      binding.cardInvest.visibility = View.GONE
+      binding.cardDuesKpi.visibility = View.GONE
+      binding.cardDuesGrid.visibility = View.GONE
+      binding.cardReportsGrid.visibility = View.GONE
+    }
   }
 
   private fun updateGreeting() {

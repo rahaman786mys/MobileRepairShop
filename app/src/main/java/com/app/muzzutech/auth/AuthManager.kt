@@ -100,22 +100,32 @@ class AuthManager(private val context: Context) {
 
     suspend fun workerLogin(phone: String, password: String): AuthResult {
         return try {
-            // Credential check is the single source of truth in WorkerCredentialManager
-            // (honours canLogin + isActive + password, so owner termination blocks login).
+            // Try Room first (fast, offline-capable)
             val outcome = WorkerCredentialManager(db).authenticate(phone, password)
-            if (!outcome.success) {
-                FirestoreSyncManager.logLoginEvent(phone, "worker", "", "failed", "phone_password")
-                return AuthResult(false, outcome.message)
+            if (outcome.success) {
+                val worker = outcome.worker!!
+                val firebaseUid = worker.workerAuthUid ?: ""
+                createSession(firebaseUid, "WORKER", firebaseUid, worker.id.toString())
+                saveLoginState(firebaseUid, "WORKER", worker.id)
+                FirestoreSyncManager.logLoginEvent(worker.mobile ?: phone, "worker", worker.ownerId ?: "", "success", "phone_password", "", worker.name ?: "")
+                AuthResult(true, "Worker login successful", firebaseUid, "WORKER")
+            } else {
+                // Room failed — try Firestore fallback (handles fresh install, password regen, new device)
+                val fsWorker = FirestoreSyncManager.fetchWorkerByPhoneFromFirestore(phone.trim())
+                if (fsWorker != null && PasswordHasher.verify(password, fsWorker.passwordHash)) {
+                    // Save to Room for future logins
+                    val savedWorker = db.serviceManDao().insert(fsWorker)
+                    val worker = fsWorker.copy(id = savedWorker)
+                    val firebaseUid = worker.workerAuthUid ?: ""
+                    createSession(firebaseUid, "WORKER", firebaseUid, worker.id.toString())
+                    saveLoginState(firebaseUid, "WORKER", worker.id)
+                    FirestoreSyncManager.logLoginEvent(worker.mobile ?: phone, "worker", worker.ownerId ?: "", "success", "phone_password", "", worker.name ?: "")
+                    AuthResult(true, "Worker login successful (synced from cloud)", firebaseUid, "WORKER")
+                } else {
+                    FirestoreSyncManager.logLoginEvent(phone, "worker", "", "failed", "phone_password")
+                    AuthResult(false, outcome.message)
+                }
             }
-            val worker = outcome.worker!!
-
-            val firebaseUid = worker.workerAuthUid ?: ""
-            createSession(firebaseUid, "WORKER", firebaseUid, worker.id.toString())
-            saveLoginState(firebaseUid, "WORKER", worker.id)
-
-            FirestoreSyncManager.logLoginEvent(worker.mobile ?: phone, "worker", worker.ownerId ?: "", "success", "phone_password", "", worker.name ?: "")
-
-            AuthResult(true, "Worker login successful", firebaseUid, "WORKER")
         } catch (e: Exception) {
             FirestoreSyncManager.logLoginEvent(phone, "worker", "", "failed", "phone_password")
             AuthResult(false, e.message ?: "Login failed")
